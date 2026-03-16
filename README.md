@@ -8,33 +8,13 @@ Each project runs entirely in the browser with zero dependencies.
 
 ## 🗂️ Projects
 
-### 1. KDD Process — Interactive Data Mining Guide
+### 🗃️ Data Mining & Statistics
 
-> [`kdd_process/`](kdd_process/)
-
-An interactive, step-by-step visual explanation of the **Knowledge Discovery in Databases (KDD)** process — the foundational framework for Data Mining. Covers all 6 stages using a real Supermarket POS dataset, with live K-Means scatter plots, association rules, and a decision tree visualization.
-
-**🔗 Live Demo:** [kdd-process.netlify.app](https://kdd-process.netlify.app)
-
----
-
-### 2. Why Starters Use the Iris Dataset
-
-> [`why_start_with_iris/`](why_start_with_iris/)
-
-A beginner-friendly interactive guide explaining why the Iris dataset is the universal starting point in Data Science and Machine Learning. Walks through 7 reasons, a full ML pipeline, and includes 3 copy-ready Python code blocks (load → split → train KNN → evaluate).
-
-**🔗 Live Demo:** [why-starter-use-iris-dataset.netlify.app](https://why-starter-use-iris-dataset.netlify.app)
-
----
-
-### 3. Expected Value vs Mean
-
-> [`expected-value-vs-mean/`](expected-value-vs-mean/)
-
-A visual explainer on the difference between **Mean** (summarizing observed data) and **Expected Value** (predicting future outcomes using probabilities). Includes a live dice simulation to demonstrate the Law of Large Numbers and an interactive insurance premium calculator.
-
-**🔗 Live Demo:** [exspected-value-vs-mean.netlify.app](https://exspected-value-vs-mean.netlify.app)
+| # | Project | Demo | Repo |
+|---|---------|------|------|
+| 1 | KDD Process — Interactive Data Mining Guide | [kdd-process.netlify.app](https://kdd-process.netlify.app) | [`kdd_process/`](kdd_process/) |
+| 2 | Why Starters Use the Iris Dataset | [why-starter-use-iris-dataset.netlify.app](https://why-starter-use-iris-dataset.netlify.app) | [`why_start_with_iris/`](why_start_with_iris/) |
+| 3 | Expected Value vs Mean | [exspected-value-vs-mean.netlify.app](https://exspected-value-vs-mean.netlify.app) | [`expected-value-vs-mean/`](expected-value-vs-mean/) |
 
 ---
 
