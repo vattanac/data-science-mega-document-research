@@ -4,11 +4,13 @@ A collection of interactive, self-contained HTML explainers covering foundationa
 
 Each project runs entirely in the browser with zero dependencies.
 
+> **20 projects** across **7 categories**
+
 ---
 
 ## 🗂️ Projects
 
-### 🗃️ Data Mining & Statistics
+### 🗃️ Data Mining & Statistics `4 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
@@ -25,61 +27,61 @@ Projects from other repositories, grouped by topic.
 
 ---
 
-### 🔢 Eigenvalues & Eigenvectors
+### 🔢 Eigenvalues & Eigenvectors `5 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 4 | Eigenvalues & Eigenvectors — Case Study | [eigenvalues-eigenvectors-case-study.netlify.app](https://eigenvalues-eigenvectors-case-study.netlify.app/) | — |
-| 5 | Eigenfaces — Face Recognition with SVD | [eigenfaces-face-recognition-svd-doc.netlify.app](https://eigenfaces-face-recognition-svd-doc.netlify.app/) | [GitHub](https://github.com/vattanac/Eigenfaces-face-recognition-SVD.git) |
-| 6 | Eigenvalue & Eigenvector Resource | [eigenvalue-eigenvector-resource.netlify.app](https://eigenvalue-eigenvector-resource.netlify.app/) | — |
-| 7 | Eigenvectors Roadmap | [eigentvalues-eigenvectors-roadmap.netlify.app](https://eigentvalues-eigenvectors-roadmap.netlify.app/) | — |
-| 8 | Eigenvalues & Eigenvectors Tutorial | [eigentvalues-eigentvectors-tutorial.netlify.app](https://eigentvalues-eigentvectors-tutorial.netlify.app/) | — |
+| 1 | Eigenvalues & Eigenvectors — Case Study | [eigenvalues-eigenvectors-case-study.netlify.app](https://eigenvalues-eigenvectors-case-study.netlify.app/) | — |
+| 2 | Eigenfaces — Face Recognition with SVD | [eigenfaces-face-recognition-svd-doc.netlify.app](https://eigenfaces-face-recognition-svd-doc.netlify.app/) | [GitHub](https://github.com/vattanac/Eigenfaces-face-recognition-SVD.git) |
+| 3 | Eigenvalue & Eigenvector Resource | [eigenvalue-eigenvector-resource.netlify.app](https://eigenvalue-eigenvector-resource.netlify.app/) | — |
+| 4 | Eigenvectors Roadmap | [eigentvalues-eigenvectors-roadmap.netlify.app](https://eigentvalues-eigenvectors-roadmap.netlify.app/) | — |
+| 5 | Eigenvalues & Eigenvectors Tutorial | [eigentvalues-eigentvectors-tutorial.netlify.app](https://eigentvalues-eigentvectors-tutorial.netlify.app/) | — |
 
 ---
 
-### 📐 Singular Value Decomposition (SVD)
+### 📐 Singular Value Decomposition (SVD) `3 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 5 | Eigenfaces — Face Recognition with SVD | [eigenfaces-face-recognition-svd-doc.netlify.app](https://eigenfaces-face-recognition-svd-doc.netlify.app/) | [GitHub](https://github.com/vattanac/Eigenfaces-face-recognition-SVD.git) |
-| 14 | SVD Image Surgeon — Compress images with SVD | [svd-image-surgeon.netlify.app](https://svd-image-surgeon.netlify.app/) | — |
-| 15 | SVD Case Study | [svd-case-study.netlify.app](https://svd-case-study.netlify.app/) | — |
+| 1 | Eigenfaces — Face Recognition with SVD | [eigenfaces-face-recognition-svd-doc.netlify.app](https://eigenfaces-face-recognition-svd-doc.netlify.app/) | [GitHub](https://github.com/vattanac/Eigenfaces-face-recognition-SVD.git) |
+| 2 | SVD Image Surgeon — Compress images with SVD | [svd-image-surgeon.netlify.app](https://svd-image-surgeon.netlify.app/) | — |
+| 3 | SVD Case Study | [svd-case-study.netlify.app](https://svd-case-study.netlify.app/) | — |
 
 ---
 
-### 📊 Principal Component Analysis (PCA)
+### 📊 Principal Component Analysis (PCA) `2 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 10 | PCA Document — Conceptual explainer | [pca-document.netlify.app](https://pca-document.netlify.app/) | — |
-| 11 | PCA Problem & Solution | [pca-proble-solution.netlify.app](https://pca-proble-solution.netlify.app/) | — |
+| 1 | PCA Document — Conceptual explainer | [pca-document.netlify.app](https://pca-document.netlify.app/) | — |
+| 2 | PCA Problem & Solution | [pca-proble-solution.netlify.app](https://pca-proble-solution.netlify.app/) | — |
 
 ---
 
-### 🇰🇭 Khmer OCR
+### 🇰🇭 Khmer OCR `2 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 9 | Toward a Baseline for Khmer OCR — Case Study | [khmer-orc-case-study-presentation01.netlify.app](https://khmer-orc-case-study-presentation01.netlify.app/) | [GitHub](https://github.com/vattanac/khmer_ocr_architecture_case_study.git) |
-| 12 | Khmer OCR Case Study 2 | [khmer-orc-case-study2.netlify.app](https://khmer-orc-case-study2.netlify.app/) | — |
+| 1 | Toward a Baseline for Khmer OCR — Case Study | [khmer-orc-case-study-presentation01.netlify.app](https://khmer-orc-case-study-presentation01.netlify.app/) | [GitHub](https://github.com/vattanac/khmer_ocr_architecture_case_study.git) |
+| 2 | Khmer OCR Case Study 2 | [khmer-orc-case-study2.netlify.app](https://khmer-orc-case-study2.netlify.app/) | — |
 
 ---
 
-### 🌐 Graph Neural Networks & Physics
+### 🌐 Graph Neural Networks & Physics `2 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 13 | GNN Physics Case Study | [gnn-physic-case-study.netlify.app](https://gnn-physic-case-study.netlify.app/) | — |
-| 17 | Schrödinger Equation — Quantum Case Study | [schdigner-equation-casestudy-quantum1.netlify.app](https://schdigner-equation-casestudy-quantum1.netlify.app/) | — |
+| 1 | GNN Physics Case Study | [gnn-physic-case-study.netlify.app](https://gnn-physic-case-study.netlify.app/) | — |
+| 2 | Schrödinger Equation — Quantum Case Study | [schdigner-equation-casestudy-quantum1.netlify.app](https://schdigner-equation-casestudy-quantum1.netlify.app/) | — |
 
 ---
 
-### 📈 Regression & Signal Processing
+### 📈 Regression & Signal Processing `2 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 16 | 3D Regression Lab — Interactive visualization | [regression-lab.netlify.app](https://regression-lab.netlify.app/) | — |
-| 18 | Image 2D FFT Denoising — Presentation | [presentation-image-2d-fft-denoicing.netlify.app](https://presentation-image-2d-fft-denoicing.netlify.app/) | — |
+| 1 | 3D Regression Lab — Interactive visualization | [regression-lab.netlify.app](https://regression-lab.netlify.app/) | — |
+| 2 | Image 2D FFT Denoising — Presentation | [presentation-image-2d-fft-denoicing.netlify.app](https://presentation-image-2d-fft-denoicing.netlify.app/) | — |
 
 ---
 
