@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why the Iris Dataset? — A Data Science Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f3ee;
+    --card: #ffffff;
+    --ink: #1a1208;
+    --muted: #7a6e62;
+    --accent1: #c94f2c;
+    --accent2: #2e7d5a;
+    --accent3: #4a5fa8;
+    --accent-gold: #d4960a;
+    --border: #e0d8cf;
+    --tag-bg: #f0ebe4;
+    --code-bg: #1a1208;
+    --hero-bg: #1a1208;
+    --pipe-circle-bg: #1a1208;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0f0e0c;
+    --card: #1c1a17;
+    --ink: #f0ebe4;
+    --muted: #9e9488;
+    --accent1: #e06a48;
+    --accent2: #3da373;
+    --accent3: #6b82c9;
+    --accent-gold: #e8aa28;
+    --border: #2e2b26;
+    --tag-bg: #252320;
+    --code-bg: #0a0908;
+    --hero-bg: #0a0908;
+    --pipe-circle-bg: #252320;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { transition: background .3s; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    padding: 0 0 80px;
+    transition: background .3s, color .3s;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--hero-bg);
+    color: var(--ink);
+    padding: 80px 40px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: background .3s;
+  }
+  .hero-eyebrow { color: var(--accent-gold); }
+  .hero h1 { color: #f7f3ee; }
+  [data-theme="dark"] .hero h1 { color: var(--ink); }
+  .hero-sub { color: #c8bfb3; }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,79,44,.25) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 50% at 20% 100%, rgba(74,95,168,.2) 0%, transparent 60%);
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    line-height: 1.15;
+    max-width: 800px;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+  .hero h1 em { color: var(--accent-gold); font-style: italic; }
+  .hero-sub {
+    font-size: 1rem;
+    color: #c8bfb3;
+    max-width: 520px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-flowers {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-top: 48px;
+    position: relative;
+  }
+  .flower-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .flower-icon { font-size: 2.4rem; }
+  .flower-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .flower-badge.s .flower-name { color: var(--accent1); }
+  .flower-badge.v .flower-name { color: var(--accent2); }
+  .flower-badge.vg .flower-name { color: var(--accent3); }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section {
+    padding: 64px 0 0;
+  }
+  .step-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    margin-bottom: 10px;
+  }
+  .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+    font-weight: 700;
+    margin-bottom: 18px;
+    line-height: 1.25;
+  }
+  .section p { color: var(--muted); font-size: .975rem; margin-bottom: 14px; }
+  .section p strong { color: var(--ink); font-weight: 500; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 48px; height: 3px;
+    background: var(--accent1);
+    margin: 12px 0 24px;
+    border-radius: 2px;
+  }
+
+  /* ── CARD GRID ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-top: 28px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    transition: box-shadow .2s, transform .2s, background .3s, border-color .3s;
+  }
+  .card:hover { box-shadow: 0 8px 32px rgba(26,18,8,.08); transform: translateY(-2px); }
+  .card-icon { font-size: 1.8rem; margin-bottom: 14px; }
+  .card h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 8px; }
+  .card p { font-size: .875rem; color: var(--muted); margin: 0; }
+
+  /* ── FEATURE TABLE ── */
+  .feature-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 28px;
+    font-size: .9rem;
+    background: var(--card);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .feature-table thead tr {
+    background: var(--ink);
+    color: #f7f3ee;
+  }
+  .feature-table thead th {
+    padding: 14px 18px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .feature-table tbody tr { border-bottom: 1px solid var(--border); }
+  .feature-table tbody tr:last-child { border-bottom: none; }
+  .feature-table tbody tr:hover { background: var(--tag-bg); }
+  .feature-table td { padding: 13px 18px; color: var(--muted); }
+  .feature-table td:first-child { color: var(--ink); font-weight: 500; }
+  .unit-tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 9px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+  }
+
+  /* ── SPECIES CARDS ── */
+  .species-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 28px;
+  }
+  .species-card {
+    border-radius: 14px;
+    padding: 26px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .species-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: .06;
+    background: currentColor;
+  }
+  .species-card.s { border: 2px solid var(--accent1); color: var(--accent1); }
+  .species-card.v { border: 2px solid var(--accent2); color: var(--accent2); }
+  .species-card.vg { border: 2px solid var(--accent3); color: var(--accent3); }
+  .species-card .sp-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+  .species-card .sp-common {
+    font-size: .8rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: .8;
+    margin-bottom: 16px;
+  }
+  .sp-stat { display: flex; justify-content: space-between; font-size: .83rem; margin-top: 6px; color: var(--ink); }
+  .sp-stat span:last-child { font-family: 'DM Mono', monospace; font-weight: 500; }
+  .sp-icon { font-size: 2.2rem; margin-bottom: 12px; display: block; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 12px;
+    padding: 28px 28px;
+    margin-top: 24px;
+    overflow-x: auto;
+    position: relative;
+    transition: background .3s;
+  }
+  .code-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 18px;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+  .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #7a6e62;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-left: auto;
+  }
+  pre {
+    font-family: 'DM Mono', monospace;
+    font-size: .82rem;
+    line-height: 1.75;
+    color: #f0ebe4;
+  }
+  .kw { color: #c94f2c; }
+  .fn { color: #d4960a; }
+  .cm { color: #5a5248; }
+  .st { color: #4a8f6a; }
+  .num { color: #4a5fa8; }
+
+  /* ── PIPELINE ── */
+  .pipeline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+  .pipe-step {
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+  }
+  .pipe-step:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -12px;
+    top: 18px;
+    font-size: 1rem;
+    color: var(--accent-gold);
+    font-weight: bold;
+  }
+  .pipe-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--pipe-circle-bg);
+    color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    border: 3px solid var(--accent-gold);
+    transition: background .3s;
+  }
+  .pipe-step h4 { font-size: .8rem; font-weight: 500; color: var(--ink); }
+  .pipe-step p { font-size: .72rem; color: var(--muted); margin: 0; }
+
+  /* ── RESULT BOX ── */
+  .result-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent2);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-top: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: .82rem;
+    color: var(--muted);
+    line-height: 1.9;
+    transition: background .3s, border-color .3s;
+  }
+  .result-box .r-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .result-box .hi { color: var(--ink); font-weight: 500; }
+
+  /* ── WHY REASONS ── */
+  .reason-list {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .reason {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    transition: box-shadow .2s, background .3s, border-color .3s;
+  }
+  .reason:hover { box-shadow: 0 4px 20px rgba(26,18,8,.06); }
+  .reason-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--border);
+    line-height: 1;
+    min-width: 36px;
+  }
+  .reason-body h4 { font-weight: 500; font-size: 1rem; margin-bottom: 5px; }
+  .reason-body p { font-size: .875rem; color: var(--muted); margin: 0; }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table {
+    width: 100%; border-collapse: collapse;
+    margin-top: 28px; font-size: .875rem;
+    background: var(--card);
+    border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .compare-table thead tr { background: var(--tag-bg); }
+  .compare-table th { padding: 12px 18px; text-align: left; font-weight: 500; font-size: .85rem; border-bottom: 1px solid var(--border); }
+  .compare-table td { padding: 11px 18px; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent2); font-weight: 500; }
+  .no { color: var(--accent1); }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    margin-top: 80px;
+    padding: 40px 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: .82rem;
+  }
+  .footer strong { color: var(--ink); }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 8px 16px 8px 12px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    box-shadow: 0 2px 16px rgba(0,0,0,.12);
+    transition: background .3s, color .3s, border-color .3s, box-shadow .3s;
+    user-select: none;
+  }
+  .theme-toggle:hover {
+    color: var(--ink);
+    box-shadow: 0 4px 24px rgba(0,0,0,.16);
+  }
+  .theme-toggle .toggle-track {
+    width: 32px; height: 18px;
+    border-radius: 9px;
+    background: var(--border);
+    position: relative;
+    transition: background .3s;
+    flex-shrink: 0;
+  }
+  [data-theme="dark"] .theme-toggle .toggle-track {
+    background: var(--accent-gold);
+  }
+  .theme-toggle .toggle-thumb {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--card);
+    position: absolute;
+    top: 3px; left: 3px;
+    transition: transform .3s, background .3s;
+    box-shadow: 0 1px 4px rgba(0,0,0,.2);
+  }
+  [data-theme="dark"] .theme-toggle .toggle-thumb {
+    transform: translateX(14px);
+  }
+  .toggle-icon { font-size: 14px; line-height: 1; }
+
+  /* ── COPY BUTTON ── */
+  .code-block { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 7px;
+    color: #c8bfb3;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+    user-select: none;
+  }
+  .copy-btn:hover {
+    background: rgba(255,255,255,.15);
+    color: #f7f3ee;
+    border-color: rgba(255,255,255,.3);
+  }
+  .copy-btn.copied {
+    background: rgba(46,125,90,.3);
+    border-color: var(--accent2);
+    color: #5ecf9a;
+  }
+  .copy-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+  /* ── ANIMATIONS ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp .6s ease forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .section { animation: fadeUp .6s ease forwards; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 56px 24px 44px; }
+    .hero-flowers { gap: 32px; }
+    .pipeline { gap: 16px; }
+    .pipe-step:not(:last-child)::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">
+  <span class="toggle-icon" id="toggle-icon">☀️</span>
+  <div class="toggle-track"><div class="toggle-thumb"></div></div>
+  <span id="toggle-label">Light</span>
+</button>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Data Science Fundamentals</div>
+  <h1>Why Everyone Starts with the <em>Iris</em> Dataset</h1>
+  <p class="hero-sub">A step-by-step guide for beginners — from raw data to your first classifier, explained simply.</p>
+  <div class="hero-flowers">
+    <div class="flower-badge s"><span class="flower-icon">🌸</span><span class="flower-name">Setosa</span></div>
+    <div class="flower-badge v"><span class="flower-icon">🌿</span><span class="flower-name">Versicolor</span></div>
+    <div class="flower-badge vg"><span class="flower-icon">💜</span><span class="flower-name">Virginica</span></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STEP 1: WHAT IS IT -->
+  <div class="section">
+    <div class="step-label"><div class="step-num">1</div> What is the Iris Dataset?</div>
+    <h2>A Tiny Dataset About Flowers</h2>
+    <div class="divider"></div>
+    <p>The Iris dataset was introduced in <strong>1936</strong> by British statistician <strong>Ronald A. Fisher</strong>. It contains measurements of <strong>150 iris flowers</strong> from 3 different species — 50 flowers each.</p>
+    <p>Think of it like this: imagine you collected 150 iris flowers from a garden, measured 4 things on each flower, and wrote it all down in a table. That's the Iris dataset!</p>
+
+    <table class="feature-table">
+      <thead>
+        <tr>
+          <th>Column Name</th>
+          <th>What it measures</th>
+          <th>Unit</th>
+          <th>Example value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sepal Length</td>
+          <td>Length of the outer petal (sepal)</td>
+          <td><span class="unit-tag">cm</span></td>
+          <td>5.1</td>
+        </tr>
+        <tr>
+          <td>Sepal Width</td>
+          <td>Width of the outer petal (sepal)</td>
+          <td><span class="unit-tag">cm</span></td>
+          <td>3.5</td>
+        </tr>
+        <tr>
+          <td>Petal Length</td>
+          <td>Length of the inner petal</td>
+          <td><span class="unit-tag">cm</span></td>
+          <td>1.4</td>
+        </tr>
+        <tr>
+          <td>Petal Width</td>
+          <td>Width of the inner petal</td>
+          <td><span class="unit-tag">cm</span></td>
+          <td>0.2</td>
+        </tr>
+        <tr>
+          <td>Species</td>
+          <td>Which type of flower it is</td>
+          <td><span class="unit-tag">label</span></td>
+          <td>setosa</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- STEP 2: THREE SPECIES -->
+  <div class="section">
+    <div class="step-label"><div class="step-num">2</div> The Three Species</div>
+    <h2>Three Classes to Predict</h2>
+    <div class="divider" style="background:var(--accent2)"></div>
+    <p>Each flower belongs to one of <strong>three species</strong>. Your model's job is to learn the difference between them from the measurements alone.</p>
+
+    <div class="species-grid">
+      <div class="species-card s">
+        <span class="sp-icon">🌸</span>
+        <div class="sp-name">Iris setosa</div>
+        <div class="sp-common">Setosa · 50 samples</div>
+        <div class="sp-stat"><span>Avg. Petal Length</span><span>1.46 cm</span></div>
+        <div class="sp-stat"><span>Avg. Petal Width</span><span>0.24 cm</span></div>
+        <div class="sp-stat"><span>Difficulty</span><span>Easy 😊</span></div>
+      </div>
+      <div class="species-card v">
+        <span class="sp-icon">🌿</span>
+        <div class="sp-name">Iris versicolor</div>
+        <div class="sp-common">Versicolor · 50 samples</div>
+        <div class="sp-stat"><span>Avg. Petal Length</span><span>4.26 cm</span></div>
+        <div class="sp-stat"><span>Avg. Petal Width</span><span>1.33 cm</span></div>
+        <div class="sp-stat"><span>Difficulty</span><span>Medium 🤔</span></div>
+      </div>
+      <div class="species-card vg">
+        <span class="sp-icon">💜</span>
+        <div class="sp-name">Iris virginica</div>
+        <div class="sp-common">Virginica · 50 samples</div>
+        <div class="sp-stat"><span>Avg. Petal Length</span><span>5.55 cm</span></div>
+        <div class="sp-stat"><span>Avg. Petal Width</span><span>2.03 cm</span></div>
+        <div class="sp-stat"><span>Difficulty</span><span>Medium 🤔</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: WHY USE IT -->
+  <div class="section">
+    <div class="step-label"><div class="step-num">3</div> Why Use This Dataset?</div>
+    <h2>7 Reasons Every Beginner Uses Iris</h2>
+    <div class="divider" style="background:var(--accent3)"></div>
+
+    <div class="reason-list">
+      <div class="reason">
+        <div class="reason-num">01</div>
+        <div class="reason-body">
+          <h4>🔢 Small &amp; Simple — Easy to Understand</h4>
+          <p>Only 150 rows × 4 columns. You can literally read it in a spreadsheet. No overwhelming complexity when you're just learning.</p>
+        </div>
+      </div>
+      <div class="reason">
+        <div class="reason-num">02</div>
+        <div class="reason-body">
+          <h4>✅ Clean Data — No Messy Preprocessing</h4>
+          <p>No missing values, no duplicates, no weird formats. Beginners can focus on learning the algorithm, not data cleaning.</p>
+        </div>
+      </div>
+      <div class="reason">
+        <div class="reason-num">03</div>
+        <div class="reason-body">
+          <h4>🎯 Real Classification Problem</h4>
+          <p>It's a real multi-class classification problem (3 classes). Perfect for learning KNN, Decision Tree, SVM, Logistic Regression — all standard ML algorithms.</p>
+        </div>
+      </div>
+      <div class="reason">
+        <div class="reason-num">04</div>
+        <div class="reason-body">
+          <h4>📊 Visualizable in 2D</h4>
+          <p>4 features can be reduced to 2D using PCA or scatter plots. You can actually <em>see</em> the clusters — visual learning is very effective.</p>
+        </div>
+      </div>
+      <div class="reason">
+        <div class="reason-num">05</div>
+        <div class="reason-body">
+          <h4>⚖️ Balanced Classes</h4>
+          <p>50 samples per class. No class imbalance problem, so beginners learn pure algorithm concepts without worrying about resampling techniques.</p>
+        </div>
+      </div>
+      <div class="reason">
+        <div class="reason-num">06</div>
+        <div class="reason-body">
+          <h4>🔬 Good Benchmark — Measures Real Performance</h4>
+          <p>Setosa is easy to separate. Versicolor &amp; Virginica overlap slightly. This gives a meaningful accuracy challenge — not too easy, not too hard.</p>
+        </div>
+      </div>
+      <div class="reason">
+        <div class="reason-num">07</div>
+        <div class="reason-body">
+          <h4>📦 Built into Every Library</h4>
+          <p><code>sklearn.datasets.load_iris()</code> — one line of code. Available in Python, R, and almost every ML framework. Zero setup needed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: CODE EXAMPLE -->
+  <div class="section">
+    <div class="step-label"><div class="step-num">4</div> Hands-On Example</div>
+    <h2>Load &amp; Classify — Step by Step</h2>
+    <div class="divider" style="background:var(--accent1)"></div>
+    <p>Here is a complete Python example using <strong>scikit-learn</strong>. We will load the data, split it, train a K-Nearest Neighbors classifier, and check the accuracy.</p>
+
+    <!-- Step 4a: Load -->
+    <p><strong>Step A — Load the dataset</strong></p>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="code-label">Python · Step 1: Load Data</span>
+      </div>
+      <button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/></svg>Copy</button>
+      <pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> <span class="fn">load_iris</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># Load the iris dataset</span>
+iris = <span class="fn">load_iris</span>()
+
+<span class="cm"># Convert to a DataFrame for easy viewing</span>
+df = pd.<span class="fn">DataFrame</span>(iris.data, columns=iris.feature_names)
+df[<span class="st">'species'</span>] = iris.target  <span class="cm"># 0=setosa, 1=versicolor, 2=virginica</span>
+
+<span class="fn">print</span>(df.<span class="fn">head</span>())
+<span class="fn">print</span>(<span class="st">f"Shape: {df.shape}"</span>)  <span class="cm"># (150, 5)</span></pre>
+    </div>
+
+    <div class="result-box">
+      <div class="r-label">▶ Output</div>
+<span class="hi">   sepal length (cm)  sepal width (cm)  petal length (cm)  petal width (cm)  species</span>
+0              5.1             3.5               1.4              0.2        0
+1              4.9             3.0               1.4              0.2        0
+2              4.7             3.2               1.3              0.2        0
+3              4.6             3.1               1.5              0.2        0
+4              5.0             3.6               1.4              0.2        0
+
+<span class="hi">Shape: (150, 5)</span>
+    </div>
+
+    <!-- Step 4b: Split -->
+    <p style="margin-top:28px"><strong>Step B — Split into Training and Test sets</strong></p>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="code-label">Python · Step 2: Train/Test Split</span>
+      </div>
+      <button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/></svg>Copy</button>
+      <pre><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> <span class="fn">train_test_split</span>
+
+X = iris.data   <span class="cm"># Features: 4 measurements</span>
+y = iris.target  <span class="cm"># Labels: 0, 1, or 2</span>
+
+<span class="cm"># 80% train, 20% test</span>
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(
+    X, y,
+    test_size=<span class="num">0.2</span>,
+    random_state=<span class="num">42</span>
+)
+
+<span class="fn">print</span>(<span class="st">f"Train: {X_train.shape[0]} samples"</span>)   <span class="cm"># 120</span>
+<span class="fn">print</span>(<span class="st">f"Test:  {X_test.shape[0]} samples"</span>)    <span class="cm"># 30</span></pre>
+    </div>
+
+    <!-- Step 4c: Train & Predict -->
+    <p style="margin-top:28px"><strong>Step C — Train the Model and Predict</strong></p>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="code-label">Python · Step 3: Train KNN</span>
+      </div>
+      <button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/></svg>Copy</button>
+      <pre><span class="kw">from</span> sklearn.neighbors <span class="kw">import</span> <span class="fn">KNeighborsClassifier</span>
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> accuracy_score, classification_report
+
+<span class="cm"># Create model: "look at the 3 nearest neighbors"</span>
+model = <span class="fn">KNeighborsClassifier</span>(n_neighbors=<span class="num">3</span>)
+
+<span class="cm"># Train: model learns from training data</span>
+model.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="cm"># Predict: model guesses species for test data</span>
+y_pred = model.<span class="fn">predict</span>(X_test)
+
+<span class="cm"># Evaluate</span>
+acc = <span class="fn">accuracy_score</span>(y_test, y_pred)
+<span class="fn">print</span>(<span class="st">f"Accuracy: {acc:.2%}"</span>)
+<span class="fn">print</span>(<span class="fn">classification_report</span>(y_test, y_pred,
+      target_names=iris.target_names))</pre>
+    </div>
+
+    <div class="result-box">
+      <div class="r-label">▶ Output</div>
+<span class="hi">Accuracy: 100.00%</span>
+
+              precision    recall  f1-score   support
+
+      setosa       <span class="hi">1.00</span>      <span class="hi">1.00</span>      <span class="hi">1.00</span>        10
+  versicolor       <span class="hi">1.00</span>      <span class="hi">1.00</span>      <span class="hi">1.00</span>         9
+   virginica       <span class="hi">1.00</span>      <span class="hi">1.00</span>      <span class="hi">1.00</span>        11
+
+    accuracy                           <span class="hi">1.00</span>        30
+   macro avg       <span class="hi">1.00</span>      <span class="hi">1.00</span>      <span class="hi">1.00</span>        30
+weighted avg       <span class="hi">1.00</span>      <span class="hi">1.00</span>      <span class="hi">1.00</span>        30
+    </div>
+  </div>
+
+  <!-- STEP 5: WHAT DO RESULTS MEAN -->
+  <div class="section">
+    <div class="step-label"><div class="step-num">5</div> Understanding the Results</div>
+    <h2>What Do These Numbers Mean?</h2>
+    <div class="divider" style="background:var(--accent-gold)"></div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <h3>Accuracy 100%</h3>
+        <p>Our model correctly predicted all 30 test flowers. KNN works really well on Iris because the clusters are clearly separated in feature space.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Precision</h3>
+        <p>"Of all flowers I said were setosa, how many actually were?" 1.00 = 100% — never made a false positive mistake.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h3>Recall</h3>
+        <p>"Of all actual setosa flowers, how many did I find?" 1.00 = 100% — never missed a real flower of that type.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📐</div>
+        <h3>F1-Score</h3>
+        <p>The balance between Precision and Recall. 1.00 is perfect. This is a more reliable measure than accuracy alone.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6: PIPELINE -->
+  <div class="section">
+    <div class="step-label"><div class="step-num">6</div> The Learning Pipeline</div>
+    <h2>Every ML Project Follows This Flow</h2>
+    <div class="divider" style="background:var(--accent2)"></div>
+    <p>Iris teaches you the <strong>universal pipeline</strong> used in every real-world data science project.</p>
+
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-circle">📥</div>
+        <h4>Load Data</h4>
+        <p>load_iris()</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-circle">🔍</div>
+        <h4>Explore</h4>
+        <p>df.head() / describe()</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-circle">✂️</div>
+        <h4>Split</h4>
+        <p>train / test sets</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-circle">🧠</div>
+        <h4>Train</h4>
+        <p>model.fit()</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-circle">🔮</div>
+        <h4>Predict</h4>
+        <p>model.predict()</p>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-circle">📊</div>
+        <h4>Evaluate</h4>
+        <p>accuracy / F1</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 7: COMPARISON -->
+  <div class="section">
+    <div class="step-label"><div class="step-num">7</div> Compare with Other Datasets</div>
+    <h2>Why NOT Use Other Datasets to Start?</h2>
+    <div class="divider" style="background:var(--accent3)"></div>
+    <p>Here's how Iris compares to other popular datasets for beginners:</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Dataset</th>
+          <th>Size</th>
+          <th>Missing Values?</th>
+          <th>Easy to Visualize?</th>
+          <th>Good for Beginners?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🌸 Iris</td>
+          <td>150 rows, 4 cols</td>
+          <td><span class="yes">No ✓</span></td>
+          <td><span class="yes">Yes ✓</span></td>
+          <td><span class="yes">✅ Perfect</span></td>
+        </tr>
+        <tr>
+          <td>🏠 Boston Housing</td>
+          <td>506 rows, 13 cols</td>
+          <td><span class="yes">No ✓</span></td>
+          <td><span class="no">Harder</span></td>
+          <td><span class="yes">✅ Good</span></td>
+        </tr>
+        <tr>
+          <td>🚢 Titanic</td>
+          <td>891 rows, 11 cols</td>
+          <td><span class="no">Yes ✗</span></td>
+          <td><span class="no">Moderate</span></td>
+          <td><span class="no">⚠️ Needs Cleaning</span></td>
+        </tr>
+        <tr>
+          <td>🖼️ MNIST</td>
+          <td>70,000 rows, 784 cols</td>
+          <td><span class="yes">No ✓</span></td>
+          <td><span class="no">Complex</span></td>
+          <td><span class="no">❌ Too Big to Start</span></td>
+        </tr>
+        <tr>
+          <td>🏥 Diabetes</td>
+          <td>768 rows, 8 cols</td>
+          <td><span class="yes">No ✓</span></td>
+          <td><span class="no">Moderate</span></td>
+          <td><span class="yes">✅ OK</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="section">
+    <div class="step-label"><div class="step-num">✓</div> Summary</div>
+    <h2>Key Takeaways</h2>
+    <div class="divider" style="background:var(--accent1)"></div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🧪</div>
+        <h3>Perfect Test Ground</h3>
+        <p>Small, clean, balanced — it removes all distractions so you focus on learning the ML algorithm itself, not data problems.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📚</div>
+        <h3>Teaches Core Concepts</h3>
+        <p>Classification, features, labels, training, testing, accuracy — all the fundamental data science concepts in one tiny dataset.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚀</div>
+        <h3>Quick Wins = Motivation</h3>
+        <p>Getting 95–100% accuracy on your first project is motivating. It shows you that machine learning actually works before moving to harder problems.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌍</div>
+        <h3>Universal Standard</h3>
+        <p>Every textbook, tutorial, and course uses Iris. So when you learn it, you can follow any resource out there.</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  <strong>Iris Dataset</strong> — R.A. Fisher, 1936 &nbsp;·&nbsp; 150 samples &nbsp;·&nbsp; 4 features &nbsp;·&nbsp; 3 classes<br>
+  <span style="margin-top:6px;display:inline-block">Made for MSDE learners 🎓</span><br><br>
+  <span style="font-size:.78rem;color:#a09486">
+    &copy; 2025 <strong style="color:var(--ink)">Sim Vattanac</strong> &nbsp;·&nbsp; All rights reserved &nbsp;·&nbsp;
+    <a href="mailto:vattanacsim99@gmail.com" style="color:var(--accent-gold);text-decoration:none;font-family:'DM Mono',monospace;font-size:.75rem;">vattanacsim99@gmail.com</a>
+  </span>
+</div>
+
+<script>
+// ── THEME TOGGLE ──
+function applyTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('toggle-icon').textContent = dark ? '🌙' : '☀️';
+  document.getElementById('toggle-label').textContent = dark ? 'Dark' : 'Light';
+  localStorage.setItem('iris-theme', dark ? 'dark' : 'light');
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(!isDark);
+}
+
+// Apply saved theme on load
+(function() {
+  const saved = localStorage.getItem('iris-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved ? saved === 'dark' : prefersDark);
+})();
+
+// ── COPY CODE ──
+function copyCode(btn) {
+  const pre = btn.nextElementSibling;
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 8.5l3.5 3.5 7-7"/></svg>Copied!`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/></svg>Copy`;
+    }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 8.5l3.5 3.5 7-7"/></svg>Copied!`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/></svg>Copy`;
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>
