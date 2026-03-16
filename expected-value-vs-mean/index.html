@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expected Value vs Mean — Data Science Explainer</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0f1117;
+      --bg2:       #161b27;
+      --bg3:       #1e2538;
+      --surface:   #252d42;
+      --border:    #2e3850;
+      --text:      #e8eaf0;
+      --muted:     #8b93a8;
+      --dim:       #5a6278;
+      --blue:      #4f8ef7;
+      --blue-soft: #1a2d52;
+      --amber:     #f59e2e;
+      --amber-soft:#2e2010;
+      --teal:      #3ecfb2;
+      --teal-soft: #0e2e2a;
+      --purple:    #a78bfa;
+      --purple-soft:#1e1640;
+      --coral:     #f97066;
+      --coral-soft:#2e1512;
+      --green:     #4ade80;
+      --green-soft:#0d2218;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-serif:'DM Serif Display', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius:    12px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #0f1117 0%, #161b27 50%, #1a1040 100%);
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse, rgba(79,142,247,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--blue); background: var(--blue-soft);
+      border: 1px solid rgba(79,142,247,0.3);
+      padding: 5px 14px; border-radius: 999px; margin-bottom: 1.2rem;
+    }
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #e8eaf0 30%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 16px; color: var(--muted); max-width: 540px; margin: 0 auto 2rem;
+    }
+    .hero-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .pill {
+      font-size: 12px; font-weight: 500; padding: 4px 12px;
+      border-radius: 999px; border: 1px solid;
+    }
+    .pill-blue   { color: var(--blue);   background: var(--blue-soft);   border-color: rgba(79,142,247,0.3); }
+    .pill-amber  { color: var(--amber);  background: var(--amber-soft);  border-color: rgba(245,158,46,0.3); }
+    .pill-teal   { color: var(--teal);   background: var(--teal-soft);   border-color: rgba(62,207,178,0.3); }
+    .pill-purple { color: var(--purple); background: var(--purple-soft); border-color: rgba(167,139,250,0.3); }
+    .pill-coral  { color: var(--coral);  background: var(--coral-soft);  border-color: rgba(249,112,102,0.3); }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+    /* ── SECTION TITLES ── */
+    .section-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 6px;
+    }
+    .section-title {
+      font-family: var(--font-serif); font-size: 1.6rem; font-weight: 400;
+      color: var(--text); margin-bottom: 1rem;
+    }
+    .section-desc { font-size: 14px; color: var(--muted); margin-bottom: 1.5rem; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .card + .card { margin-top: 1rem; }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── CONCEPT CARDS ── */
+    .concept-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      position: relative; overflow: hidden;
+    }
+    .concept-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .concept-card.blue::before  { background: var(--blue); }
+    .concept-card.amber::before { background: var(--amber); }
+
+    .concept-card .big-symbol {
+      font-family: var(--font-serif); font-size: 3rem;
+      margin: 0.5rem 0; line-height: 1;
+    }
+    .concept-card.blue  .big-symbol { color: var(--blue); }
+    .concept-card.amber .big-symbol { color: var(--amber); }
+
+    .concept-card p { font-size: 13px; color: var(--muted); margin-bottom: 1rem; }
+    .concept-card ul { list-style: none; }
+    .concept-card ul li {
+      font-size: 13px; color: var(--muted); padding: 3px 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .concept-card ul li::before { content: '→'; color: var(--dim); font-size: 11px; }
+
+    /* ── FORMULA BOX ── */
+    .formula {
+      font-family: var(--font-mono); font-size: 13px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px 18px;
+      margin: 12px 0; line-height: 2; color: var(--teal);
+      overflow-x: auto;
+    }
+    .formula strong { color: var(--amber); font-weight: 500; }
+
+    /* ── STEP ROW ── */
+    .step-row { display: flex; gap: 14px; align-items: flex-start; margin: 14px 0; }
+    .step-num {
+      min-width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; flex-shrink: 0;
+    }
+    .step-num.blue   { background: var(--blue-soft);   color: var(--blue); }
+    .step-num.amber  { background: var(--amber-soft);  color: var(--amber); }
+    .step-num.teal   { background: var(--teal-soft);   color: var(--teal); }
+    .step-num.purple { background: var(--purple-soft); color: var(--purple); }
+    .step-content { flex: 1; font-size: 14px; color: var(--muted); padding-top: 6px; line-height: 1.6; }
+    .step-content strong { color: var(--text); }
+
+    /* ── DICE ── */
+    .dice-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; margin: 14px 0; }
+    @media (max-width: 500px) { .dice-grid { grid-template-columns: repeat(3,1fr); } }
+    .die {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px 6px;
+      text-align: center; transition: border-color 0.2s;
+    }
+    .die:hover { border-color: var(--blue); }
+    .die .face  { font-size: 22px; display: block; margin-bottom: 5px; }
+    .die .prob  { font-size: 11px; color: var(--dim); display: block; }
+    .die .wval  { font-size: 12px; font-weight: 500; color: var(--teal); display: block; margin-top: 3px; }
+
+    /* ── TABLE ── */
+    .eg-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 14px 0; }
+    .eg-table th {
+      text-align: left; color: var(--muted); font-weight: 500;
+      font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 8px 12px; border-bottom: 1px solid var(--border);
+    }
+    .eg-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+    .eg-table tr:last-child td { border-bottom: none; }
+    .eg-table .total-row { background: var(--bg3); }
+    .eg-table .total-row td { font-weight: 600; color: var(--amber); }
+    .eg-table .highlight { color: var(--teal); font-weight: 500; }
+
+    /* ── RESULT BOX ── */
+    .result-box {
+      border-radius: var(--radius-sm); padding: 12px 16px;
+      font-size: 13px; border: 1px solid;
+    }
+    .result-box .lbl { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .result-box .val { font-size: 24px; font-weight: 600; }
+    .result-box.blue  { background: var(--blue-soft);   border-color: rgba(79,142,247,0.3); }
+    .result-box.amber { background: var(--amber-soft);  border-color: rgba(245,158,46,0.3); }
+    .result-box.teal  { background: var(--teal-soft);   border-color: rgba(62,207,178,0.3); }
+    .result-box.blue  .val { color: var(--blue); }
+    .result-box.amber .val { color: var(--amber); }
+    .result-box.teal  .val { color: var(--teal); }
+
+    .result-row { display: flex; gap: 12px; margin: 1rem 0; }
+    .result-row .result-box { flex: 1; }
+
+    /* ── INTERACTIVE SLIDER ── */
+    .slider-row { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+    .slider-row label { font-size: 13px; color: var(--muted); min-width: 140px; }
+    .slider-row input[type=range] { flex: 1; accent-color: var(--blue); cursor: pointer; }
+    .slider-row .out { font-size: 13px; font-weight: 600; color: var(--blue); min-width: 48px; text-align: right; }
+
+    /* ── BAR CHART ── */
+    .bar-row { display: flex; align-items: center; gap: 10px; margin: 5px 0; font-size: 13px; }
+    .bar-row .lbl { min-width: 60px; color: var(--muted); text-align: right; font-size: 12px; }
+    .bar-row .bar-wrap { flex: 1; background: var(--bg3); border-radius: 4px; height: 22px; overflow: hidden; }
+    .bar-row .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 600; color: var(--bg); }
+    .bar-row .val { min-width: 36px; font-weight: 600; font-size: 12px; }
+
+    /* ── COMPARISON TABLE ── */
+    .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 1rem 0; }
+    .compare-table th {
+      padding: 10px 14px; text-align: left;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--muted); border-bottom: 1px solid var(--border);
+    }
+    .compare-table th:first-child { color: var(--dim); }
+    .compare-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    .compare-table .aspect { color: var(--muted); font-weight: 500; font-size: 12px; }
+
+    .tag {
+      display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px;
+      border-radius: 4px; margin-bottom: 4px;
+    }
+    .tag-blue   { background: var(--blue-soft);   color: var(--blue); }
+    .tag-amber  { background: var(--amber-soft);  color: var(--amber); }
+    .tag-teal   { background: var(--teal-soft);   color: var(--teal); }
+    .tag-coral  { background: var(--coral-soft);  color: var(--coral); }
+    .tag-green  { background: var(--green-soft);  color: var(--green); }
+    .tag-purple { background: var(--purple-soft); color: var(--purple); }
+
+    /* ── USE CASES ── */
+    .usecase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 1rem 0; }
+    .usecase-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.2rem;
+    }
+    .usecase-card .icon { font-size: 22px; margin-bottom: 8px; }
+    .usecase-card .uc-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .usecase-card .uc-body { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+    /* ── CALLOUT ── */
+    .callout {
+      border-radius: var(--radius-sm); padding: 14px 18px;
+      margin: 1rem 0; font-size: 13px; line-height: 1.7;
+      border-left: 3px solid;
+    }
+    .callout.info   { background: var(--blue-soft);   border-color: var(--blue);   color: #93bbf5; }
+    .callout.warn   { background: var(--amber-soft);  border-color: var(--amber);  color: #f5c87a; }
+    .callout.tip    { background: var(--teal-soft);   border-color: var(--teal);   color: #6de5cc; }
+    .callout.law    { background: var(--purple-soft); border-color: var(--purple); color: #c4b0fb; }
+
+    /* ── BUTTON ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-body); font-size: 13px; font-weight: 500;
+      padding: 8px 18px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--bg3);
+      color: var(--text); cursor: pointer; transition: all 0.15s;
+    }
+    .btn:hover { background: var(--surface); border-color: var(--blue); color: var(--blue); }
+    .btn:active { transform: scale(0.97); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 2.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--dim);
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">📊 Data Science Fundamentals</div>
+  <h1>Expected Value vs Mean</h1>
+  <p>Two powerful concepts that look similar — but answer completely different questions. Master both to think like a data scientist.</p>
+  <div class="hero-pills">
+    <span class="pill pill-blue">E[X] = Σ xᵢ · P(xᵢ)</span>
+    <span class="pill pill-amber">x̄ = Σxᵢ / n</span>
+    <span class="pill pill-teal">Law of Large Numbers</span>
+    <span class="pill pill-purple">Probability Theory</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── SECTION 1: Core Concept ── -->
+  <div class="section-label">Section 01</div>
+  <div class="section-title">The Core Difference</div>
+  <div class="section-desc">Both produce a single summary number — but they work with fundamentally different things.</div>
+
+  <div class="grid-2">
+    <div class="concept-card amber">
+      <span class="pill pill-amber" style="font-size:11px;">MEAN / AVERAGE</span>
+      <div class="big-symbol">x̄</div>
+      <p>Summarizes data you <strong style="color:var(--text)">already collected</strong> from the real world.</p>
+      <div class="formula" style="font-size:12px;">x̄ = (x₁ + x₂ + ... + xₙ) / n</div>
+      <ul>
+        <li>Works on observed, real data</li>
+        <li>All values treated equally</li>
+        <li>No probability needed</li>
+        <li>Describes the past</li>
+      </ul>
+    </div>
+    <div class="concept-card blue">
+      <span class="pill pill-blue" style="font-size:11px;">EXPECTED VALUE</span>
+      <div class="big-symbol">E[X]</div>
+      <p>Predicts the average outcome <strong style="color:var(--text)">before</strong> collecting data, using probabilities.</p>
+      <div class="formula" style="font-size:12px;">E[X] = Σ xᵢ · P(xᵢ)</div>
+      <ul>
+        <li>Works on probabilities</li>
+        <li>Each value weighted by chance</li>
+        <li>Used for decisions &amp; risk</li>
+        <li>Predicts the future</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout info">
+    💡 <strong>Simple Intuition:</strong> Mean looks <em>backward</em> at what happened. Expected Value looks <em>forward</em> at what will likely happen. When you have infinite data, the mean <em>converges</em> to the expected value — this is the Law of Large Numbers.
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ── SECTION 2: Dice Example ── -->
+  <div class="section-label">Section 02 — Step by Step</div>
+  <div class="section-title">Example 1: Rolling a Die 🎲</div>
+  <div class="section-desc">A classic example that shows both concepts clearly and side by side.</div>
+
+  <div class="card">
+    <div class="card-title" style="color: var(--blue);">Step 1 — Compute the Expected Value</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Each face has probability 1/6 ≈ 0.167. Multiply each outcome by its probability, then sum.</p>
+    <div class="dice-grid">
+      <div class="die"><span class="face">⚀</span><span class="prob">P = 1/6</span><span class="wval">1×1/6 = 0.17</span></div>
+      <div class="die"><span class="face">⚁</span><span class="prob">P = 1/6</span><span class="wval">2×1/6 = 0.33</span></div>
+      <div class="die"><span class="face">⚂</span><span class="prob">P = 1/6</span><span class="wval">3×1/6 = 0.50</span></div>
+      <div class="die"><span class="face">⚃</span><span class="prob">P = 1/6</span><span class="wval">4×1/6 = 0.67</span></div>
+      <div class="die"><span class="face">⚄</span><span class="prob">P = 1/6</span><span class="wval">5×1/6 = 0.83</span></div>
+      <div class="die"><span class="face">⚅</span><span class="prob">P = 1/6</span><span class="wval">6×1/6 = 1.00</span></div>
+    </div>
+    <div class="formula">
+      E[X] = 1×(1/6) + 2×(1/6) + 3×(1/6) + 4×(1/6) + 5×(1/6) + 6×(1/6)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = (1 + 2 + 3 + 4 + 5 + 6) / 6<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = 21 / 6 = <strong>3.5</strong>
+    </div>
+    <div class="callout tip" style="margin-top:10px;">You will never roll a 3.5 — but if you roll thousands of times, the average will be very close to 3.5.</div>
+  </div>
+
+  <div class="card" style="margin-top:1rem;">
+    <div class="card-title" style="color: var(--amber);">Step 2 — Simulate Rolls &amp; Compute Mean</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Roll the die many times and watch how the mean approaches the expected value of 3.5.</p>
+
+    <div class="slider-row">
+      <label>Number of rolls</label>
+      <input type="range" min="1" max="1000" value="10" id="nrolls" oninput="simulate()" />
+      <span class="out" id="nrolls-out">10</span>
+    </div>
+
+    <div id="sim-bars" style="margin:12px 0;"></div>
+
+    <div class="result-row">
+      <div class="result-box amber">
+        <div class="lbl">Mean of your rolls</div>
+        <div class="val" id="sim-mean">—</div>
+      </div>
+      <div class="result-box blue">
+        <div class="lbl">Expected Value</div>
+        <div class="val">3.5</div>
+      </div>
+      <div class="result-box teal">
+        <div class="lbl">Difference</div>
+        <div class="val" id="sim-diff">—</div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="simulate()" style="margin-top:8px;">↻ Re-roll</button>
+    <p style="font-size:12px;color:var(--dim);margin-top:10px;">As rolls increase → mean converges to 3.5 (Law of Large Numbers)</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ── SECTION 3: Insurance Example ── -->
+  <div class="section-label">Section 03 — Real World</div>
+  <div class="section-title">Example 2: Insurance Company 🏥</div>
+  <div class="section-desc">Insurance companies use Expected Value every day to set premiums and assess risk.</div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--blue);">Scenario: Car Insurance Annual Payout</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">The insurer doesn't know which individual will have an accident — but they know the probabilities.</p>
+
+    <table class="eg-table">
+      <thead>
+        <tr>
+          <th>Outcome</th>
+          <th>Payout ($)</th>
+          <th>Probability</th>
+          <th>Weighted Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>No accident</td>
+          <td>$0</td>
+          <td>0.90</td>
+          <td class="highlight">0 × 0.90 = $0</td>
+        </tr>
+        <tr>
+          <td>Minor accident</td>
+          <td>$2,000</td>
+          <td>0.08</td>
+          <td class="highlight">2,000 × 0.08 = $160</td>
+        </tr>
+        <tr>
+          <td>Major accident</td>
+          <td>$15,000</td>
+          <td>0.018</td>
+          <td class="highlight">15,000 × 0.018 = $270</td>
+        </tr>
+        <tr>
+          <td>Total loss</td>
+          <td>$50,000</td>
+          <td>0.002</td>
+          <td class="highlight">50,000 × 0.002 = $100</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="3">E[payout] — Expected cost per customer per year</td>
+          <td>= $530</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="formula">
+      E[X] = 0(0.90) + 2000(0.08) + 15000(0.018) + 50000(0.002)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = 0 + 160 + 270 + 100<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <strong>$530 per customer per year</strong>
+    </div>
+
+    <div class="callout warn" style="margin-top:12px;">
+      ⚠️ The insurer must charge <strong>more than $530</strong> to be profitable. The mean only helps AFTER collecting real claim data — expected value lets them plan BEFORE.
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1rem;">
+    <div class="card-title" style="color:var(--amber);">What if we just used the Mean?</div>
+    <div class="step-row">
+      <div class="step-num amber">1</div>
+      <div class="step-content">Last year, 1000 customers filed claims: 80 minor ($2,000), 18 major ($15,000), 2 total loss ($50,000), 900 none.</div>
+    </div>
+    <div class="step-row">
+      <div class="step-num amber">2</div>
+      <div class="step-content">Total paid = 80×2000 + 18×15000 + 2×50000 = $160,000 + $270,000 + $100,000 = <strong style="color:var(--text);">$530,000</strong></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num amber">3</div>
+      <div class="step-content">Mean per customer = $530,000 / 1000 = <strong style="color:var(--text);">$530</strong> — exactly the same! ✅</div>
+    </div>
+    <div class="callout law" style="margin-top:8px;">
+      ✨ <strong>Law of Large Numbers:</strong> With 1000 customers, the mean from real data ≈ expected value from probabilities. That's why the formula works!
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ── SECTION 4: Interactive Premium Calculator ── -->
+  <div class="section-label">Section 04 — Interactive</div>
+  <div class="section-title">Try It: Adjust the Probabilities</div>
+  <div class="section-desc">Change the risk probabilities below and see how the Expected Value (insurance premium floor) changes.</div>
+
+  <div class="card">
+    <div class="slider-row">
+      <label>Minor accident chance</label>
+      <input type="range" min="0" max="20" step="0.5" value="8" id="p-minor" oninput="calcPremium()" />
+      <span class="out" id="out-minor">8.0%</span>
+    </div>
+    <div class="slider-row">
+      <label>Major accident chance</label>
+      <input type="range" min="0" max="10" step="0.1" value="1.8" id="p-major" oninput="calcPremium()" />
+      <span class="out" id="out-major">1.8%</span>
+    </div>
+    <div class="slider-row">
+      <label>Total loss chance</label>
+      <input type="range" min="0" max="2" step="0.05" value="0.2" id="p-loss" oninput="calcPremium()" />
+      <span class="out" id="out-loss">0.2%</span>
+    </div>
+
+    <div id="premium-bars" style="margin:14px 0;"></div>
+
+    <div class="result-row">
+      <div class="result-box blue" style="flex:2;">
+        <div class="lbl">Expected Value (minimum premium)</div>
+        <div class="val" id="premium-ev">$530</div>
+      </div>
+      <div class="result-box amber">
+        <div class="lbl">Suggested premium (+20% profit)</div>
+        <div class="val" id="premium-suggest">$636</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ── SECTION 5: Data Science Use Cases ── -->
+  <div class="section-label">Section 05 — Applications</div>
+  <div class="section-title">When to Use Each in Data Science</div>
+  <div class="section-desc">Knowing which tool to reach for makes all the difference in real projects.</div>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Aspect</th>
+        <th style="color:var(--amber);">Mean (x̄)</th>
+        <th style="color:var(--blue);">Expected Value E[X]</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="aspect">Input data type</td>
+        <td>Observed / collected data</td>
+        <td>Probabilities + outcomes</td>
+      </tr>
+      <tr>
+        <td class="aspect">When to use</td>
+        <td>After data collection (EDA, reporting)</td>
+        <td>Before data (decision making, risk)</td>
+      </tr>
+      <tr>
+        <td class="aspect">Time orientation</td>
+        <td>Describes the <strong style="color:var(--amber);">past</strong></td>
+        <td>Predicts the <strong style="color:var(--blue);">future</strong></td>
+      </tr>
+      <tr>
+        <td class="aspect">Formula</td>
+        <td><span class="tag tag-amber">x̄ = Σxᵢ / n</span></td>
+        <td><span class="tag tag-blue">E[X] = Σ xᵢ·P(xᵢ)</span></td>
+      </tr>
+      <tr>
+        <td class="aspect">Example in DS</td>
+        <td>Average model accuracy across 5 folds</td>
+        <td>Expected revenue from a recommendation</td>
+      </tr>
+      <tr>
+        <td class="aspect">Used in</td>
+        <td>
+          <span class="tag tag-amber">EDA</span>
+          <span class="tag tag-amber">Statistics</span>
+          <span class="tag tag-amber">Feature engineering</span>
+        </td>
+        <td>
+          <span class="tag tag-blue">ML loss functions</span>
+          <span class="tag tag-blue">Reinforcement learning</span>
+          <span class="tag tag-blue">Risk modeling</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="aspect">Sensitive to outliers</td>
+        <td>Yes — a single outlier shifts mean</td>
+        <td>Yes — rare high-cost events matter!</td>
+      </tr>
+      <tr>
+        <td class="aspect">Relationship</td>
+        <td colspan="2" style="color:var(--teal);">With infinite data → Mean converges to Expected Value (Law of Large Numbers)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="usecase-grid" style="margin-top:1.5rem;">
+    <div class="usecase-card">
+      <div class="icon">🤖</div>
+      <div class="uc-title">Machine Learning</div>
+      <div class="uc-body">Loss functions like MSE use <strong>expected value</strong> of errors over the data distribution. Cross-validation computes the <strong>mean</strong> accuracy.</div>
+    </div>
+    <div class="usecase-card">
+      <div class="icon">🎮</div>
+      <div class="uc-title">Reinforcement Learning</div>
+      <div class="uc-body">Agents maximize <strong>expected reward</strong> E[R]. After many episodes, the <strong>mean reward</strong> is used to evaluate the policy.</div>
+    </div>
+    <div class="usecase-card">
+      <div class="icon">📈</div>
+      <div class="uc-title">A/B Testing</div>
+      <div class="uc-body">Compute the <strong>mean</strong> conversion rate for each variant. Use <strong>expected value</strong> to decide which variant to ship (accounting for revenue).</div>
+    </div>
+    <div class="usecase-card">
+      <div class="icon">💳</div>
+      <div class="uc-title">Credit Risk</div>
+      <div class="uc-body">Banks compute <strong>expected loss</strong> = P(default) × Loss Given Default. Historical default rates give the <strong>mean</strong> to estimate probabilities.</div>
+    </div>
+    <div class="usecase-card">
+      <div class="icon">🛍️</div>
+      <div class="uc-title">Recommendation Systems</div>
+      <div class="uc-body">Predict <strong>expected revenue</strong> from each recommendation. Train models on <strong>mean</strong> historical purchase values per user segment.</div>
+    </div>
+    <div class="usecase-card">
+      <div class="icon">🧬</div>
+      <div class="uc-title">Statistics &amp; Inference</div>
+      <div class="uc-body">The <strong>mean</strong> is the sample statistic. The <strong>expected value</strong> is the population parameter μ that the sample mean estimates.</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ── SECTION 6: Key Takeaways ── -->
+  <div class="section-label">Section 06 — Summary</div>
+  <div class="section-title">Key Takeaways</div>
+
+  <div class="step-row">
+    <div class="step-num blue">1</div>
+    <div class="step-content"><strong>Mean</strong> is for summarizing data you already have. Add up all values, divide by count. Simple, powerful, descriptive.</div>
+  </div>
+  <div class="step-row">
+    <div class="step-num blue">2</div>
+    <div class="step-content"><strong>Expected Value</strong> is for predicting the average outcome of a random process using known probabilities. Essential for decisions under uncertainty.</div>
+  </div>
+  <div class="step-row">
+    <div class="step-num teal">3</div>
+    <div class="step-content"><strong>Law of Large Numbers:</strong> As sample size → ∞, the sample mean converges to the expected value. This is why both concepts are deeply linked.</div>
+  </div>
+  <div class="step-row">
+    <div class="step-num purple">4</div>
+    <div class="step-content"><strong>In data science</strong>, you use <em>both</em>. Mean for EDA and reporting; Expected Value for modeling, risk, and decision making. Master both!</div>
+  </div>
+
+  <div class="callout law" style="margin-top:1.5rem;">
+    🎓 <strong>Final Rule of Thumb:</strong> If you're looking at data you collected → use the <span style="color:var(--amber);">Mean</span>. If you're modeling what will happen using probabilities → use the <span style="color:var(--blue);">Expected Value</span>.
+  </div>
+
+</div>
+
+<footer>
+  Data Science Explainer — Expected Value &amp; Mean &nbsp;·&nbsp; Built for learning 📊<br />
+  <span style="margin-top:6px;display:inline-block;">&copy; 2025 Sim Vattanac &nbsp;·&nbsp; <a href="mailto:vattanacsim99@gmail.com" style="color:var(--blue);text-decoration:none;">vattanacsim99@gmail.com</a></span>
+</footer>
+
+<script>
+  // ── DICE SIMULATION ──
+  function simulate() {
+    const n = parseInt(document.getElementById('nrolls').value);
+    document.getElementById('nrolls-out').textContent = n;
+
+    let rolls = Array.from({length: n}, () => Math.floor(Math.random() * 6) + 1);
+    let counts = [0,0,0,0,0,0];
+    rolls.forEach(r => counts[r-1]++);
+
+    let sum = rolls.reduce((a, b) => a + b, 0);
+    let mean = sum / n;
+    let diff = Math.abs(mean - 3.5);
+
+    document.getElementById('sim-mean').textContent = mean.toFixed(2);
+    document.getElementById('sim-diff').textContent = diff.toFixed(2);
+
+    let html = '';
+    let maxC = Math.max(...counts);
+    [1,2,3,4,5,6].forEach((face, i) => {
+      let pct = maxC > 0 ? (counts[i] / maxC * 100) : 0;
+      html += `<div class="bar-row">
+        <div class="lbl">⚅ ${face}</div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:${pct.toFixed(1)}%;background:#4f8ef7;">${counts[i] > 0 ? counts[i] : ''}</div></div>
+        <div class="val" style="color:var(--muted);">${(counts[i]/n*100).toFixed(1)}%</div>
+      </div>`;
+    });
+    document.getElementById('sim-bars').innerHTML = html;
+  }
+
+  // ── PREMIUM CALCULATOR ──
+  function calcPremium() {
+    let pMinor = parseFloat(document.getElementById('p-minor').value) / 100;
+    let pMajor = parseFloat(document.getElementById('p-major').value) / 100;
+    let pLoss  = parseFloat(document.getElementById('p-loss').value) / 100;
+
+    document.getElementById('out-minor').textContent = (pMinor * 100).toFixed(1) + '%';
+    document.getElementById('out-major').textContent = (pMajor * 100).toFixed(1) + '%';
+    document.getElementById('out-loss').textContent  = (pLoss  * 100).toFixed(2) + '%';
+
+    let ev = 0 + 2000 * pMinor + 15000 * pMajor + 50000 * pLoss;
+    document.getElementById('premium-ev').textContent = '$' + Math.round(ev).toLocaleString();
+    document.getElementById('premium-suggest').textContent = '$' + Math.round(ev * 1.2).toLocaleString();
+
+    let items = [
+      { label: 'Minor ($2k)', value: 2000 * pMinor, color: '#4f8ef7' },
+      { label: 'Major ($15k)', value: 15000 * pMajor, color: '#a78bfa' },
+      { label: 'Total loss ($50k)', value: 50000 * pLoss, color: '#f97066' },
+    ];
+    let maxV = Math.max(...items.map(x => x.value), 1);
+    let html = '';
+    items.forEach(item => {
+      let pct = (item.value / maxV * 100).toFixed(1);
+      html += `<div class="bar-row">
+        <div class="lbl" style="min-width:120px;font-size:11px;">${item.label}</div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${item.color};">$${Math.round(item.value)}</div></div>
+        <div class="val" style="color:${item.color};">$${Math.round(item.value)}</div>
+      </div>`;
+    });
+    document.getElementById('premium-bars').innerHTML = html;
+  }
+
+  // Init on load
+  simulate();
+  calcPremium();
+</script>
+</body>
+</html>
