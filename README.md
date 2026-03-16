@@ -15,6 +15,7 @@ Each project runs entirely in the browser with zero dependencies.
 | 1 | KDD Process — Interactive Data Mining Guide | [kdd-process.netlify.app](https://kdd-process.netlify.app) | [`kdd_process/`](kdd_process/) |
 | 2 | Why Starters Use the Iris Dataset | [why-starter-use-iris-dataset.netlify.app](https://why-starter-use-iris-dataset.netlify.app) | [`why_start_with_iris/`](why_start_with_iris/) |
 | 3 | Expected Value vs Mean | [exspected-value-vs-mean.netlify.app](https://exspected-value-vs-mean.netlify.app) | [`expected-value-vs-mean/`](expected-value-vs-mean/) |
+| 19 | Variance & Standard Deviation Guide | [variance-and-standard-deviation-guide.netlify.app](https://variance-and-standard-deviation-guide.netlify.app/) | — |
 
 ---
 
