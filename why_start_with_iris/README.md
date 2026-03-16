@@ -6,7 +6,7 @@
 
 ## 📌 Overview
 
-This project is a **single-file interactive HTML guide** that explains why the Iris dataset is the go-to starting point in Data Science. It is designed for students in introductory ML/DS courses (such as MSDE) who want a clear, visual, and step-by-step walkthrough — from understanding the data to running their first classifier in Python.
+This project is a **single-file interactive HTML guide** that explains why the Iris dataset is the go-to starting point in Data Science. It is designed for students in introductory ML/DS courses (such as MDSE) who want a clear, visual, and step-by-step walkthrough — from understanding the data to running their first classifier in Python.
 
 ---
 
@@ -172,4 +172,4 @@ Python 3.7+ recommended.
 
 ---
 
-*Made for MSDE Cohort 4 learners 🎓*
+*Made for MDSE Cohort 4 learners 🎓*

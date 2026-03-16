@@ -73,7 +73,7 @@ README.md              # This file
 
 ## 🎓 Academic Context
 
-This project was created as part of the **MSDE (Master of Science in Data Science and Engineering)** program — Cohort 4.
+This project was created as part of the **MDSE (Master of Data Science and Engineering)** program — Cohort 4.
 
 **Topic:** Data Mining — KDD Process  
 **Dataset used in examples:** Supermarket Point-of-Sale (POS) transactions  

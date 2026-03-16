@@ -1,6 +1,6 @@
 # 📚 Data Science Mega Document Research
 
-A collection of interactive, self-contained HTML explainers covering foundational Data Science and Machine Learning concepts — built for **MSDE (Master of Science in Data Engineering) Cohort 4**.
+A collection of interactive, self-contained HTML explainers covering foundational Data Science and Machine Learning concepts — built for **MDSE (Master of Data Science and Engineering) Cohort 4**.
 
 Each project runs entirely in the browser with zero dependencies.
 
@@ -132,7 +132,7 @@ All projects are built with:
 
 ## 🎓 Academic Context
 
-**Program:** MSDE — Master of Science in Data Engineering, Cohort 4
+**Program:** MDSE — Master of Data Science and Engineering, Cohort 4
 **Author:** Sim Vattanac
 **Contact:** [vattanacsim99@gmail.com](mailto:vattanacsim99@gmail.com)
 
