@@ -14,3 +14,4 @@
 16.[3D-Regression-lab]: https://regression-lab.netlify.app/
 17.[schdigner-equation-casestudy-quantum1]: https:/schdigner-equation-casestudy-quantum1.netlify.app/
 18.[presentation-image-2d-fft-denoicing]: https://presentation-image-2d-fft-denoicing.netlify.app/
+19.[variance-and-standard-deviation-guide]: https://variance-and-standard-deviation-guide.netlify.app/ 
