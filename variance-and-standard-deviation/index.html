@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Variance & Standard Deviation — Data Science Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1c2030;
+    --border: #2a2f42;
+    --accent: #5b9cf6;
+    --accent2: #f76c8a;
+    --accent3: #48d9a4;
+    --accent4: #f5a623;
+    --text: #e8ecf4;
+    --muted: #7a84a0;
+    --formula-bg: #0a0c12;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(91,156,246,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  }
+
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    line-height: 1.1;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.4s forwards;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent2);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 540px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    animation: bounce 2s ease-in-out infinite;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* SECTION */
+  section {
+    padding: 100px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .step-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .step-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 36px 0 12px;
+    color: var(--accent3);
+  }
+
+  p {
+    color: #c4cad8;
+    margin-bottom: 16px;
+    font-size: 1.025rem;
+  }
+
+  strong { color: var(--text); font-weight: 600; }
+
+  /* ANALOGY CARD */
+  .analogy-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent4);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin: 32px 0;
+    position: relative;
+  }
+
+  .analogy-card .emoji {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .analogy-card p { margin-bottom: 0; }
+
+  /* DATA TABLE */
+  .data-table-wrap {
+    overflow-x: auto;
+    margin: 28px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+  }
+
+  thead tr {
+    background: var(--surface2);
+  }
+
+  th {
+    padding: 14px 20px;
+    text-align: left;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  td.highlight { color: var(--accent2); font-weight: 600; }
+  td.pos { color: var(--accent3); }
+  td.neg { color: var(--accent2); }
+
+  tr:hover td { background: rgba(91,156,246,0.04); }
+
+  /* FORMULA BOX */
+  .formula-box {
+    background: var(--formula-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin: 28px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .formula-box::before {
+    content: 'FORMULA';
+    position: absolute;
+    top: 12px; right: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--border);
+  }
+
+  .formula-box .formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    color: var(--accent);
+    line-height: 2;
+  }
+
+  .formula-box .formula-name {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* CALCULATION STEPS */
+  .calc-steps {
+    counter-reset: step;
+    margin: 28px 0;
+  }
+
+  .calc-step {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+    align-items: start;
+  }
+
+  .calc-step-num {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .calc-step-body {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+  }
+
+  .calc-step-body .label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .calc-step-body .math {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    color: var(--accent3);
+  }
+
+  .calc-step-body p {
+    font-size: 0.92rem;
+    color: var(--muted);
+    margin-top: 6px;
+    margin-bottom: 0;
+  }
+
+  /* VISUAL BAR CHART */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    height: 200px;
+    margin: 36px 0 16px;
+    padding: 0 8px;
+  }
+
+  .bar-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .bar {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    position: relative;
+    transition: all 0.8s ease;
+    animation: growUp 1s ease forwards;
+    transform-origin: bottom;
+  }
+
+  @keyframes growUp {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  .bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .bar-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* COMPARISON CARDS */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 32px 0;
+  }
+
+  @media (max-width: 600px) {
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+  }
+
+  .compare-card .icon {
+    font-size: 2rem;
+    margin-bottom: 14px;
+  }
+
+  .compare-card h4 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+  }
+
+  .compare-card p { font-size: 0.92rem; margin-bottom: 0; }
+
+  .card-variance { border-top: 3px solid var(--accent2); }
+  .card-std { border-top: 3px solid var(--accent3); }
+
+  /* INSIGHT BOX */
+  .insight {
+    background: linear-gradient(135deg, rgba(91,156,246,0.08), rgba(72,217,164,0.05));
+    border: 1px solid rgba(91,156,246,0.25);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin: 36px 0;
+  }
+
+  .insight-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .insight p { color: #cdd4e6; margin-bottom: 0; }
+
+  /* REAL WORLD EXAMPLE */
+  .use-cases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .use-case {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px;
+    transition: border-color 0.3s;
+  }
+
+  .use-case:hover { border-color: var(--accent); }
+
+  .use-case .uc-icon {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+  }
+
+  .use-case h4 {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .use-case p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0;
+    line-height: 1.6;
+  }
+
+  /* SUMMARY TABLE */
+  .summary-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 28px 0;
+    font-size: 0.9rem;
+  }
+
+  .summary-row > div {
+    background: var(--surface);
+    padding: 16px 20px;
+  }
+
+  .summary-row .header > div {
+    background: var(--surface2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .sr-row { display: contents; }
+
+  .sr-row > div:first-child {
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 60px 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* INTERACTIVE DEMO */
+  .demo-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px;
+    margin: 40px 0;
+  }
+
+  .demo-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent4);
+    margin-bottom: 20px;
+  }
+
+  .demo-inputs {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .demo-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    width: 100px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .demo-input:focus { border-color: var(--accent); }
+
+  .demo-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .demo-btn:hover { opacity: 0.85; }
+
+  .demo-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .demo-result-card {
+    background: var(--formula-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .demo-result-card .result-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .demo-result-card .result-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--accent3);
+  }
+
+  .mean-line {
+    border-top: 2px dashed var(--accent4);
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .mean-line::after {
+    content: 'MEAN';
+    position: absolute;
+    top: -10px; right: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--accent4);
+    background: var(--bg);
+    padding: 0 4px;
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Data Science Fundamentals</div>
+  <h1>Variance &amp; <em>Standard Deviation</em></h1>
+  <p class="hero-sub">A step-by-step visual guide to understanding how data spreads — from zero to intuition.</p>
+  <div class="scroll-hint">↓ scroll to explore</div>
+</div>
+
+<!-- SECTION 1: INTUITION -->
+<section>
+  <div class="container">
+    <div class="step-label">Concept 01 — Why It Matters</div>
+    <h2>What Is "Spread" in Data?</h2>
+    <p>In data science, we don't just care about the <strong>average</strong>. We also care about how much the data <strong>spreads out</strong> around that average. Two datasets can have the same mean but look completely different.</p>
+
+    <div class="analogy-card">
+      <span class="emoji">🎯</span>
+      <p><strong>Analogy:</strong> Imagine two archers. Archer A always hits near the center — sometimes a little left, sometimes a little right. Archer B's shots are all over the place. Both have the same <em>average hit point</em>, but Archer A is far more <strong>consistent</strong>. Variance and Standard Deviation measure this consistency.</p>
+    </div>
+
+    <p>Let's take a real example. Suppose we have <strong>test scores</strong> from 6 students.</p>
+
+    <div class="data-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Score</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Alice</td><td class="highlight">72</td><td>—</td></tr>
+          <tr><td>Bob</td><td class="highlight">75</td><td>—</td></tr>
+          <tr><td>Carol</td><td class="highlight">80</td><td>—</td></tr>
+          <tr><td>David</td><td class="highlight">85</td><td>—</td></tr>
+          <tr><td>Eve</td><td class="highlight">88</td><td>—</td></tr>
+          <tr><td>Frank</td><td class="highlight">90</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The <strong>mean (average)</strong> = (72 + 75 + 80 + 85 + 88 + 90) / 6 = <strong>490 / 6 ≈ 81.67</strong></p>
+
+    <div class="bar-chart" id="scoreChart"></div>
+    <p style="text-align:center; font-size:0.82rem; color:var(--muted); font-family:'JetBrains Mono',monospace;">Student test scores · Mean = 81.67</p>
+  </div>
+</section>
+
+<!-- SECTION 2: VARIANCE -->
+<section>
+  <div class="container">
+    <div class="step-label">Concept 02 — Variance</div>
+    <h2>What Is Variance?</h2>
+    <p>Variance measures how <strong>far each data point is from the mean</strong>, on average. The bigger the variance, the more spread out the data is.</p>
+
+    <div class="formula-box">
+      <div class="formula">σ² = Σ (xᵢ − μ)² / N</div>
+      <div class="formula-name">Population Variance · σ² = sigma squared</div>
+    </div>
+
+    <p>Where:</p>
+    <ul style="color:#c4cad8; padding-left:24px; margin-bottom:20px; line-height:2; font-size:1.025rem;">
+      <li><strong>xᵢ</strong> = each individual value</li>
+      <li><strong>μ (mu)</strong> = the mean of all values</li>
+      <li><strong>N</strong> = total number of data points</li>
+      <li><strong>Σ</strong> = sum everything up</li>
+    </ul>
+
+    <h3>Step-by-Step Calculation</h3>
+
+    <div class="calc-steps">
+      <div class="calc-step">
+        <div class="calc-step-num">01</div>
+        <div class="calc-step-body">
+          <div class="label">Find the Mean</div>
+          <div class="math">μ = (72 + 75 + 80 + 85 + 88 + 90) / 6 = 81.67</div>
+          <p>Add all values, divide by count.</p>
+        </div>
+      </div>
+
+      <div class="calc-step">
+        <div class="calc-step-num">02</div>
+        <div class="calc-step-body">
+          <div class="label">Subtract Mean from Each Value → Get Deviation</div>
+          <div class="math">72 − 81.67 = −9.67 &nbsp;|&nbsp; 75 − 81.67 = −6.67 &nbsp;|&nbsp; 80 − 81.67 = −1.67</div>
+          <div class="math">85 − 81.67 = 3.33 &nbsp;|&nbsp; 88 − 81.67 = 6.33 &nbsp;|&nbsp; 90 − 81.67 = 8.33</div>
+          <p>Negative = below mean · Positive = above mean. Note: they always sum to 0!</p>
+        </div>
+      </div>
+
+      <div class="calc-step">
+        <div class="calc-step-num">03</div>
+        <div class="calc-step-body">
+          <div class="label">Square Each Deviation (to remove negatives)</div>
+          <div class="math">(−9.67)² = 93.51 &nbsp;|&nbsp; (−6.67)² = 44.49 &nbsp;|&nbsp; (−1.67)² = 2.79</div>
+          <div class="math">(3.33)² = 11.09 &nbsp;|&nbsp; (6.33)² = 40.07 &nbsp;|&nbsp; (8.33)² = 69.39</div>
+          <p>Squaring makes all values positive and penalizes big deviations more.</p>
+        </div>
+      </div>
+
+      <div class="calc-step">
+        <div class="calc-step-num">04</div>
+        <div class="calc-step-body">
+          <div class="label">Sum All Squared Deviations</div>
+          <div class="math">93.51 + 44.49 + 2.79 + 11.09 + 40.07 + 69.39 = 261.34</div>
+        </div>
+      </div>
+
+      <div class="calc-step">
+        <div class="calc-step-num">05</div>
+        <div class="calc-step-body">
+          <div class="label">Divide by N (number of data points)</div>
+          <div class="math">Variance σ² = 261.34 / 6 ≈ 43.56</div>
+          <p>This is the average of the squared deviations.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="data-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Score (xᵢ)</th>
+            <th>Deviation (xᵢ − μ)</th>
+            <th>Squared Deviation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Alice</td><td>72</td><td class="neg">−9.67</td><td class="highlight">93.51</td></tr>
+          <tr><td>Bob</td><td>75</td><td class="neg">−6.67</td><td class="highlight">44.49</td></tr>
+          <tr><td>Carol</td><td>80</td><td class="neg">−1.67</td><td class="highlight">2.79</td></tr>
+          <tr><td>David</td><td>85</td><td class="pos">+3.33</td><td class="highlight">11.09</td></tr>
+          <tr><td>Eve</td><td>88</td><td class="pos">+6.33</td><td class="highlight">40.07</td></tr>
+          <tr><td>Frank</td><td>90</td><td class="pos">+8.33</td><td class="highlight">69.39</td></tr>
+          <tr style="background:rgba(91,156,246,0.05)"><td><strong>SUM</strong></td><td><strong>490</strong></td><td>0.00</td><td class="highlight"><strong>261.34</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight">
+      <div class="insight-title">⚠️ The Problem with Variance</div>
+      <p>Variance is in <strong>squared units</strong>. If our scores are in "points", the variance is in "points²" — which is hard to interpret! That's why we need Standard Deviation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: STD DEV -->
+<section>
+  <div class="container">
+    <div class="step-label">Concept 03 — Standard Deviation</div>
+    <h2>What Is Standard Deviation?</h2>
+    <p>Standard Deviation is simply the <strong>square root of Variance</strong>. This brings it back to the original unit, making it human-readable and interpretable.</p>
+
+    <div class="formula-box">
+      <div class="formula">σ = √(Variance) = √(σ²)</div>
+      <div class="formula-name">Standard Deviation = square root of variance</div>
+    </div>
+
+    <div class="calc-steps">
+      <div class="calc-step">
+        <div class="calc-step-num">06</div>
+        <div class="calc-step-body">
+          <div class="label">Take the Square Root of Variance</div>
+          <div class="math">σ = √43.56 ≈ 6.60</div>
+          <p>The standard deviation is <strong>6.60 points</strong> — back in the same unit as our scores!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-title">💡 How to Interpret This</div>
+      <p>A standard deviation of <strong>6.60 points</strong> means that on average, each student's score differs from the mean (81.67) by about <strong>6.60 points</strong>. Most scores fall within the range of <strong>81.67 ± 6.60 = [75.07, 88.27]</strong>.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card card-variance">
+        <div class="icon">📐</div>
+        <h4>Variance</h4>
+        <p>Average of <em>squared</em> differences from mean. Hard to interpret (wrong units). Useful for math and comparing datasets.</p>
+      </div>
+      <div class="compare-card card-std">
+        <div class="icon">📏</div>
+        <h4>Standard Deviation</h4>
+        <p>Square root of variance. Easy to interpret (same unit as data). The go-to metric for spread in data science.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: POPULATION vs SAMPLE -->
+<section>
+  <div class="container">
+    <div class="step-label">Concept 04 — Population vs Sample</div>
+    <h2>A Critical Distinction</h2>
+    <p>In real data science, you're rarely working with the <em>entire population</em>. You have a <em>sample</em>. This changes the formula slightly.</p>
+
+    <div class="compare-grid">
+      <div class="compare-card" style="border-top: 3px solid var(--accent);">
+        <div class="icon">🌍</div>
+        <h4>Population (σ²)</h4>
+        <p>You have ALL data points.<br><br><code style="color:var(--accent); font-family:'JetBrains Mono',monospace;">σ² = Σ(xᵢ − μ)² / <strong>N</strong></code><br><br>Divide by N.</p>
+      </div>
+      <div class="compare-card" style="border-top: 3px solid var(--accent4);">
+        <div class="icon">🔬</div>
+        <h4>Sample (s²)</h4>
+        <p>You have only a SAMPLE of data.<br><br><code style="color:var(--accent4); font-family:'JetBrains Mono',monospace;">s² = Σ(xᵢ − x̄)² / <strong>(N−1)</strong></code><br><br>Divide by N−1 (Bessel's correction).</p>
+      </div>
+    </div>
+
+    <div class="analogy-card">
+      <span class="emoji">🏫</span>
+      <p><strong>Why N−1?</strong> When you only have a sample, you're <em>estimating</em> the true mean. Using N−1 corrects for this bias and gives a more accurate estimate of the true population variance. In Python's <code style="color:var(--accent3);">numpy.std()</code>, use <code style="color:var(--accent3);">ddof=1</code> for sample standard deviation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: INTERACTIVE DEMO -->
+<section>
+  <div class="container">
+    <div class="step-label">Concept 05 — Try It Yourself</div>
+    <h2>Live Calculator</h2>
+    <p>Enter up to 6 values to see variance and standard deviation calculated in real time.</p>
+
+    <div class="demo-section">
+      <div class="demo-title">🧮 Interactive Demo — Enter Your Numbers</div>
+      <div class="demo-inputs">
+        <input class="demo-input" type="number" id="v1" value="72" placeholder="Value 1">
+        <input class="demo-input" type="number" id="v2" value="75" placeholder="Value 2">
+        <input class="demo-input" type="number" id="v3" value="80" placeholder="Value 3">
+        <input class="demo-input" type="number" id="v4" value="85" placeholder="Value 4">
+        <input class="demo-input" type="number" id="v5" value="88" placeholder="Value 5">
+        <input class="demo-input" type="number" id="v6" value="90" placeholder="Value 6">
+        <button class="demo-btn" onclick="calculate()">Calculate</button>
+      </div>
+      <div class="demo-results">
+        <div class="demo-result-card">
+          <div class="result-label">Mean (μ)</div>
+          <div class="result-val" id="r-mean">81.67</div>
+        </div>
+        <div class="demo-result-card">
+          <div class="result-label">Variance (σ²)</div>
+          <div class="result-val" id="r-var" style="color:var(--accent2);">43.56</div>
+        </div>
+        <div class="demo-result-card">
+          <div class="result-label">Std Dev (σ)</div>
+          <div class="result-val" id="r-std">6.60</div>
+        </div>
+        <div class="demo-result-card">
+          <div class="result-label">Sample Std (s)</div>
+          <div class="result-val" id="r-sstd" style="color:var(--accent4);">7.23</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: REAL WORLD -->
+<section>
+  <div class="container">
+    <div class="step-label">Concept 06 — Real Applications</div>
+    <h2>Where Is This Used?</h2>
+    <p>Variance and Standard Deviation are fundamental to almost every area of data science.</p>
+
+    <div class="use-cases">
+      <div class="use-case">
+        <div class="uc-icon">📈</div>
+        <h4>Finance & Stock Market</h4>
+        <p>High std dev = high risk/volatility. Investors use it to measure how much a stock price fluctuates.</p>
+      </div>
+      <div class="use-case">
+        <div class="uc-icon">🤖</div>
+        <h4>Machine Learning</h4>
+        <p>Feature normalization (StandardScaler) divides by std dev so features are comparable during training.</p>
+      </div>
+      <div class="use-case">
+        <div class="uc-icon">🏭</div>
+        <h4>Quality Control</h4>
+        <p>Manufacturing uses std dev to ensure products meet specs. Low std dev = consistent products.</p>
+      </div>
+      <div class="use-case">
+        <div class="uc-icon">🧬</div>
+        <h4>Medical Research</h4>
+        <p>Clinical trials use std dev to measure how much patient responses vary from the average.</p>
+      </div>
+      <div class="use-case">
+        <div class="uc-icon">📊</div>
+        <h4>A/B Testing</h4>
+        <p>Std dev is used to calculate statistical significance when comparing two versions of a feature.</p>
+      </div>
+      <div class="use-case">
+        <div class="uc-icon">🌦️</div>
+        <h4>Weather Forecasting</h4>
+        <p>Variance in temperature data helps meteorologists understand how unpredictable the weather is.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: SUMMARY -->
+<section>
+  <div class="container">
+    <div class="step-label">Summary — Quick Reference</div>
+    <h2>Everything in One Place</h2>
+
+    <div class="data-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Formula</th>
+            <th>Our Example</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Mean</strong></td>
+            <td style="font-family:'JetBrains Mono',monospace; color:var(--accent)">Σxᵢ / N</td>
+            <td style="font-family:'JetBrains Mono',monospace">81.67</td>
+            <td>Center of data</td>
+          </tr>
+          <tr>
+            <td><strong>Deviation</strong></td>
+            <td style="font-family:'JetBrains Mono',monospace; color:var(--accent)">xᵢ − μ</td>
+            <td style="font-family:'JetBrains Mono',monospace">−9.67 to +8.33</td>
+            <td>Distance from mean</td>
+          </tr>
+          <tr>
+            <td><strong>Variance (pop.)</strong></td>
+            <td style="font-family:'JetBrains Mono',monospace; color:var(--accent2)">Σ(xᵢ−μ)² / N</td>
+            <td style="font-family:'JetBrains Mono',monospace">43.56</td>
+            <td>Avg squared spread</td>
+          </tr>
+          <tr>
+            <td><strong>Variance (sample)</strong></td>
+            <td style="font-family:'JetBrains Mono',monospace; color:var(--accent4)">Σ(xᵢ−x̄)² / (N−1)</td>
+            <td style="font-family:'JetBrains Mono',monospace">52.27</td>
+            <td>Estimated pop. variance</td>
+          </tr>
+          <tr>
+            <td><strong>Std Dev (pop.)</strong></td>
+            <td style="font-family:'JetBrains Mono',monospace; color:var(--accent3)">√(σ²)</td>
+            <td style="font-family:'JetBrains Mono',monospace">6.60</td>
+            <td>Avg spread in same unit</td>
+          </tr>
+          <tr>
+            <td><strong>Std Dev (sample)</strong></td>
+            <td style="font-family:'JetBrains Mono',monospace; color:var(--accent3)">√(s²)</td>
+            <td style="font-family:'JetBrains Mono',monospace">7.23</td>
+            <td>Sample spread estimate</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight" style="margin-top:40px;">
+      <div class="insight-title">🐍 Python Code</div>
+      <pre style="font-family:'JetBrains Mono',monospace; font-size:0.88rem; color:#c4cad8; line-height:2; overflow-x:auto;"><span style="color:var(--muted)"># Using NumPy</span>
+<span style="color:var(--accent)">import</span> numpy <span style="color:var(--accent)">as</span> np
+
+scores = [72, 75, 80, 85, 88, 90]
+
+mean     = np.mean(scores)         <span style="color:var(--muted)"># 81.67</span>
+variance = np.var(scores)          <span style="color:var(--muted)"># 43.56  (population)</span>
+std_dev  = np.std(scores)          <span style="color:var(--muted)"># 6.60   (population)</span>
+
+s_variance = np.var(scores, ddof=1)   <span style="color:var(--muted)"># 52.27  (sample)</span>
+s_std_dev  = np.std(scores, ddof=1)   <span style="color:var(--muted)"># 7.23   (sample)</span></pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Data Science Fundamentals · Variance & Standard Deviation · Built for learning
+  <br><br>
+  © 2025 Sim Vattanac &nbsp;·&nbsp; <a href="mailto:vattanacsim99@gmail.com" style="color:var(--accent); text-decoration:none;">vattanacsim99@gmail.com</a>
+</footer>
+
+<script>
+  // Draw bar chart
+  const scores = [72, 75, 80, 85, 88, 90];
+  const names = ['Alice','Bob','Carol','David','Eve','Frank'];
+  const colors = ['#f76c8a','#f5a623','#5b9cf6','#48d9a4','#b48eff','#f76c8a'];
+  const chart = document.getElementById('scoreChart');
+  const maxScore = 100;
+
+  scores.forEach((score, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'bar-wrap';
+
+    const valEl = document.createElement('div');
+    valEl.className = 'bar-val';
+    valEl.textContent = score;
+
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = (score / maxScore * 160) + 'px';
+    bar.style.background = `linear-gradient(180deg, ${colors[i]}, ${colors[i]}88)`;
+    bar.style.animationDelay = (i * 0.1) + 's';
+
+    const label = document.createElement('div');
+    label.className = 'bar-label';
+    label.textContent = names[i];
+
+    wrap.appendChild(valEl);
+    wrap.appendChild(bar);
+    wrap.appendChild(label);
+    chart.appendChild(wrap);
+  });
+
+  // Interactive calculator
+  function calculate() {
+    const ids = ['v1','v2','v3','v4','v5','v6'];
+    const vals = ids.map(id => {
+      const v = parseFloat(document.getElementById(id).value);
+      return isNaN(v) ? null : v;
+    }).filter(v => v !== null);
+
+    if (vals.length < 2) {
+      alert('Please enter at least 2 values.');
+      return;
+    }
+
+    const n = vals.length;
+    const mean = vals.reduce((a,b) => a+b, 0) / n;
+    const squaredDiffs = vals.map(v => Math.pow(v - mean, 2));
+    const sumSq = squaredDiffs.reduce((a,b) => a+b, 0);
+
+    const variance = sumSq / n;
+    const std = Math.sqrt(variance);
+    const sVariance = sumSq / (n - 1);
+    const sStd = Math.sqrt(sVariance);
+
+    document.getElementById('r-mean').textContent = mean.toFixed(2);
+    document.getElementById('r-var').textContent = variance.toFixed(2);
+    document.getElementById('r-std').textContent = std.toFixed(2);
+    document.getElementById('r-sstd').textContent = sStd.toFixed(2);
+  }
+
+  // Auto-calc on load
+  calculate();
+</script>
+</body>
+</html>
