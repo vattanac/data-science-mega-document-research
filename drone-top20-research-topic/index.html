@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drone Research 2026 — Sim Vattanac</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #07090D;
+  --bg2:     #0C1018;
+  --bg3:     #111822;
+  --bg4:     #18202C;
+  --surface: #1C2535;
+  --border:  rgba(120,200,255,0.09);
+  --border2: rgba(120,200,255,0.18);
+  --border3: rgba(120,200,255,0.30);
+  --cyan:    #7EC8E3;
+  --cyan2:   #A8DAEE;
+  --cyan-glow: rgba(126,200,227,0.10);
+  --cyan-dim:  rgba(126,200,227,0.35);
+  --accent:  #F9E05B;
+  --green:   #6EE7A0;
+  --coral:   #FF8A80;
+  --purple:  #C4A0FF;
+  --teal:    #5CE0D5;
+  --orange:  #FFB347;
+  --pink:    #FF8FAB;
+  --text:    #FFFFFF;
+  --text2:   #C8D8E8;
+  --text3:   #7A96B0;
+  --text4:   #3D5470;
+  --sidebar-w: 290px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Instrument Sans',sans-serif;
+  font-size:16px;
+  line-height:1.75;
+  display:flex;
+  min-height:100vh;
+}
+
+/* scanlines */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.012) 3px,rgba(0,0,0,0.012) 6px);
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* ambient */
+.ambient{
+  position:fixed;
+  top:-100px;left:calc(var(--sidebar-w) + 80px);
+  width:700px;height:700px;
+  background:radial-gradient(circle,rgba(126,200,227,0.055) 0%,transparent 65%);
+  pointer-events:none;z-index:0;
+  animation:drift 14s ease-in-out infinite alternate;
+}
+@keyframes drift{0%{transform:translate(0,0);}100%{transform:translate(60px,80px);}}
+
+/* ═══════════════════════════════
+   SIDEBAR
+═══════════════════════════════ */
+.sidebar{
+  position:fixed;
+  top:0;left:0;bottom:0;
+  width:var(--sidebar-w);
+  background:var(--bg2);
+  border-right:1px solid var(--border2);
+  display:flex;flex-direction:column;
+  z-index:200;
+  overflow:hidden;
+}
+.sidebar::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  opacity:0.55;
+}
+
+/* Brand */
+.brand{
+  padding:26px 22px 20px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.brand-row{display:flex;align-items:center;gap:11px;margin-bottom:10px;}
+.brand-icon{
+  width:36px;height:36px;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  flex-shrink:0;
+}
+.brand-icon::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(126,200,227,0.18),transparent);
+}
+.brand-name{
+  font-family:'Syne',sans-serif;
+  font-size:14px;font-weight:700;
+  letter-spacing:0.08em;
+  color:var(--cyan2);
+  text-transform:uppercase;
+}
+.brand-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;color:var(--text4);
+  letter-spacing:0.22em;text-transform:uppercase;
+  margin-top:1px;
+}
+.brand-author{
+  font-size:12.5px;color:var(--text3);margin-top:7px;
+}
+.brand-author span{color:var(--cyan);}
+
+/* Nav */
+.nav{
+  flex:1;overflow-y:auto;padding:14px 0 10px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--surface) transparent;
+}
+.nav::-webkit-scrollbar{width:3px;}
+.nav::-webkit-scrollbar-thumb{background:var(--surface);border-radius:2px;}
+
+.nav-section-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:0.28em;text-transform:uppercase;
+  color:var(--text4);
+  padding:14px 22px 5px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 22px;
+  cursor:pointer;
+  border-left:2px solid transparent;
+  transition:all 0.15s;
+  color:var(--text3);
+  font-size:13px;
+  text-decoration:none;
+  margin:0;
+}
+.nav-item:hover{
+  background:var(--cyan-glow);
+  color:var(--cyan2);
+  border-left-color:var(--cyan-dim);
+}
+.nav-item.active{
+  background:rgba(126,200,227,0.08);
+  color:var(--cyan);
+  border-left-color:var(--cyan);
+}
+.nav-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--text4);
+  min-width:22px;flex-shrink:0;
+  transition:color 0.15s;
+}
+.nav-item.active .nav-num,.nav-item:hover .nav-num{color:var(--cyan-dim);}
+.nav-label{flex:1;line-height:1.3;}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* Sidebar footer */
+.sidebar-foot{
+  padding:16px 22px;
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.s-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.s-stat{
+  text-align:center;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:10px 4px;
+}
+.s-val{
+  font-family:'Syne',sans-serif;
+  font-size:1.15rem;font-weight:700;
+  color:var(--cyan);display:block;line-height:1;
+}
+.s-lbl{
+  font-family:'JetBrains Mono',monospace;
+  font-size:8.5px;letter-spacing:0.1em;
+  color:var(--text4);text-transform:uppercase;
+  margin-top:4px;display:block;
+}
+
+/* ═══════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════ */
+.main{
+  margin-left:var(--sidebar-w);
+  flex:1;
+  position:relative;z-index:1;
+  min-height:100vh;
+}
+
+/* Hero */
+.hero{
+  padding:72px 64px 64px;
+  border-bottom:1px solid var(--border);
+  position:relative;
+  overflow:hidden;
+}
+.hero-grid-bg{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:52px 52px;
+  mask-image:radial-gradient(ellipse 70% 90% at 20% 50%,black 20%,transparent 100%);
+}
+.hero-kicker{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:0.28em;text-transform:uppercase;
+  color:var(--cyan);margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;
+}
+.hero-kicker::before{
+  content:'';width:28px;height:1px;background:var(--cyan);opacity:0.6;
+}
+.hero h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(2.6rem,4.5vw,4.2rem);
+  font-weight:800;
+  line-height:1.06;
+  color:#FFFFFF;
+  max-width:760px;
+  letter-spacing:-0.02em;
+}
+.hero h1 .hl{color:var(--cyan);}
+.hero-desc{
+  font-size:17px;
+  color:var(--text2);
+  max-width:580px;
+  margin-top:22px;
+  line-height:1.75;
+}
+.hero-chips{
+  display:flex;flex-wrap:wrap;gap:10px;
+  margin-top:32px;
+}
+.chip{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:0.06em;
+  padding:6px 14px;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:100px;
+  color:var(--text2);
+}
+
+/* Content area */
+.content{
+  padding:0 64px 80px;
+  max-width:1000px;
+}
+
+/* Section heading */
+.section-head{
+  padding:52px 0 8px;
+  display:flex;align-items:center;gap:16px;
+}
+.section-head-line{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:0.28em;text-transform:uppercase;
+  color:var(--text4);
+}
+.section-head-line::after{
+  content:'';display:inline-block;
+  width:40px;height:1px;
+  background:var(--border2);
+  vertical-align:middle;margin-left:12px;
+}
+
+/* ── IDEA CARD ── */
+.idea{
+  margin-bottom:28px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  transition:border-color 0.2s;
+}
+.idea:hover{border-color:var(--border2);}
+
+.idea-header{
+  padding:26px 30px 22px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+  display:flex;align-items:flex-start;gap:20px;
+  position:relative;
+}
+.idea-header::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--border2),transparent);
+}
+
+.idea-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;font-weight:500;
+  color:var(--text4);
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:5px 9px;
+  flex-shrink:0;
+  margin-top:3px;
+  transition:all 0.2s;
+}
+.idea:hover .idea-num{border-color:var(--border2);color:var(--text3);}
+.idea.open .idea-num{background:var(--cyan-glow);border-color:var(--cyan-dim);color:var(--cyan);}
+
+.idea-head-text{flex:1;}
+
+.idea-title{
+  font-family:'Syne',sans-serif;
+  font-size:18px;font-weight:700;
+  color:#FFFFFF;
+  line-height:1.25;
+  margin-bottom:5px;
+  letter-spacing:-0.01em;
+}
+.idea-subtitle{
+  font-size:14px;
+  color:var(--text3);
+  font-style:italic;
+  line-height:1.4;
+}
+
+.idea-meta{
+  display:flex;align-items:center;gap:10px;
+  margin-top:12px;flex-wrap:wrap;
+}
+
+.tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+  padding:4px 11px;border-radius:100px;font-weight:500;
+}
+.tag-ai    {background:rgba(196,160,255,0.12);color:#C4A0FF;border:1px solid rgba(196,160,255,0.25);}
+.tag-env   {background:rgba(110,231,160,0.12);color:#6EE7A0;border:1px solid rgba(110,231,160,0.25);}
+.tag-med   {background:rgba(255,138,128,0.12);color:#FF8A80;border:1px solid rgba(255,138,128,0.25);}
+.tag-data  {background:rgba(126,200,227,0.12);color:#7EC8E3;border:1px solid rgba(126,200,227,0.25);}
+.tag-energy{background:rgba(92,224,213,0.12);color:#5CE0D5;border:1px solid rgba(92,224,213,0.25);}
+.tag-sec   {background:rgba(249,224,91,0.12);color:#F9E05B;border:1px solid rgba(249,224,91,0.25);}
+.tag-her   {background:rgba(255,143,171,0.12);color:#FF8FAB;border:1px solid rgba(255,143,171,0.25);}
+.tag-inf   {background:rgba(255,179,71,0.12);color:#FFB347;border:1px solid rgba(255,179,71,0.25);}
+
+.diff{
+  display:flex;align-items:center;gap:5px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--text4);
+  margin-left:auto;
+}
+.diff-pip{width:14px;height:4px;border-radius:2px;background:var(--bg4);}
+.diff-pip.on{background:var(--cyan);}
+
+.chevron{
+  color:var(--text4);
+  transition:transform 0.3s;
+  flex-shrink:0;
+  margin-top:2px;
+  font-size:18px;
+  line-height:1;
+}
+.idea.open .chevron{transform:rotate(180deg);color:var(--cyan);}
+
+/* Collapsible body */
+.idea-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+.idea.open .idea-body{max-height:2000px;}
+
+.idea-inner{padding:28px 30px 30px;}
+
+/* Sections inside card */
+.block{margin-bottom:26px;}
+.block:last-child{margin-bottom:0;}
+.block-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--cyan);
+  margin-bottom:10px;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.block-label svg{opacity:0.7;}
+
+.block p{
+  font-size:15.5px;
+  color:#D8E8F5;
+  line-height:1.8;
+}
+.block p + p{margin-top:12px;}
+
+.highlight{
+  background:var(--bg3);
+  border-left:3px solid var(--cyan);
+  padding:16px 20px;
+  border-radius:0 8px 8px 0;
+  margin:16px 0;
+}
+.highlight p{
+  font-size:15px !important;
+  color:#FFFFFF !important;
+  font-style:italic;
+}
+
+.metrics{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;margin-top:10px;
+}
+.metric{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px;text-align:center;
+}
+.metric-val{
+  font-family:'Syne',sans-serif;
+  font-size:1.5rem;font-weight:700;
+  color:var(--cyan);display:block;line-height:1;
+}
+.metric-lbl{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text3);margin-top:6px;display:block;
+}
+
+.stack{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.pill{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  padding:5px 13px;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:6px;
+  color:var(--text2);
+}
+
+/* ── FOOTER ── */
+.page-footer{
+  border-top:1px solid var(--border);
+  padding:36px 64px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.footer-left{
+  font-family:'Syne',sans-serif;
+  font-size:1rem;font-weight:600;color:#FFFFFF;
+}
+.footer-right{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--text4);
+  letter-spacing:0.08em;
+}
+
+/* ── MOBILE ── */
+.mob-toggle{
+  display:none;
+  position:fixed;top:16px;left:16px;z-index:300;
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:10px;padding:10px 13px;
+  cursor:pointer;color:var(--cyan2);font-size:18px;
+}
+
+@media(max-width:900px){
+  .mob-toggle{display:flex;}
+  .sidebar{transform:translateX(-100%);transition:transform 0.3s;}
+  .sidebar.show{transform:translateX(0);}
+  .main{margin-left:0;}
+  .hero{padding:72px 24px 48px;}
+  .content{padding:0 24px 60px;}
+  .page-footer{padding:28px 24px;flex-direction:column;gap:10px;text-align:center;}
+  .metrics{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+
+<!-- Mobile toggle -->
+<button class="mob-toggle" onclick="document.querySelector('.sidebar').classList.toggle('show')">☰</button>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="brand">
+    <div class="brand-row">
+      <div class="brand-icon">
+        <svg class="logo-drone-svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="5" cy="5" r="2.5" stroke="#7EC8E3" stroke-width="1.2"/>
+          <circle cx="15" cy="5" r="2.5" stroke="#7EC8E3" stroke-width="1.2"/>
+          <circle cx="5" cy="15" r="2.5" stroke="#7EC8E3" stroke-width="1.2"/>
+          <circle cx="15" cy="15" r="2.5" stroke="#7EC8E3" stroke-width="1.2"/>
+          <line x1="7" y1="5" x2="13" y2="5" stroke="#7EC8E3" stroke-width="1.2"/>
+          <line x1="7" y1="15" x2="13" y2="15" stroke="#7EC8E3" stroke-width="1.2"/>
+          <line x1="5" y1="7" x2="5" y2="13" stroke="#7EC8E3" stroke-width="1.2"/>
+          <line x1="15" y1="7" x2="15" y2="13" stroke="#7EC8E3" stroke-width="1.2"/>
+          <rect x="8" y="8" width="4" height="4" rx="1" fill="#7EC8E3" fill-opacity="0.3" stroke="#7EC8E3" stroke-width="1"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Drone Research</div>
+        <div class="brand-sub">2026 Edition</div>
+      </div>
+    </div>
+    <div class="brand-author">by <span>Sim Vattanac</span> · MDSE Cohort 4</div>
+  </div>
+
+  <nav class="nav" id="nav">
+    <div class="nav-section-label">AI &amp; Robotics</div>
+    <a class="nav-item active" href="#idea-1" onclick="setActive(this)">
+      <span class="nav-num">01</span>
+      <span class="nav-label">Swarm Intelligence</span>
+      <span class="dot" style="background:#C4A0FF"></span>
+    </a>
+    <a class="nav-item" href="#idea-2" onclick="setActive(this)">
+      <span class="nav-num">02</span>
+      <span class="nav-label">Edge AI Agriculture</span>
+      <span class="dot" style="background:#C4A0FF"></span>
+    </a>
+    <a class="nav-item" href="#idea-9" onclick="setActive(this)">
+      <span class="nav-num">09</span>
+      <span class="nav-label">RL Wind Control</span>
+      <span class="dot" style="background:#C4A0FF"></span>
+    </a>
+    <a class="nav-item" href="#idea-15" onclick="setActive(this)">
+      <span class="nav-num">15</span>
+      <span class="nav-label">Neural Path Planning</span>
+      <span class="dot" style="background:#C4A0FF"></span>
+    </a>
+    <a class="nav-item" href="#idea-19" onclick="setActive(this)">
+      <span class="nav-num">19</span>
+      <span class="nav-label">Natural Language HRI</span>
+      <span class="dot" style="background:#C4A0FF"></span>
+    </a>
+    <a class="nav-item" href="#idea-20" onclick="setActive(this)">
+      <span class="nav-num">20</span>
+      <span class="nav-label">Bioinspired Flight</span>
+      <span class="dot" style="background:#C4A0FF"></span>
+    </a>
+
+    <div class="nav-section-label">Environment &amp; Climate</div>
+    <a class="nav-item" href="#idea-5" onclick="setActive(this)">
+      <span class="nav-num">05</span>
+      <span class="nav-label">Urban Heat Mapping</span>
+      <span class="dot" style="background:#6EE7A0"></span>
+    </a>
+    <a class="nav-item" href="#idea-8" onclick="setActive(this)">
+      <span class="nav-num">08</span>
+      <span class="nav-label">Deforestation AI</span>
+      <span class="dot" style="background:#6EE7A0"></span>
+    </a>
+    <a class="nav-item" href="#idea-11" onclick="setActive(this)">
+      <span class="nav-num">11</span>
+      <span class="nav-label">Air Quality Sensing</span>
+      <span class="dot" style="background:#6EE7A0"></span>
+    </a>
+    <a class="nav-item" href="#idea-14" onclick="setActive(this)">
+      <span class="nav-num">14</span>
+      <span class="nav-label">Wildfire Response</span>
+      <span class="dot" style="background:#6EE7A0"></span>
+    </a>
+    <a class="nav-item" href="#idea-16" onclick="setActive(this)">
+      <span class="nav-num">16</span>
+      <span class="nav-label">Flood Monitoring</span>
+      <span class="dot" style="background:#6EE7A0"></span>
+    </a>
+
+    <div class="nav-section-label">Health &amp; Society</div>
+    <a class="nav-item" href="#idea-3" onclick="setActive(this)">
+      <span class="nav-num">03</span>
+      <span class="nav-label">Medical Delivery</span>
+      <span class="dot" style="background:#FF8A80"></span>
+    </a>
+    <a class="nav-item" href="#idea-10" onclick="setActive(this)">
+      <span class="nav-num">10</span>
+      <span class="nav-label">Khmer Heritage 3D</span>
+      <span class="dot" style="background:#FF8FAB"></span>
+    </a>
+    <a class="nav-item" href="#idea-18" onclick="setActive(this)">
+      <span class="nav-num">18</span>
+      <span class="nav-label">Construction QA</span>
+      <span class="dot" style="background:#FFB347"></span>
+    </a>
+
+    <div class="nav-section-label">Data &amp; Systems</div>
+    <a class="nav-item" href="#idea-4" onclick="setActive(this)">
+      <span class="nav-num">04</span>
+      <span class="nav-label">Federated Learning</span>
+      <span class="dot" style="background:#7EC8E3"></span>
+    </a>
+    <a class="nav-item" href="#idea-6" onclick="setActive(this)">
+      <span class="nav-num">06</span>
+      <span class="nav-label">Self-Charging Drones</span>
+      <span class="dot" style="background:#5CE0D5"></span>
+    </a>
+    <a class="nav-item" href="#idea-7" onclick="setActive(this)">
+      <span class="nav-num">07</span>
+      <span class="nav-label">Acoustic Stealth</span>
+      <span class="dot" style="background:#7EC8E3"></span>
+    </a>
+    <a class="nav-item" href="#idea-12" onclick="setActive(this)">
+      <span class="nav-num">12</span>
+      <span class="nav-label">Underwater Drones</span>
+      <span class="dot" style="background:#5CE0D5"></span>
+    </a>
+    <a class="nav-item" href="#idea-13" onclick="setActive(this)">
+      <span class="nav-num">13</span>
+      <span class="nav-label">Drone Cybersecurity</span>
+      <span class="dot" style="background:#F9E05B"></span>
+    </a>
+    <a class="nav-item" href="#idea-17" onclick="setActive(this)">
+      <span class="nav-num">17</span>
+      <span class="nav-label">5G Relay Network</span>
+      <span class="dot" style="background:#FFB347"></span>
+    </a>
+  </nav>
+
+  <div class="sidebar-foot">
+    <div class="s-stats">
+      <div class="s-stat"><span class="s-val">20</span><span class="s-lbl">Topics</span></div>
+      <div class="s-stat"><span class="s-val">8</span><span class="s-lbl">Domains</span></div>
+      <div class="s-stat"><span class="s-val">'26</span><span class="s-lbl">Year</span></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main class="main">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-kicker">Research Proposal Document · MDSE Cohort 4</div>
+    <h1>20 <span class="hl">Brilliant</span> Drone<br>Research Ideas</h1>
+    <p class="hero-desc">A deep-dive exploration of cutting-edge drone research topics spanning AI, heritage preservation, medicine, environment, and advanced engineering — curated for academic excellence.</p>
+    <div class="hero-chips">
+      <span class="chip">Sim Vattanac</span>
+      <span class="chip"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b2c4d3c6c6d3dcd3d1c1dbdf8b8bf2d5dfd3dbde9cd1dddf">[email&#160;protected]</a></span>
+      <span class="chip">Cambodia Context</span>
+      <span class="chip">MDSE Program 2026</span>
+    </div>
+  </section>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <div class="section-head">
+      <span class="section-head-line">All 20 Research Topics — Click to expand</span>
+    </div>
+
+    <!-- ─── IDEA 1 ─── -->
+    <div class="idea" id="idea-1">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">01</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Swarm Intelligence for Autonomous Disaster Response</div>
+          <div class="idea-subtitle">"100 drones. No operator. No internet. One mission."</div>
+          <div class="idea-meta">
+            <span class="tag tag-ai">AI + Robotics</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Swarm drone systems apply principles borrowed from nature — specifically from the collective behaviors of ants, bees, and birds — to coordinate large fleets of drones without any centralized controller. Each individual drone acts as a simple agent, following local rules and communicating only with its nearest neighbors. Yet from these simple interactions, highly intelligent collective behavior emerges spontaneously.</p>
+            <p>In disaster response scenarios — earthquakes, building collapses, flooding — traditional rescue methods are too slow and dangerous for human responders. A swarm of 50–200 autonomous drones can blanket a disaster zone within minutes, generating real-time 3D maps, identifying heat signatures of survivors, and relaying GPS coordinates to ground teams.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The core technical challenge is designing a decentralized consensus algorithm — a protocol by which drones agree on task allocation without a master controller. State-of-the-art approaches include auction-based algorithms, stigmergy (indirect coordination via digital pheromone trails), and bio-inspired flocking rules (separation, alignment, cohesion).</p>
+            <p>A critical research gap is fault tolerance: if 30% of drones fail mid-mission, can the remaining 70% dynamically redistribute tasks? A novel direction is heterogeneous swarms — combining drones with different sensor payloads (thermal, optical, acoustic) so the swarm collectively possesses richer sensory capability than any single drone.</p>
+            <div class="highlight"><p>"The most compelling aspect of this research is that intelligence does not reside in any single drone — it emerges from their interaction. This is fundamentally different from how we design most engineering systems."</p></div>
+          </div>
+          <div class="block">
+            <div class="block-label">Key Metrics</div>
+            <div class="metrics">
+              <div class="metric"><span class="metric-val">&lt;3 min</span><span class="metric-lbl">Zone Coverage</span></div>
+              <div class="metric"><span class="metric-val">95%</span><span class="metric-lbl">Survivor Detection</span></div>
+              <div class="metric"><span class="metric-val">0</span><span class="metric-lbl">Human Operators</span></div>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">ROS 2</span><span class="pill">Gazebo Simulator</span><span class="pill">MAVLink</span><span class="pill">Python / C++</span><span class="pill">Mesh WiFi</span><span class="pill">MANET Protocol</span><span class="pill">Thermal Cameras</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 2 ─── -->
+    <div class="idea" id="idea-2">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">02</span>
+        <div class="idea-head-text">
+          <div class="idea-title">On-Drone Edge AI for Precision Agriculture</div>
+          <div class="idea-subtitle">"A $400 drone replacing a team of agronomists — flying completely offline."</div>
+          <div class="idea-meta">
+            <span class="tag tag-ai">Edge AI + ML</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Traditional precision agriculture requires expensive satellite subscriptions, cloud connectivity, and trained specialists. This research deploys lightweight, quantized deep learning models directly onto drone processors (NVIDIA Jetson Nano), enabling real-time crop health analysis with zero internet dependency — perfectly suited for rural Cambodia.</p>
+            <p>The drone flies a preprogrammed grid pattern over rice fields and immediately outputs a georeferenced map of disease hotspots, irrigation stress, and nitrogen deficiency — all before landing. Farmers receive actionable recommendations within minutes of each flight.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The central challenge is model compression without accuracy loss. A full ResNet-50 model detecting rice blast disease achieves 94% accuracy but requires 4GB RAM — impossible on a drone. Through knowledge distillation, pruning, and INT8 quantization, researchers can achieve 89–91% accuracy in a model small enough to run at 30 FPS on embedded hardware.</p>
+            <p>A novel direction is continual learning at the edge: the drone model incrementally adapts to local crop varieties without ever connecting to the cloud, using federated updates shared locally between nearby drones at charging stations.</p>
+            <div class="highlight"><p>"Cambodia loses an estimated 15–20% of its rice yield annually to blast disease — a problem this drone could detect two weeks before visible symptoms appear."</p></div>
+          </div>
+          <div class="block">
+            <div class="block-label">Key Metrics</div>
+            <div class="metrics">
+              <div class="metric"><span class="metric-val">30 FPS</span><span class="metric-lbl">Inference Speed</span></div>
+              <div class="metric"><span class="metric-val">2 wks</span><span class="metric-lbl">Early Detection Lead</span></div>
+              <div class="metric"><span class="metric-val">&lt;250MB</span><span class="metric-lbl">Model Size</span></div>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">NVIDIA Jetson Nano</span><span class="pill">TensorRT</span><span class="pill">PyTorch</span><span class="pill">Multispectral Camera</span><span class="pill">NDVI Analysis</span><span class="pill">OpenCV</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 3 ─── -->
+    <div class="idea" id="idea-3">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">03</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Medical Supply Delivery in Remote Southeast Asia</div>
+          <div class="idea-subtitle">"A patient in a remote province receives blood in 8 minutes instead of 4 hours."</div>
+          <div class="idea-meta">
+            <span class="tag tag-med">Public Health + Logistics</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Rural healthcare in Cambodia faces a last-mile logistics problem — villages accessible only by unpaved roads during dry season and completely cut off during monsoon months. Drone delivery networks can bypass road infrastructure entirely, delivering blood products, vaccines, antivenom, and emergency medications to village health centers in under 15 minutes.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The most technically challenging aspect is cold-chain integrity. Blood products must remain within 2–6°C during flight. This requires designing a thermally insulated payload compartment with active Peltier cooling powered by the drone battery, regulated by a PID controller that accounts for altitude, ambient temperature, and flight duration.</p>
+            <p>Route optimization in mountainous terrain (Mondulkiri, Ratanakiri provinces) involves multi-objective optimization: minimize flight time, maximize battery margin, avoid no-fly zones, and select safe landing zones. This is a real-world NP-hard scheduling problem.</p>
+            <div class="highlight"><p>"Rwanda's Zipline program has already proven this model works — this research would adapt and optimize it for Cambodia's specific geography, regulatory environment, and healthcare infrastructure."</p></div>
+          </div>
+          <div class="block">
+            <div class="block-label">Key Metrics</div>
+            <div class="metrics">
+              <div class="metric"><span class="metric-val">15 min</span><span class="metric-lbl">Max Delivery Time</span></div>
+              <div class="metric"><span class="metric-val">2–6°C</span><span class="metric-lbl">Cold Chain Range</span></div>
+              <div class="metric"><span class="metric-val">80 km</span><span class="metric-lbl">Range Radius</span></div>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">ArduPilot</span><span class="pill">Peltier Cooling</span><span class="pill">IoT Temp Sensors</span><span class="pill">OR-Tools (Google)</span><span class="pill">LTE Telemetry</span><span class="pill">GIS Mapping</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 4 ─── -->
+    <div class="idea" id="idea-4">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">04</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Federated Learning Across Drone Swarms</div>
+          <div class="idea-subtitle">"Crowdsourced AI training from 500 drones — with zero data leakage."</div>
+          <div class="idea-meta">
+            <span class="tag tag-data">Distributed ML + Privacy</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Federated learning (FL) trains a model across multiple decentralized devices without sharing raw data. Applied to drone swarms, each drone trains a local model on its own sensor data, computes gradient updates, encrypts them using differential privacy, and shares only the encrypted parameters — never the raw footage.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>Applying FL to drones introduces unique challenges: non-IID data (a drone over Phnom Penh sees fundamentally different scenes than one over Mondulkiri), intermittent connectivity, and severely constrained communication bandwidth. Standard FedAvg diverges catastrophically under high data heterogeneity.</p>
+            <p>This research investigates drone-specific FL algorithms such as FedProx and Scaffold. A novel contribution is an adaptive aggregation protocol triggered when drones physically converge at charging stations, avoiding wireless communication overhead during flight entirely.</p>
+            <div class="highlight"><p>"This research sits at the intersection of three of the hottest topics in CS right now — federated learning, edge AI, and autonomous robotics. Publishing here virtually guarantees top-tier conference acceptance."</p></div>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">PySyft / Flower</span><span class="pill">Differential Privacy</span><span class="pill">Secure Aggregation</span><span class="pill">FedProx / Scaffold</span><span class="pill">PyTorch</span><span class="pill">ROS 2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 5 ─── -->
+    <div class="idea" id="idea-5">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">05</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Urban Heat Island Mapping with Thermal Drone Swarms</div>
+          <div class="idea-subtitle">"Turning Phnom Penh into a thermal fingerprint, block by block."</div>
+          <div class="idea-meta">
+            <span class="tag tag-env">Climate Science + GIS</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Urban Heat Islands (UHI) are zones within cities significantly hotter than surrounding rural areas. In Phnom Penh, rapid urbanization has made the city 4–7°C hotter than the surrounding countryside — with major public health consequences including heat stroke deaths and massive air conditioning energy demand. Thermal-camera drone swarms build hyper-precise 3D temperature maps unprecedented in resolution.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>A key challenge is thermal data fusion across multiple drones at different altitudes. Each drone's thermal camera must be radiometrically calibrated so temperatures from 20m altitude are directly comparable to readings from 100m. Atmospheric absorption and drone-body heat interference introduce systematic biases requiring post-processing correction pipelines.</p>
+            <p>On the data science side, a spatiotemporal Graph Neural Network operating on the city's street graph predicts heat island intensity at any location and time of day — useful for city planners without continuous drone flights after initial calibration.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Key Metrics</div>
+            <div class="metrics">
+              <div class="metric"><span class="metric-val">0.3°C</span><span class="metric-lbl">Temp Resolution</span></div>
+              <div class="metric"><span class="metric-val">10 cm</span><span class="metric-lbl">Spatial Resolution</span></div>
+              <div class="metric"><span class="metric-val">4–7°C</span><span class="metric-lbl">UHI Intensity (PNH)</span></div>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">FLIR Lepton Thermal</span><span class="pill">LiDAR Point Cloud</span><span class="pill">Graph Neural Networks</span><span class="pill">QGIS / ArcGIS</span><span class="pill">Pix4D</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 6 ─── -->
+    <div class="idea" id="idea-6">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">06</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Self-Charging Drones via Solar &amp; RF Energy Harvesting</div>
+          <div class="idea-subtitle">"A drone that never needs to land to recharge."</div>
+          <div class="idea-meta">
+            <span class="tag tag-energy">Energy Systems + Hardware</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>The most fundamental limitation of drones is battery life — typically 20–45 minutes. This research proposes a multi-source energy harvesting architecture combining: (1) flexible solar panels integrated into the wing/body surface capturing ~15–20W in tropical sunlight, and (2) RF energy harvested from ground-based microwave transmitters at 5.8 GHz, beaming 5–8W to a rectenna mounted on the drone's underside.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The main research problem is maximum power point tracking (MPPT) under dynamic conditions. Solar irradiance changes as the drone banks and pitches, and RF link quality fluctuates with distance and angle. A real-time adaptive MPPT algorithm must optimally extract power from both sources simultaneously.</p>
+            <p>A novel direction is trajectory optimization for energy harvesting: the drone autonomously selects flight paths that maximize cumulative energy intake (solar exposure and proximity to RF transmitters) subject to mission constraints — framing flight planning as a continuous-time optimal control problem.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">Flexible GaAs Solar Cells</span><span class="pill">5.8 GHz Rectenna</span><span class="pill">MPPT (Custom FPGA)</span><span class="pill">Pontryagin Optimal Control</span><span class="pill">Li-ion + Supercapacitor</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 7 ─── -->
+    <div class="idea" id="idea-7">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">07</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Acoustic Stealth via Active Noise Cancellation</div>
+          <div class="idea-subtitle">"A drone that wildlife — and humans — cannot hear."</div>
+          <div class="idea-meta">
+            <span class="tag tag-data">Signal Processing + Physics</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Drone propeller noise (70–90 dB at 10m) severely limits usefulness in wildlife monitoring and ecological research. This research develops an active noise cancellation (ANC) system that analyzes propeller noise in real-time and generates anti-phase acoustic waves from strategically positioned speakers, canceling much of the noise at distances beyond 5m. Animals flush and relocate when drones approach — this research eliminates that problem.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>For stationary systems like headphones, ANC is well-solved. For drones, propeller RPM changes dynamically with every maneuver, requiring sub-10ms adaptation latency — orders of magnitude faster than commercial ANC systems. The research develops a model-based feedforward ANC architecture combining a physics model of propeller acoustics with an adaptive LMS filter that continuously updates from microphone feedback.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Key Metrics</div>
+            <div class="metrics">
+              <div class="metric"><span class="metric-val">20 dB</span><span class="metric-lbl">Noise Reduction</span></div>
+              <div class="metric"><span class="metric-val">&lt;10ms</span><span class="metric-lbl">Adaptation Latency</span></div>
+              <div class="metric"><span class="metric-val">5m+</span><span class="metric-lbl">Effective Range</span></div>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">MEMS Microphone Array</span><span class="pill">LMS / RLS Adaptive Filter</span><span class="pill">FPGA Real-time DSP</span><span class="pill">Acoustic FEM Simulation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 8 ─── -->
+    <div class="idea" id="idea-8">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">08</span>
+        <div class="idea-head-text">
+          <div class="idea-title">AI-Powered Illegal Deforestation Detection</div>
+          <div class="idea-subtitle">"Catching forest crime faster than any ranger on foot ever could."</div>
+          <div class="idea-meta">
+            <span class="tag tag-env">Environment + Computer Vision</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Cambodia has one of the highest deforestation rates in Southeast Asia. Drone-based monitoring combined with multi-temporal satellite imagery analysis creates a two-tier detection system: satellites flag suspicious areas at low resolution, drones then deploy autonomously to confirm and document illegal cutting with centimeter-resolution evidence admissible in court.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The computer vision challenge is change detection under varying illumination. A forest photographed on a cloudy day looks different from the same forest in direct sunlight — naive pixel-difference approaches generate thousands of false positives. The research proposes a Siamese Neural Network learning illumination-invariant representations of forest patches for robust change detection between image pairs taken weeks apart.</p>
+            <p>Remote Cardamom Mountain forests often have weak GPS under dense canopy. Drones must rely on visual odometry (ORB-SLAM3) and LiDAR-based localization to navigate precisely — GPS is completely blocked by dense canopy cover.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">Siamese CNN</span><span class="pill">Sentinel-2 Satellite Data</span><span class="pill">ORB-SLAM3</span><span class="pill">LiDAR</span><span class="pill">Google Earth Engine</span><span class="pill">YOLOv8</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 9 ─── -->
+    <div class="idea" id="idea-9">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">09</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Reinforcement Learning for Wind-Resilient Flight Control</div>
+          <div class="idea-subtitle">"Teaching a drone to feel the wind the same way a bird does."</div>
+          <div class="idea-meta">
+            <span class="tag tag-ai">Deep RL + Control Systems</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Commercial drone PID controllers are tuned for calm conditions and degrade significantly in turbulent winds above 10 m/s. This research trains a deep RL agent — entirely in simulation — to fly drones through extreme turbulence, urban wind corridors between buildings, and unpredictable micro-weather events. The learned policy then transfers to a real drone with zero additional training (zero-shot sim-to-real transfer).</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The sim-to-real gap is the central challenge: real drones face motor lag, propeller blade flex, vibration noise in IMU readings, and aerodynamic effects not captured in simulation. Training RL agents that transfer successfully requires domain randomization — systematically randomizing simulation parameters so the agent learns policies robust enough to handle real-world variability.</p>
+            <p>Reward function design is a critical research contribution. Naively rewarding trajectory accuracy causes the agent to discover aggressive, energy-intensive maneuvers that burn out motors in real hardware. The research designs a multi-objective reward balancing trajectory error, energy consumption, motor temperature, and jerk.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">Isaac Gym (NVIDIA)</span><span class="pill">PPO / SAC</span><span class="pill">Domain Randomization</span><span class="pill">CFD Simulation</span><span class="pill">PX4 Autopilot</span><span class="pill">IMU Fusion</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 10 ─── -->
+    <div class="idea" id="idea-10">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">10</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Photogrammetric Preservation of Khmer Heritage Sites</div>
+          <div class="idea-subtitle">"Saving 1,000-year-old temples in a digital format that lasts forever."</div>
+          <div class="idea-meta">
+            <span class="tag tag-her">Cultural Heritage + 3D Reconstruction</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>The Khmer Empire left behind over 1,000 temple structures across Cambodia, many actively deteriorating due to vegetation encroachment, acid rain, and tourist erosion. Once a stone carving crumbles, it is gone forever. Multi-drone photogrammetry creates sub-centimeter-accurate 3D digital twins of these structures — permanent records that future archaeologists, restorers, and AR/VR designers can interact with indefinitely.</p>
+            <p>Beyond Angkor Wat, hundreds of lesser-documented temples across Kampong Thom, Preah Vihear, and Siem Reap provinces have never been systematically digitized. This research prioritizes the most at-risk, least-documented sites.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>Structure from Motion (SfM) photogrammetry works by capturing hundreds of overlapping images, then reconstructing dense 3D point clouds by triangulating matched feature points. For flat, untextured stone surfaces common in Khmer architecture, standard feature detectors (SIFT, ORB) fail because there are no distinguishable texture features to match.</p>
+            <p>The research proposes a structured light augmentation approach: a secondary drone projects a patterned infrared grid onto featureless stone surfaces, creating artificial texture for the SfM algorithm. This combines with LiDAR for metric accuracy and RGB imagery for color — a fusion approach accurate to 2–3mm.</p>
+            <p>Angkor Wat's gallery walls contain 1,200m of continuous narrative bas-relief carvings requiring close-range (0.5–2m) photogrammetry from a drone — needing custom flight algorithms that maintain precise standoff distance and avoid collision with protruding stone elements.</p>
+            <div class="highlight"><p>"LiDAR surveys by Dr. Damian Evans (2015) revealed an entire hidden medieval city around Angkor — showing that aerial digital documentation of Khmer sites continues to yield groundbreaking archaeological discoveries."</p></div>
+          </div>
+          <div class="block">
+            <div class="block-label">Key Metrics</div>
+            <div class="metrics">
+              <div class="metric"><span class="metric-val">2 mm</span><span class="metric-lbl">Geometric Accuracy</span></div>
+              <div class="metric"><span class="metric-val">1,000+</span><span class="metric-lbl">Sites in Cambodia</span></div>
+              <div class="metric"><span class="metric-val">∞</span><span class="metric-lbl">Preservation Lifetime</span></div>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">Agisoft Metashape</span><span class="pill">LiDAR (Velodyne)</span><span class="pill">Structure from Motion</span><span class="pill">COLMAP</span><span class="pill">Unreal Engine 5</span><span class="pill">APSARA Authority</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 11 ─── -->
+    <div class="idea" id="idea-11">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">11</span>
+        <div class="idea-head-text">
+          <div class="idea-title">3D Urban Air Quality Sensing Network</div>
+          <div class="idea-subtitle">"Mapping pollution not just across a city — but through it, vertically."</div>
+          <div class="idea-meta">
+            <span class="tag tag-env">Environmental Science</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Fixed air quality stations provide data at a single point and elevation. Yet pollution concentrations vary dramatically with altitude: a diesel bus exhaust plume at street level may have NO₂ concentrations 10× higher than at 30m elevation. Drone-mounted sensor arrays sample air quality in full 3D space, creating volumetric pollution maps that static networks simply cannot produce.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The core challenge is sensor miniaturization and cross-sensitivity: commercial electrochemical gas sensors are temperature and humidity sensitive, and drone propeller wash creates turbulent airflow around the sensor that distorts readings. The research designs a shielded, aerodynamically isolated sensor pod with onboard compensation algorithms.</p>
+            <p>Sparse measurements from drone trajectories are interpolated into a continuous 3D field using Gaussian Process regression — a probabilistic method that also quantifies uncertainty, telling city planners where data is reliable and where more drone flights are needed.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">Electrochemical Gas Sensors</span><span class="pill">PMS7003 (PM2.5)</span><span class="pill">Gaussian Process (GPyTorch)</span><span class="pill">3D Kriging Interpolation</span><span class="pill">OpenStreetMap</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 12 ─── -->
+    <div class="idea" id="idea-12">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">12</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Hybrid Aerial-Underwater Drone for Mekong River Monitoring</div>
+          <div class="idea-subtitle">"A drone that can dive into the river and fly back out."</div>
+          <div class="idea-meta">
+            <span class="tag tag-energy">Marine Science</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>The Mekong River supports fisheries that feed millions yet faces severe threats from upstream dam construction and agricultural runoff. This research develops a cross-medium drone capable of aerial flight and aquatic submersion, enabling seamless above-and-below-water environmental surveys without separate platforms.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>A drone transitioning between air and water involves solving fundamentally contradictory design requirements. Aerial flight demands lightweight, large-diameter propellers at high RPM. Underwater propulsion demands waterproof, small-pitch props at lower RPM. The research explores dual-mode thruster arrays with variable-pitch blades and a compressed CO₂ buoyancy control system that controls submersion depth without active propulsion.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">Waterproof Brushless Motors</span><span class="pill">CO₂ Buoyancy Control</span><span class="pill">Hydrophone Array</span><span class="pill">Water Turbidity Sensor</span><span class="pill">ADCP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 13 ─── -->
+    <div class="idea" id="idea-13">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">13</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Drone Communication Security &amp; Anti-Spoofing</div>
+          <div class="idea-subtitle">"What happens when a hostile actor hijacks your drone mid-flight?"</div>
+          <div class="idea-meta">
+            <span class="tag tag-sec">Cybersecurity</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>As drones become critical infrastructure — carrying medicine, surveilling borders — their vulnerability to cyberattack becomes a national security issue. GPS spoofing, telemetry hijacking, and denial-of-service attacks are all demonstrated real-world threats. This research systematically analyzes drone communication vulnerabilities and proposes post-quantum cryptographic countermeasures.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>GPS spoofing is particularly insidious because commercial drones cannot distinguish genuine satellite signals from a ground-based spoofer broadcasting stronger fake signals. The research develops a multi-constellation, multi-frequency GPS receiver combined with IMU-based dead reckoning and a cryptographic GPS authentication protocol.</p>
+            <p>For command-link security, the research implements a post-quantum cryptographic MAVLink extension using CRYSTALS-Kyber for key exchange and CRYSTALS-Dilithium for authentication — remaining secure against quantum computer attacks for 20+ years.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">Software-Defined Radio</span><span class="pill">CRYSTALS-Kyber (Post-Quantum)</span><span class="pill">MAVLink Protocol</span><span class="pill">GPS Spoofing Testbed</span><span class="pill">IMU Dead Reckoning</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 14 ─── -->
+    <div class="idea" id="idea-14">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">14</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Autonomous Wildfire Detection &amp; Suppression</div>
+          <div class="idea-subtitle">"Detect a forest fire in its first 90 seconds — before it becomes uncontrollable."</div>
+          <div class="idea-meta">
+            <span class="tag tag-med">Emergency Response</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Wildfires in Cambodia's dry season (December–April) destroy forest ecosystems and threaten villages. Traditional detection relies on rangers who may not reach a fire for hours. A persistent drone patrol network combining thermal and optical sensors detects fire ignition within minutes, then autonomously dispatches water-carrying suppression drones to the precise location.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>Early fire detection is challenging because small fires (0.5–5m²) produce thermal signatures similar to sun-heated rock surfaces. The research develops a multi-spectral temporal anomaly detector: comparing sequential thermal images seconds apart, genuine fires are distinguished by their rate of temperature increase and characteristic 3–5 µm mid-wave infrared emission peak of combustion gases.</p>
+            <p>For suppression, drones carrying 5–10L water containers compute optimal drop trajectories accounting for wind drift, terrain slope, and fire spread direction — modeled as a stochastic optimal control problem with real-time wind sensor data.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">MWIR Thermal Camera</span><span class="pill">Fire Spread Cellular Automaton</span><span class="pill">Stochastic Optimal Control</span><span class="pill">Wind LiDAR Sensor</span><span class="pill">Fixed-Wing VTOL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 15 ─── -->
+    <div class="idea" id="idea-15">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">15</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Neural Path Planning in Dynamic Obstacle Environments</div>
+          <div class="idea-subtitle">"A drone that navigates a crowded market like a human cyclist — instinctively."</div>
+          <div class="idea-meta">
+            <span class="tag tag-ai">Neural Planning</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Urban drone deployment requires navigating environments filled with pedestrians, vehicles, other drones, birds, and wind-moved branches. Traditional path planning algorithms (A*, RRT*) recompute paths from scratch when the environment changes — too slow for real-time avoidance. A neural path planner trained via imitation learning from expert demonstrations reacts to dynamic obstacles in under 10ms.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The core question is generalization: a policy trained on a university campus must transfer to an unseen market street without retraining. This requires learning environment-agnostic representations — encoding only geometrically relevant structure (free space, obstacle surfaces, goal direction) rather than visual appearance.</p>
+            <p>The research explores graph-based scene representations fed into a Graph Neural Network planner that outputs velocity commands. This architecture naturally generalizes to arbitrary numbers and configurations of obstacles.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">Imitation Learning (DAgger)</span><span class="pill">Graph Neural Networks</span><span class="pill">Intel RealSense</span><span class="pill">FAST-LIO2 SLAM</span><span class="pill">PyTorch Geometric</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 16 ─── -->
+    <div class="idea" id="idea-16">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">16</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Real-Time Flood Extent Mapping &amp; Early Warning</div>
+          <div class="idea-subtitle">"Giving villages 6 hours of warning before floodwaters arrive."</div>
+          <div class="idea-meta">
+            <span class="tag tag-env">Disaster Monitoring</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Cambodia experiences severe annual flooding along the Mekong and Tonle Sap rivers, displacing hundreds of thousands. Current early warning systems rely on river gauge stations at fixed points. Drone swarms with radar altimeters map actual flood inundation extent in real-time across vast floodplains, providing village-level warning and evacuation route recommendations within hours of a flood wave's upstream detection.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The core contribution is a real-time flood propagation model that assimilates drone-observed inundation extent into a 2D shallow water equations solver (LISFLOOD-FP), updating flood forecasts every 30 minutes. This data assimilation problem is solved using an Ensemble Kalman Filter, adapted for spatially distributed drone measurements.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">Radar Altimeter (FMCW)</span><span class="pill">LISFLOOD-FP</span><span class="pill">Ensemble Kalman Filter</span><span class="pill">Sentinel-1 SAR</span><span class="pill">SMS Alert System</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 17 ─── -->
+    <div class="idea" id="idea-17">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">17</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Drone-Based 5G/LTE Aerial Relay Network</div>
+          <div class="idea-subtitle">"Bringing 4G internet to remote villages using a flying cell tower."</div>
+          <div class="idea-meta">
+            <span class="tag tag-inf">Telecommunications</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>After natural disasters, telecommunications infrastructure is often the first thing destroyed — exactly when connectivity is most critical for coordinating rescue efforts. Drone-mounted miniaturized LTE/5G base stations restore communications over a 5–15km radius within 30 minutes of launch, creating a temporary aerial network bridging survivors with rescue teams.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The research addresses optimal drone positioning for maximum coverage: formulated as a 3D facility location problem with real-time user location inputs from passive RF scanning, solved using a fast greedy approximation algorithm suitable for on-board computation.</p>
+            <p>The research also develops protocols for handover between multiple aerial base stations as drones rotate due to battery depletion — ensuring mobile devices seamlessly transition to replacement drones without dropping active calls or data sessions, a problem not addressed in current 3GPP standards.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">OpenAirInterface (Open-source 5G)</span><span class="pill">Software-Defined Radio</span><span class="pill">3D Facility Location</span><span class="pill">Iridium Satellite Backhaul</span><span class="pill">3GPP NTN</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 18 ─── -->
+    <div class="idea" id="idea-18">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">18</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Automated Construction Quality Assurance with Drone Vision</div>
+          <div class="idea-subtitle">"Catching structural defects before concrete is poured — not after."</div>
+          <div class="idea-meta">
+            <span class="tag tag-inf">Construction Tech</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Construction defects — misplaced rebar, insufficient concrete cover, geometric deviations from BIM models — are expensive and sometimes catastrophic to fix after the fact. Drone-based automated inspection compares photogrammetric 3D scans at each construction stage against the approved BIM model, flagging deviations that exceed tolerance automatically and generating engineering-quality inspection reports.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The research contribution is a BIM-to-point-cloud alignment algorithm robust to GPS coordinate misregistration between the BIM coordinate system and the real-world drone scan. ICP alignment fails on construction sites because early-stage structures have too little geometry. The research proposes a semantic alignment method matching detected structural elements (columns, beams, slab edges) rather than raw geometry.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">BIM (Revit / IFC)</span><span class="pill">Point Cloud (PCL)</span><span class="pill">Semantic ICP</span><span class="pill">Crack Detection CNN</span><span class="pill">Autodesk Forge API</span><span class="pill">Open3D</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 19 ─── -->
+    <div class="idea" id="idea-19">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">19</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Natural Language Human-Drone Teaming Interface</div>
+          <div class="idea-subtitle">"Tell a drone what to do in plain Khmer — and it understands."</div>
+          <div class="idea-meta">
+            <span class="tag tag-ai">HRI + NLP</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Current drone operation requires specialized training in remote control systems and flight planning software. This creates a high barrier for non-technical users — disaster relief workers, farmers, village health workers — who could benefit enormously from drone capabilities. This research develops a natural language interface allowing users to issue high-level commands in spoken Khmer that are automatically interpreted and executed by the drone.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The system integrates three components: (1) a Khmer automatic speech recognition model (wav2vec 2.0 fine-tuned on Khmer data); (2) a spatial language grounding module that maps natural language spatial references ("north field", "near the pagoda") to GPS coordinates using a local map database; and (3) a mission planner that translates high-level intents into executable waypoint sequences.</p>
+            <p>The novel contribution is intent disambiguation under uncertainty: natural language is inherently ambiguous, and the drone must either ask a clarifying question via TTS or make a probabilistically safe interpretation. A Bayesian dialogue manager quantifies intent ambiguity and decides when clarification is worth the communication cost.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">Khmer ASR (wav2vec 2.0)</span><span class="pill">LLM (Gemma fine-tuned)</span><span class="pill">Spatial Grounding</span><span class="pill">Bayesian Dialogue Manager</span><span class="pill">Khmer TTS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── IDEA 20 ─── -->
+    <div class="idea" id="idea-20">
+      <div class="idea-header" onclick="toggle(this.parentElement)">
+        <span class="idea-num">20</span>
+        <div class="idea-head-text">
+          <div class="idea-title">Bioinspired Flapping-Wing Drone for Jungle Navigation</div>
+          <div class="idea-subtitle">"A machine that flies like a hornbill through Cambodia's dense rainforest canopy."</div>
+          <div class="idea-meta">
+            <span class="tag tag-ai">Biomimetics + Control</span>
+            <div class="diff">
+              <span style="color:var(--text3);font-size:11px;margin-right:2px;">Difficulty</span>
+              <span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span><span class="diff-pip on"></span>
+            </div>
+          </div>
+        </div>
+        <span class="chevron">⌄</span>
+      </div>
+      <div class="idea-body">
+        <div class="idea-inner">
+          <div class="block">
+            <div class="block-label">Overview</div>
+            <p>Rotary-wing drones are catastrophically noisy and highly vulnerable to vegetation contact. Birds and bats evolved over millions of years to navigate dense forest: they fold wings to pass through gaps, dynamically adjust wingbeat to avoid branches, and use passive aerodynamics to stay stable with minimal energy. This research designs a flapping-wing drone (ornithopter) optimized for the dense jungle environments of Cambodia's Cardamom and Ratanakiri forests.</p>
+          </div>
+          <div class="block">
+            <div class="block-label">Research Deep Dive</div>
+            <p>The aerodynamics of flapping flight are incomparably more complex than rotary flight. Unsteady effects — clap-and-fling mechanism, delayed stall, wake capture — dominate force production and are poorly captured by conventional CFD. The research employs high-fidelity fluid-structure interaction simulation combining flexible membrane wing modeling with Large Eddy Simulation to optimize wing geometry and stroke amplitude.</p>
+            <p>The wing uses a bio-inspired compliant mechanism: flexible carbon fiber and silicone membrane that passively deforms during each stroke cycle, storing elastic energy during the downstroke and releasing it during the upstroke — reducing energy consumption by up to 30% compared to rigid-wing designs.</p>
+            <p>GPS is completely blocked by dense canopy. Drones must rely on event-camera-based VIO — using silicon retina cameras that capture only pixel-level brightness changes rather than full frames — for the high-speed dynamics of flapping flight, a combination not previously studied in literature.</p>
+            <div class="highlight"><p>"The great hornbill — Cambodia's iconic forest bird — navigates the same jungle environments we want this drone to access. Nature has already solved this problem; we need only to reverse-engineer it."</p></div>
+          </div>
+          <div class="block">
+            <div class="block-label">Key Metrics</div>
+            <div class="metrics">
+              <div class="metric"><span class="metric-val">&lt;5 dB</span><span class="metric-lbl">Noise vs. Rotary</span></div>
+              <div class="metric"><span class="metric-val">30%</span><span class="metric-lbl">Energy Savings</span></div>
+              <div class="metric"><span class="metric-val">0 GPS</span><span class="metric-lbl">Dependency</span></div>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-label">Technology Stack</div>
+            <div class="stack">
+              <span class="pill">FSI Simulation (OpenFOAM)</span><span class="pill">Event Camera (DVS346)</span><span class="pill">Carbon Fibre Compliant Mechanism</span><span class="pill">Visual-Inertial Odometry</span><span class="pill">Silicone Wing Membrane</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <footer class="page-footer">
+    <div class="footer-left">Sim Vattanac — MDSE Cohort 4</div>
+    <div class="footer-right"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7006110404111e111303191d494930171d11191c5e131f1d">[email&#160;protected]</a> · 20 Research Topics · 2026</div>
+  </footer>
+
+</main>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+function toggle(card) {
+  const isOpen = card.classList.contains('open');
+  // close all
+  document.querySelectorAll('.idea.open').forEach(c => c.classList.remove('open'));
+  // open clicked if it wasn't open
+  if (!isOpen) card.classList.add('open');
+  // scroll into view
+  if (!isOpen) setTimeout(() => card.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
+}
+
+function setActive(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Highlight nav item on scroll
+const ideas = document.querySelectorAll('.idea');
+const navItems = document.querySelectorAll('.nav-item');
+window.addEventListener('scroll', () => {
+  let current = '';
+  ideas.forEach(idea => {
+    const
