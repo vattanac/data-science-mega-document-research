@@ -4,7 +4,7 @@ A collection of interactive, self-contained HTML explainers covering foundationa
 
 Each project runs entirely in the browser with zero dependencies.
 
-> **20 projects** across **7 categories**
+> **21 projects** across **8 categories**
 
 ---
 
@@ -82,6 +82,14 @@ Projects from other repositories, grouped by topic.
 |---|---------|------|------|
 | 1 | 3D Regression Lab — Interactive visualization | [regression-lab.netlify.app](https://regression-lab.netlify.app/) | — |
 | 2 | Image 2D FFT Denoising — Presentation | [presentation-image-2d-fft-denoicing.netlify.app](https://presentation-image-2d-fft-denoicing.netlify.app/) | — |
+
+---
+
+### 🚁 Drone Research `1 project`
+
+| # | Project | Demo | Repo |
+|---|---------|------|------|
+| 1 | Drone Top 20 Research Topics | [drone-top20-research-top.netlify.app](https://drone-top20-research-top.netlify.app/) | — |
 
 ---
 
