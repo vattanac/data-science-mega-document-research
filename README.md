@@ -4,7 +4,7 @@ A collection of interactive, self-contained HTML explainers covering foundationa
 
 Each project runs entirely in the browser with zero dependencies.
 
-> **21 projects** across **8 categories**
+> **22 projects** across **8 categories**
 
 ---
 
@@ -39,13 +39,14 @@ Projects from other repositories, grouped by topic.
 
 ---
 
-### 📐 Singular Value Decomposition (SVD) `3 projects`
+### 📐 Singular Value Decomposition (SVD) `4 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
 | 1 | Eigenfaces — Face Recognition with SVD | [eigenfaces-face-recognition-svd-doc.netlify.app](https://eigenfaces-face-recognition-svd-doc.netlify.app/) | [GitHub](https://github.com/vattanac/Eigenfaces-face-recognition-SVD.git) |
 | 2 | SVD Image Surgeon — Compress images with SVD | [svd-image-surgeon.netlify.app](https://svd-image-surgeon.netlify.app/) | — |
 | 3 | SVD Case Study | [svd-case-study.netlify.app](https://svd-case-study.netlify.app/) | — |
+| 4 | SVD MIT Gilbert Strang Lecture | [svd-mit-gilbert-strang-lecture.netlify.app](https://svd-mit-gilbert-strang-lecture.netlify.app/) | — |
 
 ---
 
