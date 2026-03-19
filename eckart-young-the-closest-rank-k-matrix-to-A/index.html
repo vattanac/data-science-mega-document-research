@@ -769,9 +769,7 @@ canvas {
   background: var(--canvas-bg);
   margin: 16px auto 0;
   display: block;
-  width: 100%;
-  max-width: 560px;
-  height: 200px;
+  max-width: 100%;
 }
 
 /* ─── NORM TABLE ─── */
@@ -1897,17 +1895,6 @@ const msg    = document.getElementById('variance-msg');
 const canvas = document.getElementById('variance-chart');
 const ctx    = canvas.getContext('2d');
 
-// Fix canvas resolution for HiDPI and CSS scaling
-function resizeCanvas() {
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-}
-resizeCanvas();
-
-const CHART_W = 560, CHART_H = 200;
 const totalVar = sigmas.reduce((a, s) => a + s * s, 0);
 
 function getChartColors() {
@@ -1929,10 +1916,8 @@ function getChartColors() {
 }
 
 function drawChart(k) {
-  resizeCanvas();
   const c = getChartColors();
-  const rect = canvas.getBoundingClientRect();
-  const W = rect.width, H = rect.height;
+  const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
 
   const pad = { l: 40, r: 20, t: 20, b: 30 };
