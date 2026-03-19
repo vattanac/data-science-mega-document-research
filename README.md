@@ -4,7 +4,7 @@ A collection of interactive, self-contained HTML explainers covering foundationa
 
 Each project runs entirely in the browser with zero dependencies.
 
-> **22 projects** across **8 categories**
+> **23 projects** across **8 categories**
 
 ---
 
@@ -50,12 +50,13 @@ Projects from other repositories, grouped by topic.
 
 ---
 
-### 📊 Principal Component Analysis (PCA) `2 projects`
+### 📊 Principal Component Analysis (PCA) `3 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
 | 1 | PCA Document — Conceptual explainer | [pca-document.netlify.app](https://pca-document.netlify.app/) | — |
 | 2 | PCA Problem & Solution | [pca-proble-solution.netlify.app](https://pca-proble-solution.netlify.app/) | — |
+| 3 | PCA MIT Gilbert Strang Lecture | [pca-mit-gilbert-strang-lecture.netlify.app](https://pca-mit-gilbert-strang-lecture.netlify.app/) | — |
 
 ---
 
