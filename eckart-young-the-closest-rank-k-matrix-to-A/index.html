@@ -1901,17 +1901,17 @@ const totalVar = sigmas.reduce((a, s) => a + s * s, 0);
 function getChartColors() {
   const light = isLight();
   return {
-    grid:        light ? '#00000012' : '#ffffff08',
-    labelDim:    light ? '#8888a8' : '#3a3a5a',
+    grid:        light ? '#00000012' : '#ffffff10',
+    labelDim:    light ? '#666888' : '#8888a8',
     barKept:     light ? '#6355e0' : '#7c6dfa',
     barInactive: light ? '#d4d4e0' : '#1f1f35',
     barStroke:   light ? '#6355e040' : '#a78bfa40',
     barStrokeOff:light ? '#00000010' : '#ffffff08',
-    labelKept:   light ? '#6355e0' : '#a78bfa',
-    pctLabel:    light ? '#1a1a2e' : '#ffffff90',
+    labelKept:   light ? '#6355e0' : '#c4b5fd',
+    pctLabel:    light ? '#1a1a2e' : '#ffffffd0',
     teal:        light ? '#0d9488' : '#2dd4bf',
     dotInactive: light ? '#d4d4e0' : '#1f1f35',
-    accent2:     light ? '#6355e0' : '#a78bfa',
+    accent2:     light ? '#6355e0' : '#c4b5fd',
     tealStr:     light ? '#0d9488' : '#2dd4bf',
   };
 }
@@ -1946,9 +1946,9 @@ function drawChartAnimated(k, blend) {
     ctx.lineTo(W - pad.r, y);
     ctx.stroke();
     ctx.fillStyle = c.labelDim;
-    ctx.font = '10px DM Mono';
+    ctx.font = '12px DM Mono';
     ctx.textAlign = 'right';
-    ctx.fillText((p * 100).toFixed(0) + '%', pad.l - 4, y + 3);
+    ctx.fillText((p * 100).toFixed(0) + '%', pad.l - 4, y + 4);
   });
 
   sigmas.forEach((s, i) => {
@@ -1984,14 +1984,14 @@ function drawChartAnimated(k, blend) {
 
     // Label
     ctx.fillStyle = isKept ? c.labelKept : c.labelDim;
-    ctx.font = '10px DM Mono';
+    ctx.font = 'bold 13px DM Mono';
     ctx.textAlign = 'center';
-    ctx.fillText('PC' + (i + 1), x + (barW - 8) / 2, H - pad.b + 14);
+    ctx.fillText('PC' + (i + 1), x + (barW - 8) / 2, H - pad.b + 16);
     if (b > 0.3) {
       ctx.globalAlpha = Math.min(1, (b - 0.3) / 0.7);
       ctx.fillStyle = c.pctLabel;
-      ctx.font = '9px DM Mono';
-      ctx.fillText((v * 100).toFixed(1) + '%', x + (barW - 8) / 2, y - 4);
+      ctx.font = 'bold 12px DM Mono';
+      ctx.fillText((v * 100).toFixed(1) + '%', x + (barW - 8) / 2, y - 6);
       ctx.globalAlpha = 1;
     }
   });
