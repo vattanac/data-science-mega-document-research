@@ -769,7 +769,9 @@ canvas {
   background: var(--canvas-bg);
   margin: 16px auto 0;
   display: block;
-  max-width: 100%;
+  width: 100%;
+  max-width: 560px;
+  height: 200px;
 }
 
 /* ─── NORM TABLE ─── */
@@ -1868,6 +1870,25 @@ if (saved === 'light') applyTheme(true);
 
 themeBtn.addEventListener('click', () => applyTheme(!isLight()));
 
+// ─── roundRect polyfill for older browsers ───────────
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+    const r = Array.isArray(radii) ? radii : [radii, radii, radii, radii];
+    const [tl, tr, br, bl] = [r[0]||0, r[1]||0, r[2]||0, r[3]||0];
+    this.moveTo(x + tl, y);
+    this.lineTo(x + w - tr, y);
+    this.arcTo(x + w, y, x + w, y + tr, tr);
+    this.lineTo(x + w, y + h - br);
+    this.arcTo(x + w, y + h, x + w - br, y + h, br);
+    this.lineTo(x + bl, y + h);
+    this.arcTo(x, y + h, x, y + h - bl, bl);
+    this.lineTo(x, y + tl);
+    this.arcTo(x, y, x + tl, y, tl);
+    this.closePath();
+    return this;
+  };
+}
+
 // ─── INTERACTIVE VARIANCE CHART ──────────────────────
 const sigmas = [9.33, 2.69, 1.42, 0.88, 0.55, 0.33, 0.18, 0.09];
 const slider = document.getElementById('k-slider');
@@ -1876,6 +1897,17 @@ const msg    = document.getElementById('variance-msg');
 const canvas = document.getElementById('variance-chart');
 const ctx    = canvas.getContext('2d');
 
+// Fix canvas resolution for HiDPI and CSS scaling
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+}
+resizeCanvas();
+
+const CHART_W = 560, CHART_H = 200;
 const totalVar = sigmas.reduce((a, s) => a + s * s, 0);
 
 function getChartColors() {
@@ -1897,8 +1929,10 @@ function getChartColors() {
 }
 
 function drawChart(k) {
+  resizeCanvas();
   const c = getChartColors();
-  const W = canvas.width, H = canvas.height;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height;
   ctx.clearRect(0, 0, W, H);
 
   const pad = { l: 40, r: 20, t: 20, b: 30 };
