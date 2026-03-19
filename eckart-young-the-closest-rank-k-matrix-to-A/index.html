@@ -931,7 +931,7 @@ canvas {
   <div class="sidebar-footer">
     <div>© 2026 <strong>Sim Vattanac</strong></div>
     <div style="margin-top:4px">
-      <a href="/cdn-cgi/l/email-protection#186e796c6c7976797b6b71752121587f75797174367b7775"><span class="__cf_email__" data-cfemail="8dfbecf9f9ece3eceefee4e0b4b4cdeae0ece4e1a3eee2e0">[email&#160;protected]</span></a>
+      <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a>
     </div>
     <div style="margin-top:8px; font-size:10px; color:#3a3a5a;">MIT OpenCourseWare · Prof. Gilbert Strang</div>
   </div>
@@ -939,7 +939,6 @@ canvas {
 
 <!-- ─── MAIN CONTENT ─── -->
 <main id="main">
-  <div id="progress-bar"></div>
 
   <!-- HERO -->
   <div class="hero">
@@ -1717,7 +1716,7 @@ Z_sk = pca.<span class="fn">fit_transform</span>(A.T)  <span class="cm"># sklear
     </div>
     <div class="footer-contact">
       <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="color:var(--teal)"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
-      <a href="/cdn-cgi/l/email-protection#6117001515000f000212080c585821060c00080d4f020e0c"><span class="__cf_email__" data-cfemail="077166737366696664746e6a3e3e47606a666e6b2964686a">[email&#160;protected]</span></a>
+      <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a>
     </div>
   </footer>
 
@@ -1725,7 +1724,7 @@ Z_sk = pca.<span class="fn">fit_transform</span>(A.T)  <span class="cm"># sklear
 
 <button id="scroll-top" aria-label="Scroll to top">↑</button>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ─── SCROLL PROGRESS ─────────────────────────────────
 const bar = document.getElementById('progress-bar');
 window.addEventListener('scroll', () => {
@@ -1864,4 +1863,17 @@ function drawChart(k) {
   });
 
   // Cumulative variance for k
-  const cumK = sigmas.slice(0, k).reduce((a, s) => a
+  const cumK = sigmas.slice(0, k).reduce((a, s) => a + s * s, 0) / totalVar;
+  msg.innerHTML = `Keeping <strong style="color:#a78bfa">${k}</strong> component${k > 1 ? 's' : ''} explains <strong style="color:#2dd4bf">${(cumK * 100).toFixed(1)}%</strong> of total variance`;
+}
+
+slider.addEventListener('input', () => {
+  const k = parseInt(slider.value);
+  kVal.textContent = k;
+  drawChart(k);
+});
+
+drawChart(2);
+</script>
+</body>
+</html>
