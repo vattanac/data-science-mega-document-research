@@ -95,6 +95,33 @@ Projects from other repositories, grouped by topic.
 
 ---
 
+## 🖥️ Workspace Playbook (File Explorer)
+
+This repo includes a built-in **Workspace Playbook** — a dark-themed file explorer that mirrors the project folder structure and lets you browse all `.html` and `.docx` files with a live preview panel.
+
+**One command to run everything:**
+
+```bash
+python3 generate_manifest.py --serve
+```
+
+This single command will:
+1. Scan the repo and regenerate `manifest.json` (the file tree)
+2. Start a local HTTP server on port 8080
+3. Auto-open `http://localhost:8080` in your default browser
+
+You can also specify a custom port:
+
+```bash
+python3 generate_manifest.py --serve 3000
+```
+
+**DOCX Preview:** When deployed to a public URL (e.g. Netlify), `.docx` files are previewed live in the browser using **Microsoft Office Online viewer**. On localhost, a download button is shown instead since the viewer can't access local files.
+
+**Auto-update on commit:** A `pre-commit` git hook automatically regenerates `manifest.json` before every commit, so the explorer always stays in sync with your folder structure.
+
+---
+
 ## 🚀 How to Run Locally
 
 Each project is a single self-contained `.html` file — no server or install needed.
@@ -103,10 +130,13 @@ Each project is a single self-contained `.html` file — no server or install ne
 # Clone the repo
 git clone <repo-url>
 
-# Open any project directly in your browser
-open kdd_process/kdd_process.html
-open why_start_with_iris/iris_dataset_explained.html
-open expected-value-vs-mean/expected_value_vs_mean.html
+# Option 1: Use the Workspace Playbook (recommended)
+python3 generate_manifest.py --serve
+
+# Option 2: Open any project directly in your browser
+open kdd_process/index.html
+open why_start_with_iris/index.html
+open expected-value-vs-mean/index.html
 ```
 
 ---
@@ -120,6 +150,7 @@ All projects are built with:
 - **Vanilla JavaScript** — interactivity, dynamic rendering
 - **Google Fonts** — typography
 - **Zero external dependencies** — no frameworks, no npm, no build tools
+- **Python 3** — manifest generator + local dev server (standard library only)
 
 ---
 

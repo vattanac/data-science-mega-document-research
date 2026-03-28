@@ -1,0 +1,168 @@
+{
+  "generated": true,
+  "root": {
+    "name": "data-science-mega-document-research",
+    "type": "folder",
+    "children": [
+      {
+        "name": "drone-top20-research-topic",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "type": "file",
+            "ext": "html",
+            "size": 83002,
+            "path": "drone-top20-research-topic/index.html"
+          }
+        ]
+      },
+      {
+        "name": "eckart-young-the-closest-rank-k-matrix-to-A",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "type": "file",
+            "ext": "html",
+            "size": 78735,
+            "path": "eckart-young-the-closest-rank-k-matrix-to-A/index.html"
+          },
+          {
+            "name": "MIT_PCA_Lecture_Notes.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14934,
+            "path": "eckart-young-the-closest-rank-k-matrix-to-A/MIT_PCA_Lecture_Notes.docx"
+          }
+        ]
+      },
+      {
+        "name": "expected-value-vs-mean",
+        "type": "folder",
+        "children": [
+          {
+            "name": "expected_value_vs_mean.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14884,
+            "path": "expected-value-vs-mean/expected_value_vs_mean.docx"
+          },
+          {
+            "name": "index.html",
+            "type": "file",
+            "ext": "html",
+            "size": 32947,
+            "path": "expected-value-vs-mean/index.html"
+          }
+        ]
+      },
+      {
+        "name": "gradient-descent-react",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "type": "file",
+            "ext": "html",
+            "size": 374,
+            "path": "gradient-descent-react/index.html"
+          }
+        ]
+      },
+      {
+        "name": "gradient-descent-saas",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "type": "file",
+            "ext": "html",
+            "size": 92824,
+            "path": "gradient-descent-saas/index.html"
+          }
+        ]
+      },
+      {
+        "name": "kdd_process",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "type": "file",
+            "ext": "html",
+            "size": 49834,
+            "path": "kdd_process/index.html"
+          },
+          {
+            "name": "KDD_Process_DataMining.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 21352,
+            "path": "kdd_process/KDD_Process_DataMining.docx"
+          }
+        ]
+      },
+      {
+        "name": "singular-value-decomposition(svd)",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "type": "file",
+            "ext": "html",
+            "size": 66101,
+            "path": "singular-value-decomposition(svd)/index.html"
+          },
+          {
+            "name": "SVD_Lecture_MIT18065.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14982,
+            "path": "singular-value-decomposition(svd)/SVD_Lecture_MIT18065.docx"
+          }
+        ]
+      },
+      {
+        "name": "variance-and-standard-deviation",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "type": "file",
+            "ext": "html",
+            "size": 32218,
+            "path": "variance-and-standard-deviation/index.html"
+          },
+          {
+            "name": "variance_std_deviation_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 15943,
+            "path": "variance-and-standard-deviation/variance_std_deviation_guide.docx"
+          }
+        ]
+      },
+      {
+        "name": "why_start_with_iris",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "type": "file",
+            "ext": "html",
+            "size": 36695,
+            "path": "why_start_with_iris/index.html"
+          },
+          {
+            "name": "iris_dataset_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 16425,
+            "path": "why_start_with_iris/iris_dataset_guide.docx"
+          }
+        ]
+      }
+    ]
+  }
+}

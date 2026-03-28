@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workspace Playbook — Data Science Research</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:        #0e0f1a;
+      --bg-side:   #12132200;
+      --bg-card:   #181a2e;
+      --bg-hover:  #1f2140;
+      --bg-active: #252850;
+      --border:    #2a2d4a;
+      --text:      #c8cad8;
+      --text-dim:  #6b6e8a;
+      --accent:    #a78bfa;
+      --accent2:   #5eead4;
+      --accent-bg: rgba(167,139,250,.08);
+      --radius:    10px;
+      --sidebar-w: 320px;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--bg-side);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 20px 18px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header .logo {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #fff; font-weight: 700;
+    }
+
+    .sidebar-header h1 {
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .02em;
+    }
+
+    .sidebar-actions {
+      display: flex; gap: 6px; margin-left: auto;
+    }
+
+    .sidebar-actions button {
+      background: none; border: none; color: var(--text-dim);
+      cursor: pointer; font-size: 1rem; padding: 4px;
+      border-radius: 6px; transition: .2s;
+    }
+    .sidebar-actions button:hover { background: var(--bg-hover); color: var(--text); }
+
+    /* Search */
+    .search-box {
+      padding: 12px 16px;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px 8px 34px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: .82rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-box input:focus { border-color: var(--accent); }
+    .search-box { position: relative; }
+    .search-box::before {
+      content: '🔍';
+      position: absolute;
+      left: 26px; top: 50%; transform: translateY(-50%);
+      font-size: .75rem;
+      pointer-events: none;
+    }
+
+    /* Tree */
+    .tree-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 8px 20px;
+    }
+
+    .tree-container::-webkit-scrollbar { width: 5px; }
+    .tree-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* Tree items */
+    .tree-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: .82rem;
+      transition: background .15s;
+      user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tree-item:hover { background: var(--bg-hover); }
+    .tree-item.active { background: var(--accent-bg); color: var(--accent); }
+
+    .tree-item .icon { font-size: .9rem; flex-shrink: 0; }
+    .tree-item .name { overflow: hidden; text-overflow: ellipsis; }
+
+    .tree-folder > .tree-item { font-weight: 500; }
+
+    .tree-children {
+      padding-left: 16px;
+      border-left: 1px solid var(--border);
+      margin-left: 14px;
+      overflow: hidden;
+      transition: max-height .3s ease, opacity .25s ease;
+    }
+    .tree-children.collapsed { max-height: 0 !important; opacity: 0; }
+
+    .chevron {
+      display: inline-block;
+      font-size: .6rem;
+      transition: transform .2s;
+      color: var(--text-dim);
+      flex-shrink: 0;
+      width: 12px;
+      text-align: center;
+    }
+    .chevron.open { transform: rotate(90deg); }
+
+    /* File type badges */
+    .badge {
+      font-size: .6rem;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+    .badge-html { background: rgba(94,234,212,.12); color: var(--accent2); }
+    .badge-docx { background: rgba(96,165,250,.12); color: #60a5fa; }
+
+    /* ── Main / Preview Panel ─────────────────────────── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Empty state */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: var(--text-dim);
+    }
+    .empty-state .empty-icon {
+      width: 80px; height: 80px;
+      background: var(--bg-card);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,.2);
+    }
+    .empty-state h2 { font-size: 1.15rem; color: var(--text); font-weight: 600; }
+    .empty-state p { font-size: .85rem; max-width: 320px; text-align: center; line-height: 1.5; }
+
+    /* Preview frame */
+    .preview-frame {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+    }
+    .preview-frame.visible { display: flex; }
+
+    .preview-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      font-size: .82rem;
+    }
+    .preview-bar .file-name { font-weight: 600; color: var(--text); }
+    .preview-bar .file-path { color: var(--text-dim); font-size: .74rem; }
+    .preview-bar .spacer { flex: 1; }
+    .preview-bar .btn {
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-size: .78rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: .2s;
+    }
+    .btn-open {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-open:hover { filter: brightness(1.15); }
+    .btn-newtab {
+      background: var(--bg-hover);
+      color: var(--text);
+      border: 1px solid var(--border) !important;
+    }
+    .btn-newtab:hover { background: var(--bg-active); }
+
+    .preview-body {
+      flex: 1;
+      position: relative;
+      background: var(--bg);
+    }
+    .preview-body iframe {
+      width: 100%; height: 100%;
+      border: none;
+      background: #fff;
+    }
+
+    /* DOCX preview placeholder */
+    .docx-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 16px;
+      color: var(--text-dim);
+    }
+    .docx-placeholder .doc-icon {
+      font-size: 4rem;
+    }
+    .docx-placeholder p { font-size: .88rem; max-width: 360px; text-align: center; line-height: 1.6; }
+    .docx-placeholder .btn-download {
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .2s;
+    }
+    .docx-placeholder .btn-download:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+    /* Stats bar */
+    .stats-bar {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      font-size: .72rem;
+      color: var(--text-dim);
+      display: flex;
+      gap: 16px;
+    }
+    .stats-bar span { display: flex; align-items: center; gap: 4px; }
+
+    /* ── Responsive ───────────────────────────────────── */
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 100vw; }
+      body { flex-direction: column; }
+      .sidebar { height: auto; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
+      .main { min-height: 50vh; }
+    }
+
+    /* ── Background gradient ──────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -120px; right: -120px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(94,234,212,.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .sidebar, .main { position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ Sidebar ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">E</div>
+    <h1>Explorer</h1>
+    <div class="sidebar-actions">
+      <button onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <button onclick="loadManifest()" title="Refresh">🔄</button>
+    </div>
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search files..." oninput="filterTree(this.value)" />
+  </div>
+  <div class="tree-container" id="treeContainer"></div>
+  <div class="stats-bar" id="statsBar"></div>
+</aside>
+
+<!-- ═══ Main ═══ -->
+<main class="main">
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">📂</div>
+    <h2>Workspace Playbook</h2>
+    <p>Browse your project files. Click any file to open it directly.</p>
+  </div>
+
+  <div class="preview-frame" id="previewFrame">
+    <div class="preview-bar">
+      <span class="file-name" id="previewName">—</span>
+      <span class="file-path" id="previewPath">—</span>
+      <span class="spacer"></span>
+      <button class="btn btn-newtab" id="btnNewTab" onclick="openInNewTab()">Open in New Tab ↗</button>
+    </div>
+    <div class="preview-body" id="previewBody"></div>
+  </div>
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════ */
+let manifest = null;
+let currentFile = null;
+let fileCount = { html: 0, docx: 0, folders: 0 };
+
+/* ═══════════════════════════════════════════════════════════
+   LOAD MANIFEST
+   ═══════════════════════════════════════════════════════════ */
+async function loadManifest() {
+  try {
+    const res = await fetch('./manifest.json?t=' + Date.now());
+    manifest = await res.json();
+    fileCount = { html: 0, docx: 0, folders: 0 };
+    renderTree(manifest.root);
+    renderStats();
+  } catch (err) {
+    document.getElementById('treeContainer').innerHTML =
+      '<p style="padding:16px;color:#f87171;font-size:.82rem;">Failed to load manifest.json. Run <code>python generate_manifest.py</code> first.</p>';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER TREE
+   ═══════════════════════════════════════════════════════════ */
+function renderTree(root) {
+  const container = document.getElementById('treeContainer');
+  container.innerHTML = '';
+  if (!root.children || root.children.length === 0) {
+    container.innerHTML = '<p style="padding:16px;color:var(--text-dim);font-size:.82rem;">No .html or .docx files found.</p>';
+    return;
+  }
+  root.children.forEach(child => {
+    container.appendChild(createNode(child));
+  });
+}
+
+function createNode(node) {
+  if (node.type === 'folder') {
+    fileCount.folders++;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'tree-folder';
+    wrapper.dataset.name = node.name.toLowerCase();
+
+    const item = document.createElement('div');
+    item.className = 'tree-item';
+    item.innerHTML = `
+      <span class="chevron open">▶</span>
+      <span class="icon">📁</span>
+      <span class="name">${escHtml(node.name)}</span>
+    `;
+
+    const children = document.createElement('div');
+    children.className = 'tree-children';
+    children.style.maxHeight = '2000px';
+
+    node.children.forEach(child => {
+      children.appendChild(createNode(child));
+    });
+
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const chev = item.querySelector('.chevron');
+      const isOpen = !children.classList.contains('collapsed');
+      if (isOpen) {
+        children.classList.add('collapsed');
+        chev.classList.remove('open');
+        item.querySelector('.icon').textContent = '📁';
+      } else {
+        children.classList.remove('collapsed');
+        chev.classList.add('open');
+        item.querySelector('.icon').textContent = '📂';
+      }
+    });
+
+    wrapper.appendChild(item);
+    wrapper.appendChild(children);
+    return wrapper;
+
+  } else {
+    // File
+    if (node.ext === 'html') fileCount.html++;
+    if (node.ext === 'docx') fileCount.docx++;
+
+    const item = document.createElement('div');
+    item.className = 'tree-item tree-file';
+    item.dataset.path = node.path;
+    item.dataset.ext = node.ext;
+    item.dataset.name = node.name.toLowerCase();
+
+    const icon = node.ext === 'html' ? '🌐' : '📄';
+    const badgeClass = node.ext === 'html' ? 'badge-html' : 'badge-docx';
+
+    item.innerHTML = `
+      <span style="width:12px"></span>
+      <span class="icon">${icon}</span>
+      <span class="name">${escHtml(node.name)}</span>
+      <span class="badge ${badgeClass}">${node.ext}</span>
+    `;
+
+    item.addEventListener('click', () => selectFile(node, item));
+    return item;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FILE SELECTION & PREVIEW
+   ═══════════════════════════════════════════════════════════ */
+function selectFile(node, element) {
+  // Deselect previous
+  document.querySelectorAll('.tree-item.active').forEach(el => el.classList.remove('active'));
+  element.classList.add('active');
+
+  currentFile = node;
+
+  document.getElementById('emptyState').style.display = 'none';
+  const frame = document.getElementById('previewFrame');
+  frame.classList.add('visible');
+
+  document.getElementById('previewName').textContent = node.name;
+  document.getElementById('previewPath').textContent = node.path;
+
+  const body = document.getElementById('previewBody');
+  body.innerHTML = '';
+
+  if (node.ext === 'html') {
+    const iframe = document.createElement('iframe');
+    iframe.src = node.path;
+    iframe.title = node.name;
+    body.appendChild(iframe);
+  } else if (node.ext === 'docx') {
+    // Use Microsoft Office Online viewer for .docx preview
+    // Build the full URL to the file for the viewer
+    const fileUrl = window.location.origin + '/' + node.path;
+    const viewerUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(fileUrl);
+
+    // Check if we're on localhost (MS viewer can't access localhost)
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    if (isLocal) {
+      body.innerHTML = `
+        <div class="docx-placeholder">
+          <div class="doc-icon">📝</div>
+          <p><strong>${escHtml(node.name)}</strong><br><br>
+          Microsoft Office viewer cannot access localhost.<br>
+          Deploy to a public URL (e.g. Netlify) to enable live preview,<br>
+          or download the file below.</p>
+          <button class="btn-download" onclick="downloadFile('${escHtml(node.path)}')">⬇ Download .docx</button>
+        </div>
+      `;
+    } else {
+      const iframe = document.createElement('iframe');
+      iframe.src = viewerUrl;
+      iframe.title = node.name;
+      iframe.style.background = '#fff';
+      body.appendChild(iframe);
+    }
+  }
+}
+
+function openInNewTab() {
+  if (!currentFile) return;
+  window.open(currentFile.path, '_blank');
+}
+
+function downloadFile(path) {
+  const a = document.createElement('a');
+  a.href = path;
+  a.download = '';
+  a.click();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SEARCH / FILTER
+   ═══════════════════════════════════════════════════════════ */
+function filterTree(query) {
+  const q = query.toLowerCase().trim();
+  const folders = document.querySelectorAll('.tree-folder');
+  const files = document.querySelectorAll('.tree-file');
+
+  if (!q) {
+    folders.forEach(f => f.style.display = '');
+    files.forEach(f => f.style.display = '');
+    return;
+  }
+
+  // First show/hide files
+  files.forEach(f => {
+    f.style.display = f.dataset.name.includes(q) ? '' : 'none';
+  });
+
+  // Then show folders that have at least one visible child
+  folders.forEach(folder => {
+    const visibleChildren = folder.querySelectorAll('.tree-file:not([style*="display: none"])');
+    folder.style.display = visibleChildren.length > 0 || folder.dataset.name.includes(q) ? '' : 'none';
+    // Auto-expand if searching
+    const children = folder.querySelector('.tree-children');
+    const chev = folder.querySelector('.chevron');
+    if (children && visibleChildren.length > 0) {
+      children.classList.remove('collapsed');
+      if (chev) chev.classList.add('open');
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STATS
+   ═══════════════════════════════════════════════════════════ */
+function renderStats() {
+  document.getElementById('statsBar').innerHTML = `
+    <span>📁 ${fileCount.folders} folders</span>
+    <span>🌐 ${fileCount.html} HTML</span>
+    <span>📄 ${fileCount.docx} DOCX</span>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UTILS
+   ═══════════════════════════════════════════════════════════ */
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function toggleTheme() {
+  // Placeholder for future light/dark toggle
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════ */
+loadManifest();
+</script>
+
+</body>
+</html>
