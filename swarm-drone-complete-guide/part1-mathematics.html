@@ -1,0 +1,2332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 1: Mathematics — Zero to Swarm Drone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0b14;
+            color: #c8cad8;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* NAVIGATION */
+        nav {
+            position: sticky;
+            top: 0;
+            background-color: #12142a;
+            border-bottom: 1px solid #1a1c3a;
+            padding: 1rem 2rem;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-left a {
+            color: #5eead4;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .nav-left a:hover {
+            color: #a78bfa;
+        }
+
+        .nav-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #a78bfa;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #6b6e8a;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #5eead4;
+        }
+
+        .nav-links a.active {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        /* TABLE OF CONTENTS SIDEBAR */
+        .toc-sidebar {
+            position: fixed;
+            left: 0;
+            top: 80px;
+            width: 280px;
+            max-height: calc(100vh - 80px);
+            background-color: #12142a;
+            border-right: 1px solid #1a1c3a;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            z-index: 50;
+        }
+
+        .toc-toggle {
+            display: none;
+            position: fixed;
+            top: 90px;
+            left: 20px;
+            z-index: 101;
+            background-color: #a78bfa;
+            border: none;
+            color: #0a0b14;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .toc-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #a78bfa;
+            margin-bottom: 1.5rem;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-list li {
+            margin-bottom: 0.8rem;
+        }
+
+        .toc-list li a {
+            color: #6b6e8a;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+        }
+
+        .toc-list li a:hover {
+            color: #5eead4;
+            background-color: #1a1c3a;
+            padding-left: 1.2rem;
+        }
+
+        .toc-list li a.active {
+            color: #a78bfa;
+            background-color: #1a1c3a;
+            font-weight: 600;
+        }
+
+        /* MAIN CONTENT */
+        main {
+            margin-left: 280px;
+            padding: 3rem 2rem;
+            max-width: 1200px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, #1a1c3a 0%, #12142a 100%);
+            border: 1px solid #1a1c3a;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(167, 139, 250, 0.1);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #a78bfa;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #6b6e8a;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* SECTIONS */
+        section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 100px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #a78bfa;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            position: relative;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #1a1c3a;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: #5eead4;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            color: #c8cad8;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            line-height: 1.8;
+        }
+
+        /* CALLOUT BOXES */
+        .callout {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+            background-color: #1a1c3a;
+        }
+
+        .callout.analogy {
+            border-left-color: #5eead4;
+        }
+
+        .callout.analogy::before {
+            content: "💡 REAL-WORLD ANALOGY";
+            display: block;
+            font-weight: 700;
+            color: #5eead4;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .callout.application {
+            border-left-color: #a78bfa;
+        }
+
+        .callout.application::before {
+            content: "🚁 DRONE APPLICATION";
+            display: block;
+            font-weight: 700;
+            color: #a78bfa;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .callout p {
+            margin-bottom: 0;
+        }
+
+        .callout p:not(:first-child) {
+            margin-top: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* FORMULA BLOCKS */
+        .formula {
+            background-color: #12142a;
+            border: 1px solid #1a1c3a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .formula-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #5eead4;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .formula-content {
+            font-size: 1.1rem;
+            color: #c8cad8;
+            line-height: 2;
+        }
+
+        .variable {
+            color: #a78bfa;
+            font-style: italic;
+        }
+
+        /* CANVAS VISUALIZATIONS */
+        .canvas-container {
+            background-color: #12142a;
+            border: 1px solid #1a1c3a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .canvas-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #5eead4;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        canvas {
+            background-color: #0f1119;
+            border: 1px solid #1a1c3a;
+            border-radius: 6px;
+            display: block;
+            margin: 0 auto;
+            cursor: crosshair;
+            max-width: 100%;
+        }
+
+        .canvas-info {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #6b6e8a;
+        }
+
+        .info-row {
+            display: inline-block;
+            margin-right: 2rem;
+        }
+
+        .info-label {
+            color: #5eead4;
+            font-weight: 600;
+        }
+
+        .info-value {
+            color: #c8cad8;
+            margin-left: 0.5rem;
+        }
+
+        /* LISTS */
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+            line-height: 1.8;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid #1a1c3a;
+            color: #6b6e8a;
+            font-size: 0.9rem;
+            margin-top: 5rem;
+        }
+
+        footer a {
+            color: #5eead4;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #a78bfa;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            main {
+                margin-left: 0;
+                padding: 2rem 1rem;
+            }
+
+            .toc-sidebar {
+                position: fixed;
+                left: -280px;
+                transition: left 0.3s ease;
+                box-shadow: 2px 0 12px rgba(0, 0, 0, 0.5);
+            }
+
+            .toc-sidebar.open {
+                left: 0;
+            }
+
+            .toc-toggle {
+                display: block;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .nav-links a {
+                font-size: 0.8rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+            }
+
+            .nav-container {
+                gap: 1rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 0.8rem;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            main {
+                padding: 1.5rem;
+            }
+
+            .formula {
+                padding: 1rem;
+                font-size: 0.95rem;
+            }
+
+            .info-row {
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0b14;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1a1c3a;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5eead4;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html">← Back to Guide Home</a>
+                <span class="nav-title">Part 1: Mathematics</span>
+            </div>
+            <div class="nav-links">
+                <a href="part1-mathematics.html" class="active">Part 1: Math</a>
+                <a href="part2-algorithms.html">Part 2: Algorithms</a>
+                <a href="part3-software.html">Part 3: Software</a>
+                <a href="part4-hardware.html">Part 4: Hardware</a>
+                <a href="part5-integration.html">Part 5: Integration</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- TABLE OF CONTENTS SIDEBAR -->
+    <button class="toc-toggle" onclick="toggleTOC()">☰ Contents</button>
+    <aside class="toc-sidebar" id="tocSidebar">
+        <div class="toc-title">Contents</div>
+        <ul class="toc-list">
+            <li><a href="#section1" onclick="closeTOC()">1. Linear Algebra</a></li>
+            <li><a href="#section1-1" onclick="closeTOC()">1.1 Vectors</a></li>
+            <li><a href="#section1-2" onclick="closeTOC()">1.2 Dot Product</a></li>
+            <li><a href="#section1-3" onclick="closeTOC()">1.3 Cross Product</a></li>
+            <li><a href="#section1-4" onclick="closeTOC()">1.4 Matrices</a></li>
+            <li><a href="#section1-5" onclick="closeTOC()">1.5 Eigenvalues</a></li>
+            <li><a href="#section2" onclick="closeTOC()">2. Calculus</a></li>
+            <li><a href="#section2-1" onclick="closeTOC()">2.1 Derivatives</a></li>
+            <li><a href="#section2-2" onclick="closeTOC()">2.2 Integration</a></li>
+            <li><a href="#section2-3" onclick="closeTOC()">2.3 Gradient</a></li>
+            <li><a href="#section2-4" onclick="closeTOC()">2.4 Differential Equations</a></li>
+            <li><a href="#section3" onclick="closeTOC()">3. Probability & Stats</a></li>
+            <li><a href="#section3-1" onclick="closeTOC()">3.1 Why Probability</a></li>
+            <li><a href="#section3-2" onclick="closeTOC()">3.2 Gaussian Distribution</a></li>
+            <li><a href="#section3-3" onclick="closeTOC()">3.3 Bayes' Theorem</a></li>
+            <li><a href="#section3-4" onclick="closeTOC()">3.4 Kalman Filter</a></li>
+            <li><a href="#section4" onclick="closeTOC()">4. Graph Theory</a></li>
+            <li><a href="#section4-1" onclick="closeTOC()">4.1 Graphs</a></li>
+            <li><a href="#section4-2" onclick="closeTOC()">4.2 Connectivity</a></li>
+            <li><a href="#section4-3" onclick="closeTOC()">4.3 Laplacian Matrix</a></li>
+            <li><a href="#section4-4" onclick="closeTOC()">4.4 Formation Control</a></li>
+            <li><a href="#section5" onclick="closeTOC()">5. Optimization</a></li>
+            <li><a href="#section5-1" onclick="closeTOC()">5.1 What is Optimization</a></li>
+            <li><a href="#section5-2" onclick="closeTOC()">5.2 Convex vs Non-Convex</a></li>
+            <li><a href="#section5-3" onclick="closeTOC()">5.3 Linear Programming</a></li>
+            <li><a href="#section5-4" onclick="closeTOC()">5.4 Quadratic Programming</a></li>
+            <li><a href="#section5-5" onclick="closeTOC()">5.5 Mixed-Integer Programming</a></li>
+            <li><a href="#section5-6" onclick="closeTOC()">5.6 Gradient Descent</a></li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- HERO -->
+        <div class="hero">
+            <h1>Part 1: Mathematics for Swarm Drones</h1>
+            <p>From vectors and calculus to probability and graph theory—learn the mathematical foundations that enable autonomous drone swarms to think, move, and coordinate. Every equation here appears in real drone firmware.</p>
+        </div>
+
+        <!-- SECTION 1: LINEAR ALGEBRA -->
+        <section id="section1">
+            <h2>Section 1: Linear Algebra (The Language of Drones)</h2>
+            <p>Linear algebra is the mathematical language drones speak. Every position, velocity, force, and transformation can be expressed as vectors and matrices. Understanding linear algebra is essential because it lets you think about drone motion in compact, precise notation.</p>
+
+            <!-- 1.1 VECTORS -->
+            <h3 id="section1-1">1.1 Vectors — Position, Velocity, Force</h3>
+            <p>A <strong>vector</strong> is a quantity that has both magnitude (how much) and direction (which way). Unlike a scalar (just a number), a vector tells you where something is and how it's moving.</p>
+
+            <h4>What is a Vector?</h4>
+            <p>Imagine you're navigating to a restaurant. Saying "5 km away" is useless—you need direction too. "5 km northeast" is a vector: 5 km is the magnitude, northeast is the direction. In 2D:</p>
+
+            <div class="formula">
+                <div class="formula-title">2D Vector Notation</div>
+                <div class="formula-content">
+                    <span class="variable">v</span> = [<span class="variable">vx</span>, <span class="variable">vy</span>]<br>
+                    or equivalently:<br>
+                    <span class="variable">v</span> = <span class="variable">vx</span><strong>i</strong> + <span class="variable">vy</span><strong>j</strong>
+                </div>
+            </div>
+
+            <p>For a 3D drone, we add a vertical component:</p>
+
+            <div class="formula">
+                <div class="formula-title">3D Vector Notation</div>
+                <div class="formula-content">
+                    <span class="variable">v</span> = [<span class="variable">vx</span>, <span class="variable">vy</span>, <span class="variable">vz</span>]
+                </div>
+            </div>
+
+            <h4>Common Vectors in Drone Control</h4>
+            <ul>
+                <li><strong>Position:</strong> <span class="variable">p</span> = [x, y, z] — where is the drone? (in meters, relative to origin)</li>
+                <li><strong>Velocity:</strong> <span class="variable">v</span> = [vx, vy, vz] — how fast is it moving in each direction? (m/s)</li>
+                <li><strong>Acceleration:</strong> <span class="variable">a</span> = [ax, ay, az] — how is speed changing? (m/s²)</li>
+                <li><strong>Thrust/Force:</strong> <span class="variable">F</span> = [Fx, Fy, Fz] — how hard are the propellers pushing? (Newtons)</li>
+            </ul>
+
+            <h4>Vector Addition: Combining Forces</h4>
+            <p>When multiple forces act on a drone (gravity pulling down, thrust pushing up, wind pushing sideways), we add them as vectors:</p>
+
+            <div class="formula">
+                <div class="formula-title">Vector Addition</div>
+                <div class="formula-content">
+                    <span class="variable">F_total</span> = <span class="variable">F_thrust</span> + <span class="variable">F_gravity</span> + <span class="variable">F_wind</span><br>
+                    = [Tx, Ty, Tz] + [0, 0, -mg] + [Wx, Wy, 0]<br>
+                    = [Tx + Wx, Ty, Tz - mg]
+                </div>
+            </div>
+
+            <h4>Scalar Multiplication: Throttle Control</h4>
+            <p>Scaling a vector means multiplying every component by the same number. This is how throttle works—you scale the thrust vector:</p>
+
+            <div class="formula">
+                <div class="formula-title">Scalar Multiplication</div>
+                <div class="formula-content">
+                    throttle × <span class="variable">F_thrust</span> = t × [Fx, Fy, Fz] = [t·Fx, t·Fy, t·Fz]<br>
+                    where 0 ≤ t ≤ 1 (0% to 100% throttle)
+                </div>
+            </div>
+
+            <h4>Vector Magnitude: How Fast Are You Going?</h4>
+            <p>The magnitude (or length) of a velocity vector tells you the speed:</p>
+
+            <div class="formula">
+                <div class="formula-title">Vector Magnitude (Euclidean Norm)</div>
+                <div class="formula-content">
+                    ||<span class="variable">v</span>|| = √(<span class="variable">vx</span>² + <span class="variable">vy</span>² + <span class="variable">vz</span>²)
+                </div>
+            </div>
+
+            <p>Example: if <span class="variable">v</span> = [3, 4, 0], then ||<span class="variable">v</span>|| = √(9 + 16 + 0) = √25 = 5 m/s.</p>
+
+            <h4>Unit Vectors: Direction Without Magnitude</h4>
+            <p>A unit vector has magnitude 1—it points in a direction without telling you "how far." You create one by dividing a vector by its magnitude:</p>
+
+            <div class="formula">
+                <div class="formula-title">Unit Vector (Normalization)</div>
+                <div class="formula-content">
+                    <strong>û</strong> = <span class="variable">v</span> / ||<span class="variable">v</span>||
+                </div>
+            </div>
+
+            <p>Unit vectors are useful for defining directions (north, east, up) independently of speed.</p>
+
+            <div class="callout analogy">
+                <p>Think of a drone at your house trying to reach a restaurant 5 km northeast. The vector [5 sin(45°), 5 cos(45°)] = [3.54, 3.54] tells you the exact displacement. The unit vector [0.707, 0.707] just says "go that way" without specifying the distance.</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Real Drones:</strong> The flight controller constantly reads the current position and velocity vectors from sensors (GPS, IMU). It compares them to the desired position/velocity vectors (set by the user or path planner) and computes an error vector. It then scales this error by control gains to produce thrust commands.</p>
+            </div>
+
+            <!-- INTERACTIVE: VECTOR VISUALIZATION -->
+            <div class="canvas-container">
+                <div class="canvas-label">Interactive: Thrust + Wind = Resultant Force</div>
+                <canvas id="canvasVectors" width="700" height="500"></canvas>
+                <div class="canvas-info">
+                    <div class="info-row">
+                        <span class="info-label">Drag the arrow tips to adjust vectors</span>
+                    </div>
+                    <br>
+                    <div class="info-row">
+                        <span class="info-label">Thrust:</span>
+                        <span class="info-value" id="thrustInfo">[0, 0]</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Wind:</span>
+                        <span class="info-value" id="windInfo">[0, 0]</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Resultant:</span>
+                        <span class="info-value" id="resultantInfo">[0, 0]</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.2 DOT PRODUCT -->
+            <h3 id="section1-2">1.2 Dot Product — Alignment Detection</h3>
+            <p>The dot product is a way to multiply two vectors that gives you a single number (scalar). It measures how much two vectors point in the same direction.</p>
+
+            <div class="formula">
+                <div class="formula-title">Dot Product (Algebraic Definition)</div>
+                <div class="formula-content">
+                    <span class="variable">a</span> · <span class="variable">b</span> = <span class="variable">ax</span>·<span class="variable">bx</span> + <span class="variable">ay</span>·<span class="variable">by</span> + <span class="variable">az</span>·<span class="variable">bz</span>
+                </div>
+            </div>
+
+            <p>There's another way to compute it using geometry:</p>
+
+            <div class="formula">
+                <div class="formula-title">Dot Product (Geometric Definition)</div>
+                <div class="formula-content">
+                    <span class="variable">a</span> · <span class="variable">b</span> = ||<span class="variable">a</span>|| · ||<span class="variable">b</span>|| · cos(θ)
+                </div>
+            </div>
+
+            <p>where θ is the angle between the vectors.</p>
+
+            <h4>Interpreting the Dot Product</h4>
+            <ul>
+                <li><strong>Positive:</strong> vectors point in roughly the same direction (θ &lt; 90°)</li>
+                <li><strong>Zero:</strong> vectors are perpendicular (θ = 90°)</li>
+                <li><strong>Negative:</strong> vectors point in opposite directions (θ &gt; 90°)</li>
+            </ul>
+
+            <div class="callout analogy">
+                <p>Imagine two people walking. The dot product of their velocity vectors tells you if they're going the same way. If you're both walking north at 1 m/s, your velocities are aligned (high positive dot product). If one walks north and one walks east, they're perpendicular (dot product = 0). If one walks north and one south, they're opposite (negative dot product).</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Drone Swarms:</strong> Alignment is a core rule in swarm behavior. Each drone wants to match the velocity direction of its neighbors. The dot product lets the swarm easily check: "Is my neighbor flying the same direction as me?" If <span class="variable">v_me</span> · <span class="variable">v_neighbor</span> is large and positive, yes. If it's negative or zero, they're flying apart, so adjust.</p>
+            </div>
+
+            <!-- INTERACTIVE: DOT PRODUCT -->
+            <div class="canvas-container">
+                <div class="canvas-label">Interactive: Dot Product & Angle</div>
+                <canvas id="canvasDotProduct" width="700" height="500"></canvas>
+                <div class="canvas-info">
+                    <div class="info-row">
+                        <span class="info-label">Drag the arrow tips to change vectors</span>
+                    </div>
+                    <br>
+                    <div class="info-row">
+                        <span class="info-label">Vector A:</span>
+                        <span class="info-value" id="vecAInfo">[0, 0]</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Vector B:</span>
+                        <span class="info-value" id="vecBInfo">[0, 0]</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Dot Product:</span>
+                        <span class="info-value" id="dotInfo">0</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Angle:</span>
+                        <span class="info-value" id="angleInfo">0°</span>
+                    </div>
+                    <div class="info-row" id="alignmentStatus" style="color: #6b6e8a;">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.3 CROSS PRODUCT -->
+            <h3 id="section1-3">1.3 Cross Product — Rotation and Torque</h3>
+            <p>The cross product multiplies two vectors to produce a new vector perpendicular to both. It's used to compute torque and rotational forces.</p>
+
+            <div class="formula">
+                <div class="formula-title">Cross Product (3D)</div>
+                <div class="formula-content">
+                    <span class="variable">a</span> × <span class="variable">b</span> = <br>
+                    [<span class="variable">ay</span>·<span class="variable">bz</span> − <span class="variable">az</span>·<span class="variable">by</span>, <span class="variable">az</span>·<span class="variable">bx</span> − <span class="variable">ax</span>·<span class="variable">bz</span>, <span class="variable">ax</span>·<span class="variable">by</span> − <span class="variable">ay</span>·<span class="variable">bx</span>]
+                </div>
+            </div>
+
+            <h4>The Right-Hand Rule</h4>
+            <p>To find the direction of <span class="variable">a</span> × <span class="variable">b</span>: point your right hand's fingers in the direction of <span class="variable">a</span>, curl them toward <span class="variable">b</span>. Your thumb points in the direction of <span class="variable">a</span> × <span class="variable">b</span>.</p>
+
+            <h4>Magnitude of Cross Product</h4>
+
+            <div class="formula">
+                <div class="formula-title">Cross Product Magnitude</div>
+                <div class="formula-content">
+                    ||<span class="variable">a</span> × <span class="variable">b</span>|| = ||<span class="variable">a</span>|| · ||<span class="variable">b</span>|| · sin(θ)
+                </div>
+            </div>
+
+            <p>The magnitude is largest when the vectors are perpendicular (sin(90°) = 1) and zero when parallel.</p>
+
+            <div class="callout analogy">
+                <p>Imagine turning a screwdriver. Your hand pushes the handle (vector <span class="variable">a</span>) and the blade points in a certain direction (vector <span class="variable">b</span>). The cross product tells you which way the screw moves—perpendicular to both your push and the blade orientation.</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Drone Control:</strong> Drones are 6D rigid bodies (3 positions, 3 orientations). To rotate a drone, you apply torque, which is the cross product: <strong>τ</strong> = <span class="variable">r</span> × <span class="variable">F</span> (position of the force × force vector). Each motor produces a torque about the drone's center; the controller uses cross products to compute the required motor speeds to achieve desired roll, pitch, and yaw rates.</p>
+            </div>
+
+            <!-- 1.4 MATRICES -->
+            <h3 id="section1-4">1.4 Matrices — Transformations</h3>
+            <p>A matrix is a rectangular array of numbers. In the context of drones, matrices represent transformations: ways to rotate, scale, or change the coordinate system.</p>
+
+            <h4>What is a Matrix?</h4>
+
+            <div class="formula">
+                <div class="formula-title">General 3×3 Matrix</div>
+                <div class="formula-content">
+                    M = [m₁₁  m₁₂  m₁₃]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[m₂₁  m₂₂  m₂₃]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[m₃₁  m₃₂  m₃₃]
+                </div>
+            </div>
+
+            <p>Think of a matrix as a machine that transforms input vectors into output vectors. You put in a vector, multiply by the matrix, and get a transformed vector.</p>
+
+            <h4>Matrix-Vector Multiplication</h4>
+
+            <div class="formula">
+                <div class="formula-title">Matrix × Vector</div>
+                <div class="formula-content">
+                    M · <span class="variable">v</span> = [m₁₁ m₁₂ m₁₃] · [v₁]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[m₂₁ m₂₂ m₂₃] &nbsp;&nbsp;[v₂]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[m₃₁ m₃₂ m₃₃] &nbsp;&nbsp;[v₃]<br>
+                    = [m₁₁v₁ + m₁₂v₂ + m₁₃v₃]<br>
+                    &nbsp;&nbsp;[m₂₁v₁ + m₂₂v₂ + m₂₃v₃]<br>
+                    &nbsp;&nbsp;[m₃₁v₁ + m₃₂v₂ + m₃₃v₃]
+                </div>
+            </div>
+
+            <h4>Rotation Matrices</h4>
+            <p>The most important matrices for drones are rotation matrices. These rotate a vector by an angle θ around an axis.</p>
+
+            <p><strong>Roll rotation (around x-axis by angle φ):</strong></p>
+
+            <div class="formula">
+                <div class="formula-title">Roll Matrix</div>
+                <div class="formula-content">
+                    Rₓ(φ) = [1    0      0   ]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0  cos(φ) -sin(φ)]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0  sin(φ)  cos(φ)]
+                </div>
+            </div>
+
+            <p><strong>Pitch rotation (around y-axis by angle θ):</strong></p>
+
+            <div class="formula">
+                <div class="formula-title">Pitch Matrix</div>
+                <div class="formula-content">
+                    Rᵧ(θ) = [cos(θ)  0  sin(θ)]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[  0    1    0  ]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[-sin(θ) 0  cos(θ)]
+                </div>
+            </div>
+
+            <p><strong>Yaw rotation (around z-axis by angle ψ):</strong></p>
+
+            <div class="formula">
+                <div class="formula-title">Yaw Matrix</div>
+                <div class="formula-content">
+                    Rz(ψ) = [cos(ψ) -sin(ψ)  0]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[sin(ψ)  cos(ψ)  0]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[  0      0     1]
+                </div>
+            </div>
+
+            <h4>Matrix Multiplication: Chaining Transformations</h4>
+            <p>You can combine multiple rotations by multiplying their matrices:</p>
+
+            <div class="formula">
+                <div class="formula-title">Chained Rotations</div>
+                <div class="formula-content">
+                    <span class="variable">v_rotated</span> = Rz(ψ) · Rᵧ(θ) · Rₓ(φ) · <span class="variable">v_original</span>
+                </div>
+            </div>
+
+            <p>This applies roll first, then pitch, then yaw.</p>
+
+            <h4>Identity Matrix</h4>
+            <p>The identity matrix I does nothing to a vector—it's the "do nothing" transformation:</p>
+
+            <div class="formula">
+                <div class="formula-title">Identity Matrix</div>
+                <div class="formula-content">
+                    I = [1  0  0]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[0  1  0]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;[0  0  1]<br>
+                    I · <span class="variable">v</span> = <span class="variable">v</span>
+                </div>
+            </div>
+
+            <h4>Inverse Matrix: Undoing a Transformation</h4>
+            <p>For a rotation matrix R, the inverse R⁻¹ undoes the rotation:</p>
+
+            <div class="formula">
+                <div class="formula-title">Matrix Inverse</div>
+                <div class="formula-content">
+                    R⁻¹ · R = I<br>
+                    For rotation matrices: R⁻¹ = Rᵀ (transpose)
+                </div>
+            </div>
+
+            <div class="callout analogy">
+                <p>A rotation matrix is like a head turn. If you rotate your head 45° to the right, applying the inverse rotation (45° to the left) brings you back to the original orientation.</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Drone Control:</strong> The drone body has its own coordinate system (body frame) where forward is the front, right is the side. The world has a fixed coordinate system (earth frame). Rotation matrices convert between them. To tell the drone "fly north in earth frame," you must convert to the drone's body frame using rotation matrices, then command the motors.</p>
+            </div>
+
+            <!-- 1.5 EIGENVALUES & EIGENVECTORS -->
+            <h3 id="section1-5">1.5 Eigenvalues & Eigenvectors — Stability</h3>
+            <p>An eigenvector of a matrix is a special vector that doesn't change direction when multiplied by the matrix—it only scales. The eigenvalue is the scale factor.</p>
+
+            <div class="formula">
+                <div class="formula-title">Eigenvalue Equation</div>
+                <div class="formula-content">
+                    M · <span class="variable">v</span> = λ · <span class="variable">v</span>
+                </div>
+            </div>
+
+            <p>where <span class="variable">v</span> is an eigenvector and λ is the eigenvalue.</p>
+
+            <h4>Why Eigenvectors Matter</h4>
+            <ul>
+                <li>They're special directions where the matrix has a simple effect (just scaling)</li>
+                <li>For stable systems, all eigenvalues have negative real parts (perturbations decay)</li>
+                <li>For unstable systems, some eigenvalues have positive real parts (perturbations grow)</li>
+            </ul>
+
+            <div class="callout analogy">
+                <p>Imagine a spinning basketball. Most vectors get thrown around chaotically by the rotation. But the spin axis (an eigenvector) doesn't change direction—it just gets rotated around itself. That's an eigenvector.</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Swarm Stability:</strong> A swarm's collective behavior can be modeled as a system with a Laplacian matrix L. The eigenvalues of L tell you how stable the swarm is. If all eigenvalues (except the smallest) are negative, small disturbances die out and the swarm returns to consensus. This is critical for autonomous swarms: you don't want one drone's error to cause the whole swarm to diverge. Eigenvalue analysis lets you prove stability mathematically before deploying the swarm.</p>
+            </div>
+
+        </section>
+
+        <!-- SECTION 2: CALCULUS -->
+        <section id="section2">
+            <h2>Section 2: Calculus (How Things Change)</h2>
+            <p>Calculus is the mathematics of change. Since drones move, accelerate, and adjust, calculus is absolutely essential. It lets you predict where a drone will be next and how to control it to reach a target.</p>
+
+            <!-- 2.1 DERIVATIVES -->
+            <h3 id="section2-1">2.1 Derivatives — Rate of Change</h3>
+            <p>A derivative measures how fast something is changing. If position changes with time, the derivative of position is velocity.</p>
+
+            <div class="formula">
+                <div class="formula-title">Derivative: Position → Velocity</div>
+                <div class="formula-content">
+                    <span class="variable">v</span>(t) = d<span class="variable">p</span>/dt
+                </div>
+            </div>
+
+            <p>If velocity changes, its derivative is acceleration:</p>
+
+            <div class="formula">
+                <div class="formula-title">Derivative: Velocity → Acceleration</div>
+                <div class="formula-content">
+                    <span class="variable">a</span>(t) = d<span class="variable">v</span>/dt = d²<span class="variable">p</span>/dt²
+                </div>
+            </div>
+
+            <h4>Partial Derivatives: Multiple Variables</h4>
+            <p>When a quantity depends on multiple variables (like thrust T depends on motor speeds m₁, m₂, m₃, m₄), we use partial derivatives to see how T changes with respect to each motor:</p>
+
+            <div class="formula">
+                <div class="formula-title">Partial Derivatives</div>
+                <div class="formula-content">
+                    ∂T/∂m₁ = how much thrust changes if you tweak motor 1
+                </div>
+            </div>
+
+            <h4>Numerical Integration for Drones</h4>
+            <p>In discrete time (sampled at Δt), we approximate derivatives with finite differences:</p>
+
+            <div class="formula">
+                <div class="formula-title">Discrete Velocity Approximation</div>
+                <div class="formula-content">
+                    <span class="variable">v</span>[n] ≈ (<span class="variable">p</span>[n] − <span class="variable">p</span>[n−1]) / Δt
+                </div>
+            </div>
+
+            <div class="callout analogy">
+                <p>Your car's speedometer shows the derivative of your odometer—how fast the distance traveled is increasing. Pressing the accelerator changes the throttle, which is the derivative of the throttle (derivative of a derivative).</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Real Drones:</strong> The flight controller samples position and velocity at ~50 Hz (every 20 ms). It computes derivatives (using differences) to estimate acceleration. Then it applies a control law that often looks like: <strong>u = Kp · e + Kd · de/dt</strong> where e is position error and de/dt is velocity error. The Kd term uses the derivative to add damping.</p>
+            </div>
+
+            <!-- 2.2 INTEGRATION -->
+            <h3 id="section2-2">2.2 Integration — Accumulation</h3>
+            <p>Integration is the reverse of differentiation. If you integrate velocity, you get position. If you integrate acceleration, you get velocity.</p>
+
+            <div class="formula">
+                <div class="formula-title">Integration: Velocity → Position</div>
+                <div class="formula-content">
+                    <span class="variable">p</span>(t) = ∫ <span class="variable">v</span>(τ) dτ
+                </div>
+            </div>
+
+            <h4>Numerical Integration: Accumulating Sensor Data</h4>
+            <p>Drones don't measure position directly—they measure acceleration via an accelerometer. To find position, you integrate acceleration twice:</p>
+
+            <div class="formula">
+                <div class="formula-title">Double Integration for Position</div>
+                <div class="formula-content">
+                    <span class="variable">v</span>[n] = <span class="variable">v</span>[n−1] + <span class="variable">a</span>[n] · Δt<br>
+                    <span class="variable">p</span>[n] = <span class="variable">p</span>[n−1] + <span class="variable">v</span>[n] · Δt
+                </div>
+            </div>
+
+            <h4>The Drift Problem</h4>
+            <p>Integration has a critical flaw: errors accumulate. If the accelerometer is off by 0.1 m/s² and you integrate for 100 seconds, you've accumulated 10 m/s of velocity error. Integrate that again, and you have 500 m of position error. This is why drones can't rely on accelerometers alone—they need GPS or visual odometry to correct drift.</p>
+
+            <div class="callout analogy">
+                <p>Imagine filling a bathtub. The water flowing in (flow rate) is like velocity. The total water (amount) is like position. If the faucet's flow rate is measured slightly wrong and you forget to turn it off, you'll overflow the tub—errors accumulate.</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Drone Localization:</strong> Early quadcopters used only IMU integration and accumulated massive position drift within seconds. Modern drones fuse GPS, visual odometry, and IMU using a Kalman filter (Section 3.4) to keep integration errors bounded. The Kalman filter's strength is that it uses slow, accurate sensors (GPS) to correct the accumulated errors of fast, noisy integration.</p>
+            </div>
+
+            <!-- 2.3 GRADIENT -->
+            <h3 id="section2-3">2.3 Gradient — Direction of Steepest Change</h3>
+            <p>The gradient is a generalization of the derivative to multiple dimensions. It's a vector that points in the direction of steepest increase.</p>
+
+            <div class="formula">
+                <div class="formula-title">Gradient Vector</div>
+                <div class="formula-content">
+                    ∇f = [∂f/∂x, ∂f/∂y, ∂f/∂z]
+                </div>
+            </div>
+
+            <p>The gradient always points uphill. The negative gradient points downhill.</p>
+
+            <h4>Gradient in Swarm Path Planning</h4>
+            <p>You can define an artificial potential field where obstacles are peaks (high potential) and the goal is a valley (low potential). Each drone experiences a force proportional to the negative gradient:</p>
+
+            <div class="formula">
+                <div class="formula-title">Potential Field Force</div>
+                <div class="formula-content">
+                    <span class="variable">F</span> = −∇Φ(<span class="variable">p</span>)
+                </div>
+            </div>
+
+            <p>The drone rolls downhill toward the goal, automatically avoiding obstacles. The gradient tells the drone which way to move to reduce the potential energy fastest.</p>
+
+            <!-- INTERACTIVE: POTENTIAL FIELD -->
+            <div class="canvas-container">
+                <div class="canvas-label">Interactive: Potential Field & Gradient</div>
+                <canvas id="canvasPotentialField" width="700" height="500"></canvas>
+                <div class="canvas-info">
+                    <div class="info-row">
+                        <span class="info-label">Left-click to place drone | Right-click to place goal | Blue = low potential (goal), Red = high potential (obstacles)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout analogy">
+                <p>Imagine a landscape with mountains (obstacles) and a valley (goal). The gradient points uphill everywhere. The negative gradient points downhill. A ball rolling on this landscape will naturally roll downhill following the negative gradient toward the valley.</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Swarm Navigation:</strong> Potential field methods scale to large swarms because each drone computes its own gradient independently based on local sensor readings. No central computation needed. Drones "cooperate" by following the same potential field—they naturally spread out to avoid each other (negative gradient of inter-drone repulsion potential) while approaching the goal (negative gradient of goal attraction potential).</p>
+            </div>
+
+            <!-- 2.4 DIFFERENTIAL EQUATIONS -->
+            <h3 id="section2-4">2.4 Differential Equations — Modeling Drone Physics</h3>
+            <p>A differential equation is an equation involving derivatives. It's used to model how a system evolves over time. Drone physics is fundamentally differential equations.</p>
+
+            <h4>Newton's Second Law as a Differential Equation</h4>
+
+            <div class="formula">
+                <div class="formula-title">Newton's F = ma</div>
+                <div class="formula-content">
+                    F = m · a<br>
+                    F = m · d²p/dt²
+                </div>
+            </div>
+
+            <p>For a drone, F is the total force (thrust − gravity − drag). Rearranging:</p>
+
+            <div class="formula">
+                <div class="formula-title">Drone Acceleration Equation</div>
+                <div class="formula-content">
+                    d²p/dt² = (F_thrust − F_gravity − F_drag) / m
+                </div>
+            </div>
+
+            <h4>State-Space Representation</h4>
+            <p>Engineers often write systems in state-space form, where the system state <span class="variable">x</span> evolves according to input <span class="variable">u</span>:</p>
+
+            <div class="formula">
+                <div class="formula-title">Linear State-Space Form</div>
+                <div class="formula-content">
+                    ẋ = Ax + Bu<br>
+                    y = Cx + Du
+                </div>
+            </div>
+
+            <p>For a 1D drone: <span class="variable">x</span> = [position, velocity]ᵀ, <span class="variable">u</span> = [thrust command]</p>
+
+            <div class="formula">
+                <div class="formula-title">1D Drone State-Space</div>
+                <div class="formula-content">
+                    d/dt [p]   [0  1] [p]   [0  ]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[—] = [—  —] [—] + [—-] u<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[v]   [0  0] [v]   [1/m]
+                </div>
+            </div>
+
+            <h4>Nonlinearity: Why Drones Are Tricky</h4>
+            <p>The equations above are linear. Real drones are nonlinear. For example, thrust doesn't just push up—it depends on motor speed exponentially. Drag depends on velocity squared. Attitude dynamics involve trigonometric functions.</p>
+
+            <p>That's why controllers use gain scheduling or linearization: approximate the nonlinear system as linear around a nominal operating point, design a linear controller, then hope it works when the drone deviates slightly.</p>
+
+            <div class="callout analogy">
+                <p>Modeling a drone is like predicting the weather. You know the differential equations (Navier-Stokes). But they're nonlinear and sensitive to initial conditions. You solve them numerically to forecast the next hour, but errors grow. Weather forecasts are pretty good for 3 days, terrible beyond a week.</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Drone Firmware:</strong> The flight controller solves differential equations numerically in real-time (every 10–20 ms). The inner loop integrates acceleration from the IMU to estimate velocity and position (integration). The outer loop compares desired vs actual states and computes control inputs (feedback). This happens hundreds of times per second, allowing the drone to stabilize despite wind gusts and model errors.</p>
+            </div>
+
+        </section>
+
+        <!-- SECTION 3: PROBABILITY & STATISTICS -->
+        <section id="section3">
+            <h2>Section 3: Probability & Statistics (Dealing with Uncertainty)</h2>
+            <p>In the real world, sensors are noisy, wind gusts are unpredictable, and obstacles might appear. Drones live in uncertainty. Probability and statistics let you reason about it mathematically.</p>
+
+            <!-- 3.1 WHY PROBABILITY -->
+            <h3 id="section3-1">3.1 Why Probability Matters for Drones</h3>
+            <p>No sensor is perfect. GPS accuracy is typically ±2 meters. Accelerometers drift. Camera images get blurry in low light. A smart drone doesn't trust a single measurement—it assigns it a probability distribution representing uncertainty.</p>
+
+            <h4>Measurement Uncertainty</h4>
+            <ul>
+                <li><strong>GPS:</strong> Reports position [x, y, z] but has uncertainty (error standard deviation) ~2 m in open sky</li>
+                <li><strong>Barometer:</strong> Measures altitude but drifts with temperature and air pressure changes</li>
+                <li><strong>Accelerometer:</strong> Noisy and drifts over time. Can't distinguish between acceleration and tilt</li>
+                <li><strong>Magnetometer:</strong> Affected by metal objects, magnetic anomalies, and ferrous materials</li>
+                <li><strong>Camera:</strong> Can be blurry, has rolling shutter artifacts, and fails in darkness</li>
+            </ul>
+
+            <!-- 3.2 GAUSSIAN DISTRIBUTION -->
+            <h3 id="section3-2">3.2 Gaussian (Normal) Distribution</h3>
+            <p>Most sensor errors follow a bell curve—a Gaussian distribution. Errors are small (close to zero) most of the time, and rarely large.</p>
+
+            <div class="formula">
+                <div class="formula-title">Gaussian (Normal) Distribution PDF</div>
+                <div class="formula-content">
+                    f(x) = (1 / (σ√(2π))) · exp(−(x − μ)² / (2σ²))
+                </div>
+            </div>
+
+            <p>Two parameters define a Gaussian:</p>
+            <ul>
+                <li><strong>Mean μ:</strong> the center, where the measurement is most likely to be</li>
+                <li><strong>Variance σ²:</strong> how spread out the distribution is (larger σ = more uncertainty)</li>
+            </ul>
+
+            <h4>The 68-95-99.7 Rule</h4>
+            <ul>
+                <li><strong>68%</strong> of measurements fall within 1σ of the mean</li>
+                <li><strong>95%</strong> fall within 2σ</li>
+                <li><strong>99.7%</strong> fall within 3σ</li>
+            </ul>
+
+            <p>Example: GPS says your drone is at (x = 100, y = 200) with σ = 2 m. There's a 68% chance the true position is within 2 m, a 95% chance within 4 m.</p>
+
+            <h4>Multivariate Gaussian: Uncertainty in 3D</h4>
+            <p>In 3D, uncertainty isn't a circle—it's an ellipsoid (stretched sphere). The covariance matrix Σ encodes the shape:</p>
+
+            <div class="formula">
+                <div class="formula-title">Multivariate Gaussian</div>
+                <div class="formula-content">
+                    f(<span class="variable">x</span>) = (1 / √(2π)ⁿ |Σ|) · exp(−½ (<span class="variable">x</span> − μ)ᵀ Σ⁻¹ (<span class="variable">x</span> − μ))
+                </div>
+            </div>
+
+            <p>The covariance matrix tells you how uncertain each dimension is and whether uncertainties are correlated (e.g., if you're uncertain about x, does that make you more or less uncertain about y?).</p>
+
+            <div class="callout analogy">
+                <p>Imagine throwing darts at a board. Most land near the bullseye, some land farther away, very few land way off. The distribution of dart locations is roughly Gaussian, centered at your aim point.</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Drone Localization:</strong> The drone maintains a Gaussian belief about its position: mean = estimated position, covariance = uncertainty ellipsoid. When it gets a GPS measurement, it updates its belief. When the covariance grows (using motion model), it becomes more uncertain. When it gets a measurement, the covariance shrinks (becomes more confident). This is exactly what the Kalman filter does.</p>
+            </div>
+
+            <!-- 3.3 BAYES' THEOREM -->
+            <h3 id="section3-3">3.3 Bayes' Theorem — Updating Beliefs</h3>
+            <p>Bayes' theorem is the mathematical foundation for updating beliefs when you get new information. You start with a prior belief, get a measurement, and update to a posterior belief.</p>
+
+            <div class="formula">
+                <div class="formula-title">Bayes' Theorem</div>
+                <div class="formula-content">
+                    P(A|B) = P(B|A) · P(A) / P(B)
+                </div>
+            </div>
+
+            <p>In the context of drones:</p>
+
+            <div class="formula">
+                <div class="formula-title">Bayes' Theorem for Localization</div>
+                <div class="formula-content">
+                    P(position | measurement) = P(measurement | position) · P(position) / P(measurement)<br>
+                    Posterior = Likelihood × Prior / Evidence
+                </div>
+            </div>
+
+            <h4>Practical Example</h4>
+            <p>You're trying to localize a drone. Your prior is "it's somewhere in the test area" (broad uncertainty). Your GPS gives a measurement: "the drone is at (100, 200)" but with uncertainty. The measurement is the likelihood. You multiply: likelihood × prior = posterior. The posterior is your updated belief: "the drone is probably near (100, 200), but considering my prior uncertainty, I'm not 100% sure."</p>
+
+            <div class="callout analogy">
+                <p>You hear a strange noise at night. Prior belief: "probably the cat" (the cat is in the house, 90% prior). But the sound is too loud for a cat—that's unlikely if it's a cat (low likelihood). You update: "probably not the cat, maybe a break-in." Bayes' theorem formalizes this.</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Sensor Fusion:</strong> A drone has multiple sensors: GPS (accurate but slow), IMU (fast but drifts), camera (accurate but only indoors). Bayes' theorem lets you combine them optimally. Each sensor provides a likelihood over position. Your prior is your current belief. You update the posterior and use that as the new prior for the next measurement. This sequential process is the Kalman filter.</p>
+            </div>
+
+            <!-- 3.4 KALMAN FILTER -->
+            <h3 id="section3-4">3.4 Kalman Filter — The Drone's Brain</h3>
+            <p>The Kalman filter is the standard tool for state estimation in drones. It optimally fuses predictions (from a motion model) and measurements (from sensors) to estimate the true state.</p>
+
+            <h4>Two Steps: Predict and Update</h4>
+
+            <p><strong>1. Predict:</strong> Use your motion model to predict where the drone will be at the next time step:</p>
+
+            <div class="formula">
+                <div class="formula-title">Predict Step (a priori)</div>
+                <div class="formula-content">
+                    x̂⁻[n] = A · x̂[n−1] + B · u[n]<br>
+                    P⁻[n] = A · P[n−1] · Aᵀ + Q
+                </div>
+            </div>
+
+            <p><strong>2. Update:</strong> Get a sensor measurement and correct your prediction:</p>
+
+            <div class="formula">
+                <div class="formula-title">Update Step (a posteriori)</div>
+                <div class="formula-content">
+                    K[n] = P⁻[n] · Hᵀ / (H · P⁻[n] · Hᵀ + R)<br>
+                    x̂[n] = x̂⁻[n] + K[n] · (z[n] − H · x̂⁻[n])<br>
+                    P[n] = (I − K[n] · H) · P⁻[n]
+                </div>
+            </div>
+
+            <h4>What Each Variable Means</h4>
+            <ul>
+                <li><strong>x̂:</strong> estimated state (position, velocity, etc.)</li>
+                <li><strong>P:</strong> covariance matrix (uncertainty of each state)</li>
+                <li><strong>u:</strong> control input (thrust command)</li>
+                <li><strong>z:</strong> sensor measurement (GPS, IMU, etc.)</li>
+                <li><strong>A, B, H:</strong> system matrices (how state evolves, how measurements relate to state)</li>
+                <li><strong>Q:</strong> process noise covariance (uncertainty in the motion model)</li>
+                <li><strong>R:</strong> measurement noise covariance (sensor noise)</li>
+                <li><strong>K:</strong> Kalman gain (how much to trust prediction vs measurement)</li>
+            </ul>
+
+            <h4>The Kalman Filter's Magic</h4>
+            <p>The Kalman filter doesn't just average predictions and measurements—it weights them by their uncertainty. If the prediction is confident (small P) but the measurement is noisy (large R), it trusts the prediction more. If the prediction drifts (large Q) but the measurement is accurate (small R), it trusts the measurement more. This optimal weighting is why the Kalman filter is optimal for linear Gaussian systems.</p>
+
+            <h4>Extended Kalman Filter (EKF)</h4>
+            <p>Real drone dynamics are nonlinear (trigonometric functions, squared terms). The Extended Kalman Filter linearizes around the current state and applies the standard filter to the linear approximation. It's not optimal anymore, but it works well in practice.</p>
+
+            <!-- INTERACTIVE: KALMAN FILTER -->
+            <div class="canvas-container">
+                <div class="canvas-label">Interactive: Kalman Filter Fusion (GPS vs Estimate)</div>
+                <canvas id="canvasKalmanFilter" width="700" height="500"></canvas>
+                <div class="canvas-info">
+                    <div class="info-row">
+                        <span class="info-label">Black = true position | Red dots = noisy GPS | Blue line = Kalman filter estimate</span>
+                    </div>
+                    <br>
+                    <div class="info-row">
+                        <span class="info-label">GPS Noise (σ):</span>
+                        <input type="range" id="noiseSlider" min="1" max="20" value="5" style="width: 150px;">
+                        <span class="info-value" id="noiseValue">5</span>
+                    </div>
+                    <div class="info-row">
+                        <button onclick="resetKalmanDemo()" style="margin-top: 1rem; padding: 0.5rem 1rem; background-color: #a78bfa; color: #0a0b14; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout analogy">
+                <p>You're tracking a friend's car on a map using two sources: GPS on their phone and watching them drive via video. GPS is usually accurate but occasionally glitches. Video is always correct but requires attention. The Kalman filter says: "If GPS and video agree, great. If they disagree slightly, blend them. If GPS is way off (glitch), trust video more."</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Drone Firmware:</strong> The flight controller runs an Extended Kalman Filter to estimate the drone's pose (position and orientation). IMU data (fast, noisy) provides acceleration and angular velocity. GPS data (slow, accurate) corrects drift. The EKF fuses them optimally, producing a smooth, accurate state estimate that can be used for control. Without the Kalman filter, drones would either drift (trusting IMU alone) or jitter (trusting GPS alone).</p>
+            </div>
+
+        </section>
+
+        <!-- SECTION 4: GRAPH THEORY -->
+        <section id="section4">
+            <h2>Section 4: Graph Theory & Topology (Swarm Communication)</h2>
+            <p>A swarm is a network of drones. Graph theory is the mathematics of networks. It lets you reason about information flow, connectivity, and collective behavior.</p>
+
+            <!-- 4.1 GRAPHS -->
+            <h3 id="section4-1">4.1 Graphs — Who Talks to Whom</h3>
+            <p>A graph consists of vertices (nodes) and edges (connections). In a drone swarm, vertices are drones and edges are communication links.</p>
+
+            <div class="formula">
+                <div class="formula-title">Graph Notation</div>
+                <div class="formula-content">
+                    G = (V, E)<br>
+                    V = set of vertices (drones)<br>
+                    E = set of edges (communication links)
+                </div>
+            </div>
+
+            <h4>Adjacency Matrix</h4>
+            <p>An adjacency matrix A describes which drones are connected:</p>
+
+            <div class="formula">
+                <div class="formula-title">Adjacency Matrix</div>
+                <div class="formula-content">
+                    A[i,j] = 1 if drone i can communicate with drone j<br>
+                    A[i,j] = 0 otherwise
+                </div>
+            </div>
+
+            <h4>Degree</h4>
+            <p>The degree of a vertex is the number of neighbors it has:</p>
+
+            <div class="formula">
+                <div class="formula-title">Vertex Degree</div>
+                <div class="formula-content">
+                    degree(i) = Σⱼ A[i,j]
+                </div>
+            </div>
+
+            <p>A drone with high degree has many neighbors and is well-connected. A drone with degree 1 is on the periphery.</p>
+
+            <div class="callout analogy">
+                <p>Think of a social network. Vertices are people, edges are friendships. Your degree is the number of friends you have. A well-connected node (high degree) can spread information quickly to the whole network.</p>
+            </div>
+
+            <!-- 4.2 CONNECTIVITY -->
+            <h3 id="section4-2">4.2 Connectivity — Can Information Reach Everyone?</h3>
+            <p>A graph is connected if information can flow from any vertex to any other (directly or through intermediate vertices). For a swarm, this means all drones can share information, directly or indirectly.</p>
+
+            <h4>Algebraic Connectivity</h4>
+            <p>The algebraic connectivity (Fiedler value) is the second-smallest eigenvalue λ₂ of the Laplacian matrix L (defined below). It measures "how connected" the graph is:</p>
+
+            <ul>
+                <li><strong>λ₂ > 0:</strong> graph is connected</li>
+                <li><strong>λ₂ = 0:</strong> graph is disconnected (one or more isolated components)</li>
+                <li><strong>λ₂ large:</strong> graph is very strongly connected (many redundant paths)</li>
+            </ul>
+
+            <div class="callout application">
+                <p><strong>In Swarm Monitoring:</strong> A drone can periodically compute λ₂ of the swarm's connectivity graph using local measurements. If λ₂ is dropping, the swarm is fragmenting. A drone can decide to move closer to neighbors to increase λ₂ and prevent partition. This is a decentralized way to maintain swarm cohesion.</p>
+            </div>
+
+            <!-- 4.3 LAPLACIAN MATRIX -->
+            <h3 id="section4-3">4.3 Laplacian Matrix — The Heart of Consensus</h3>
+            <p>The Laplacian matrix L is defined as L = D − A, where D is the degree matrix (diagonal matrix with D[i,i] = degree of node i).</p>
+
+            <div class="formula">
+                <div class="formula-title">Laplacian Matrix</div>
+                <div class="formula-content">
+                    L = D − A
+                </div>
+            </div>
+
+            <h4>Consensus Protocol</h4>
+            <p>With the Laplacian, you can define a simple consensus rule where each drone adjusts its value toward the average of its neighbors' values:</p>
+
+            <div class="formula">
+                <div class="formula-title">Consensus Update Law</div>
+                <div class="formula-content">
+                    ẋᵢ = Σⱼ (xⱼ − xᵢ) for all neighbors j of i<br>
+                    or in matrix form:<br>
+                    ẋ = −L · x
+                </div>
+            </div>
+
+            <h4>Convergence to Consensus</h4>
+            <p>If the graph is connected and undirected, this simple rule makes all drones converge to the same value (consensus). The final consensus value is the average of all initial values. The convergence speed depends on λ₂ (the algebraic connectivity)—larger λ₂ means faster convergence.</p>
+
+            <p>Example use cases:</p>
+            <ul>
+                <li><strong>Temperature regulation:</strong> Each drone measures local temperature, and they converge to the average temperature of the environment</li>
+                <li><strong>Time synchronization:</strong> Drones adjust their clocks to reach the same time</li>
+                <li><strong>Rendezvous:</strong> Drones converge to a common meeting point (using position consensus)</li>
+            </ul>
+
+            <!-- INTERACTIVE: CONSENSUS -->
+            <div class="canvas-container">
+                <div class="canvas-label">Interactive: Consensus Protocol</div>
+                <canvas id="canvasConsensus" width="700" height="500"></canvas>
+                <div class="canvas-info">
+                    <div class="info-row">
+                        <span class="info-label">Watch drones (nodes) exchange values with neighbors. Color = value. Edges = communication. All converge to same color (consensus).</span>
+                    </div>
+                    <br>
+                    <div class="info-row">
+                        <button onclick="toggleConsensus()" style="padding: 0.5rem 1rem; background-color: #a78bfa; color: #0a0b14; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;" id="consensusPlayBtn">Play</button>
+                        <button onclick="resetConsensus()" style="padding: 0.5rem 1rem; background-color: #5eead4; color: #0a0b14; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-left: 0.5rem;">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout analogy">
+                <p>Imagine a group of people standing in a circle, each with a different body temperature. Periodically, each person adjusts their temperature slightly toward the average of their neighbors' temperatures. Over time, everyone converges to the same temperature—consensus achieved.</p>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Swarm Control:</strong> The consensus protocol is the foundation of many distributed swarm algorithms. For example, flocking: each drone's heading is the average heading of neighbors → all drones align. Swarming: each drone's position drifts toward the average position of neighbors → all drones converge to a center. The Laplacian captures all of this mathematically, making it possible to prove convergence and analyze stability.</p>
+            </div>
+
+            <!-- 4.4 FORMATION CONTROL -->
+            <h3 id="section4-4">4.4 Formation Control via Graph Theory</h3>
+            <p>Instead of consensus (all drones converge to the same value), you might want them to maintain specific relative distances—a formation.</p>
+
+            <h4>Desired Formation as a Graph</h4>
+            <p>A formation is defined by the desired inter-drone distances. You can represent this as a graph where edge weights are desired distances:</p>
+
+            <div class="formula">
+                <div class="formula-title">Distance-based Formation</div>
+                <div class="formula-content">
+                    For each edge (i, j): desired distance dᵢⱼ
+                </div>
+            </div>
+
+            <p>Each drone tries to maintain this distance from its neighbors:</p>
+
+            <div class="formula">
+                <div class="formula-title">Distance Control Law</div>
+                <div class="formula-content">
+                    Force on drone i = Σⱼ (k · (||pⱼ − pᵢ|| − dᵢⱼ) · (pⱼ − pᵢ) / ||pⱼ − pᵢ||)
+                </div>
+            </div>
+
+            <p>Each drone pulls/pushes based on the difference between current and desired distance to each neighbor.</p>
+
+            <h4>Rigidity Theory</h4>
+            <p>A formation is rigid if once the distances are satisfied, the shape is fixed (can't deform by moving drones while keeping distances the same). Rigidity is important because it ensures the formation doesn't collapse or expand unexpectedly.</p>
+
+            <h4>Bearing-based Control</h4>
+            <p>Instead of maintaining distances, you can maintain angles (bearings) between drones. This is sometimes more robust because it uses relative direction rather than absolute distance (which requires ranging sensors). The math involves unit vectors:</p>
+
+            <div class="formula">
+                <div class="formula-title">Bearing Vector</div>
+                <div class="formula-content">
+                    bᵢⱼ = (pⱼ − pᵢ) / ||pⱼ − pᵢ||  (unit vector from i to j)
+                </div>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Swarm Surveillance:</strong> A swarm of 6 drones might maintain a hexagonal formation (each drone equidistant from 2 neighbors). Using distance control laws derived from graph Laplacian theory, the swarm self-organizes into this formation. If one drone is perturbed by wind, the control laws restore the formation. If one drone fails, the formation adapts (becomes a pentagon). This self-healing property emerges from the mathematics of graph-based formation control.</p>
+            </div>
+
+        </section>
+
+        <!-- SECTION 5: OPTIMIZATION -->
+        <section id="section5">
+            <h2>Section 5: Optimization (Finding the Best Solution)</h2>
+            <p>Drones operate in constrained environments. They have limited battery, can't exceed speed limits, must avoid obstacles. Optimization is the mathematics of finding the best solution within constraints.</p>
+
+            <!-- 5.1 WHAT IS OPTIMIZATION -->
+            <h3 id="section5-1">5.1 What is Optimization?</h3>
+            <p>Optimization means finding the input that minimizes (or maximizes) a cost function J(x) subject to constraints.</p>
+
+            <div class="formula">
+                <div class="formula-title">Optimization Problem</div>
+                <div class="formula-content">
+                    minimize J(x)<br>
+                    subject to:<br>
+                    &nbsp;&nbsp;g(x) ≤ 0  (inequality constraints)<br>
+                    &nbsp;&nbsp;h(x) = 0  (equality constraints)<br>
+                    &nbsp;&nbsp;x ∈ [lower, upper]  (box constraints)
+                </div>
+            </div>
+
+            <h4>Example: Drone Path Planning</h4>
+            <ul>
+                <li><strong>Objective:</strong> minimize path length (or time to goal, or energy use)</li>
+                <li><strong>Constraints:</strong>
+                    <ul>
+                        <li>avoid obstacles (inequality constraints: distance to obstacle > 0)</li>
+                        <li>start at initial position, end at goal (equality constraints)</li>
+                        <li>stay within speed limits (box constraints: velocity ≤ v_max)</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="callout analogy">
+                <p>Planning a road trip: minimize driving time (objective) while staying on roads (constraint) and obeying speed limits (constraint). Not all solutions are valid, and among valid solutions, the optimal one is fastest.</p>
+            </div>
+
+            <!-- 5.2 CONVEX VS NON-CONVEX -->
+            <h3 id="section5-2">5.2 Convex vs Non-Convex</h3>
+            <p>A convex optimization problem has a single global minimum—you're guaranteed to find it. A non-convex problem has multiple local minima—you might get stuck at a suboptimal solution.</p>
+
+            <h4>Convex Problem</h4>
+            <p>The objective function J(x) is convex if for any two points x₁, x₂, the line segment between them lies above the curve:</p>
+
+            <div class="formula">
+                <div class="formula-title">Convexity Condition</div>
+                <div class="formula-content">
+                    J(λx₁ + (1−λ)x₂) ≤ λJ(x₁) + (1−λ)J(x₂)  for λ ∈ [0, 1]
+                </div>
+            </div>
+
+            <p>Convex problems: linear programming, quadratic programming (if the quadratic is positive semidefinite), least-squares optimization.</p>
+
+            <h4>Non-Convex Problem</h4>
+            <p>Drone path planning is usually non-convex because obstacles create multiple valleys (local minima). You can get stuck in one valley and never reach the true global optimum.</p>
+
+            <ul>
+                <li><strong>Solutions:</strong>
+                    <ul>
+                        <li>Random restart: solve from multiple initial guesses, pick the best</li>
+                        <li>Convex relaxation: find a convex approximation, solve it, hope it's close</li>
+                        <li>Heuristics: genetic algorithms, simulated annealing, particle swarm optimization</li>
+                        <li>Sampling-based methods: RRT*, RRT-Connect (for path planning)</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="callout analogy">
+                <p>In a bowl (convex), rolling a ball always leads to the bottom. In mountains (non-convex), a ball might get stuck in a valley that's not the lowest point on Earth. You might have to restart from a different position or throw the ball harder to escape.</p>
+            </div>
+
+            <!-- 5.3 LINEAR PROGRAMMING -->
+            <h3 id="section5-3">5.3 Linear Programming</h3>
+            <p>Linear programming optimizes a linear objective with linear constraints. It's solved efficiently by the simplex method.</p>
+
+            <div class="formula">
+                <div class="formula-title">Linear Programming</div>
+                <div class="formula-content">
+                    minimize cᵀx<br>
+                    subject to Ax ≤ b, x ≥ 0
+                </div>
+            </div>
+
+            <h4>Task Allocation in Swarms</h4>
+            <p>Suppose you have N drones and M targets. Each drone can service multiple targets (with a cost), and each target must be serviced by exactly one drone. Find the assignment that minimizes total cost:</p>
+
+            <div class="formula">
+                <div class="formula-title">Task Allocation Cost</div>
+                <div class="formula-content">
+                    minimize Σᵢ Σⱼ costᵢⱼ · xᵢⱼ<br>
+                    subject to:<br>
+                    &nbsp;&nbsp;Σᵢ xᵢⱼ = 1  (each target assigned to exactly one drone)<br>
+                    &nbsp;&nbsp;xᵢⱼ ∈ {0, 1}
+                </div>
+            </div>
+
+            <p>This is a linear assignment problem—one of the few task allocation problems solvable in polynomial time (Hungarian algorithm).</p>
+
+            <!-- 5.4 QUADRATIC PROGRAMMING -->
+            <h3 id="section5-4">5.4 Quadratic Programming</h3>
+            <p>Quadratic programming has a quadratic objective and linear constraints. Common in control and trajectory optimization.</p>
+
+            <div class="formula">
+                <div class="formula-title">Quadratic Programming</div>
+                <div class="formula-content">
+                    minimize ½ xᵀ Q x + cᵀ x<br>
+                    subject to Ax ≤ b, x ≥ 0
+                </div>
+            </div>
+
+            <h4>Minimum-Jerk Trajectory</h4>
+            <p>A common drone trajectory objective is minimum jerk (third derivative of position, or rate of change of acceleration). Smooth trajectories put less stress on actuators:</p>
+
+            <div class="formula">
+                <div class="formula-title">Minimum-Jerk Cost</div>
+                <div class="formula-content">
+                    J = ∫ ||d³p/dt³||² dt
+                </div>
+            </div>
+
+            <p>This is a quadratic functional—can be discretized into a QP problem and solved efficiently.</p>
+
+            <div class="callout application">
+                <p><strong>In Drone Motion Planning:</strong> A trajectory planning algorithm finds a smooth path from start to goal while minimizing energy use or smoothness. QP solvers can generate these trajectories in milliseconds, fast enough for real-time control.</p>
+            </div>
+
+            <!-- 5.5 MIXED-INTEGER PROGRAMMING -->
+            <h3 id="section5-5">5.5 Mixed-Integer Programming</h3>
+            <p>Some variables are continuous (like position), some are discrete (like which drone goes where). Mixed-integer programming (MIP) handles this.</p>
+
+            <div class="formula">
+                <div class="formula-title">Mixed-Integer Programming</div>
+                <div class="formula-content">
+                    minimize J(x_continuous, x_integer)<br>
+                    subject to constraints<br>
+                    x_integer ∈ ℤ (integers)
+                </div>
+            </div>
+
+            <h4>Combinatorial Task Assignment</h4>
+            <p>Assign N drones to M targets, minimizing total distance:</p>
+
+            <div class="formula">
+                <div class="formula-title">Combinatorial Assignment</div>
+                <div class="formula-content">
+                    x[i,j] ∈ {0, 1}  (binary decision: does drone i go to target j?)
+                </div>
+            </div>
+
+            <p>This is NP-hard for general problems, but for small swarms (N, M &lt; 10), MIP solvers work fine.</p>
+
+            <!-- 5.6 GRADIENT DESCENT -->
+            <h3 id="section5-6">5.6 Gradient Descent & Variants</h3>
+            <p>Gradient descent is an iterative algorithm that takes steps downhill (in the direction of negative gradient) to find a local minimum.</p>
+
+            <div class="formula">
+                <div class="formula-title">Gradient Descent Update</div>
+                <div class="formula-content">
+                    x_new = x_old − α · ∇J(x_old)
+                </div>
+            </div>
+
+            <p>The learning rate α controls step size: too big = overshoot, too small = slow convergence.</p>
+
+            <h4>Variants for Better Convergence</h4>
+            <ul>
+                <li><strong>Momentum:</strong> accumulate past gradient direction for faster convergence</li>
+                <li><strong>Adam (Adaptive Moment Estimation):</strong> adaptive learning rates per parameter</li>
+                <li><strong>RMSprop:</strong> adaptive learning rate using historical squared gradients</li>
+            </ul>
+
+            <h4>Decentralized Gradient Descent for Swarms</h4>
+            <p>Each drone computes a local gradient (using local sensors) and updates its position in the negative gradient direction. If gradients are shared among neighbors, the swarm collectively finds the global optimum:</p>
+
+            <div class="formula">
+                <div class="formula-title">Decentralized Gradient Descent</div>
+                <div class="formula-content">
+                    x_i_new = x_i_old − α · ∇Jᵢ(x_i_old) + Σⱼ consensus_term
+                </div>
+            </div>
+
+            <div class="callout application">
+                <p><strong>In Swarm Learning:</strong> If each drone has a local cost function (e.g., "how far am I from neighbors?") and they run decentralized gradient descent with consensus, the swarm collectively optimizes a global cost (e.g., "minimize energy while maintaining formation"). Deep reinforcement learning (DRL) for swarms often uses variants of gradient descent (Adam) to train neural network policies for distributed control.</p>
+            </div>
+
+        </section>
+
+        <!-- CONCLUSION -->
+        <section>
+            <h2>Conclusion: Mathematics as the Foundation</h2>
+            <p>Every algorithm, firmware, and control law in swarm drones is built on these mathematical foundations. Understanding these topics gives you intuition for why drones work, how to debug them when they don't, and how to design new algorithms.</p>
+
+            <p>The next part (Part 2: Algorithms) builds on this mathematics to show how real swarm algorithms (flocking, consensus, swarming) are implemented. Then Part 3 (Software) shows the code. Part 4 (Hardware) shows the physical drone. And Part 5 (Integration) brings it all together.</p>
+
+            <p>But all of it starts here, with vectors, calculus, probability, graphs, and optimization. Master these, and you can build anything.</p>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <p><strong>© 2025 Sim Vattanac</strong> | <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a></p>
+        <p style="margin-top: 1rem; font-size: 0.85rem; color: #6b6e8a;">
+            Part 1 of 5: Zero to Swarm Drone Complete Guide
+        </p>
+    </footer>
+
+    <!-- INTERACTIVE CANVAS SCRIPTS -->
+    <script>
+        // ===== VECTOR VISUALIZATION =====
+        function initVectorCanvas() {
+            const canvas = document.getElementById('canvasVectors');
+            const ctx = canvas.getContext('2d');
+            let thrustVec = [100, 50];
+            let windVec = [40, 20];
+            let dragging = null;
+
+            function draw() {
+                ctx.fillStyle = '#0f1119';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const scale = 2;
+
+                // Grid
+                ctx.strokeStyle = '#1a1c3a';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < canvas.width; i += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, canvas.height);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(canvas.width, i);
+                    ctx.stroke();
+                }
+
+                // Origin
+                ctx.fillStyle = '#6b6e8a';
+                ctx.fillRect(centerX - 3, centerY - 3, 6, 6);
+
+                // Draw thrust vector (red)
+                ctx.strokeStyle = '#ff6b6b';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + thrustVec[0] * scale, centerY - thrustVec[1] * scale);
+                ctx.stroke();
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillRect(centerX + thrustVec[0] * scale - 5, centerY - thrustVec[1] * scale - 5, 10, 10);
+                ctx.font = '14px Inter';
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillText('Thrust', centerX + thrustVec[0] * scale / 2 - 20, centerY - thrustVec[1] * scale - 10);
+
+                // Draw wind vector (blue)
+                ctx.strokeStyle = '#4ecdc4';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + windVec[0] * scale, centerY - windVec[1] * scale);
+                ctx.stroke();
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fillRect(centerX + windVec[0] * scale - 5, centerY - windVec[1] * scale - 5, 10, 10);
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fillText('Wind', centerX + windVec[0] * scale / 2 - 10, centerY - windVec[1] * scale - 10);
+
+                // Draw resultant vector (purple)
+                const resultant = [thrustVec[0] + windVec[0], thrustVec[1] + windVec[1]];
+                ctx.strokeStyle = '#a78bfa';
+                ctx.lineWidth = 4;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + resultant[0] * scale, centerY - resultant[1] * scale);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#a78bfa';
+                ctx.fillRect(centerX + resultant[0] * scale - 6, centerY - resultant[1] * scale - 6, 12, 12);
+                ctx.fillStyle = '#a78bfa';
+                ctx.fillText('Resultant', centerX + resultant[0] * scale / 2 - 30, centerY - resultant[1] * scale + 10);
+
+                // Update info
+                document.getElementById('thrustInfo').textContent = `[${thrustVec[0].toFixed(1)}, ${thrustVec[1].toFixed(1)}]`;
+                document.getElementById('windInfo').textContent = `[${windVec[0].toFixed(1)}, ${windVec[1].toFixed(1)}]`;
+                document.getElementById('resultantInfo').textContent = `[${resultant[0].toFixed(1)}, ${resultant[1].toFixed(1)}]`;
+            }
+
+            function distance(p1, p2) {
+                return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2);
+            }
+
+            canvas.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const scale = 2;
+
+                if (distance([x, y], [centerX + thrustVec[0] * scale, centerY - thrustVec[1] * scale]) < 15) {
+                    dragging = 'thrust';
+                } else if (distance([x, y], [centerX + windVec[0] * scale, centerY - windVec[1] * scale]) < 15) {
+                    dragging = 'wind';
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!dragging) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const scale = 2;
+
+                if (dragging === 'thrust') {
+                    thrustVec = [(x - centerX) / scale, (centerY - y) / scale];
+                } else if (dragging === 'wind') {
+                    windVec = [(x - centerX) / scale, (centerY - y) / scale];
+                }
+                draw();
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                dragging = null;
+            });
+
+            draw();
+        }
+
+        // ===== DOT PRODUCT VISUALIZATION =====
+        function initDotProductCanvas() {
+            const canvas = document.getElementById('canvasDotProduct');
+            const ctx = canvas.getContext('2d');
+            let vecA = [80, 50];
+            let vecB = [60, -40];
+            let dragging = null;
+
+            function magnitude(v) {
+                return Math.sqrt(v[0] ** 2 + v[1] ** 2);
+            }
+
+            function dotProduct(a, b) {
+                return a[0] * b[0] + a[1] * b[1];
+            }
+
+            function angle(a, b) {
+                const dot = dotProduct(a, b);
+                const magA = magnitude(a);
+                const magB = magnitude(b);
+                const cos_theta = dot / (magA * magB);
+                const rad = Math.acos(Math.max(-1, Math.min(1, cos_theta)));
+                return (rad * 180 / Math.PI);
+            }
+
+            function draw() {
+                ctx.fillStyle = '#0f1119';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const scale = 1.5;
+
+                // Grid
+                ctx.strokeStyle = '#1a1c3a';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < canvas.width; i += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, canvas.height);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(canvas.width, i);
+                    ctx.stroke();
+                }
+
+                // Origin
+                ctx.fillStyle = '#6b6e8a';
+                ctx.fillRect(centerX - 3, centerY - 3, 6, 6);
+
+                // Vector A (red)
+                ctx.strokeStyle = '#ff6b6b';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + vecA[0] * scale, centerY - vecA[1] * scale);
+                ctx.stroke();
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillRect(centerX + vecA[0] * scale - 5, centerY - vecA[1] * scale - 5, 10, 10);
+                ctx.font = '14px Inter';
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillText('A', centerX + vecA[0] * scale + 10, centerY - vecA[1] * scale);
+
+                // Vector B (teal)
+                ctx.strokeStyle = '#5eead4';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + vecB[0] * scale, centerY - vecB[1] * scale);
+                ctx.stroke();
+                ctx.fillStyle = '#5eead4';
+                ctx.fillRect(centerX + vecB[0] * scale - 5, centerY - vecB[1] * scale - 5, 10, 10);
+                ctx.fillStyle = '#5eead4';
+                ctx.fillText('B', centerX + vecB[0] * scale + 10, centerY - vecB[1] * scale);
+
+                // Compute metrics
+                const dp = dotProduct(vecA, vecB);
+                const ang = angle(vecA, vecB);
+                const magA = magnitude(vecA);
+                const magB = magnitude(vecB);
+
+                // Update info
+                document.getElementById('vecAInfo').textContent = `[${vecA[0].toFixed(1)}, ${vecA[1].toFixed(1)}]`;
+                document.getElementById('vecBInfo').textContent = `[${vecB[0].toFixed(1)}, ${vecB[1].toFixed(1)}]`;
+                document.getElementById('dotInfo').textContent = dp.toFixed(1);
+                document.getElementById('angleInfo').textContent = ang.toFixed(1) + '°';
+
+                // Alignment status
+                const status = document.getElementById('alignmentStatus');
+                if (ang < 30) {
+                    status.innerHTML = '<span class="info-label">Status:</span><span class="info-value" style="color: #4ade80;">Aligned (< 30°)</span>';
+                } else if (ang < 60) {
+                    status.innerHTML = '<span class="info-label">Status:</span><span class="info-value" style="color: #facc15;">Similar direction (30–60°)</span>';
+                } else if (ang < 120) {
+                    status.innerHTML = '<span class="info-label">Status:</span><span class="info-value" style="color: #fb923c;">Different (60–120°)</span>';
+                } else {
+                    status.innerHTML = '<span class="info-label">Status:</span><span class="info-value" style="color: #f87171;">Opposite (> 120°)</span>';
+                }
+            }
+
+            function distance(p1, p2) {
+                return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2);
+            }
+
+            canvas.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const scale = 1.5;
+
+                if (distance([x, y], [centerX + vecA[0] * scale, centerY - vecA[1] * scale]) < 15) {
+                    dragging = 'a';
+                } else if (distance([x, y], [centerX + vecB[0] * scale, centerY - vecB[1] * scale]) < 15) {
+                    dragging = 'b';
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!dragging) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const scale = 1.5;
+
+                if (dragging === 'a') {
+                    vecA = [(x - centerX) / scale, (centerY - y) / scale];
+                } else if (dragging === 'b') {
+                    vecB = [(x - centerX) / scale, (centerY - y) / scale];
+                }
+                draw();
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                dragging = null;
+            });
+
+            draw();
+        }
+
+        // ===== POTENTIAL FIELD VISUALIZATION =====
+        function initPotentialFieldCanvas() {
+            const canvas = document.getElementById('canvasPotentialField');
+            const ctx = canvas.getContext('2d');
+            let goal = null;
+            let drone = null;
+            let obstacles = [];
+            let animationId = null;
+
+            function drawField() {
+                if (!goal || !drone) return;
+
+                // Create potential field
+                const gridRes = 20;
+                for (let gx = 0; gx < canvas.width; gx += gridRes) {
+                    for (let gy = 0; gy < canvas.height; gy += gridRes) {
+                        let potential = 0;
+
+                        // Goal attraction
+                        const dx_goal = goal[0] - gx;
+                        const dy_goal = goal[1] - gy;
+                        const dist_goal = Math.sqrt(dx_goal ** 2 + dy_goal ** 2) + 1;
+                        potential -= 50 / (dist_goal + 1);
+
+                        // Obstacle repulsion
+                        for (let obs of obstacles) {
+                            const dx_obs = gx - obs[0];
+                            const dy_obs = gy - obs[1];
+                            const dist_obs = Math.sqrt(dx_obs ** 2 + dy_obs ** 2) + 1;
+                            potential += 100 / (dist_obs ** 2 + 1);
+                        }
+
+                        // Color based on potential
+                        let hue = 240 + Math.max(-60, Math.min(0, potential * 3));
+                        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                        ctx.fillRect(gx, gy, gridRes, gridRes);
+                    }
+                }
+            }
+
+            function drawDrone() {
+                if (!drone) return;
+                ctx.fillStyle = '#a78bfa';
+                ctx.beginPath();
+                ctx.arc(drone[0], drone[1], 8, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            function drawGoal() {
+                if (!goal) return;
+                ctx.fillStyle = '#4ade80';
+                ctx.beginPath();
+                ctx.arc(goal[0], goal[1], 10, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            function drawObstacles() {
+                for (let obs of obstacles) {
+                    ctx.fillStyle = '#ef4444';
+                    ctx.beginPath();
+                    ctx.arc(obs[0], obs[1], 20, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+
+            function computeGradient(x, y) {
+                const delta = 2;
+                let gx = 0, gy = 0;
+
+                // Goal attraction
+                const dx_goal = goal[0] - x;
+                const dy_goal = goal[1] - y;
+                const dist_goal = Math.sqrt(dx_goal ** 2 + dy_goal ** 2) + 1;
+                gx += (50 * dx_goal) / (dist_goal ** 3);
+                gy += (50 * dy_goal) / (dist_goal ** 3);
+
+                // Obstacle repulsion
+                for (let obs of obstacles) {
+                    const dx_obs = x - obs[0];
+                    const dy_obs = y - obs[1];
+                    const dist_obs = Math.sqrt(dx_obs ** 2 + dy_obs ** 2) + 1;
+                    gx -= (100 * dx_obs) / (dist_obs ** 3);
+                    gy -= (100 * dy_obs) / (dist_obs ** 3);
+                }
+
+                // Normalize
+                const mag = Math.sqrt(gx ** 2 + gy ** 2) + 0.1;
+                return [gx / mag, gy / mag];
+            }
+
+            function animate() {
+                drawField();
+                drawObstacles();
+                drawDrone();
+                drawGoal();
+
+                // Move drone along gradient
+                if (drone && goal) {
+                    const grad = computeGradient(drone[0], drone[1]);
+                    const step = 2;
+                    drone[0] += grad[0] * step;
+                    drone[1] += grad[1] * step;
+
+                    // Draw gradient arrow
+                    ctx.strokeStyle = '#a78bfa';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(drone[0], drone[1]);
+                    ctx.lineTo(drone[0] + grad[0] * 20, drone[1] + grad[1] * 20);
+                    ctx.stroke();
+                }
+
+                animationId = requestAnimationFrame(animate);
+            }
+
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                if (e.button === 0) {
+                    // Left click: drone
+                    drone = [x, y];
+                    if (animationId) cancelAnimationFrame(animationId);
+                    animate();
+                }
+            });
+
+            canvas.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // Right click: goal
+                goal = [x, y];
+                drawField();
+                drawObstacles();
+                drawGoal();
+            });
+
+            // Add some default obstacles
+            obstacles = [[150, 150], [450, 300]];
+            ctx.fillStyle = '#0f1119';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = '14px Inter';
+            ctx.fillStyle = '#c8cad8';
+            ctx.fillText('Left-click to place drone | Right-click to place goal', 10, 30);
+        }
+
+        // ===== KALMAN FILTER VISUALIZATION =====
+        let kalmanState = {
+            time: 0,
+            truePos: 0,
+            estimatedPos: 0,
+            gpsHistory: [],
+            estimate History: [],
+            trueHistory: [],
+            noise: 5
+        };
+
+        function resetKalmanDemo() {
+            kalmanState = {
+                time: 0,
+                truePos: 0,
+                estimatedPos: 0,
+                gpsHistory: [],
+                estimateHistory: [],
+                trueHistory: [],
+                noise: parseFloat(document.getElementById('noiseSlider').value)
+            };
+            initKalmanFilterCanvas();
+        }
+
+        function initKalmanFilterCanvas() {
+            const canvas = document.getElementById('canvasKalmanFilter');
+            const ctx = canvas.getContext('2d');
+
+            function draw() {
+                ctx.fillStyle = '#0f1119';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const centerY = canvas.height / 2;
+                const scaleX = 2;
+                const scaleY = 2;
+
+                // Grid
+                ctx.strokeStyle = '#1a1c3a';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < canvas.width; i += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, canvas.height);
+                    ctx.stroke();
+                }
+
+                // True trajectory (black)
+                ctx.strokeStyle = '#6b6e8a';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 0; i < kalmanState.trueHistory.length; i++) {
+                    const x = i * scaleX;
+                    const y = centerY - kalmanState.trueHistory[i] * scaleY;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // GPS measurements (red dots, noisy)
+                ctx.fillStyle = '#ff6b6b';
+                for (let i = 0; i < kalmanState.gpsHistory.length; i++) {
+                    const x = i * scaleX;
+                    const y = centerY - kalmanState.gpsHistory[i] * scaleY;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+
+                // Kalman estimate (blue line, smooth)
+                ctx.strokeStyle = '#5eead4';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                for (let i = 0; i < kalmanState.estimateHistory.length; i++) {
+                    const x = i * scaleX;
+                    const y = centerY - kalmanState.estimateHistory[i] * scaleY;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // Legend
+                ctx.font = '12px Inter';
+                ctx.fillStyle = '#6b6e8a';
+                ctx.fillText('■ True', 20, 20);
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillText('● GPS (noisy)', 120, 20);
+                ctx.fillStyle = '#5eead4';
+                ctx.fillText('— Kalman estimate', 280, 20);
+            }
+
+            function update() {
+                const Q = 0.1; // Process noise
+                const R = kalmanState.noise ** 2; // Measurement noise
+                let P = 1;
+                let x_est = 0;
+
+                // Simulate motion and filtering
+                for (let t = 0; t < 100; t++) {
+                    // True state: sine wave motion
+                    const truePos = 50 * Math.sin(t * 0.1);
+                    kalmanState.trueHistory[t] = truePos;
+
+                    // Noisy measurement
+                    const noise = (Math.random() - 0.5) * 2 * kalmanState.noise;
+                    const measurement = truePos + noise;
+                    kalmanState.gpsHistory[t] = measurement;
+
+                    // Kalman predict
+                    P = P + Q;
+
+                    // Kalman update
+                    const K = P / (P + R);
+                    x_est = x_est + K * (measurement - x_est);
+                    P = (1 - K) * P;
+
+                    kalmanState.estimateHistory[t] = x_est;
+                }
+
+                draw();
+            }
+
+            update();
+
+            // Update on slider change
+            document.getElementById('noiseSlider').addEventListener('input', (e) => {
+                kalmanState.noise = parseFloat(e.target.value);
+                document.getElementById('noiseValue').textContent = kalmanState.noise;
+                kalmanState = {
+                    time: 0,
+                    truePos: 0,
+                    estimatedPos: 0,
+                    gpsHistory: [],
+                    estimateHistory: [],
+                    trueHistory: [],
+                    noise: kalmanState.noise
+                };
+                update();
+            });
+        }
+
+        // ===== CONSENSUS PROTOCOL VISUALIZATION =====
+        let consensusState = {
+            nodes: [],
+            edges: [],
+            running: false,
+            animationId: null
+        };
+
+        function initConsensusCanvas() {
+            const canvas = document.getElementById('canvasConsensus');
+            const ctx = canvas.getContext('2d');
+
+            // Create random graph
+            const numNodes = 8;
+            const radius = 150;
+            consensusState.nodes = [];
+            for (let i = 0; i < numNodes; i++) {
+                const angle = (i / numNodes) * 2 * Math.PI;
+                consensusState.nodes.push({
+                    x: canvas.width / 2 + radius * Math.cos(angle),
+                    y: canvas.height / 2 + radius * Math.sin(angle),
+                    value: Math.random(),
+                    vx: 0,
+                    vy: 0
+                });
+            }
+
+            // Create edges (connected neighbors)
+            consensusState.edges = [];
+            for (let i = 0; i < numNodes; i++) {
+                const next = (i + 1) % numNodes;
+                const prev = (i - 1 + numNodes) % numNodes;
+                consensusState.edges.push([i, next]);
+                if (i % 2 === 0) consensusState.edges.push([i, prev]);
+            }
+
+            function valueToColor(v) {
+                const hue = 240 - v * 240; // Blue to red
+                return `hsl(${hue}, 100%, 50%)`;
+            }
+
+            function draw() {
+                ctx.fillStyle = '#0f1119';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw edges
+                ctx.strokeStyle = '#1a1c3a';
+                ctx.lineWidth = 2;
+                for (let [i, j] of consensusState.edges) {
+                    ctx.beginPath();
+                    ctx.moveTo(consensusState.nodes[i].x, consensusState.nodes[i].y);
+                    ctx.lineTo(consensusState.nodes[j].x, consensusState.nodes[j].y);
+                    ctx.stroke();
+                }
+
+                // Draw nodes
+                for (let i = 0; i < consensusState.nodes.length; i++) {
+                    const node = consensusState.nodes[i];
+                    ctx.fillStyle = valueToColor(node.value);
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, 15, 0, 2 * Math.PI);
+                    ctx.fill();
+
+                    // Node label
+                    ctx.fillStyle = '#0a0b14';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(node.value.toFixed(2), node.x, node.y);
+                }
+            }
+
+            function consensusStep() {
+                if (!consensusState.running) return;
+
+                // Consensus update
+                const newValues = consensusState.nodes.map((node, i) => {
+                    let sum = node.value;
+                    let count = 1;
+
+                    for (let [a, b] of consensusState.edges) {
+                        if (a === i) {
+                            sum += consensusState.nodes[b].value;
+                            count++;
+                        } else if (b === i) {
+                            sum += consensusState.nodes[a].value;
+                            count++;
+                        }
+                    }
+
+                    return sum / count;
+                });
+
+                consensusState.nodes.forEach((node, i) => {
+                    node.value = 0.9 * node.value + 0.1 * newValues[i];
+                });
+
+                draw();
+                consensusState.animationId = requestAnimationFrame(consensusStep);
+            }
+
+            draw();
+
+            // Make buttons work
+            window.toggleConsensus = () => {
+                consensusState.running = !consensusState.running;
+                document.getElementById('consensusPlayBtn').textContent = consensusState.running ? 'Pause' : 'Play';
+                if (consensusState.running) consensusStep();
+            };
+
+            window.resetConsensus = () => {
+                consensusState.running = false;
+                document.getElementById('consensusPlayBtn').textContent = 'Play';
+                if (consensusState.animationId) cancelAnimationFrame(consensusState.animationId);
+                consensusState.nodes.forEach(node => {
+                    node.value = Math.random();
+                });
+                draw();
+            };
+        }
+
+        // ===== TOC SIDEBAR =====
+        function toggleTOC() {
+            const sidebar = document.getElementById('tocSidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function closeTOC() {
+            const sidebar = document.getElementById('tocSidebar');
+            if (window.innerWidth < 1200) {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        // ===== INITIALIZE ON LOAD =====
+        window.addEventListener('DOMContentLoaded', () => {
+            initVectorCanvas();
+            initDotProductCanvas();
+            initPotentialFieldCanvas();
+            initKalmanFilterCanvas();
+            initConsensusCanvas();
+        });
+    </script>
+</body>
+</html>

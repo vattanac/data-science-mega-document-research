@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 5: Integration & Deployment - Zero to Swarm Drone</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0b14;
+            --bg-secondary: #12142a;
+            --bg-hover: #1a1c3a;
+            --accent-purple: #a78bfa;
+            --accent-teal: #5eead4;
+            --text-primary: #c8cad8;
+            --text-dim: #6b6e8a;
+            --border-color: #2a2d4a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* TOP NAVIGATION */
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: linear-gradient(to bottom, var(--bg-primary) 80%, transparent);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-teal);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-purple);
+        }
+
+        .nav-home {
+            color: var(--accent-teal) !important;
+            font-weight: 600;
+        }
+
+        /* TOC SIDEBAR */
+        .toc-sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 240px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            z-index: 500;
+        }
+
+        .toc-sidebar h3 {
+            font-size: 0.9rem;
+            color: var(--accent-teal);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .toc-sidebar ul {
+            list-style: none;
+        }
+
+        .toc-sidebar li {
+            margin: 0.5rem 0;
+        }
+
+        .toc-sidebar a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: block;
+            padding: 0.4rem 0.6rem;
+            border-left: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .toc-sidebar a:hover {
+            color: var(--accent-purple);
+            border-left-color: var(--accent-purple);
+        }
+
+        .toc-sidebar a.active {
+            color: var(--accent-teal);
+            border-left-color: var(--accent-teal);
+        }
+
+        .toc-toggle {
+            display: none;
+            position: fixed;
+            left: 1rem;
+            top: 1rem;
+            z-index: 501;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--accent-teal);
+            font-size: 1.2rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 240px;
+            max-width: 900px;
+            padding: 2rem;
+        }
+
+        .content-header {
+            margin-bottom: 3rem;
+        }
+
+        .content-header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content-header p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        /* SECTION STYLES */
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-teal);
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-purple);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        /* CALLOUT BOXES */
+        .callout {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            border-left: 4px solid;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+        }
+
+        .callout-analogy {
+            border-left-color: var(--accent-teal);
+            background: linear-gradient(to right, rgba(94, 234, 212, 0.05), transparent);
+        }
+
+        .callout-tip {
+            border-left-color: var(--accent-purple);
+            background: linear-gradient(to right, rgba(167, 139, 250, 0.05), transparent);
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--accent-teal);
+            font-weight: 600;
+        }
+
+        .callout-tip strong {
+            color: var(--accent-purple);
+        }
+
+        /* CARDS & LISTS */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-purple);
+        }
+
+        .card h4 {
+            margin-top: 0;
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 1.5rem;
+            padding-left: 3rem;
+            position: relative;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--bg-primary);
+            font-size: 1rem;
+        }
+
+        /* TABLES */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: var(--bg-hover);
+            color: var(--accent-teal);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* CODE BLOCKS */
+        .code-block {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: var(--accent-teal);
+        }
+
+        .code-label {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-weight: 600;
+        }
+
+        /* FLOWCHART */
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .flowchart-box {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .flowchart-box.start {
+            border-color: var(--accent-teal);
+            background: linear-gradient(135deg, rgba(94, 234, 212, 0.1), transparent);
+            color: var(--accent-teal);
+        }
+
+        .flowchart-box.end {
+            border-color: var(--accent-purple);
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), transparent);
+            color: var(--accent-purple);
+        }
+
+        .flowchart-arrow {
+            text-align: center;
+            color: var(--accent-teal);
+            font-size: 1.5rem;
+            line-height: 0.5;
+        }
+
+        /* CHECKLIST */
+        .checklist {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .checklist li {
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent-purple);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .checklist li::before {
+            content: '□';
+            margin-right: 1rem;
+            color: var(--accent-teal);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* TIMELINE */
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 1.25rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent-teal), var(--accent-purple));
+        }
+
+        .timeline-item {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            margin-left: 4rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -3.25rem;
+            top: 1.5rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--bg-primary);
+            border: 3px solid var(--accent-teal);
+            border-radius: 50%;
+        }
+
+        .timeline-item h4 {
+            margin-top: 0;
+            color: var(--accent-teal);
+        }
+
+        /* GRID LAYOUT */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .grid-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .grid-item:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+
+        .grid-item h4 {
+            margin-top: 0;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 4rem;
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .toc-sidebar {
+                left: -240px;
+                transition: left 0.3s ease;
+            }
+
+            .toc-sidebar.open {
+                left: 0;
+            }
+
+            .toc-toggle {
+                display: flex;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 2rem 1rem;
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-header h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                gap: 0.75rem;
+            }
+
+            .nav-links a {
+                font-size: 0.8rem;
+            }
+
+            .grid-3,
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+        }
+
+        /* UTILITY */
+        .highlight {
+            color: var(--accent-teal);
+            font-weight: 600;
+        }
+
+        .section-number {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .back-to-guide {
+            display: inline-block;
+            margin-bottom: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--accent-teal);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-guide:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-teal);
+        }
+    </style>
+</head>
+<body>
+    <!-- STICKY NAVIGATION -->
+    <div class="sticky-nav">
+        <div class="nav-container">
+            <div class="nav-title">Part 5: Integration & Deployment</div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-home">← Guide Home</a></li>
+                <li><a href="part1-foundations.html">Part 1</a></li>
+                <li><a href="part2-algorithms.html">Part 2</a></li>
+                <li><a href="part3-software.html">Part 3</a></li>
+                <li><a href="part4-hardware.html">Part 4</a></li>
+                <li><a href="#" style="color: var(--accent-teal);">Part 5</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- TOC TOGGLE BUTTON (Mobile) -->
+    <button class="toc-toggle" id="tocToggle">☰</button>
+
+    <!-- TOC SIDEBAR -->
+    <div class="toc-sidebar" id="tocSidebar">
+        <h3>Contents</h3>
+        <ul>
+            <li><a href="#section-1">1. Development Pipeline</a></li>
+            <li><a href="#section-2">2. System Architecture</a></li>
+            <li><a href="#section-3">3. Testing & Validation</a></li>
+            <li><a href="#section-4">4. Safety & Regulations</a></li>
+            <li><a href="#section-5">5. Real-World Applications</a></li>
+            <li><a href="#section-6">6. Build Your First Swarm</a></li>
+            <li><a href="#section-7">7. Future of Swarm Drones</a></li>
+        </ul>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <a href="index.html" class="back-to-guide">← Back to Guide Home</a>
+
+        <div class="content-header">
+            <h1>Integration & Deployment</h1>
+            <p>From simulation to swarm flight: the complete testing, safety, and deployment roadmap.</p>
+        </div>
+
+        <!-- SECTION 1: DEVELOPMENT PIPELINE -->
+        <div class="section" id="section-1">
+            <span class="section-number">Section 1</span>
+            <h2>The Development Pipeline: Simulation → Reality</h2>
+
+            <p>Building a swarm drone system is like constructing a bridge. You don't start pouring concrete. You draw blueprints, run stress simulations, build and test a scale model, then finally construct the real structure. Each stage validates assumptions and catches errors early.</p>
+
+            <h3>1.1 The V-Model for Drone Swarms</h3>
+
+            <p>The V-model is a testing and development framework that maps design decisions to validation stages:</p>
+
+            <div class="flowchart">
+                <div class="flowchart-box start">Stage 1: Requirements & Design</div>
+                <div class="flowchart-arrow">↓</div>
+                <div class="flowchart-box">Stage 2: Algorithm Design</div>
+                <div class="flowchart-arrow">↓</div>
+                <div class="flowchart-box">Stage 3: Simulation</div>
+                <div class="flowchart-arrow">↓</div>
+                <div class="flowchart-box">Stage 4: SITL (Software-in-Loop)</div>
+                <div class="flowchart-arrow">↓</div>
+                <div class="flowchart-box">Stage 5: HITL (Hardware-in-Loop)</div>
+                <div class="flowchart-arrow">↓</div>
+                <div class="flowchart-box">Stage 6: Single Drone Outdoor Test</div>
+                <div class="flowchart-arrow">↓</div>
+                <div class="flowchart-box">Stage 7: Small Swarm Test (3-5 drones)</div>
+                <div class="flowchart-arrow">↓</div>
+                <div class="flowchart-box end">Stage 8: Full Swarm Deployment</div>
+            </div>
+
+            <div class="callout callout-analogy">
+                <strong>Real-World Analogy: Bridge Construction</strong>
+                Stage 1-2 are the blueprints. Stage 3 is the computer simulation checking if the design handles the expected loads. Stage 4 is testing the foundation with known forces. Stage 5 is testing with real materials. Stages 6-7 are building a small test span. Stage 8 is the full structure. Skip any stage, and you risk catastrophic failure.
+            </div>
+
+            <div class="grid-2">
+                <div class="grid-item">
+                    <h4>Why Each Stage Matters</h4>
+                    <p><strong>Simulation:</strong> Test algorithms without hardware risk. Catch math errors, logical flaws, edge cases.</p>
+                    <p><strong>SITL:</strong> Run real flight firmware on your laptop. Expose firmware bugs before touching hardware.</p>
+                    <p><strong>HITL:</strong> Real hardware, simulated physics. Test sensor noise, timing, actuator delays.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Cost Progression</h4>
+                    <p><strong>Early stages:</strong> CPU/electricity. $0-100.</p>
+                    <p><strong>Middle stages:</strong> Drone hardware. $500-2000.</p>
+                    <p><strong>Final stage:</strong> Safety equipment, batteries, repairs. $5000+.</p>
+                    <p>Investing in early stages saves 10x cost later.</p>
+                </div>
+            </div>
+
+            <h3>1.2 Simulation Setup</h3>
+
+            <p>Before flying any hardware, build a complete digital twin of your swarm system.</p>
+
+            <h4>Tools & Technologies</h4>
+            <ul class="step-list">
+                <li><strong>Gazebo:</strong> Physics simulator. Models gravity, aerodynamics, collisions, sensor noise.</li>
+                <li><strong>PX4 Autopilot:</strong> Open-source flight controller firmware. Runs on real drones and in simulation.</li>
+                <li><strong>ROS2:</strong> Robot Operating System. Middleware for multi-drone coordination.</li>
+                <li><strong>Docker:</strong> Containerization. Each drone runs in isolated container for easy scaling.</li>
+                <li><strong>Python + NumPy:</strong> High-level control algorithms, mission planning, analysis.</li>
+            </ul>
+
+            <h4>Example: Docker Compose for 5-Drone Simulation Cluster</h4>
+
+            <div class="code-block">
+                <span class="code-label">docker-compose.yml</span>
+<pre>version: '3.8'
+services:
+  gazebo:
+    image: px4-gazebo:latest
+    environment:
+      - HEADLESS=0
+    ports:
+      - "8080:8080"  # Web UI
+    volumes:
+      - ./worlds:/home/px4/worlds
+
+  drone1:
+    image: px4-sitl:latest
+    environment:
+      - DRONE_ID=1
+      - SERIAL_PORT=tcp://localhost:5760
+    depends_on:
+      - gazebo
+    command: "px4 -s sitl_default.sh -n 1"
+
+  drone2:
+    image: px4-sitl:latest
+    environment:
+      - DRONE_ID=2
+      - SERIAL_PORT=tcp://localhost:5761
+    depends_on:
+      - gazebo
+    command: "px4 -s sitl_default.sh -n 2"
+
+  # ... repeat for drones 3, 4, 5
+
+  coordinator:
+    image: swarm-coordinator:latest
+    environment:
+      - DRONE_COUNT=5
+    depends_on:
+      - drone1
+      - drone2
+    command: "python3 /app/swarm_controller.py"
+</pre>
+            </div>
+
+            <div class="callout callout-tip">
+                <strong>Pro Tip: Deterministic Simulation</strong>
+                Use fixed timestep simulation (e.g., 1ms). Set random seeds for reproducible tests. This lets you run the exact same scenario 100 times and verify the swarm behaves identically each time.
+            </div>
+
+            <h3>1.3 SITL (Software-in-the-Loop)</h3>
+
+            <p><strong>What:</strong> Real PX4/ArduPilot firmware running on your laptop, controlling virtual drones in Gazebo.</p>
+            <p><strong>Why:</strong> Firmware bugs, PID tuning issues, and edge cases appear here before any hardware is powered on.</p>
+
+            <h4>Multi-Vehicle SITL Launch Process</h4>
+
+            <div class="code-block">
+                <span class="code-label">Launch 5 SITL drones with Gazebo</span>
+<pre>#!/bin/bash
+
+# Terminal 1: Start Gazebo with 5 drones
+gazebo --verbose worlds/iris_5_drones.world
+
+# Terminal 2-6: Launch each SITL instance on different ports
+# Drone 1
+PX4_SIM_MODEL=iris px4 -d \
+  -S udp://127.0.0.1:14540 \
+  -t px4_1 -i 1
+
+# Drone 2
+PX4_SIM_MODEL=iris px4 -d \
+  -S udp://127.0.0.1:14541 \
+  -t px4_2 -i 2
+
+# Drone 3 (and so on...)
+PX4_SIM_MODEL=iris px4 -d \
+  -S udp://127.0.0.1:14542 \
+  -t px4_3 -i 3
+</pre>
+            </div>
+
+            <p>Each drone listens on a different UDP port. Your coordinator communicates with all 5 simultaneously via MAVLink protocol (the standard drone communication protocol).</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Drone</th>
+                            <th>MAVLink Port</th>
+                            <th>Gazebo Model</th>
+                            <th>State (pos, vel, att)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Drone 1</td>
+                            <td>14540</td>
+                            <td>iris_1</td>
+                            <td>Received from Gazebo</td>
+                        </tr>
+                        <tr>
+                            <td>Drone 2</td>
+                            <td>14541</td>
+                            <td>iris_2</td>
+                            <td>Received from Gazebo</td>
+                        </tr>
+                        <tr>
+                            <td>Drone 3</td>
+                            <td>14542</td>
+                            <td>iris_3</td>
+                            <td>Received from Gazebo</td>
+                        </tr>
+                        <tr>
+                            <td>Coordinator</td>
+                            <td>Various</td>
+                            <td>N/A</td>
+                            <td>Aggregates all states</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>1.4 HITL (Hardware-in-the-Loop)</h3>
+
+            <p><strong>What:</strong> Real flight controller connected via USB to your computer. The flight controller receives simulated sensor data and physics from Gazebo, but the firmware and processing delays are real.</p>
+            <p><strong>Why:</strong> Real hardware has timing quirks, sensor calibration offsets, and firmware bugs that simulation can't capture.</p>
+
+            <h4>HITL Setup Diagram</h4>
+
+            <div style="margin: 2rem 0; padding: 1.5rem; background: var(--bg-secondary); border-radius: 8px; border-left: 4px solid var(--accent-teal);">
+                <div style="font-family: monospace; line-height: 1.8; color: var(--accent-teal);">
+                    Gazebo Physics Engine<br>
+                    └─→ [Sensor simulation] → USB<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;└─→ [Flight Controller Hardware]<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─→ [PID loops] → PWM outputs<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─→ Motor commands (no props!) → back to Gazebo
+                </div>
+            </div>
+
+            <div class="callout callout-tip">
+                <strong>Critical Safety Note</strong>
+                During HITL, <span class="highlight">REMOVE ALL PROPELLERS</span>. The motor commands will still be sent; you don't want spinning props. Use a bench clamp or frame to secure the drone.
+            </div>
+
+            <h4>HITL Configuration (PX4)</h4>
+
+            <div class="code-block">
+                <span class="code-label">QGroundControl HITL Setup</span>
+<pre>1. Connect flight controller via USB
+2. Open QGroundControl
+3. Vehicle Setup → Firmware
+4. Set SITL_MODE = 2 (HITL enabled)
+5. Set HITL_UDP_PORT = 14540 (match Gazebo)
+6. Reboot flight controller
+7. Start Gazebo with: gazebo worlds/iris_hitl.world
+8. Observe sensor values in QGC update in real-time
+</pre>
+            </div>
+
+        </div>
+
+        <!-- SECTION 2: SYSTEM ARCHITECTURE -->
+        <div class="section" id="section-2">
+            <span class="section-number">Section 2</span>
+            <h2>System Architecture Design</h2>
+
+            <h3>2.1 Full Stack Architecture</h3>
+
+            <p>A complete drone swarm system is organized in layers, each with different update rates and responsibilities:</p>
+
+            <div style="margin: 2rem 0;">
+                <div style="background: var(--bg-secondary); border-radius: 8px; overflow: hidden;">
+                    <div style="padding: 1rem; background: linear-gradient(135deg, rgba(94, 234, 212, 0.1), transparent); border-bottom: 2px solid var(--border-color);">
+                        <strong style="color: var(--accent-teal);">Layer 7: Human Interface (1 Hz)</strong>
+                        <p style="margin: 0.5rem 0; color: var(--text-dim); font-size: 0.9rem;">Ground station, mission upload, real-time monitoring</p>
+                    </div>
+                    <div style="padding: 1rem; border-bottom: 2px solid var(--border-color);">
+                        <strong style="color: var(--accent-purple);">Layer 6: Mission Planning (1 Hz)</strong>
+                        <p style="margin: 0.5rem 0; color: var(--text-dim); font-size: 0.9rem;">High-level goals, task allocation, goal transitions</p>
+                    </div>
+                    <div style="padding: 1rem; border-bottom: 2px solid var(--border-color);">
+                        <strong style="color: var(--accent-purple);">Layer 5: Swarm Coordination (10 Hz)</strong>
+                        <p style="margin: 0.5rem 0; color: var(--text-dim); font-size: 0.9rem;">Formation control, consensus algorithms, inter-drone communication</p>
+                    </div>
+                    <div style="padding: 1rem; border-bottom: 2px solid var(--border-color);">
+                        <strong style="color: var(--accent-teal);">Layer 4: Local Planning (50 Hz)</strong>
+                        <p style="margin: 0.5rem 0; color: var(--text-dim); font-size: 0.9rem;">Collision avoidance, path following, obstacle detection</p>
+                    </div>
+                    <div style="padding: 1rem; border-bottom: 2px solid var(--border-color);">
+                        <strong style="color: var(--accent-teal);">Layer 3: State Estimation (200 Hz)</strong>
+                        <p style="margin: 0.5rem 0; color: var(--text-dim); font-size: 0.9rem;">EKF fusion, sensor data integration, world model</p>
+                    </div>
+                    <div style="padding: 1rem; border-bottom: 2px solid var(--border-color);">
+                        <strong style="color: var(--accent-teal);">Layer 2: Low-Level Control (1000 Hz)</strong>
+                        <p style="margin: 0.5rem 0; color: var(--text-dim); font-size: 0.9rem;">PID loops, motor mixing, attitude control</p>
+                    </div>
+                    <div style="padding: 1rem; background: linear-gradient(135deg, rgba(94, 234, 212, 0.1), transparent);">
+                        <strong style="color: var(--accent-teal);">Layer 1: Hardware (varies)</strong>
+                        <p style="margin: 0.5rem 0; color: var(--text-dim); font-size: 0.9rem;">Motors, ESCs, sensors, battery, frame</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout callout-analogy">
+                <strong>Analogy: Air Traffic Control</strong>
+                Layer 1-2 are like an individual pilot's instincts (stabilize the plane). Layer 3 is awareness of position and velocity. Layer 4 is avoiding nearby obstacles. Layer 5 is staying in formation with other planes. Layer 6 is following the mission plan. Layer 7 is air traffic control coordinating all flights.
+            </div>
+
+            <h4>Key Architecture Principles</h4>
+
+            <ul style="list-style: none; margin: 1.5rem 0;">
+                <li style="padding: 1rem; margin: 0.5rem 0; background: var(--bg-secondary); border-left: 4px solid var(--accent-teal); border-radius: 4px;">
+                    <strong>Modularity:</strong> Each layer is independent. Test collision avoidance without touching control.
+                </li>
+                <li style="padding: 1rem; margin: 0.5rem 0; background: var(--bg-secondary); border-left: 4px solid var(--accent-teal); border-radius: 4px;">
+                    <strong>Determinism:</strong> Critical loops (1-2) are deterministic. Higher layers can tolerate variable timing.
+                </li>
+                <li style="padding: 1rem; margin: 0.5rem 0; background: var(--bg-secondary); border-left: 4px solid var(--accent-teal); border-radius: 4px;">
+                    <strong>Redundancy:</strong> Critical sensors (IMU, battery) have backups. Communication paths have fallbacks.
+                </li>
+                <li style="padding: 1rem; margin: 0.5rem 0; background: var(--bg-secondary); border-left: 4px solid var(--accent-teal); border-radius: 4px;">
+                    <strong>Graceful Degradation:</strong> Loss of layer 7 (human) doesn't crash drones. Loss of layer 2 does—design accordingly.
+                </li>
+            </ul>
+
+            <h3>2.2 Communication Architecture</h3>
+
+            <p>How do drones talk to each other and the ground?</p>
+
+            <div class="grid-3">
+                <div class="grid-item">
+                    <h4>Star Topology</h4>
+                    <p>All drones ↔ Ground Station</p>
+                    <div style="margin: 1rem 0; padding: 1rem; background: var(--bg-primary); border-radius: 4px; font-family: monospace; text-align: center; color: var(--accent-teal); font-size: 0.9rem;">
+                        Ground<br>
+                        &nbsp;↙&nbsp;↓&nbsp;↘<br>
+                        D1 D2 D3
+                    </div>
+                    <p><strong>Pros:</strong> Simple, centralized control</p>
+                    <p><strong>Cons:</strong> GS is single point of failure</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Mesh Topology</h4>
+                    <p>All drones ↔ All drones</p>
+                    <div style="margin: 1rem 0; padding: 1rem; background: var(--bg-primary); border-radius: 4px; font-family: monospace; text-align: center; color: var(--accent-teal); font-size: 0.9rem;">
+                        D1 ↔ D2<br>
+                        ↕&nbsp;&nbsp;&nbsp;↕<br>
+                        D3 ↔ D4
+                    </div>
+                    <p><strong>Pros:</strong> Robust, self-healing</p>
+                    <p><strong>Cons:</strong> Complex, high bandwidth</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Hybrid Topology</h4>
+                    <p>Commands via GS, coordination via mesh</p>
+                    <div style="margin: 1rem 0; padding: 1rem; background: var(--bg-primary); border-radius: 4px; font-family: monospace; text-align: center; color: var(--accent-teal); font-size: 0.9rem;">
+                        Ground<br>
+                        &nbsp;↓<br>
+                        D1 ↔ D2 ↔ D3
+                    </div>
+                    <p><strong>Pros:</strong> Balance of control & robustness</p>
+                    <p><strong>Cons:</strong> More complex</p>
+                </div>
+            </div>
+
+            <h4>Bandwidth & Latency Budget</h4>
+
+            <p>For N drones transmitting state (position, velocity, attitude) every 100ms:</p>
+
+            <div class="code-block">
+                <span class="code-label">Bandwidth Calculation (Star Topology)</span>
+<pre>Each drone state message: ~60 bytes (3×pos, 3×vel, 4×attitude, headers)
+Update rate: 10 Hz (100ms)
+Number of drones: N
+
+Uplink: N × 60 bytes × 10 Hz = 600N bytes/sec
+Downlink: 1 × 60 bytes × 10 Hz = 600 bytes/sec
+Total: ~6 kbps per drone (includes headers & overhead)
+
+For 10 drones: 60 kbps needed
+For 100 drones: 600 kbps (typical WiFi: 1-5 Mbps → OK)
+For 1000 drones: 6 Mbps (WiFi marginal, need dedicated radio)
+
+Latency budget: &lt;200ms round-trip for formation control
+</pre>
+            </div>
+
+            <h3>2.3 Failure Modes & Redundancy</h3>
+
+            <p>Design your swarm to handle failures gracefully:</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Failure Mode</th>
+                            <th>Consequence</th>
+                            <th>Mitigation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Single drone fails</td>
+                            <td>Formation loses one member</td>
+                            <td>Remaining drones adjust formation, continue mission</td>
+                        </tr>
+                        <tr>
+                            <td>Communication loss (1 drone)</td>
+                            <td>Drone isolated, vulnerable</td>
+                            <td>Last-known plan timer: follow plan for 30s, then RTL</td>
+                        </tr>
+                        <tr>
+                            <td>GPS loss</td>
+                            <td>No absolute position</td>
+                            <td>Switch to optical flow (bottom camera) or visual odometry</td>
+                        </tr>
+                        <tr>
+                            <td>Battery critical (&lt;10%)</td>
+                            <td>Imminent motor stall</td>
+                            <td>Auto-RTL: return to launch point immediately</td>
+                        </tr>
+                        <tr>
+                            <td>Motor/ESC failure</td>
+                            <td>Loss of thrust axis</td>
+                            <td>Hexacopter: auto-stabilize on 5 motors. Quadcopter: controlled descent</td>
+                        </tr>
+                        <tr>
+                            <td>Ground station crash</td>
+                            <td>No human commands</td>
+                            <td>Drones continue last mission autonomously, safe hover on timeout</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- SECTION 3: TESTING & VALIDATION -->
+        <div class="section" id="section-3">
+            <span class="section-number">Section 3</span>
+            <h2>Testing & Validation</h2>
+
+            <h3>3.1 Unit Testing for Drone Code</h3>
+
+            <p>Before integration, test components in isolation.</p>
+
+            <h4>High-Level Algorithm Tests (Python)</h4>
+
+            <div class="code-block">
+                <span class="code-label">pytest example: path planner collision check</span>
+<pre>import pytest
+import numpy as np
+from swarm.planner import PathPlanner
+
+def test_collision_detection():
+    """Verify collision detection works correctly."""
+    planner = PathPlanner()
+
+    # Drone 1 at (0, 0), Drone 2 at (0.5, 0)
+    # Min separation: 1.0m → should NOT collide
+    d1_pos = np.array([0, 0, 10])
+    d2_pos = np.array([0.5, 0, 10])
+    assert not planner.collision_check(d1_pos, d2_pos, min_sep=1.0)
+
+    # Same location → should collide
+    d2_pos = np.array([0, 0, 10])
+    assert planner.collision_check(d1_pos, d2_pos, min_sep=1.0)
+
+def test_consensus_algorithm_convergence():
+    """Verify consensus reaches steady state."""
+    planner = PathPlanner()
+    states = np.array([[0], [1], [2], [3]])  # Initial: 0, 1, 2, 3
+
+    for _ in range(100):  # Run 100 iterations
+        states = planner.consensus_step(states)
+
+    # All values should converge to mean = 1.5
+    assert np.allclose(states, 1.5, atol=0.01)
+</pre>
+            </div>
+
+            <div class="callout callout-tip">
+                <strong>Coverage Target: 80%+</strong>
+                Use pytest-cov to measure code coverage. Aim for 80%+ for safety-critical code (collision detection, formation control). Less critical code (logging, UI) can be 60%+.
+            </div>
+
+            <h3>3.2 Integration Testing</h3>
+
+            <p>Test interactions between subsystems in a virtual environment.</p>
+
+            <h4>Simulated Flight Test Checklist</h4>
+
+            <ul class="checklist">
+                <li>Single drone takeoff → stabilize → land</li>
+                <li>Waypoint navigation → follow path within 1m accuracy</li>
+                <li>Formation control → achieve desired spacing within 0.5m</li>
+                <li>Collision avoidance → detect obstacle, detour successfully</li>
+                <li>Multi-drone coordination → task allocation without conflicts</li>
+                <li>Communication loss → safe hover, RTL after timeout</li>
+                <li>Battery depletion → automatic RTL when &lt;15%</li>
+                <li>Sensor dropout → graceful fallback to backups</li>
+            </ul>
+
+            <h3>3.3 Flight Testing Protocol</h3>
+
+            <p>Graduated phases from safe to complex. Never skip a phase.</p>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Phase 1: Tethered Flight</h4>
+                    <p><strong>Duration:</strong> 30 mins, 10-20 flights</p>
+                    <p><strong>Setup:</strong> Drone on safety leash (~10m rope), manual control only</p>
+                    <p><strong>Goals:</strong> Verify thrust is balanced, motors respond correctly, no obvious frame damage</p>
+                    <p><strong>Pilot Requirements:</strong> Licensed RC pilot or supervisor on site</p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Phase 2: Single Drone Free Flight (Manual)</h4>
+                    <p><strong>Duration:</strong> 1-2 hours, 20-30 flights</p>
+                    <p><strong>Setup:</strong> Open field, manual remote control, safety observer, geofence enabled</p>
+                    <p><strong>Goals:</strong> Verify manual control, battery consumption, radio link stability</p>
+                    <p><strong>Abort Condition:</strong> Any instability, signal loss, or unexpected behavior → land immediately</p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Phase 3: Single Drone Autonomous</h4>
+                    <p><strong>Duration:</strong> 2-4 hours, 30-50 flights</p>
+                    <p><strong>Setup:</strong> Simple mission: takeoff → fly to 1 waypoint → land</p>
+                    <p><strong>Goals:</strong> Verify mission execution, autonomous landing accuracy</p>
+                    <p><strong>Success Criteria:</strong> Land within 2m of home point, 90% mission success rate</p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Phase 4: Two-Drone Formation</h4>
+                    <p><strong>Duration:</strong> 4-6 hours, 50-100 flights</p>
+                    <p><strong>Setup:</strong> Two drones, form a line 2m apart, fly simple path</p>
+                    <p><strong>Goals:</strong> Verify inter-drone communication, basic formation control</p>
+                    <p><strong>Success Criteria:</strong> Maintain &lt;0.5m formation error, zero collisions</p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Phase 5: Small Swarm (3-5 Drones)</h4>
+                    <p><strong>Duration:</strong> 1-2 weeks, 100-200 flights</p>
+                    <p><strong>Setup:</strong> 3-5 drones, complex formation, dynamic mission</p>
+                    <p><strong>Goals:</strong> Full swarm coordination, task allocation, robustness</p>
+                    <p><strong>Success Criteria:</strong> 95%+ mission success, handle single drone failure</p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Phase 6: Full Swarm Deployment</h4>
+                    <p><strong>Duration:</strong> Ongoing</p>
+                    <p><strong>Setup:</strong> All drones, realistic mission, full-scale operation</p>
+                    <p><strong>Goals:</strong> Production performance, reliability, efficiency</p>
+                    <p><strong>Metrics:</strong> Mission completion rate, battery efficiency, safety record</p>
+                </div>
+            </div>
+
+            <h3>3.4 Performance Metrics</h3>
+
+            <p>Measure and track these during all flight tests:</p>
+
+            <div class="grid-2">
+                <div class="grid-item">
+                    <h4>Control Accuracy</h4>
+                    <p><strong>Position RMSE:</strong> RMS error between desired and actual position (meters)</p>
+                    <p style="margin: 0.5rem 0; color: var(--text-dim);">Target: &lt;0.5m for formation control</p>
+                    <p><strong>Attitude RMSE:</strong> Roll, pitch, yaw error in degrees</p>
+                    <p style="margin: 0.5rem 0; color: var(--text-dim);">Target: &lt;5°</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Swarm Metrics</h4>
+                    <p><strong>Formation Error:</strong> Deviation from desired inter-drone distances</p>
+                    <p style="margin: 0.5rem 0; color: var(--text-dim);">Target: &lt;0.5m RMS</p>
+                    <p><strong>Collision Rate:</strong> Near-misses per flight hour</p>
+                    <p style="margin: 0.5rem 0; color: var(--text-dim);">Target: 0</p>
+                </div>
+                <div class="grid-item">
+                    <h4>System Reliability</h4>
+                    <p><strong>Mission Completion:</strong> % of missions completed without abort</p>
+                    <p style="margin: 0.5rem 0; color: var(--text-dim);">Target: &gt;95%</p>
+                    <p><strong>Comm Health:</strong> Packet loss rate, latency percentiles</p>
+                    <p style="margin: 0.5rem 0; color: var(--text-dim);">Target: &lt;1% loss, &lt;100ms P99 latency</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Efficiency</h4>
+                    <p><strong>Battery Efficiency:</strong> Flight time per charge (minutes)</p>
+                    <p style="margin: 0.5rem 0; color: var(--text-dim);">Target: 20+ minutes (tuning-dependent)</p>
+                    <p><strong>Power Draw:</strong> Average current during level flight (amps)</p>
+                    <p style="margin: 0.5rem 0; color: var(--text-dim);">Target: &lt;10A per drone for 1kg quad</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 4: SAFETY & REGULATIONS -->
+        <div class="section" id="section-4">
+            <span class="section-number">Section 4</span>
+            <h2>Safety & Regulations</h2>
+
+            <h3>4.1 Safety Protocols</h3>
+
+            <h4>Pre-Flight Checklist (20 Items)</h4>
+
+            <ul class="checklist">
+                <li>Battery fully charged (&gt;90%)</li>
+                <li>Battery connectors clean, no corrosion</li>
+                <li>Propellers undamaged, no cracks or bends</li>
+                <li>Propellers tight on motors (check by hand)</li>
+                <li>Motor bearings spin freely with light push</li>
+                <li>Frame undamaged, no loose bolts</li>
+                <li>Antenna for telemetry plugged in and secure</li>
+                <li>GPS module booted and showing fix (if used)</li>
+                <li>IMU calibration current (0-30 days old)</li>
+                <li>Compass calibration current (0-7 days old)</li>
+                <li>Radio link established, signal strength &gt;70%</li>
+                <li>Firmware version matches across all drones</li>
+                <li>Geofence configured and enabled</li>
+                <li>RTL altitude set appropriately (&gt;20m)</li>
+                <li>Failsafe timer set (e.g., 30s hover then RTL)</li>
+                <li>Wind speed &lt;10 mph (no flying in gusts)</li>
+                <li>Clear of people, buildings, obstacles (50m radius)</li>
+                <li>Airspace checked (LAANC or equivalent)</li>
+                <li>Camera permissions granted (if applicable)</li>
+                <li>Log file recording enabled</li>
+            </ul>
+
+            <h4>Critical Failsafe Chain</h4>
+
+            <div style="margin: 2rem 0; padding: 1.5rem; background: var(--bg-secondary); border-radius: 8px; border: 2px solid var(--accent-purple);">
+                <div style="font-family: monospace; color: var(--accent-teal);">
+                    <strong>Battery &lt; 10%</strong><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+                    Auto Return-to-Launch (RTL)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+                    <strong>Radio signal lost</strong><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+                    Hover 30 seconds (trying to reconnect)<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+                    If still lost: RTL<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+                    <strong>Arrives at home</strong><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+                    Autonomous land (descend slowly)
+                </div>
+            </div>
+
+            <div class="callout callout-tip">
+                <strong>Kill Switch: Physical Emergency Stop</strong>
+                Every drone should have a physical kill switch (button) that immediately cuts motor power. In software: long RC stick press activates ARM/DISARM. Physical switch backup: direct connection to battery cutoff or motor controller.
+            </div>
+
+            <h3>4.2 Global Regulations Overview</h3>
+
+            <h4>United States (FAA)</h4>
+
+            <div class="card">
+                <h4>Part 107 Commercial Drone License</h4>
+                <p><strong>Who needs it:</strong> Anyone flying drones for compensation (photography, delivery, inspection, research).</p>
+                <p><strong>How to get it:</strong> Pass 60-question written exam ($175), then get TSA authorization.</p>
+                <p><strong>Key Restrictions:</strong></p>
+                <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                    <li><strong>Altitude:</strong> Max 400 feet above ground level (AGL)</li>
+                    <li><strong>Distance:</strong> Must maintain visual line of sight (VLOS) to drone at all times</li>
+                    <li><strong>People:</strong> No flying over people (with limited exceptions & waivers)</li>
+                    <li><strong>Speed:</strong> Max 100 mph</li>
+                    <li><strong>Operations:</strong> Daylight only (30 min before sunrise to 30 min after sunset)</li>
+                    <li><strong>Remote ID:</strong> All drones &gt;55g must broadcast identification (FCC requirement, effective 2024)</li>
+                </ul>
+                <p><strong>Beyond Visual Line of Sight (BVLOS) Waiver:</strong> Special approval required from FAA. Use case: large agricultural surveys, long-distance delivery. Process: submit waiver request explaining how you'll detect-and-avoid obstacles.</p>
+            </div>
+
+            <h4>Europe (EASA)</h4>
+
+            <div class="card">
+                <h4>Categories: Open, Specific, Certified</h4>
+                <p><strong>Open Category:</strong> Recreational or low-risk commercial (e.g., photography). Requirements:</p>
+                <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                    <li>Drone &lt;25kg</li>
+                    <li>VLOS required</li>
+                    <li>Max altitude 120m (400 ft)</li>
+                    <li>No flying over congested areas</li>
+                    <li>Remote ID required (A1/A2 certificate or geofencing)</li>
+                </ul>
+                <p><strong>Specific Category:</strong> Higher risk operations (e.g., swarms, BVLOS, flying over people). Requires:</p>
+                <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                    <li>Risk assessment (SORA: Specific Operations Risk Assessment)</li>
+                    <li>Operational approval from national authority</li>
+                    <li>Insurance (typically €1M+ coverage)</li>
+                </ul>
+                <p><strong>Certified Category:</strong> Complex operations (high risk, heavy lift). Equivalent to manned aviation standards.</p>
+            </div>
+
+            <h4>Other Key Regions</h4>
+
+            <div class="grid-2">
+                <div class="grid-item">
+                    <h4>United Kingdom (CAA)</h4>
+                    <p><strong>Small Unmarked Aircraft (SUA) Regulations</strong></p>
+                    <p>Similar to EASA. &lt;25kg = Recreational exemption. &gt;25kg or commercial = permit required.</p>
+                    <p><strong>Flyer ID & Operator ID:</strong> Mandatory for all commercial operators.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Australia (CASA)</h4>
+                    <p><strong>RPA (Remotely Piloted Aircraft) Regulations</strong></p>
+                    <p>Drone &lt;2kg: minimal restrictions. &gt;2kg: need Remote Pilot License (ReC). Swarms treated as multiple RPA, each requiring pilot oversight.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Japan</h4>
+                    <p><strong>MLIT (Ministry of Land, Infrastructure, Transport)</strong></p>
+                    <p>Strict airspace control. Special approval zone (Kanto, Kansai). Most commercial ops require permit. Heavy penalties for violations.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>China</h4>
+                    <p><strong>CAAC (Civil Aviation Administration)</strong></p>
+                    <p>Real-name registration required. Many cities have no-fly zones. Swarms extremely restricted. Government approval case-by-case.</p>
+                </div>
+            </div>
+
+            <h3>4.3 Swarm-Specific Regulatory Challenges</h3>
+
+            <p>Flying a swarm introduces unique regulatory hurdles:</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Challenge</th>
+                            <th>Reason</th>
+                            <th>Current Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Single pilot, multiple drones</td>
+                            <td>Can one person safely monitor 10+ autonomous drones?</td>
+                            <td>Mostly prohibited. USA Part 107 requires 1 pilot per drone (with waivers).</td>
+                        </tr>
+                        <tr>
+                            <td>Beyond Visual Line of Sight (BVLOS)</td>
+                            <td>How do you maintain VLOS for 100 drones?</td>
+                            <td>Experimental. Requires special waiver + detect-and-avoid system.</td>
+                        </tr>
+                        <tr>
+                            <td>Flying over people</td>
+                            <td>10 drones over crowd = higher risk than 1 drone</td>
+                            <td>Prohibited except with FAA Part 137 waiver (agricultural mostly).</td>
+                        </tr>
+                        <tr>
+                            <td>Identification (Remote ID)</td>
+                            <td>Each drone is separate aircraft</td>
+                            <td>Each drone needs unique Remote ID broadcast. Mesh network complicates this.</td>
+                        </tr>
+                        <tr>
+                            <td>Safety case & insurance</td>
+                            <td>Liability for swarm accidents unclear</td>
+                            <td>Insurance companies cautious. Require detailed risk assessment.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout callout-analogy">
+                <strong>Regulatory Analogy: Highway Traffic</strong>
+                Flying a single drone is like driving one car. Flying a swarm is like coordinating a convoy of 10 self-driving cars. The rules for one car don't work for 10. We're still writing the rules for autonomous vehicle fleets.
+            </div>
+
+            <h3>4.4 Ethical Considerations</h3>
+
+            <div class="grid-2">
+                <div class="grid-item">
+                    <h4>Privacy</h4>
+                    <p>Drones with cameras can record people below. Solutions: geofence sensitive areas, notify public, use privacy-preserving processing (edge blur faces).</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Military Applications</h4>
+                    <p>Autonomous swarms raise concerns about lethal autonomous weapons. Responsible development: require human-in-the-loop, transparency, international agreements.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Noise Pollution</h4>
+                    <p>10 drones are loud. Operating hours: 8am-6pm, avoid residential areas at dawn/dusk.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Wildlife Disturbance</h4>
+                    <p>Birds and animals fear drones. Keep distance from nesting sites, migration corridors. Research: study impact on local fauna.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 5: REAL-WORLD APPLICATIONS -->
+        <div class="section" id="section-5">
+            <span class="section-number">Section 5</span>
+            <h2>Real-World Swarm Applications</h2>
+
+            <h3>5.1 Search and Rescue (SAR)</h3>
+
+            <div class="card">
+                <h4>Scenario: Earthquake, Collapsed Building</h4>
+                <p>A 6.5 magnitude earthquake collapses a shopping center. Rescuers need to search 50,000 m² of rubble for survivors.</p>
+
+                <p><strong>Swarm Approach:</strong></p>
+                <ul style="margin-left: 1rem;">
+                    <li>Deploy 10 drones with thermal cameras and AI-powered victim detection</li>
+                    <li>Divide search area into 10 sectors, one per drone</li>
+                    <li>Each drone scans its sector in 30 minutes</li>
+                    <li>Identify heat signatures (humans) and mark coordinates</li>
+                    <li>Relay drones maintain communication between search drones and command center (GPS-denied environment)</li>
+                </ul>
+
+                <p><strong>Result:</strong> What takes 1 drone 5 hours, 10 drones do in 30 minutes. Lives saved.</p>
+
+                <p><strong>Challenges:</strong></p>
+                <ul style="margin-left: 1rem;">
+                    <li>GPS-denied (buildings block signal) → use visual odometry</li>
+                    <li>Dust & smoke → IR cameras penetrate better than visible light</li>
+                    <li>Wind turbulence around tall structures → stability control critical</li>
+                    <li>False positives from thermal imaging → require human confirmation</li>
+                </ul>
+            </div>
+
+            <h3>5.2 Precision Agriculture</h3>
+
+            <div class="card">
+                <h4>Scenario: Crop Health Monitoring</h4>
+                <p>Farm: 1000 acres (400 hectares). Farmer wants to identify crop stress (disease, pest damage, water deficit) to target interventions.</p>
+
+                <p><strong>Swarm Approach:</strong></p>
+                <ul style="margin-left: 1rem;">
+                    <li>Deploy 10 drones with multispectral cameras (RGB + IR + NIR)</li>
+                    <li>Each drone covers 100 acres in 40 minutes at 50m altitude</li>
+                    <li>Collect 4cm/pixel imagery (much higher resolution than satellites)</li>
+                    <li>Compute NDVI (Normalized Difference Vegetation Index) to assess plant health</li>
+                    <li>Generate heat map: green = healthy, red = stressed</li>
+                </ul>
+
+                <p><strong>Output:</strong> Detailed crop health map guiding irrigation, fertilizer, and pesticide application. Savings: 20-30% water, 15% fertilizer, improved yield.</p>
+
+                <p><strong>Economics:</strong></p>
+                <ul style="margin-left: 1rem;">
+                    <li>Cost: $50k for swarm system, $100/flight hour</li>
+                    <li>Benefit: $500k+ annual savings via optimized inputs</li>
+                    <li>ROI: &gt; 1 year</li>
+                </ul>
+            </div>
+
+            <h3>5.3 Environmental Monitoring</h3>
+
+            <div class="grid-2">
+                <div class="grid-item">
+                    <h4>Forest Fire Detection</h4>
+                    <p>Deploy swarm on perimeter patrol at dawn/dusk (highest fire risk). Each drone carries thermal camera. Detect heat signature (wildfire) within minutes.</p>
+                    <p><strong>Early detection saves thousands of acres.</strong></p>
+                </div>
+                <div class="grid-item">
+                    <h4>Wildlife Tracking</h4>
+                    <p>Monitor elephant herds across national park. Swarm tracks movement without landing (avoiding disturbance). Detect poaching activity in real-time.</p>
+                    <p><strong>2-hour patrol covers 500 km² in 4 flights.</strong></p>
+                </div>
+                <div class="grid-item">
+                    <h4>Ocean Monitoring</h4>
+                    <p>Waterproof drones (sealed electronics) sample water quality: pH, dissolved oxygen, salinity, microplastics. Swarm covers coastal zone in one day.</p>
+                    <p><strong>Real-time data on ocean health, pollution sources.</strong></p>
+                </div>
+                <div class="grid-item">
+                    <h4>Air Quality Assessment</h4>
+                    <p>Deploy sensors measuring CO₂, NO₂, particulates across city. Identify pollution hotspots, validate ground station data.</p>
+                    <p><strong>3D pollution mapping unavailable from ground sensors alone.</strong></p>
+                </div>
+            </div>
+
+            <h3>5.4 Infrastructure Inspection</h3>
+
+            <div class="card">
+                <h4>Use Cases</h4>
+                <ul style="margin-left: 1rem;">
+                    <li><strong>Bridges:</strong> Visual + thermal imaging detects cracks, corrosion, structural damage. Swarm inspects 500m bridge in 1 hour vs. 2-3 days for rope access team.</li>
+                    <li><strong>Power Lines:</strong> Track conductors for wear, vegetation encroachment, damage. 1000km inspected in 3 days.</li>
+                    <li><strong>Wind Turbines:</strong> Inspect blades for cracks (expensive to stop turbine). Swarm does simultaneous multi-angle inspection.</li>
+                    <li><strong>Cell Towers:</strong> Safety inspection without crane deployment. Identify loose bolts, antenna misalignment.</li>
+                </ul>
+
+                <p><strong>AI-Powered Defect Detection:</strong> Deep learning model trained on thousands of defects. Automatically flags cracks, rust, corrosion in imagery. High sensitivity → minimal false negatives (don't miss damage).</p>
+            </div>
+
+            <h3>5.5 Entertainment: Drone Light Shows</h3>
+
+            <div class="card">
+                <h4>How It Works</h4>
+                <p>Each drone is a pixel in a moving 3D display. Pre-programmed choreography: takeoff → fly formation shapes → spell words → synchronize LED color changes.</p>
+
+                <p><strong>Scale:</strong> 1000-5000+ drones (Intel Shooting Star, Ehang Firefly). Synchronized to within 1cm and 1ms.</p>
+
+                <p><strong>Technology Stack:</strong></p>
+                <ul style="margin-left: 1rem;">
+                    <li>Differential GPS (dGPS): cm-level accuracy from ground station</li>
+                    <li>Precise time synchronization: NTP + atomic clock backup</li>
+                    <li>Firmware with formation flying primitives: bank left, climb, hover</li>
+                    <li>Geofence enforcement: drones land if they drift &gt;5m from planned trajectory</li>
+                </ul>
+
+                <p><strong>Challenge:</strong> Wind. Without compensation, wind drifts formation. Solution: real-time adjustment from ground station, formation-keeping algorithms.</p>
+
+                <p><strong>Safety:</strong> Each drone has auto-land failsafe. Total system failure → 5000 drones descend simultaneously in controlled manner. Latest shows have zero crashes.</p>
+            </div>
+
+            <h3>5.6 Delivery & Logistics</h3>
+
+            <div class="card">
+                <h4>Last-Mile Delivery</h4>
+                <p>Warehouse to doorstep. Challenges:</p>
+                <ul style="margin-left: 1rem;">
+                    <li><strong>Payload:</strong> Current drones: max 2kg. Practical for small packages, books, medicine.</li>
+                    <li><strong>Weather:</strong> Rain, snow, wind → ops suspended. Need weather forecasting integration.</li>
+                    <li><strong>Safety:</strong> Drones over residential areas require exceptional safety standards.</li>
+                    <li><strong>Regulations:</strong> Currently prohibited in most countries without special waivers.</li>
+                </ul>
+
+                <p><strong>Swarm Advantage:</strong> Multiple drones from same warehouse → multiple deliveries simultaneously. Scale to dozens of deliveries per hour.</p>
+
+                <p><strong>Air Traffic Management (UTM):</strong> Unmanned Traffic Management system coordinates all drones in airspace, preventing collisions. Companies: NASA, Airbus, Uber Elevate working on standards.</p>
+            </div>
+
+            <h3>5.7 Defense & Security</h3>
+
+            <div class="grid-2">
+                <div class="grid-item">
+                    <h4>Perimeter Surveillance</h4>
+                    <p>Autonomous patrol of border, facility perimeter. 10 drones cover 50 km² overnight. AI detects intrusion, alerts security team.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Counter-Drone Systems</h4>
+                    <p>Detect, track, and neutralize rogue drones. Swarm of fast interceptor drones can corner hostile drone and force landing or jamming.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>ISR Operations</h4>
+                    <p>Intelligence, Surveillance, Reconnaissance. Swarm gathers real-time imagery over tactical area. Distributed system is harder to jam.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Mine Detection</h4>
+                    <p>Swarm with magnetometers/ground-penetrating radar detects buried mines. Map minefield without human risk.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 6: BUILD YOUR FIRST SWARM -->
+        <div class="section" id="section-6">
+            <span class="section-number">Section 6</span>
+            <h2>Building Your First Swarm: Step-by-Step Roadmap</h2>
+
+            <p>A realistic 12-month timeline from zero to functional swarm deployment.</p>
+
+            <h3>6.1 Phase 1: Learn (Month 1-2)</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Month 1: Foundations</h4>
+                    <p><strong>Math:</strong> Linear algebra (matrix operations, eigenvalues), calculus (derivatives for control), probability (Kalman filtering).</p>
+                    <p><strong>Resources:</strong> 3Blue1Brown YouTube (Essence of Linear Algebra), Khan Academy, Strang's Linear Algebra textbook.</p>
+                    <p><strong>Time:</strong> 20 hours/week × 4 weeks = 80 hours</p>
+                    <p><strong>Deliverable:</strong> Solve 10 linear algebra problems, understand matrix decomposition.</p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Month 2: Algorithms & Simulation</h4>
+                    <p><strong>Algorithms:</strong> Study Reynolds boids, Olfati-Saber consensus, flocking models.</p>
+                    <p><strong>Implementation:</strong> Build boids simulator in Python (NumPy). 100 agents, demonstrate flocking behavior.</p>
+                    <p><strong>Tools:</strong> Matplotlib for visualization, VS Code + Python.</p>
+                    <p><strong>Time:</strong> 15 hours/week × 4 weeks = 60 hours</p>
+                    <p><strong>Deliverable:</strong> GitHub repo with boids code, 5-minute demo video.</p>
+                </div>
+            </div>
+
+            <h3>6.2 Phase 2: Simulate (Month 3-4)</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Month 3: SITL Setup</h4>
+                    <p><strong>Install:</strong> Gazebo, PX4, ROS2, QGroundControl.</p>
+                    <p><strong>Learn:</strong> ROS2 tutorials (first 5 turtlesim demos), PX4 documentation.</p>
+                    <p><strong>Fly:</strong> Single drone in Gazebo SITL. Takeoff → hover → land (5 flights in simulation).</p>
+                    <p><strong>Time:</strong> 20 hours for setup, 10 hours for experiments = 30 hours</p>
+                    <p><strong>Deliverable:</strong> Video of simulated drone completing autonomous mission.</p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Month 4: Swarm Coordination</h4>
+                    <p><strong>Implement:</strong> Formation controller in Python/ROS2. 3-5 drones in simulation.</p>
+                    <p><strong>Test:</strong> Formation flying (line, triangle, circle). Collision avoidance. Task allocation algorithm.</p>
+                    <p><strong>Iterate:</strong> Tune controller gains, test scenarios (one drone failure, communication loss).</p>
+                    <p><strong>Time:</strong> 40 hours development + 20 hours testing = 60 hours</p>
+                    <p><strong>Deliverable:</strong> Simulation video showing 5 drones in formation, handling failures gracefully.</p>
+                </div>
+            </div>
+
+            <h3>6.3 Phase 3: Build Hardware (Month 5-6)</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Month 5: Build First Drone</h4>
+                    <p><strong>BOM:</strong> See Part 4 hardware guide. ~$300-400 per drone.</p>
+                    <p><strong>Assembly:</strong> Frame, motors, ESCs, flight controller, power distribution, antennas.</p>
+                    <p><strong>Firmware:</strong> Flash PX4 to Pixhawk. Calibrate IMU, compass, ESCs.</p>
+                    <p><strong>Time:</strong> 15 hours building, 5 hours calibration = 20 hours</p>
+                    <p><strong>Deliverable:</strong> One fully assembled, calibrated drone. Prop-off tethered test successful.</p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Month 6: Autonomous Flights</h4>
+                    <p><strong>Phase 1-2:</strong> Tethered flight (30 mins), manual free flight (2 hours across 10 flights).</p>
+                    <p><strong>Phase 3:</strong> Autonomous mission (takeoff → 1 waypoint → land). 10+ successful flights.</p>
+                    <p><strong>Tune:</strong> PID gains for stable flight. Battery efficiency baseline.</p>
+                    <p><strong>Time:</strong> 30 hours flying, 10 hours tuning = 40 hours</p>
+                    <p><strong>Deliverable:</strong> Drone completes autonomous mission 10x with 90%+ success rate.</p>
+                </div>
+            </div>
+
+            <h3>6.4 Phase 4: Scale Up (Month 7-9)</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Months 7-8: Build Remaining Drones</h4>
+                    <p><strong>Clone:</strong> Build 4-9 more drones (identical specs). Batch assembly is faster.</p>
+                    <p><strong>Configure:</strong> Unique IDs, calibration, radio addresses.</p>
+                    <p><strong>Time:</strong> 60 hours (faster per drone due to experience)</p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Month 9: Swarm Flight Tests</h4>
+                    <p><strong>Phase 4:</strong> Two-drone formation (4 flights). Verify inter-drone comm.</p>
+                    <p><strong>Phase 5:</strong> 5-drone swarm, complex mission (20+ flights). Formation control, task allocation.</p>
+                    <p><strong>Robustness:</strong> Disable one drone mid-flight → swarm adapts and continues.</p>
+                    <p><strong>Metrics:</strong> Formation error, battery efficiency, mission completion rate.</p>
+                    <p><strong>Time:</strong> 60 hours testing</p>
+                    <p><strong>Deliverable:</strong> Swarm completes complex mission with 95%+ success rate.</p>
+                </div>
+            </div>
+
+            <h3>6.5 Phase 5: Advanced Features (Month 10-12)</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Months 10-11: Computer Vision & ML</h4>
+                    <p><strong>Camera:</strong> Add USB camera to one drone. Stream to onboard Jetson Nano.</p>
+                    <p><strong>Object Detection:</strong> YOLOv8 model running on Nano. Detect humans, balls, targets.</p>
+                    <p><strong>Integration:</strong> Detection triggers drone behavior (chase, hover, report location).</p>
+                    <p><strong>Time:</strong> 50 hours development & testing</p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>Month 12: GPS-Denied Navigation & Open Source</h4>
+                    <p><strong>Optical Flow:</strong> Implement bottom camera + optical flow for position without GPS.</p>
+                    <p><strong>Visual Odometry:</strong> Estimate position from camera images, fuse with IMU.</p>
+                    <p><strong>Open Source:</strong> Publish code on GitHub, write technical blog post.</p>
+                    <p><strong>Time:</strong> 50 hours development + documentation</p>
+                    <p><strong>Deliverable:</strong> GitHub repo with swarm control code, tutorial, demo videos.</p>
+                </div>
+            </div>
+
+            <h3>6.6 Learning Resources</h3>
+
+            <div class="grid-2">
+                <div class="grid-item">
+                    <h4>Online Courses</h4>
+                    <ul style="margin-left: 1rem; font-size: 0.95rem;">
+                        <li><strong>3Blue1Brown:</strong> Essence of Linear Algebra (YouTube, free)</li>
+                        <li><strong>Coursera:</strong> Robotics Specialization (Penn)</li>
+                        <li><strong>MIT OpenCourseWare:</strong> Aerial Robotics (ETH Zurich)</li>
+                        <li><strong>Udemy:</strong> Drone programming with Python + ROS</li>
+                    </ul>
+                </div>
+                <div class="grid-item">
+                    <h4>Key Textbooks</h4>
+                    <ul style="margin-left: 1rem; font-size: 0.95rem;">
+                        <li>Beard & McLain: "Small Unmanned Aircraft"</li>
+                        <li>Olfati-Saber et al.: "Consensus and Cooperation in Networked Multi-Agent Systems"</li>
+                        <li>Strang: "Introduction to Linear Algebra"</li>
+                        <li>LaValle: "Planning Algorithms"</li>
+                    </ul>
+                </div>
+                <div class="grid-item">
+                    <h4>YouTube Channels</h4>
+                    <ul style="margin-left: 1rem; font-size: 0.95rem;">
+                        <li><strong>PX4 Autopilot:</strong> Official tutorials</li>
+                        <li><strong>DroneBlocks:</strong> Beginner-friendly drone coding</li>
+                        <li><strong>Paul McWhorter:</strong> ROS and drone tutorials</li>
+                        <li><strong>Lab Mike:</strong> DIY quadcopter from scratch</li>
+                    </ul>
+                </div>
+                <div class="grid-item">
+                    <h4>Communities</h4>
+                    <ul style="margin-left: 1rem; font-size: 0.95rem;">
+                        <li><strong>PX4 Forum:</strong> px4.io/community</li>
+                        <li><strong>DIYDrones:</strong> diydrones.com (ArduPilot community)</li>
+                        <li><strong>ROS Discourse:</strong> discourse.ros.org</li>
+                        <li><strong>GitHub:</strong> Search "swarm drone" for open source projects</li>
+                    </ul>
+                </div>
+                <div class="grid-item">
+                    <h4>Conferences</h4>
+                    <ul style="margin-left: 1rem; font-size: 0.95rem;">
+                        <li><strong>ICRA:</strong> International Conference on Robotics & Automation</li>
+                        <li><strong>IROS:</strong> Intelligent Robots & Systems</li>
+                        <li><strong>RSS:</strong> Robotics: Science & Systems</li>
+                        <li><strong>AHS Forum:</strong> American Helicopter Society (vertical flight focus)</li>
+                    </ul>
+                </div>
+                <div class="grid-item">
+                    <h4>Competitions</h4>
+                    <ul style="margin-left: 1rem; font-size: 0.95rem;">
+                        <li><strong>PX4 Swarm Challenge:</strong> Annual simulation competition</li>
+                        <li><strong>Mohamed Bin Zayed Int'l Robotics Challenge:</strong> Outdoor swarm tasks</li>
+                        <li><strong>AUVSI SUAS:</strong> Student unmanned aerial systems (USA)</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 7: FUTURE OF SWARM DRONES -->
+        <div class="section" id="section-7">
+            <span class="section-number">Section 7</span>
+            <h2>Future of Swarm Drones</h2>
+
+            <h3>7.1 Technology Trends</h3>
+
+            <div class="grid-2">
+                <div class="grid-item">
+                    <h4>Fully Autonomous</h4>
+                    <p>Today: human monitors and intervenes. Tomorrow: fully autonomous, 24/7 operation without human oversight. Requires exceptional safety & verification.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Heterogeneous Swarms</h4>
+                    <p>Mixed drone types: quadcopters (agile), hexacopters (heavy lift), fixed-wing (long endurance), ground robots. All coordinating.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Neuromorphic Computing</h4>
+                    <p>Brain-inspired chips (Intel Loihi, IBM TrueNorth). Ultra-low-power AI running on drone directly. 1000x efficiency vs. traditional CPUs.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Biological Inspiration</h4>
+                    <p>Ant colonies (pheromone trails), bee swarms (waggle dance), fish schools (hydrodynamic efficiency). Algorithms from nature → swarm robotics.</p>
+                </div>
+            </div>
+
+            <div class="callout callout-analogy">
+                <strong>Biological Inspiration: Why Nature Works</strong>
+                Ants solve global optimization problems without a central brain. Bees coordinate food collection using local communication only. Birds navigate using local airflow sensing. These systems scale to millions of agents, adapt to changes, and fail gracefully. Swarm robotics aims to replicate these principles in silicon.
+            </div>
+
+            <h3>7.2 Open Research Problems</h3>
+
+            <p>Challenges that will define the next 10 years:</p>
+
+            <div class="card">
+                <h4>Scalability: 10,000+ Drones</h4>
+                <p><strong>Challenge:</strong> Today's algorithms work for 5-100 drones. What about 10,000?</p>
+                <p><strong>Bottlenecks:</strong></p>
+                <ul style="margin-left: 1rem;">
+                    <li>Communication: O(N²) message complexity breaks down</li>
+                    <li>Computation: centralized coordination becomes intractable</li>
+                    <li>Scalability: formation control assumes small N, what about large N?</li>
+                </ul>
+                <p><strong>Research Direction:</strong> Decentralized algorithms using only local neighbors. Hierarchical swarms (sub-swarms commanding sub-swarms). Event-driven communication (only talk when necessary).</p>
+            </div>
+
+            <div class="card">
+                <h4>Long-Duration Missions</h4>
+                <p><strong>Challenge:</strong> Current drones: 20-30 min flight time. Real missions need hours or days.</p>
+                <p><strong>Solutions in Research:</strong></p>
+                <ul style="margin-left: 1rem;">
+                    <li><strong>Solar power:</strong> Lightweight solar cells. Gossamer-winged drones stay aloft indefinitely in sunlight.</li>
+                    <li><strong>Self-charging:</strong> Landing pads on perch points (power lines, trees). Charge via ultrawideband wireless.</li>
+                    <li><strong>Battery innovation:</strong> Solid-state batteries (5x energy density). LiPo → LiPo with 100+ Wh/kg.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h4>Human-Swarm Interaction</h4>
+                <p><strong>Challenge:</strong> One person controlling 100 drones intuitively. No intuitive interface exists today.</p>
+                <p><strong>Research:</strong> Virtual reality teleoperation (pilot sees drone swarm view), gesture control, natural language ("spread out and search the forest").</p>
+            </div>
+
+            <div class="card">
+                <h4>Formal Verification</h4>
+                <p><strong>Challenge:</strong> Prove mathematically that swarm algorithm is safe under all conditions.</p>
+                <p><strong>Current State:</strong> Manual testing (simulation + flights). Hard to cover all edge cases.</p>
+                <p><strong>Goal:</strong> Mathematical proof. E.g., "This formation control guarantees no two drones come within 1m, under any sensor failure or network delay."</p>
+                <p><strong>Tools:</strong> Model checking, theorem proving (Coq, Isabelle). Being adopted in aerospace.</p>
+            </div>
+
+            <div class="card">
+                <h4>Adversarial Robustness</h4>
+                <p><strong>Challenge:</strong> Swarms vulnerable to hacking and jamming.</p>
+                <p><strong>Threats:</strong></p>
+                <ul style="margin-left: 1rem;">
+                    <li>GPS spoofing: fake satellite signals mislead all drones at once</li>
+                    <li>Radio jamming: communication blackout</li>
+                    <li>Firmware hacking: install malicious code on drone</li>
+                </ul>
+                <p><strong>Defense Research:</strong> Cryptography, anomaly detection, decentralized trust (blockchain-style consensus).</p>
+            </div>
+
+            <h3>7.3 Timeline to Maturity</h3>
+
+            <div style="margin: 2rem 0; padding: 1.5rem; background: var(--bg-secondary); border-left: 4px solid var(--accent-teal); border-radius: 8px;">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="padding: 1rem; background: var(--bg-primary); border-radius: 6px; border-left: 4px solid var(--accent-purple);">
+                        <strong style="color: var(--accent-teal);">2025-2027: Early Adoption</strong>
+                        <p style="margin: 0.5rem 0; color: var(--text-dim); font-size: 0.9rem;">Swarms in controlled environments (warehouses, farms). Regulatory exemptions for specific use cases. 50-500 swarm deployments globally.</p>
+                    </div>
+                    <div style="padding: 1rem; background: var(--bg-primary); border-radius: 6px; border-left: 4px solid var(--accent-purple);">
+                        <strong style="color: var(--accent-teal);">2028-2030: Mainstream Adoption</strong>
+                        <p style="margin: 0.5rem 0; color: var(--text-dim); font-size: 0.9rem;">Regulations mature. BVLOS operations approved in many countries. Swarms for delivery, agriculture, monitoring routine. Standards (UTM, Remote ID) finalized.</p>
+                    </div>
+                    <div style="padding: 1rem; background: var(--bg-primary); border-radius: 6px; border-left: 4px solid var(--accent-purple);">
+                        <strong style="color: var(--accent-teal);">2031-2035: Ubiquity</strong>
+                        <p style="margin: 0.5rem 0; color: var(--text-dim); font-size: 0.9rem;">Swarms commonplace. Heterogeneous swarms (ground + air) standard. Fully autonomous, human-level decision making via AI. Millions of drones operating daily.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <p>© 2025 Sim Vattanac | vattanacsim99@gmail.com</p>
+            <p style="margin-top: 1rem; color: var(--text-dim);">
+                <strong>Part 5 of 5: Integration & Deployment</strong> |
+                <a href="index.html" style="color: var(--accent-teal); text-decoration: none;">Part 1</a> •
+                <a href="part2-algorithms.html" style="color: var(--accent-teal); text-decoration: none;">Part 2</a> •
+                <a href="part3-software.html" style="color: var(--accent-teal); text-decoration: none;">Part 3</a> •
+                <a href="part4-hardware.html" style="color: var(--accent-teal); text-decoration: none;">Part 4</a> •
+                <a href="part5-integration.html" style="color: var(--accent-teal); text-decoration: none;">Part 5</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // TOC toggle on mobile
+        const tocToggle = document.getElementById('tocToggle');
+        const tocSidebar = document.getElementById('tocSidebar');
+
+        tocToggle.addEventListener('click', () => {
+            tocSidebar.classList.toggle('open');
+        });
+
+        // Active TOC link highlighting
+        const sections = document.querySelectorAll('.section');
+        const tocLinks = document.querySelectorAll('.toc-sidebar a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Close TOC sidebar when clicking a link on mobile
+        tocLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                tocSidebar.classList.remove('open');
+            });
+        });
+    </script>
+</body>
+</html>

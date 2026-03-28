@@ -1,0 +1,2562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 3: Software & Simulation - Zero to Swarm Drone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0b14;
+            color: #c8cad8;
+            line-height: 1.6;
+        }
+
+        /* NAVIGATION */
+        nav {
+            position: sticky;
+            top: 0;
+            background-color: #12142a;
+            border-bottom: 1px solid #1a1c3a;
+            padding: 1rem 2rem;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav h1 {
+            font-size: 1.3rem;
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: #c8cad8;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #a78bfa;
+        }
+
+        nav .home-btn {
+            background-color: #1a1c3a;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #5eead4;
+            color: #5eead4;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        nav .home-btn:hover {
+            background-color: #5eead4;
+            color: #0a0b14;
+        }
+
+        /* LAYOUT */
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* SIDEBAR TOC */
+        .toc-sidebar {
+            width: 250px;
+            min-width: 250px;
+            background-color: #12142a;
+            border-right: 1px solid #1a1c3a;
+            padding: 2rem 1.5rem;
+            position: sticky;
+            top: 70px;
+            max-height: calc(100vh - 70px);
+            overflow-y: auto;
+            align-self: flex-start;
+        }
+
+        .toc-sidebar h3 {
+            font-size: 0.9rem;
+            color: #a78bfa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .toc-sidebar ul {
+            list-style: none;
+        }
+
+        .toc-sidebar ul li {
+            margin-bottom: 0.7rem;
+        }
+
+        .toc-sidebar ul li a {
+            color: #c8cad8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .toc-sidebar ul li a:hover {
+            background-color: #1a1c3a;
+            color: #5eead4;
+            padding-left: 1rem;
+        }
+
+        .toc-sidebar ul ul li a {
+            font-size: 0.85rem;
+            padding-left: 1.5rem;
+            color: #6b6e8a;
+        }
+
+        .toc-sidebar ul ul li a:hover {
+            color: #5eead4;
+        }
+
+        /* TOGGLE */
+        .toc-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #a78bfa;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 1rem;
+        }
+
+        /* MAIN CONTENT */
+        main {
+            flex: 1;
+            min-width: 0;
+            padding: 3rem;
+            overflow-x: hidden;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #a78bfa;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #5eead4;
+            padding-bottom: 0.75rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: #5eead4;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            color: #c8cad8;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #c8cad8;
+        }
+
+        /* CALLOUT BOXES */
+        .callout {
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .callout.why {
+            background-color: #1a1c3a;
+            border-left-color: #a78bfa;
+        }
+
+        .callout.why strong {
+            color: #a78bfa;
+        }
+
+        .callout.analogy {
+            background-color: #0f2f2f;
+            border-left-color: #5eead4;
+        }
+
+        .callout.analogy strong {
+            color: #5eead4;
+        }
+
+        .callout.getting-started {
+            background-color: #1a1c3a;
+            border-left-color: #a78bfa;
+        }
+
+        .callout.getting-started strong {
+            color: #a78bfa;
+        }
+
+        /* CODE BLOCKS */
+        pre {
+            background-color: #12142a;
+            border: 1px solid #1a1c3a;
+            border-radius: 6px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #5eead4;
+            line-height: 1.5;
+        }
+
+        .code-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #6b6e8a;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        /* TABLES */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: #12142a;
+            border-radius: 6px;
+            overflow: hidden;
+            display: block;
+            overflow-x: auto;
+        }
+
+        thead {
+            background-color: #1a1c3a;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            color: #a78bfa;
+            font-weight: 600;
+            border-bottom: 2px solid #5eead4;
+        }
+
+        td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid #1a1c3a;
+            color: #c8cad8;
+        }
+
+        tr:hover {
+            background-color: #1a1c3a;
+        }
+
+        /* HERO */
+        .hero {
+            background: linear-gradient(135deg, #1a1c3a 0%, #12142a 100%);
+            padding: 3rem 2rem;
+            margin: -3rem -3rem 3rem -3rem;
+            border-bottom: 2px solid #5eead4;
+        }
+
+        .hero h1 {
+            font-size: clamp(1.6rem, 3vw, 2.8rem);
+            color: #a78bfa;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.05rem;
+            color: #5eead4;
+            max-width: 700px;
+            line-height: 1.7;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: #12142a;
+            border-top: 1px solid #1a1c3a;
+            padding: 2rem;
+            text-align: center;
+            color: #6b6e8a;
+            margin-top: 4rem;
+        }
+
+        footer a {
+            color: #a78bfa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #5eead4;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .toc-toggle {
+                display: block;
+            }
+
+            .toc-sidebar {
+                position: fixed;
+                left: -250px;
+                top: 70px;
+                width: 250px;
+                height: calc(100vh - 70px);
+                transition: left 0.3s;
+                z-index: 99;
+                border-right: 1px solid #1a1c3a;
+            }
+
+            .toc-sidebar.open {
+                left: 0;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            .hero {
+                margin: -2rem -1rem 2rem -1rem;
+                padding: 2rem 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            nav {
+                padding: 1rem;
+            }
+
+            nav h1 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <button class="toc-toggle" id="tocToggle">☰</button>
+        <h1>Part 3: Software & Simulation</h1>
+        <div class="nav-links">
+            <a href="#section-1">Languages</a>
+            <a href="#section-2">Firmware</a>
+            <a href="#section-3">Simulators</a>
+            <a href="index.html" class="home-btn">← Back to Guide</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="toc-sidebar" id="tocSidebar">
+            <h3>Contents</h3>
+            <ul>
+                <li><a href="#section-1">1. Programming Languages</a>
+                    <ul>
+                        <li><a href="#s1-1">1.1 C/C++</a></li>
+                        <li><a href="#s1-2">1.2 Python</a></li>
+                        <li><a href="#s1-3">1.3 ROS/ROS2</a></li>
+                        <li><a href="#s1-4">1.4 MATLAB/Simulink</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section-2">2. Flight Controller Firmware</a>
+                    <ul>
+                        <li><a href="#s2-1">2.1 PX4 Autopilot</a></li>
+                        <li><a href="#s2-2">2.2 ArduPilot</a></li>
+                        <li><a href="#s2-3">2.3 Betaflight</a></li>
+                        <li><a href="#s2-4">2.4 Custom Controllers</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section-3">3. Simulators</a>
+                    <ul>
+                        <li><a href="#s3-1">3.1 Gazebo</a></li>
+                        <li><a href="#s3-2">3.2 AirSim</a></li>
+                        <li><a href="#s3-3">3.3 Webots</a></li>
+                        <li><a href="#s3-4">3.4 CoppeliaSim</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section-4">4. Communication Protocols</a>
+                    <ul>
+                        <li><a href="#s4-1">4.1 MAVLink</a></li>
+                        <li><a href="#s4-2">4.2 ROS Topics</a></li>
+                        <li><a href="#s4-3">4.3 Mesh Networking</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section-5">5. Computer Vision</a>
+                    <ul>
+                        <li><a href="#s5-1">5.1 OpenCV</a></li>
+                        <li><a href="#s5-2">5.2 SLAM</a></li>
+                        <li><a href="#s5-3">5.3 Object Detection</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section-6">6. ML Frameworks</a>
+                    <ul>
+                        <li><a href="#s6-1">6.1 PyTorch</a></li>
+                        <li><a href="#s6-2">6.2 TensorFlow</a></li>
+                        <li><a href="#s6-3">6.3 Stable Baselines3</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section-7">7. Ground Station & Monitoring</a>
+                    <ul>
+                        <li><a href="#s7-1">7.1 QGroundControl</a></li>
+                        <li><a href="#s7-2">7.2 Custom Dashboards</a></li>
+                        <li><a href="#s7-3">7.3 Data Logging</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </aside>
+
+        <main>
+            <div class="hero">
+                <h1>Zero to Swarm Drone: Part 3</h1>
+                <p>A complete guide to drone swarm software, from firmware and flight controllers to machine learning frameworks and real-time communication protocols. Everything you need to build coordinated, autonomous multi-drone systems.</p>
+            </div>
+
+            <!-- SECTION 1: PROGRAMMING LANGUAGES -->
+            <section id="section-1">
+                <h2>1. Programming Languages & Core Tools</h2>
+
+                <h3 id="s1-1">1.1 C/C++ — The Performance Layer</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Flight controllers run on microcontrollers with limited RAM and CPU. Every microsecond counts. Real-time constraints demand predictable, fast code. C/C++ powers PX4, ArduPilot, and onboard controllers.
+                </div>
+
+                <p>C/C++ is the backbone of flight-critical code. Your drone's attitude controller, sensor fusion, and motor mixing must execute in tight loops at 400+ Hz. Python's garbage collector can cause 100ms pauses—fatal for a quadcopter doing 20 m/s.</p>
+
+                <h4>Key Concepts for Drone Flight Control</h4>
+                <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                    <li><strong>Pointers & memory management:</strong> manual RAM allocation for real-time safety</li>
+                    <li><strong>Interrupt handlers:</strong> respond to sensor events immediately</li>
+                    <li><strong>Fixed-point math:</strong> faster than floating-point on some microcontrollers</li>
+                    <li><strong>DMA (Direct Memory Access):</strong> offload data transfers to free the CPU</li>
+                </ul>
+
+                <h4>Example: Simple PID Controller in C</h4>
+                <div class="code-label">C — Flight Controller</div>
+                <pre><code>typedef struct {
+    float kp, ki, kd;
+    float integral, prev_error;
+} PIDController;
+
+float pid_update(PIDController *pid, float setpoint, float measured, float dt) {
+    float error = setpoint - measured;
+    pid->integral += error * dt;
+    float derivative = (error - pid->prev_error) / dt;
+
+    float output = pid->kp * error
+                 + pid->ki * pid->integral
+                 + pid->kd * derivative;
+
+    pid->prev_error = error;
+    return output;
+}
+
+// Usage in main loop (400 Hz)
+void attitude_control_loop(void) {
+    IMU_read(&gyro, &accel);
+    float roll_rate_cmd = pid_update(&roll_pid, roll_setpoint, roll_current, 0.0025); // 400 Hz
+    mixer_update(roll_rate_cmd, pitch_rate_cmd, yaw_rate_cmd, thrust_cmd);
+}</code></pre>
+
+                <h4>Key Libraries</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Library</th>
+                            <th>Purpose</th>
+                            <th>Use in Swarm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Eigen</strong></td>
+                            <td>Linear algebra (matrices, vectors, quaternions)</td>
+                            <td>Attitude representation, coordinate transforms</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MAVLink</strong></td>
+                            <td>Drone communication protocol</td>
+                            <td>Inter-drone and ground station communication</td>
+                        </tr>
+                        <tr>
+                            <td><strong>STM32 HAL</strong></td>
+                            <td>Hardware abstraction for STM32 microcontrollers</td>
+                            <td>Direct flight controller development</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FreeRTOS</strong></td>
+                            <td>Real-time operating system</td>
+                            <td>Task scheduling on flight controller</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout analogy">
+                    <strong>Real-world analogy:</strong> Writing flight controller code in C is like tuning a racing engine—every instruction must do exactly what you want, no extra work. Python is like an automatic transmission; it's convenient but hides what's happening under the hood.
+                </div>
+
+                <div class="callout getting-started">
+                    <strong>Getting Started with C/C++ for Drones:</strong>
+                    <pre><code>sudo apt-get install gcc g++ arm-none-eabi-gcc cmake
+
+# Clone PX4 source to study
+git clone https://github.com/PX4/PX4-Autopilot.git
+cd PX4-Autopilot
+make px4_fmu-v5_default
+
+# Or start with a tutorial
+# https://github.com/cleanflight/cleanflight (Betaflight source)</code></pre>
+                </div>
+
+                <!-- PYTHON SECTION -->
+                <h3 id="s1-2">1.2 Python — The Brain Layer</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Rapid prototyping. Machine learning. Path planning. Data analysis. Python rules the ground station, simulation loop, and ML training pipeline. You write swarm algorithms in Python, then port performance-critical parts to C.
+                </div>
+
+                <p>Python is where swarm intelligence comes alive. NumPy vectorization lets you simulate 100 drones in seconds. TensorFlow trains neural networks for collision avoidance. DroneKit gives you high-level control without wrestling with MAVLink packets.</p>
+
+                <h4>Essential Libraries for Swarm Development</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Library</th>
+                            <th>Purpose</th>
+                            <th>Swarm Relevance</th>
+                            <th>Typical Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>NumPy</strong></td>
+                            <td>Vectorized math</td>
+                            <td>★★★★★</td>
+                            <td>Position/velocity updates for 1000 drones at once</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SciPy</strong></td>
+                            <td>Scientific computing</td>
+                            <td>★★★★</td>
+                            <td>Interpolation, optimization, spatial distances</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OpenCV</strong></td>
+                            <td>Computer vision</td>
+                            <td>★★★★</td>
+                            <td>Visual-based neighbor detection, ArUco tracking</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PyTorch / TensorFlow</strong></td>
+                            <td>Deep learning</td>
+                            <td>★★★★★</td>
+                            <td>RL training, vision-based control policies</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DroneKit</strong></td>
+                            <td>High-level drone API</td>
+                            <td>★★★★</td>
+                            <td>Mission planning, telemetry, waypoint commands</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROS / ROS2</strong></td>
+                            <td>Robot middleware</td>
+                            <td>★★★★★</td>
+                            <td>Multi-drone coordination, message passing</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Example: Reynolds' Boids (Swarm Behavior Simulation)</h4>
+                <div class="code-label">Python — Swarm Dynamics</div>
+                <pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+class Boid:
+    def __init__(self, x, y, vx, vy):
+        self.pos = np.array([x, y])
+        self.vel = np.array([vx, vy])
+        self.acc = np.array([0.0, 0.0])
+
+    def apply_rules(self, boids, separation_d=15, alignment_d=50, cohesion_d=100):
+        # Rule 1: Separation (avoid crowding)
+        steer = np.array([0.0, 0.0])
+        count = 0
+        for other in boids:
+            dist = np.linalg.norm(self.pos - other.pos)
+            if 0 < dist < separation_d:
+                steer -= (other.pos - self.pos)
+                count += 1
+        if count > 0:
+            steer /= count
+            self.acc += steer * 0.05
+
+        # Rule 2: Alignment (steer toward avg heading)
+        avg_vel = np.mean([b.vel for b in boids if np.linalg.norm(self.pos - b.pos) < alignment_d], axis=0)
+        if avg_vel.any():
+            self.acc += (avg_vel - self.vel) * 0.02
+
+        # Rule 3: Cohesion (steer toward center of mass)
+        nearby = [b.pos for b in boids if np.linalg.norm(self.pos - b.pos) < cohesion_d]
+        if nearby:
+            center = np.mean(nearby, axis=0)
+            self.acc += (center - self.pos) * 0.01
+
+    def update(self, dt=0.1):
+        self.vel += self.acc
+        self.vel = np.clip(self.vel, -5, 5)  # Max speed
+        self.pos += self.vel * dt
+        self.acc = np.array([0.0, 0.0])
+
+# Simulation
+n_boids = 50
+boids = [Boid(np.random.rand()*400, np.random.rand()*400,
+              (np.random.rand()-0.5)*2, (np.random.rand()-0.5)*2)
+         for _ in range(n_boids)]
+
+for t in range(1000):
+    for boid in boids:
+        boid.apply_rules(boids)
+    for boid in boids:
+        boid.update()</code></pre>
+
+                <div class="callout analogy">
+                    <strong>Real-world analogy:</strong> Python is like writing a research paper about drone swarms in English. C is like optimizing the final assembly-line manufacturing—different tools for different stages.
+                </div>
+
+                <div class="callout getting-started">
+                    <strong>Getting Started with Python for Drones:</strong>
+                    <pre><code>pip install numpy scipy opencv-python
+pip install torch torchvision  # or tensorflow
+pip install dronekit dronekit-sitl
+pip install pettingzoo gymnasium  # Multi-agent RL
+
+# Test with DroneKit
+python -m dronekit_sitl copter --home=0,0,0,180 --instance=0</code></pre>
+                </div>
+
+                <!-- ROS SECTION -->
+                <h3 id="s1-3">1.3 ROS / ROS2 (Robot Operating System)</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> ROS is the standard middleware for multi-robot systems. It decouples your flight controller from ground station, sensor fusion from path planning. Perfect for coordinating 10 or 100 drones without spaghetti code.
+                </div>
+
+                <p>ROS is an operating system for robots. It handles inter-process communication, hardware abstraction, and message passing. Think of it as middleware that lets drone #1's position feed into drone #2's collision avoidance without them being in the same program.</p>
+
+                <h4>Core ROS Concepts for Swarms</h4>
+                <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                    <li><strong>Topics:</strong> publish-subscribe messaging (like a radio broadcast)</li>
+                    <li><strong>Services:</strong> request-response communication (like a phone call)</li>
+                    <li><strong>Actions:</strong> long-running tasks with feedback (like ordering delivery)</li>
+                    <li><strong>tf2:</strong> coordinate frame management (drone frame, world frame, camera frame)</li>
+                    <li><strong>Launch files:</strong> orchestrating 50+ nodes with one command</li>
+                </ul>
+
+                <h4>Example ROS Architecture for Swarm</h4>
+                <pre><code>Ground Station (ROS Master, 192.168.1.100:11311)
+    ├─ Drone 1 (192.168.1.101)
+    │  ├─ /drone_1/imu (publish, 100 Hz)
+    │  ├─ /drone_1/gps (publish, 10 Hz)
+    │  ├─ /drone_1/cmd_vel (subscribe)
+    │  └─ /drone_1/set_mode (service)
+    │
+    ├─ Drone 2 (192.168.1.102)
+    │  ├─ /drone_2/imu (publish, 100 Hz)
+    │  ├─ /drone_2/gps (publish, 10 Hz)
+    │  ├─ /drone_2/cmd_vel (subscribe)
+    │  └─ /drone_2/set_mode (service)
+    │
+    └─ Swarm Coordinator Node
+       ├─ Reads /drone_1/pose, /drone_2/pose
+       ├─ Reads /swarm/formation (desired shape)
+       └─ Publishes /drone_1/cmd_vel, /drone_2/cmd_vel</code></pre>
+
+                <h4>ROS Launch File Example (Launch 5 Drones)</h4>
+                <div class="code-label">XML — ROS Launch</div>
+                <pre><code>&lt;launch&gt;
+    &lt;arg name="num_drones" default="5"/&gt;
+    &lt;arg name="fcu_url" default="udp://127.0.0.1:14550@127.0.0.1:14551"/&gt;
+
+    &lt;node name="rosgraph_monitor" pkg="rosgraph_monitor" type="monitor.py"/&gt;
+
+    &lt;group ns="swarm"&gt;
+        &lt;node name="swarm_coordinator" pkg="swarm_control" type="coordinator.py"&gt;
+            &lt;param name="num_drones" value="$(arg num_drones)"/&gt;
+        &lt;/node&gt;
+    &lt;/group&gt;
+
+    &lt;group ns="drone"&gt;
+        &lt;include file="$(find mavros)/launch/px4.launch"&gt;
+            &lt;arg name="fcu_url" value="$(arg fcu_url)"/&gt;
+        &lt;/include&gt;
+    &lt;/group&gt;
+&lt;/launch&gt;</code></pre>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ROS Version</th>
+                            <th>Year</th>
+                            <th>Best For</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>ROS 1 (Noetic)</strong></td>
+                            <td>2020</td>
+                            <td>Established projects, massive ecosystem</td>
+                            <td>End-of-life 2025; most tutorials online</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROS 2 (Humble)</strong></td>
+                            <td>2022</td>
+                            <td>New projects, production systems</td>
+                            <td>Better security, deterministic, DDS middleware</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout analogy">
+                    <strong>Real-world analogy:</strong> ROS is like the postal system for robots. You drop a letter (message) in the mailbox (topic). Hundreds of recipients can pick it up. No direct connection needed.
+                </div>
+
+                <div class="callout getting-started">
+                    <strong>Getting Started with ROS2:</strong>
+                    <pre><code># Ubuntu 22.04
+sudo apt update
+sudo apt install ros-humble-desktop-full
+source /opt/ros/humble/setup.bash
+
+# Create workspace
+mkdir -p ~/ros2_ws/src
+cd ~/ros2_ws && colcon build
+
+# Test
+ros2 run demo_nodes_py talker
+ros2 run demo_nodes_py listener</code></pre>
+                </div>
+
+                <!-- MATLAB SECTION -->
+                <h3 id="s1-4">1.4 MATLAB / Simulink</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Control systems. Simulation before flying. MATLAB is the standard in academia and aerospace for tuning PID controllers and designing complex control laws. Simulink auto-generates C code.
+                </div>
+
+                <p>MATLAB's Simulink is a visual programming environment for control systems. You design a controller as a block diagram, simulate it for months, then auto-generate production C code. Aerospace Blockset includes drone-specific dynamics models.</p>
+
+                <h4>Simulink Tools for Swarm Drones</h4>
+                <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                    <li><strong>Simulink:</strong> Visual block diagram design</li>
+                    <li><strong>Control System Toolbox:</strong> PID tuning, Bode plots, transfer functions</li>
+                    <li><strong>Aerospace Blockset:</strong> 6-DOF rigid body dynamics, wind models</li>
+                    <li><strong>Code Generation:</strong> Auto-generate C from Simulink model</li>
+                    <li><strong>Reinforcement Learning Toolbox:</strong> Train RL policies, then deploy</li>
+                </ul>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Simulink Block</th>
+                            <th>Function</th>
+                            <th>Swarm Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>6DOF Wind </strong></td>
+                            <td>Simulates drone dynamics with wind</td>
+                            <td>Test swarm stability in gusty weather</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PID Controller</strong></td>
+                            <td>Configurable PID</td>
+                            <td>Attitude controller tuning</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rate Limiter</strong></td>
+                            <td>Max rate of change</td>
+                            <td>Motor saturation modeling</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Saturation</strong></td>
+                            <td>Min/max bounds</td>
+                            <td>Thrust limits (0-100%)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout getting-started">
+                    <strong>Getting Started with Simulink:</strong>
+                    <pre><code>% MATLAB example: Simple quadrotor controller
+mdl = 'quadrotor_swarm';
+model = open_system(mdl);
+
+% Set up parameter sweep
+param_set = Simulink.SimulationInput.empty();
+for kp = [0.5, 1.0, 1.5]
+    param = Simulink.SimulationInput(mdl);
+    param = param.setBlockParameter([mdl '/PID'], 'P', num2str(kp));
+    param_set = [param_set, param];
+end
+
+% Simulate all parameters
+out = sim(param_set);
+
+% Code generation
+codegen_config = coder.config('lib');
+codegen_config.GenerateReport = true;
+codegen -config codegen_config -args {0, 0, 0} controller.m</code></pre>
+                </div>
+
+            </section>
+
+            <!-- SECTION 2: FLIGHT CONTROLLER FIRMWARE -->
+            <section id="section-2">
+                <h2>2. Flight Controller Firmware</h2>
+
+                <h3 id="s2-1">2.1 PX4 Autopilot</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> PX4 is the most widely used open-source flight controller. It's modular, well-documented, and has built-in multi-vehicle support. Its offboard mode lets external computers send commands in a real-time-safe way.
+                </div>
+
+                <p>PX4 runs on most drone flight controllers (Pixhawk, Cube, etc.). It's not a monolithic program but a set of interchangeable modules: sensors → estimator → controller → mixer. Each module publishes/subscribes to messages through uORB.</p>
+
+                <h4>PX4 Architecture Overview</h4>
+                <pre><code>Sensors (IMU, GPS, Barometer)
+    ↓ (uORB messages)
+Estimators (EKF2, attitude filter)
+    ↓
+Controllers (Position, Velocity, Attitude)
+    ↓
+Mixer (Motor PWM output)
+    ↓
+Motors</code></pre>
+
+                <h4>Key PX4 Concepts</h4>
+                <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                    <li><strong>uORB:</strong> Internal publish-subscribe messaging (faster than ROS on the drone)</li>
+                    <li><strong>EKF2:</strong> Extended Kalman Filter for sensor fusion (magic that turns noisy sensors into reliable state estimates)</li>
+                    <li><strong>Offboard Mode:</strong> External computer sends velocity/attitude setpoints via MAVLink</li>
+                    <li><strong>Control Loops:</strong> 400 Hz rate control, 50 Hz position control</li>
+                    <li><strong>Motor Mixer:</strong> Converts thrust + moment commands into per-motor PWM</li>
+                </ul>
+
+                <h4>Example: PX4 Offboard Control via MAVROS</h4>
+                <div class="code-label">C++ — Offboard Position Control</div>
+                <pre><code>#include &lt;ros/ros.h&gt;
+#include &lt;mavros_msgs/SetMode.h&gt;
+#include &lt;mavros_msgs/CommandBool.h&gt;
+#include &lt;geometry_msgs/PoseStamped.h&gt;
+
+int main(int argc, char** argv) {
+    ros::init(argc, argv, "offboard_control");
+    ros::NodeHandle nh;
+
+    ros::ServiceClient set_mode_client = nh.serviceClient&lt;mavros_msgs::SetMode&gt;
+        ("/mavros/set_mode");
+    ros::ServiceClient arming_client = nh.serviceClient&lt;mavros_msgs::CommandBool&gt;
+        ("/mavros/cmd/arming");
+    ros::Publisher local_pos_pub = nh.advertise&lt;geometry_msgs::PoseStamped&gt;
+        ("/mavros/setpoint_position/local", 10);
+
+    ros::Rate rate(20.0);
+
+    // Wait for connection
+    while (ros::ok() &amp;&amp; !current_state.connected) {
+        ros::spinOnce();
+        rate.sleep();
+    }
+
+    // Set to offboard mode &amp; arm
+    mavros_msgs::SetMode offboard_set_mode;
+    offboard_set_mode.request.custom_mode = "OFFBOARD";
+    set_mode_client.call(offboard_set_mode);
+
+    mavros_msgs::CommandBool arm_cmd;
+    arm_cmd.request.value = true;
+    arming_client.call(arm_cmd);
+
+    // Send setpoint commands
+    geometry_msgs::PoseStamped pose;
+    pose.pose.position.x = 0;
+    pose.pose.position.y = 0;
+    pose.pose.position.z = 1.0;  // Hover at 1m
+
+    while (ros::ok()) {
+        local_pos_pub.publish(pose);
+        ros::spinOnce();
+        rate.sleep();
+    }
+
+    return 0;
+}</code></pre>
+
+                <h4>Typical PX4 Parameter Set for Swarm Drones</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>MC_ROLL_P</strong></td>
+                            <td>6.5</td>
+                            <td>Roll controller proportional gain</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MC_PITCH_P</strong></td>
+                            <td>6.5</td>
+                            <td>Pitch controller proportional gain</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MC_YAW_P</strong></td>
+                            <td>2.8</td>
+                            <td>Yaw controller proportional gain</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MC_DRATE_MAX</strong></td>
+                            <td>360</td>
+                            <td>Max rotation rate (deg/s)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>COM_OF_LOSS_T</strong></td>
+                            <td>5.0</td>
+                            <td>Offboard timeout (trigger failsafe after 5s without command)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MAV_0_MODE</strong></td>
+                            <td>0</td>
+                            <td>0=Normal, 1=Off-board telemetry</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout analogy">
+                    <strong>Real-world analogy:</strong> PX4 is like an aircraft autopilot that lets you (via offboard mode) say "fly to this point" instead of manually moving each control stick.
+                </div>
+
+                <div class="callout getting-started">
+                    <strong>Getting Started with PX4:</strong>
+                    <pre><code>git clone https://github.com/PX4/PX4-Autopilot.git
+cd PX4-Autopilot
+git checkout main
+
+# Install dependencies (Ubuntu)
+bash ./Tools/setup/ubuntu.sh
+
+# Build for Pixhawk 4
+make px4_fmu-v5_default
+
+# Or use in SITL (Gazebo simulation)
+make px4_sitl gazebo</code></pre>
+                </div>
+
+                <h3 id="s2-2">2.2 ArduPilot</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Long history (since 2008). Massive community. Lua scripting for custom behavior. Great if you want to modify firmware without rebuilding from source. Mission Planner is excellent for mission planning.
+                </div>
+
+                <p>ArduPilot is the other major open-source autopilot. It's more modular than PX4; you can write Lua scripts that run on the flight controller and change behavior without recompiling.</p>
+
+                <h4>ArduPilot vs PX4 Comparison</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>PX4</th>
+                            <th>ArduPilot</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Community Size</td>
+                            <td>Large, growing</td>
+                            <td>Largest (15+ years)</td>
+                        </tr>
+                        <tr>
+                            <td>Documentation</td>
+                            <td>Excellent</td>
+                            <td>Comprehensive</td>
+                        </tr>
+                        <tr>
+                            <td>Scripting</td>
+                            <td>Limited (Lua for PX4 newer versions)</td>
+                            <td>Lua scripting built-in</td>
+                        </tr>
+                        <tr>
+                            <td>Learning Curve</td>
+                            <td>Moderate</td>
+                            <td>Gentle</td>
+                        </tr>
+                        <tr>
+                            <td>Swarm Support</td>
+                            <td>Native (EKF bank for ID filtering)</td>
+                            <td>DroneKit library</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>ArduPilot Lua Script Example</h4>
+                <div class="code-label">Lua — On-Board Custom Behavior</div>
+                <pre><code>-- Custom swarm behavior on ArduPilot flight controller
+SWARM_ID = 1
+NEIGHBOR_MAX_DIST = 20  -- meters
+UPDATE_RATE = 10  -- Hz
+
+function update()
+    -- Read current position
+    local pos = gps:location()
+    local velocity = ahrs:get_velocity_NED()
+
+    -- In production, receive neighbor positions from radio
+    -- Here we simulate a formation hold
+
+    -- Read target formation position from telemetry (from ground station)
+    local target_x = param:get('SWARM_X')
+    local target_y = param:get('SWARM_Y')
+    local target_z = param:get('SWARM_Z')
+
+    -- Calculate error
+    local err_x = target_x - pos:x()
+    local err_y = target_y - pos:y()
+    local err_z = target_z - pos:z()
+
+    -- Use simple P controller
+    local vel_x = err_x * 0.5
+    local vel_y = err_y * 0.5
+    local vel_z = err_z * 0.5
+
+    -- Send velocity command
+    vehicle:set_target_velocity_body(vel_x, vel_y, vel_z)
+
+    return update, 1000/UPDATE_RATE  -- 10 Hz update
+end
+
+return update()</code></pre>
+
+                <h3 id="s2-3">2.3 Betaflight / Cleanflight</h3>
+                <p>Betaflight focuses on racing and acrobatic flight. It prioritizes low-latency rate control over stable autonomous flight. Not ideal for swarms but teaches valuable PID tuning lessons. Key concept: <strong>rate mode</strong> (gyro stabilization only) vs. <strong>angle mode</strong> (gyro + accelerometer for level hold).</p>
+
+                <h3 id="s2-4">2.4 Custom Flight Controllers</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Research. Special requirements (custom sensors, unique dynamics). When open-source firmware doesn't fit your needs.
+                </div>
+
+                <h4>Minimum Viable Flight Controller (Pseudocode)</h4>
+                <div class="code-label">Pseudocode — Flight Controller Loop</div>
+                <pre><code>void main_loop() {
+    while (true) {
+        // Step 1: Read sensors (1000 Hz or higher)
+        imu.read();           // 9-axis: gyro + accel + mag
+        gps.read();           // 10 Hz update
+        barometer.read();     // 50 Hz update
+
+        // Step 2: Estimate state (400 Hz)
+        // Complementary filter: gyro (fast, drifts) + accel (slow, noisy)
+        angle_roll = 0.98 * (angle_roll + gyro_roll * dt) + 0.02 * accel_roll;
+        angle_pitch = 0.98 * (angle_pitch + gyro_pitch * dt) + 0.02 * accel_pitch;
+
+        // Step 3: Attitude controller (400 Hz)
+        // Convert desired attitude → desired rate
+        float roll_rate_cmd = pid_roll.update(desired_roll, angle_roll);
+        float pitch_rate_cmd = pid_pitch.update(desired_pitch, angle_pitch);
+        float yaw_rate_cmd = pid_yaw.update(desired_yaw, angle_yaw);
+
+        // Step 4: Rate controller (400 Hz)
+        // Convert desired rate → motor commands
+        float roll_moment = pid_rate_roll.update(roll_rate_cmd, gyro_roll);
+        float pitch_moment = pid_rate_pitch.update(pitch_rate_cmd, gyro_pitch);
+        float yaw_moment = pid_rate_yaw.update(yaw_rate_cmd, gyro_yaw);
+
+        // Step 5: Motor mixing (400 Hz)
+        // Quadcopter X configuration:
+        // motor[0] = front-left    motor[2] = front-right
+        // motor[1] = back-left     motor[3] = back-right
+        motor[0] = thrust - roll_moment + pitch_moment + yaw_moment;
+        motor[1] = thrust - roll_moment - pitch_moment - yaw_moment;
+        motor[2] = thrust + roll_moment + pitch_moment - yaw_moment;
+        motor[3] = thrust + roll_moment - pitch_moment + yaw_moment;
+
+        // Clamp to valid range [1000, 2000] microseconds
+        for (int i = 0; i &lt; 4; i++) {
+            motor[i] = constrain(motor[i], 1000, 2000);
+        }
+
+        // Step 6: Output PWM
+        pwm_write(motor);
+
+        // Wait for next cycle (2.5 ms for 400 Hz)
+        delay_us(2500);
+    }
+}</code></pre>
+
+            </section>
+
+            <!-- SECTION 3: SIMULATORS -->
+            <section id="section-3">
+                <h2>3. Simulators</h2>
+
+                <h3 id="s3-1">3.1 Gazebo</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> The standard in robotics research. Seamless ROS integration. Can simulate 10+ drones with realistic physics. Free and open-source. Used by PX4, ArduPilot, and hundreds of swarm research papers.
+                </div>
+
+                <p>Gazebo is a physics simulator that runs on Linux. You define robots in SDF (Simulation Description Format), add sensors, plugins, and a physics engine (ODE, Bullet). It outputs sensor data and reads motor commands in real-time.</p>
+
+                <h4>Gazebo Multi-Drone Simulation</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Description</th>
+                            <th>Swarm Capability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Physics</strong></td>
+                            <td>ODE, Bullet, DART engines</td>
+                            <td>Simulate 100+ drones if fast enough</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sensors</strong></td>
+                            <td>Camera, IMU, GPS, LiDAR, rangefinder</td>
+                            <td>Each drone can have independent sensor suite</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Plugins</strong></td>
+                            <td>Extend Gazebo with custom logic</td>
+                            <td>Swarm coordinator plugin</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROS Bridge</strong></td>
+                            <td>gazebo_ros_pkgs</td>
+                            <td>Seamless integration with ROS ecosystem</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Visualization</strong></td>
+                            <td>3D rendering with Ogre</td>
+                            <td>Watch 10 drones fly in real-time</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Gazebo Launch File: 10-Drone Swarm</h4>
+                <div class="code-label">XML — Gazebo Launch</div>
+                <pre><code>&lt;launch&gt;
+    &lt;arg name="num_drones" default="10"/&gt;
+    &lt;arg name="paused" default="false"/&gt;
+
+    &lt;!-- Start Gazebo --&gt;
+    &lt;include file="$(find gazebo_ros)/launch/empty_world.launch"&gt;
+        &lt;arg name="world_name" value="$(find swarm_sim)/worlds/empty_swarm.world"/&gt;
+        &lt;arg name="paused" value="$(arg paused)"/&gt;
+        &lt;arg name="gui" value="true"/&gt;
+    &lt;/include&gt;
+
+    &lt;!-- Spawn N drones --&gt;
+    &lt;group ns="swarm"&gt;
+        &lt;node name="swarm_spawner" pkg="swarm_sim" type="spawn_drones.py"&gt;
+            &lt;param name="num_drones" value="$(arg num_drones)"/&gt;
+            &lt;param name="spacing" value="2.0"/&gt;  &lt;!-- meters between drones --&gt;
+        &lt;/node&gt;
+    &lt;/group&gt;
+
+    &lt;!-- Start Swarm Coordinator --&gt;
+    &lt;node name="coordinator" pkg="swarm_control" type="coordinator.py"&gt;
+        &lt;param name="num_drones" value="$(arg num_drones)"/&gt;
+    &lt;/node&gt;
+&lt;/launch&gt;</code></pre>
+
+                <div class="callout analogy">
+                    <strong>Real-world analogy:</strong> Gazebo is like a flight simulator for drone swarms. Test your algorithm on 100 virtual drones before risking a single real drone.
+                </div>
+
+                <div class="callout getting-started">
+                    <strong>Getting Started with Gazebo:</strong>
+                    <pre><code>sudo apt-get install gazebo ros-$ROS_DISTRO-gazebo-ros-pkgs
+
+# Download drone models
+git clone https://github.com/PX4/sitl_gazebo.git
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$(pwd)/sitl_gazebo/models
+
+# Launch basic simulation
+gazebo --verbose worlds/iris.world &amp;
+
+# Or use with ROS
+roslaunch px4 mavros_posix_sitl.launch</code></pre>
+                </div>
+
+                <h3 id="s3-2">3.2 AirSim (Microsoft)</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Photorealistic rendering built on Unreal Engine. Computer vision training. Hardware-in-the-loop (HITL) testing with real firmware. Modern Python/C++ API.
+                </div>
+
+                <p>AirSim is Unreal Engine-based and runs on Windows/Linux. You get beautiful rendered environments and high-quality camera images for training vision-based ML models. Trade-off: slower physics than Gazebo.</p>
+
+                <h4>AirSim vs Gazebo</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Gazebo</th>
+                            <th>AirSim</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Rendering</td>
+                            <td>Basic graphics</td>
+                            <td>Photorealistic (Unreal)</td>
+                        </tr>
+                        <tr>
+                            <td>Speed</td>
+                            <td>Fast (100+ drones)</td>
+                            <td>Slower (10-20 drones)</td>
+                        </tr>
+                        <tr>
+                            <td>Computer Vision</td>
+                            <td>OK</td>
+                            <td>Excellent (ML training)</td>
+                        </tr>
+                        <tr>
+                            <td>HITL Support</td>
+                            <td>Yes (basic)</td>
+                            <td>Yes (excellent)</td>
+                        </tr>
+                        <tr>
+                            <td>Learning Curve</td>
+                            <td>Medium</td>
+                            <td>Medium-High</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>AirSim Python Example: Multi-Drone Control</h4>
+                <div class="code-label">Python — AirSim Control</div>
+                <pre><code>import airsim
+import time
+
+# Connect to AirSim
+clients = []
+for i in range(5):
+    client = airsim.MultirotorClient(port=41451 + i)
+    client.confirmConnection()
+    clients.append(client)
+
+# Arm all drones
+for client in clients:
+    client.armDisarm(True)
+
+# Takeoff sequence (coordinated)
+for client in clients:
+    client.takeoffAsync()
+
+time.sleep(5)  # Wait for all to reach altitude
+
+# Formation flight: simple line formation
+target_positions = [
+    airsim.Vector3r(0, 0, -5),
+    airsim.Vector3r(5, 0, -5),
+    airsim.Vector3r(10, 0, -5),
+    airsim.Vector3r(15, 0, -5),
+    airsim.Vector3r(20, 0, -5),
+]
+
+for client, target in zip(clients, target_positions):
+    client.moveToPositionAsync(target.x_val, target.y_val, target.z_val, 5)
+
+time.sleep(10)
+
+# Land all
+for client in clients:
+    client.landAsync()</code></pre>
+
+                <h3 id="s3-3">3.3 Webots</h3>
+                <p>Open-source, cross-platform simulator with built-in DJI Mavic and Crazyflie models. Controllers in Python, C, C++, Java, or MATLAB. Good for quick prototyping. Growing community.</p>
+
+                <div class="callout getting-started">
+                    <strong>Getting Started with Webots:</strong>
+                    <pre><code>sudo apt-get install webots webots-doc
+
+# Download drone sample world
+# File → Open Sample World → vehicles/quadcopter/quadcopter.wbt
+
+# Python controller example
+# worlds/quadcopter/controllers/quadcopter_python/quadcopter.py</code></pre>
+                </div>
+
+                <h3 id="s3-4">3.4 CoppeliaSim (V-REP)</h3>
+                <p>Scene-based simulation with excellent multi-robot support. Remote API lets you control simulations from external Python scripts. Good for complex multi-agent scenarios.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Simulator</th>
+                            <th>Physics Speed</th>
+                            <th>Graphics</th>
+                            <th>ROS Support</th>
+                            <th>Multi-Drone Limit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Gazebo</strong></td>
+                            <td>Fast ⚡⚡⚡</td>
+                            <td>Basic</td>
+                            <td>Native</td>
+                            <td>100+</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AirSim</strong></td>
+                            <td>Medium ⚡⚡</td>
+                            <td>Excellent</td>
+                            <td>API</td>
+                            <td>20</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Webots</strong></td>
+                            <td>Medium ⚡⚡</td>
+                            <td>Good</td>
+                            <td>Plugin</td>
+                            <td>30</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CoppeliaSim</strong></td>
+                            <td>Medium ⚡⚡</td>
+                            <td>Good</td>
+                            <td>API</td>
+                            <td>50</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </section>
+
+            <!-- SECTION 4: COMMUNICATION PROTOCOLS -->
+            <section id="section-4">
+                <h2>4. Communication Protocols</h2>
+
+                <h3 id="s4-1">4.1 MAVLink</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> The standard protocol for all drone communication. Works with PX4, ArduPilot, every ground station. Binary format, minimal overhead, extensible message definitions.
+                </div>
+
+                <p>MAVLink is a lightweight serialization protocol for drone-ground communication. Each message has a header, payload, and checksum. Designed for low-bandwidth links (like 433 MHz radio or serial).</p>
+
+                <h4>MAVLink Message Structure</h4>
+                <pre><code>Frame: STX | LEN | SEQ | SYSID | COMPID | MSGID | PAYLOAD | CKA | CKB
+
+STX:     1 byte   = 0xFE (frame start)
+LEN:     1 byte   = payload length
+SEQ:     1 byte   = sequence number (detects dropped packets)
+SYSID:   1 byte   = source system ID (e.g., 1=vehicle, 255=ground)
+COMPID:  1 byte   = component ID (e.g., 1=autopilot)
+MSGID:   1 byte   = message type ID
+PAYLOAD: variable = actual data
+CKA, CKB:2 bytes  = CRC checksum</code></pre>
+
+                <h4>Key MAVLink Messages for Swarms</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Message</th>
+                            <th>Direction</th>
+                            <th>Frequency</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>HEARTBEAT</strong></td>
+                            <td>Drone → Ground</td>
+                            <td>1 Hz</td>
+                            <td>"I'm alive" signal</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ATTITUDE</strong></td>
+                            <td>Drone → Ground</td>
+                            <td>50 Hz</td>
+                            <td>Roll, pitch, yaw, rates</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GLOBAL_POSITION_INT</strong></td>
+                            <td>Drone → Ground</td>
+                            <td>10 Hz</td>
+                            <td>GPS lat/lon, altitude</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SET_POSITION_TARGET_LOCAL_NED</strong></td>
+                            <td>Ground → Drone</td>
+                            <td>50 Hz</td>
+                            <td>Position setpoint (offboard mode)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SET_ATTITUDE_TARGET</strong></td>
+                            <td>Ground → Drone</td>
+                            <td>50 Hz</td>
+                            <td>Attitude + thrust setpoint</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LOCAL_POSITION_NED</strong></td>
+                            <td>Drone → Ground</td>
+                            <td>50 Hz</td>
+                            <td>Position in local frame (meters)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>MAVLink Message Flow Example</h4>
+                <pre><code>Ground Station                  Drone (PX4)
+     |                              |
+     |---COMMAND_LONG ARM----------&gt;|
+     |                              | Arm motors
+     |&lt;----------COMMAND_ACK--------|
+     |                              |
+     |---SET_MODE (OFFBOARD)------&gt;|
+     |                              | Switch to offboard
+     |&lt;----------STATUS_TEXT--------|
+     |                              |
+     |---SET_POSITION_TARGET-------|
+     |    (x=0, y=0, z=1)          &gt;| Takeoff to 1m
+     |                              |
+     |&lt;-LOCAL_POSITION_NED--------- | Current at (0,0,0.5)
+     |                              |
+     |---SET_POSITION_TARGET-------|
+     |    (x=5, y=5, z=1)          &gt;| Move to (5,5)
+     |                              |
+     |&lt;-LOCAL_POSITION_NED--------- | Current at (2,2,0.8)
+     |                              |
+     |...multiple updates...        |
+     |                              |
+     |&lt;-LOCAL_POSITION_NED--------- | Arrived at (5,5,1.0)
+     |                              |</code></pre>
+
+                <h4>MAVProxy Ground Station Example</h4>
+                <div class="code-label">Bash — MAVProxy Commands</div>
+                <pre><code">mavproxy.py --master=/dev/ttyUSB0:57600 --sitl=127.0.0.1:5760
+
+# In MAVProxy console:
+arm throttle
+mode GUIDED
+goto 0 0 10  # Fly to lat=0, lon=0, alt=10m
+status
+param set RC1_MIN 1000</code></pre>
+
+                <h3 id="s4-2">4.2 ROS Topics for Swarms</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> ROS gives you a higher-level abstraction than MAVLink. Define custom message types for swarm-specific data (formations, task assignments, neighbor lists).
+                </div>
+
+                <h4>Typical ROS Topic Hierarchy for N Drones</h4>
+                <pre><code>/drone_0/
+  pose               - Current position & orientation
+  velocity           - Current velocity (linear &amp; angular)
+  cmd_vel            - Velocity command
+  cmd_pose           - Position command
+  imu                - Inertial sensor data
+  gps                - GPS position
+  sensors/           - rangefinder, camera, lidar
+
+/drone_1/
+  (same as drone_0)
+
+/swarm/
+  formation          - Desired formation shape (line, circle, etc.)
+  task_allocation    - Who does what (drone 0→recon, drone 1→scout)
+  collisions         - Detected collisions (debugging)
+  metrics            - Swarm health (cohesion, separation)</code></pre>
+
+                <h4>Custom Swarm ROS Message Definition</h4>
+                <div class="code-label">ROS Message Definition File (.msg)</div>
+                <pre><code"># msg/DroneState.msg
+Header header
+uint8 drone_id
+geometry_msgs/PoseStamped pose
+geometry_msgs/TwistStamped velocity
+float32 battery_voltage
+uint8 flight_mode
+
+# msg/SwarmFormation.msg
+Header header
+string formation_type  # "line", "circle", "grid"
+geometry_msgs/Pose[] target_poses
+float32 desired_separation  # meters</code></pre>
+
+                <h3 id="s4-3">4.3 Mesh Networking</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Real swarms can't rely on a ground station within range. Drones must relay data through each other to form a mesh network.
+                </div>
+
+                <h4>Inter-Drone Communication Options</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tech</th>
+                            <th>Range</th>
+                            <th>Bandwidth</th>
+                            <th>Power</th>
+                            <th>Swarm Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>WiFi Ad-Hoc</strong></td>
+                            <td>100m</td>
+                            <td>54 Mbps</td>
+                            <td>High</td>
+                            <td>Indoor swarms, high-bandwidth</td>
+                        </tr>
+                        <tr>
+                            <td><strong>XBee</strong></td>
+                            <td>1-3 km</td>
+                            <td>250 kbps</td>
+                            <td>Low</td>
+                            <td>Long-distance coordination</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LoRa</strong></td>
+                            <td>10+ km</td>
+                            <td>50 kbps</td>
+                            <td>Low</td>
+                            <td>Ultra-long-range swarms (rare)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5G/LTE</strong></td>
+                            <td>Cellular</td>
+                            <td>100+ Mbps</td>
+                            <td>High</td>
+                            <td>Urban swarms with infrastructure</td>
+                        </tr>
+                        <tr>
+                            <td><strong>433 MHz Radio</strong></td>
+                            <td>1-10 km</td>
+                            <td>10-100 kbps</td>
+                            <td>Low</td>
+                            <td>Cheap, reliable, low-bandwidth</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Swarm Communication Design Rules</h4>
+                <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                    <li><strong>What to share:</strong> position, velocity, planned trajectory (as polynomial coefficients), sensor data, task status</li>
+                    <li><strong>Update rates:</strong> 10-50 Hz for position, 1-5 Hz for high-level commands, 0.1 Hz for task updates</li>
+                    <li><strong>Compression:</strong> Send polynomial coefficients of trajectory instead of full waypoint list (100 bytes → 20 bytes)</li>
+                    <li><strong>Neighbor discovery:</strong> Each drone broadcasts "I exist" beacons; listen for neighbors within range</li>
+                    <li><strong>Graceful degradation:</strong> If communication drops, drones continue with last known plan for 5 seconds</li>
+                </ul>
+
+            </section>
+
+            <!-- SECTION 5: COMPUTER VISION -->
+            <section id="section-5">
+                <h2>5. Computer Vision & Perception</h2>
+
+                <h3 id="s5-1">5.1 OpenCV</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Industry standard for image processing. Runs on Jetson Nano, embedded Linux. ArUco marker detection for swarm identification. Optical flow for motion estimation.
+                </div>
+
+                <h4>OpenCV Operations for Drone Swarms</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>Use Case</th>
+                            <th>Swarm Application</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>ArUco Detection</strong></td>
+                            <td>Find 2D barcodes in image</td>
+                            <td>Identify which drone is which in swarm</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Optical Flow</strong></td>
+                            <td>Estimate motion between frames</td>
+                            <td>Relative velocity between drones</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Feature Matching</strong></td>
+                            <td>Find same object in two images (ORB, SIFT)</td>
+                            <td>Track landmarks across drone views</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Contour Detection</strong></td>
+                            <td>Find shapes in image</td>
+                            <td>Detect humans (search &amp; rescue)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Image Thresholding</strong></td>
+                            <td>Convert to binary</td>
+                            <td>Fast processing for onboard cameras</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>OpenCV ArUco Detection Example</h4>
+                <div class="code-label">Python — ArUco Marker Detection</div>
+                <pre><code>import cv2
+import numpy as np
+
+# Load camera calibration (required for accurate pose)
+camera_matrix = np.array([[800, 0, 320],
+                          [0, 800, 240],
+                          [0, 0, 1]], dtype=float)
+dist_coeffs = np.zeros((4, 1))
+
+# Initialize ArUco detector
+aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+detector = cv2.aruco.ArucoDetector(aruco_dict)
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # Detect markers
+    corners, ids, rejected = detector.detectMarkers(frame)
+
+    if ids is not None:
+        # Draw detected markers
+        frame = cv2.aruco.drawDetectedMarkers(frame, corners, ids)
+
+        # Estimate pose of each marker
+        rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
+            corners, 0.05, camera_matrix, dist_coeffs)  # 5cm marker size
+
+        for i in range(len(ids)):
+            # Draw axis on marker (shows pose)
+            cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs,
+                            rvecs[i], tvecs[i], 0.03)
+
+            drone_id = ids[i][0]
+            position = tvecs[i][0]  # x, y, z in meters
+            print(f"Drone {drone_id} at {position}")
+
+    cv2.imshow('Swarm Detection', frame)
+    if cv2.waitKey(1) &amp; 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()</code></pre>
+
+                <h3 id="s5-2">5.2 SLAM (Simultaneous Localization and Mapping)</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> GPS fails indoors. SLAM lets each drone build a map while figuring out where it is. Multi-drone SLAM merges maps for global awareness.
+                </div>
+
+                <p>SLAM answers the question: "Where am I?" and "What does the world look like?" at the same time. Visual SLAM uses camera images. LiDAR SLAM uses laser scans. Both are CPU-intensive but run on Jetson.</p>
+
+                <h4>SLAM Algorithms Compared</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Algorithm</th>
+                            <th>Sensor</th>
+                            <th>Accuracy</th>
+                            <th>Speed</th>
+                            <th>Multi-Drone</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>ORB-SLAM3</strong></td>
+                            <td>Monocular/Stereo camera</td>
+                            <td>Excellent</td>
+                            <td>Medium</td>
+                            <td>Yes (map merging)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>VINS-Mono</strong></td>
+                            <td>Mono camera + IMU</td>
+                            <td>Very Good</td>
+                            <td>Fast</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LOAM</strong></td>
+                            <td>LiDAR</td>
+                            <td>Excellent</td>
+                            <td>Fast</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LeGO-LOAM</strong></td>
+                            <td>LiDAR</td>
+                            <td>Very Good</td>
+                            <td>Very Fast</td>
+                            <td>Yes</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Multi-Drone SLAM Architecture</h4>
+                <pre><code>Drone 1                    Drone 2
+  Camera                     Camera
+    ↓                          ↓
+VINS-Mono              VINS-Mono
+  ↓                          ↓
+Local Map             Local Map
+(100 keyframes)       (100 keyframes)
+  |                          |
+  └──→ Communication Link ←──┘
+         (WiFi mesh)
+         ↓
+  Swarm Coordinator
+  ├─ Merge maps via visual overlap
+  ├─ Estimate relative pose between drones
+  └─ Global map (200+ keyframes)
+     ↓
+     Used for collision avoidance</code></pre>
+
+                <div class="callout analogy">
+                    <strong>Real-world analogy:</strong> SLAM is like exploring a dark building with a flashlight, drawing a map while figuring out where you are. Each drone has a flashlight; together they map the whole building.
+                </div>
+
+                <h3 id="s5-3">5.3 Object Detection for Drones</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Search & rescue (detect people), surveillance (detect vehicles), autonomous missions (detect landing zones). Real-time inference on Jetson Nano/Xavier.
+                </div>
+
+                <h4>YOLO (You Only Look Once) for Drone Detection</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>YOLO Version</th>
+                            <th>Speed</th>
+                            <th>Accuracy</th>
+                            <th>Model Size</th>
+                            <th>On Jetson</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>YOLOv3</strong></td>
+                            <td>30 FPS (GPU)</td>
+                            <td>Good</td>
+                            <td>236 MB</td>
+                            <td>Slow</td>
+                        </tr>
+                        <tr>
+                            <td><strong>YOLOv5</strong></td>
+                            <td>60 FPS (GPU)</td>
+                            <td>Very Good</td>
+                            <td>50 MB (nano)</td>
+                            <td>Good</td>
+                        </tr>
+                        <tr>
+                            <td><strong>YOLOv8</strong></td>
+                            <td>60+ FPS (GPU)</td>
+                            <td>Excellent</td>
+                            <td>11 MB (nano)</td>
+                            <td>Excellent</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>YOLOv8 Person Detection on Drone</h4>
+                <div class="code-label">Python — Object Detection</div>
+                <pre><code>from ultralytics import YOLO
+import cv2
+
+# Load model (first run downloads from Ultralytics)
+model = YOLO('yolov8n.pt')  # nano model, 3.2 MB
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # Run inference
+    results = model(frame, conf=0.5)  # 50% confidence threshold
+
+    # Extract detections
+    for result in results:
+        for box in result.boxes:
+            x1, y1, x2, y2 = box.xyxy[0]
+            conf = box.conf[0]
+            cls = box.cls[0]
+            class_name = model.names[int(cls)]
+
+            if class_name == 'person':  # Only care about people
+                cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)),
+                            (0, 255, 0), 2)
+                cv2.putText(frame, f'{class_name} {conf:.2f}',
+                          (int(x1), int(y1)-10),
+                          cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+                # Send detection to swarm coordinator
+                # publish_detection(drone_id, center_pixel, confidence)
+
+    cv2.imshow('Detection', frame)
+    if cv2.waitKey(1) &amp; 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()</code></pre>
+
+            </section>
+
+            <!-- SECTION 6: MACHINE LEARNING -->
+            <section id="section-6">
+                <h2>6. Machine Learning Frameworks</h2>
+
+                <h3 id="s6-1">6.1 PyTorch</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Preferred in research. Dynamic computation graphs. Easy multi-agent RL. Used in most swarm RL papers. Active community.
+                </div>
+
+                <h4>PyTorch for Multi-Agent RL</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>PyTorch Module</th>
+                            <th>Swarm Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Neural Networks</td>
+                            <td>torch.nn</td>
+                            <td>Policy networks (actor), value networks (critic)</td>
+                        </tr>
+                        <tr>
+                            <td>Optimization</td>
+                            <td>torch.optim</td>
+                            <td>Adam, SGD for training</td>
+                        </tr>
+                        <tr>
+                            <td>Probability Distributions</td>
+                            <td>torch.distributions</td>
+                            <td>Categorical, Normal for action sampling</td>
+                        </tr>
+                        <tr>
+                            <td>Multi-Agent Environments</td>
+                            <td>PettingZoo</td>
+                            <td>Parallel multi-agent simulation</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>PyTorch Swarm RL Example (Flocking Policy)</h4>
+                <div class="code-label">Python — PyTorch Multi-Agent RL</div>
+                <pre><code>import torch
+import torch.nn as nn
+from pettingzoo.butterfly import pistonball_v6
+
+# Create environment
+env = pistonball_v6.env(n_pistons=5)
+
+# Define policy network (shared across agents)
+class PolicyNetwork(nn.Module):
+    def __init__(self, obs_dim, action_dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(obs_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 128),
+            nn.ReLU(),
+            nn.Linear(128, action_dim)
+        )
+
+    def forward(self, obs):
+        return self.net(obs)
+
+obs_dim = 24  # From environment
+action_dim = env.action_spaces['piston_0'].n  # Discrete actions
+
+policy = PolicyNetwork(obs_dim, action_dim)
+optimizer = torch.optim.Adam(policy.parameters(), lr=1e-3)
+
+# Training loop
+for episode in range(1000):
+    observations, infos = env.reset()
+    episode_reward = 0
+
+    for step in range(100):
+        actions = {}
+        log_probs = []
+
+        # Get action for each agent
+        for agent in env.agents:
+            obs = torch.FloatTensor(observations[agent])
+            logits = policy(obs)
+            action_probs = torch.softmax(logits, dim=-1)
+            action = torch.multinomial(action_probs, 1).item()
+            actions[agent] = action
+            log_probs.append(torch.log(action_probs[action]))
+
+        # Step environment
+        observations, rewards, terminations, truncations, infos = env.step(actions)
+
+        # Simple policy gradient update
+        total_reward = sum(rewards.values())
+        episode_reward += total_reward
+
+        loss = -torch.stack(log_probs).sum() * total_reward
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    print(f"Episode {episode}: {episode_reward:.2f}")
+
+env.close()</code></pre>
+
+                <div class="callout analogy">
+                    <strong>Real-world analogy:</strong> PyTorch is like a notebook where you write equations and see results immediately. TensorFlow is like a printed textbook—more finalized but less interactive.
+                </div>
+
+                <h3 id="s6-2">6.2 TensorFlow / TF-Agents</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Production-grade. Deployment strength. TensorFlow Lite for onboard inference (Jetson, embedded). TF-Agents provides ready-made RL algorithms.
+                </div>
+
+                <h4>TensorFlow Tools for Drones</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tool</th>
+                            <th>Purpose</th>
+                            <th>Swarm Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>TensorFlow</strong></td>
+                            <td>ML framework</td>
+                            <td>Vision models, RL training</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TF-Agents</strong></td>
+                            <td>RL library</td>
+                            <td>DQN, PPO, SAC agents</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TF Lite</strong></td>
+                            <td>Lightweight inference</td>
+                            <td>Run models on Jetson Nano</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TFLite Micro</strong></td>
+                            <td>Embedded inference</td>
+                            <td>Run tiny models on microcontroller (STM32)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 id="s6-3">6.3 Stable Baselines3</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Fastest way to train RL agents. Pre-implemented algorithms (PPO, A2C, SAC, TD3). Clean API. Great for prototyping swarm behaviors.
+                </div>
+
+                <h4>Stable Baselines3 Quick Start</h4>
+                <div class="code-label">Python — RL Training</div>
+                <pre><code>from stable_baselines3 import PPO
+from gymnasium import Env
+import numpy as np
+
+# Define custom swarm environment
+class SwarmEnv(Env):
+    def __init__(self, num_drones=5):
+        super().__init__()
+        self.num_drones = num_drones
+
+        # Observation: position &amp; velocity of all drones
+        self.observation_space = gymnasium.spaces.Box(
+            low=-100, high=100,
+            shape=(num_drones * 6,),  # x, y, z, vx, vy, vz
+            dtype=np.float32
+        )
+
+        # Action: velocity command for each drone
+        self.action_space = gymnasium.spaces.Box(
+            low=-1, high=1,
+            shape=(num_drones * 3,),  # vx, vy, vz per drone
+            dtype=np.float32
+        )
+
+    def reset(self):
+        # Random initial positions
+        self.state = np.random.randn(self.num_drones * 6) * 10
+        return self.state, {}
+
+    def step(self, action):
+        # Update positions based on velocity commands
+        for i in range(self.num_drones):
+            self.state[i*6:i*6+3] += action[i*3:i*3+3] * 0.1
+
+        # Reward: minimize distance between drones (formation)
+        positions = self.state[:self.num_drones*3].reshape(self.num_drones, 3)
+        distances = np.linalg.norm(positions[:, None, :] - positions[None, :, :], axis=2)
+        separation_reward = -np.mean(distances[distances &gt; 0])  # Penalize large gaps
+
+        # Penalty for high velocity (smooth motion)
+        velocity_penalty = -0.01 * np.sum(action**2)
+
+        reward = separation_reward + velocity_penalty
+        terminated = False
+        truncated = False
+        info = {}
+
+        return self.state, reward, terminated, truncated, info
+
+# Train agent
+env = SwarmEnv(num_drones=5)
+model = PPO("MlpPolicy", env, verbose=1)
+model.learn(total_timesteps=100000)
+
+# Save model
+model.save("swarm_formation_ppo")
+
+# Test trained model
+model = PPO.load("swarm_formation_ppo")
+obs, info = env.reset()
+for _ in range(1000):
+    action, _states = model.predict(obs, deterministic=True)
+    obs, reward, terminated, truncated, info = env.step(action)</code></pre>
+
+                <h3 id="s6-4">6.4 Gymnasium (OpenAI Gym)</h3>
+                <p>Standard interface for RL environments. Define observation_space, action_space, reset(), step(). Compatible with all RL libraries (Stable Baselines, TF-Agents, RLlib).</p>
+
+                <h4>Custom Swarm Gym Environment (Skeleton)</h4>
+                <div class="code-label">Python — Gymnasium Template</div>
+                <pre><code>import gymnasium as gym
+import numpy as np
+
+class MultiDroneEnv(gym.Env):
+    """
+    Multi-drone formation control environment.
+    Observation: [pos_x, pos_y, pos_z, vel_x, vel_y, vel_z] for each drone
+    Action: [cmd_vx, cmd_vy, cmd_vz] for each drone
+    """
+
+    metadata = {"render_modes": ["human"]}
+
+    def __init__(self, num_drones=4, max_steps=1000, render_mode=None):
+        super().__init__()
+        self.num_drones = num_drones
+        self.max_steps = max_steps
+        self.render_mode = render_mode
+        self.step_count = 0
+
+        # Observation space: [x,y,z,vx,vy,vz] * num_drones
+        obs_size = num_drones * 6
+        self.observation_space = gym.spaces.Box(
+            low=-200, high=200, shape=(obs_size,), dtype=np.float32
+        )
+
+        # Action space: [vx_cmd,vy_cmd,vz_cmd] * num_drones
+        action_size = num_drones * 3
+        self.action_space = gym.spaces.Box(
+            low=-5, high=5, shape=(action_size,), dtype=np.float32
+        )
+
+    def reset(self, seed=None):
+        super().reset(seed=seed)
+        # Initialize drone state
+        self.state = np.random.randn(self.num_drones * 6) * 5
+        self.step_count = 0
+        return self.state.copy(), {}
+
+    def step(self, action):
+        self.step_count += 1
+
+        # Physics simulation (simple Euler integration)
+        dt = 0.1
+        positions = self.state[: self.num_drones * 3].reshape(self.num_drones, 3)
+        velocities = self.state[self.num_drones * 3 :].reshape(self.num_drones, 3)
+
+        # Velocity commands from RL agent
+        cmd_velocities = action.reshape(self.num_drones, 3)
+
+        # Update velocities (1st order lag)
+        velocities = 0.9 * velocities + 0.1 * cmd_velocities
+
+        # Update positions
+        positions = positions + velocities * dt
+
+        # Update state
+        self.state[: self.num_drones * 3] = positions.flatten()
+        self.state[self.num_drones * 3 :] = velocities.flatten()
+
+        # Compute reward
+        reward = self._compute_reward()
+
+        terminated = self.step_count &gt;= self.max_steps
+        truncated = False
+
+        return self.state.copy(), reward, terminated, truncated, {}
+
+    def _compute_reward(self):
+        # Reward for maintaining formation (drones stay together)
+        positions = self.state[: self.num_drones * 3].reshape(self.num_drones, 3)
+        pairwise_dist = np.linalg.norm(
+            positions[:, None, :] - positions[None, :, :], axis=2
+        )
+
+        # Ideal separation = 2 meters
+        formation_reward = -np.mean((pairwise_dist - 2.0) ** 2)
+
+        # Penalty for collisions (distance &lt; 0.5m)
+        collision_penalty = -100 * np.sum(pairwise_dist &lt; 0.5)
+
+        # Penalty for excessive control effort
+        action_penalty = -0.01 * np.sum(self.action ** 2)
+
+        return formation_reward + collision_penalty + action_penalty
+
+    def render(self):
+        if self.render_mode == "human":
+            # TODO: Implement 3D visualization
+            pass</code></pre>
+
+            </section>
+
+            <!-- SECTION 7: GROUND STATION & MONITORING -->
+            <section id="section-7">
+                <h2>7. Ground Station & Monitoring Tools</h2>
+
+                <h3 id="s7-1">7.1 QGroundControl</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Industry-standard ground station. Runs on Windows/Mac/Linux. Multi-vehicle support. Mission planning, real-time telemetry, parameter tuning. Open-source.
+                </div>
+
+                <p>QGroundControl is the primary ground station for both PX4 and ArduPilot. Design missions visually, monitor multiple drones simultaneously, adjust parameters in real-time.</p>
+
+                <h4>QGroundControl Features for Swarms</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Description</th>
+                            <th>Swarm Benefit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Multi-Vehicle View</strong></td>
+                            <td>Monitor 10+ drones simultaneously</td>
+                            <td>Watch entire swarm status at a glance</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mission Planning</strong></td>
+                            <td>Waypoint-based missions</td>
+                            <td>Upload same mission to all drones</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Geo-Fence</strong></td>
+                            <td>Define no-fly zones</td>
+                            <td>Prevent swarm from entering restricted airspace</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Real-time Telemetry</strong></td>
+                            <td>Battery, altitude, speed, GPS</td>
+                            <td>Health monitoring of swarm</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Parameter Tuning</strong></td>
+                            <td>Adjust PID gains, calibration</td>
+                            <td>Tune all drones identically</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout getting-started">
+                    <strong>Getting Started with QGroundControl:</strong>
+                    <pre><code"># Download and install
+# https://qgroundcontrol.com/
+
+# Or build from source
+git clone https://github.com/mavlink/qgroundcontrol.git
+cd qgroundcontrol
+git submodule update --init --recursive
+mkdir build
+cd build
+cmake ..
+make
+
+# Run
+./qgroundcontrol</code></pre>
+                </div>
+
+                <h3 id="s7-2">7.2 Custom Dashboards & Web Monitoring</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> QGC is great but limited. Custom dashboards let you visualize swarm-specific metrics: formation shape, collision counts, task allocation.
+                </div>
+
+                <h4>Web-Based Swarm Dashboard Architecture</h4>
+                <pre><code>Backend (Python/Node.js)
+├── Reads MAVLink telemetry from drones
+├── Processes swarm state (formation, distances, collisions)
+├── Exposes REST API: /api/drones, /api/formation, /api/metrics
+└── WebSocket stream: real-time position updates
+
+Frontend (React/Vue)
+├── Fetches drone positions via WebSocket
+├── Renders 3D swarm visualization (Three.js)
+├── Displays metrics: cohesion, separation, task status
+└── Mission upload/abort buttons
+
+Database (PostgreSQL/MongoDB)
+├── Stores flight logs
+├── Records swarm metrics
+└── Enables post-flight analysis</code></pre>
+
+                <h4>Python Flask Dashboard Example</h4>
+                <div class="code-label">Python — Web Dashboard Backend</div>
+                <pre><code>from flask import Flask, jsonify
+from flask_cors import CORS
+import threading
+import queue
+
+app = Flask(__name__)
+CORS(app)
+
+# Real-time telemetry queue
+telemetry_queue = queue.Queue()
+
+def mavlink_reader():
+    """Background thread reading MAVLink from all drones"""
+    for conn in drone_connections:  # Connected to 10 drones
+        for msg in conn:
+            if msg.get_type() == 'LOCAL_POSITION_NED':
+                telemetry_queue.put({
+                    'drone_id': msg.get_srcSystem(),
+                    'x': msg.x,
+                    'y': msg.y,
+                    'z': msg.z,
+                    'timestamp': time.time()
+                })
+
+# Start reader thread
+threading.Thread(target=mavlink_reader, daemon=True).start()
+
+@app.route('/api/drones')
+def get_drones():
+    """Current positions of all drones"""
+    positions = {}
+    while not telemetry_queue.empty():
+        data = telemetry_queue.get()
+        positions[data['drone_id']] = {
+            'x': data['x'],
+            'y': data['y'],
+            'z': data['z']
+        }
+    return jsonify(positions)
+
+@app.route('/api/formation')
+def get_formation():
+    """Compute formation metrics"""
+    positions = get_current_positions()
+    pairwise_dist = compute_distances(positions)
+
+    return jsonify({
+        'centroid': compute_centroid(positions),
+        'avg_separation': np.mean(pairwise_dist),
+        'min_separation': np.min(pairwise_dist),
+        'cohesion': -np.var(pairwise_dist),  # Lower variance = tighter
+    })
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=False)</code></pre>
+
+                <h4>Frontend Visualization (Three.js)</h4>
+                <div class="code-label">JavaScript — 3D Visualization</div>
+                <pre><code>import * as THREE from 'three.js';
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Drone spheres
+const drones = {};
+
+function updateDronePositions() {
+    fetch('/api/drones')
+        .then(res => res.json())
+        .then(positions => {
+            for (let droneId in positions) {
+                let pos = positions[droneId];
+
+                // Create drone sphere if not exists
+                if (!drones[droneId]) {
+                    const geometry = new THREE.SphereGeometry(0.2, 16, 16);
+                    const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+                    const sphere = new THREE.Mesh(geometry, material);
+                    scene.add(sphere);
+                    drones[droneId] = sphere;
+                }
+
+                // Update position
+                drones[droneId].position.set(pos.x, pos.y, -pos.z);
+            }
+        });
+}
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    updateDronePositions();
+    renderer.render(scene, camera);
+}
+
+animate();</code></pre>
+
+                <h3 id="s7-3">7.3 Data Logging & Analysis</h3>
+                <div class="callout why">
+                    <strong>Why:</strong> Understand what went wrong (or right). Post-flight analysis guides next improvements. Swarm metrics quantify coordination quality.
+                </div>
+
+                <h4>Log File Formats</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Firmware</th>
+                            <th>Format</th>
+                            <th>Details</th>
+                            <th>Tool to Analyze</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>PX4</strong></td>
+                            <td>.ulg (ULog)</td>
+                            <td>Binary, efficient, timestamped messages</td>
+                            <td>FlightReview, pyulog</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ArduPilot</strong></td>
+                            <td>.bin (binary), .log (text)</td>
+                            <td>Telemetry + onboard sensors</td>
+                            <td>MAVExplorer, DroneAnalysis</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Custom</strong></td>
+                            <td>.csv</td>
+                            <td>Simple, human-readable</td>
+                            <td>Python pandas, matplotlib</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Python Post-Flight Analysis</h4>
+                <div class="code-label">Python — Flight Log Analysis</div>
+                <pre><code>import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Load flight log (CSV)
+log = pd.read_csv('flight_2025-03-28.csv', parse_dates=['timestamp'])
+
+# Extract drone data
+drone_ids = log['drone_id'].unique()
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# Plot 1: Trajectories (XY plane)
+ax = axes[0, 0]
+for drone_id in drone_ids:
+    data = log[log['drone_id'] == drone_id]
+    ax.plot(data['x'], data['y'], label=f'Drone {drone_id}', alpha=0.7)
+ax.set_xlabel('X (m)')
+ax.set_ylabel('Y (m)')
+ax.set_title('Swarm Trajectories (Top View)')
+ax.legend()
+ax.grid()
+
+# Plot 2: Altitude over time
+ax = axes[0, 1]
+for drone_id in drone_ids:
+    data = log[log['drone_id'] == drone_id]
+    ax.plot(data['timestamp'], data['z'], label=f'Drone {drone_id}', alpha=0.7)
+ax.set_xlabel('Time')
+ax.set_ylabel('Altitude (m)')
+ax.set_title('Altitude Tracking')
+ax.legend()
+ax.grid()
+
+# Plot 3: Inter-drone distances
+ax = axes[1, 0]
+distances = []
+times = []
+for t in log['timestamp'].unique():
+    frame = log[log['timestamp'] == t]
+    positions = frame[['x', 'y', 'z']].values
+    if len(positions) &gt; 1:
+        pairwise = np.linalg.norm(positions[:, None] - positions[None, :], axis=2)
+        distances.append(np.mean(pairwise[pairwise &gt; 0]))
+        times.append(t)
+ax.plot(times, distances, linewidth=2)
+ax.set_xlabel('Time')
+ax.set_ylabel('Avg Inter-Drone Distance (m)')
+ax.set_title('Formation Separation')
+ax.grid()
+
+# Plot 4: Battery
+ax = axes[1, 1]
+for drone_id in drone_ids:
+    data = log[log['drone_id'] == drone_id]
+    ax.plot(data['timestamp'], data['battery_voltage'], label=f'Drone {drone_id}')
+ax.set_xlabel('Time')
+ax.set_ylabel('Battery Voltage (V)')
+ax.set_title('Battery Discharge')
+ax.legend()
+ax.grid()
+
+plt.tight_layout()
+plt.savefig('flight_analysis.png', dpi=150)
+plt.show()
+
+# Compute swarm metrics
+print("=== Swarm Performance Metrics ===")
+for drone_id in drone_ids:
+    data = log[log['drone_id'] == drone_id]
+    print(f"\nDrone {drone_id}:")
+    print(f"  Flight time: {(data['timestamp'].max() - data['timestamp'].min()).total_seconds():.1f}s")
+    print(f"  Max altitude: {data['z'].max():.2f}m")
+    print(f"  Max speed: {np.sqrt(data['vx']**2 + data['vy']**2 + data['vz']**2).max():.2f} m/s")
+    print(f"  Battery drop: {data['battery_voltage'].min():.2f}V")
+
+print(f"\nSwarm:")
+print(f"  Avg inter-drone distance: {np.mean(distances):.2f}m")
+print(f"  Formation tightness (std): {np.std(distances):.2f}m")</code></pre>
+
+                <h4>Swarm-Specific Metrics</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Definition</th>
+                            <th>Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Cohesion</strong></td>
+                            <td>Avg distance from centroid</td>
+                            <td>Low = tight formation, high = scattered</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Separation</strong></td>
+                            <td>Avg pairwise distance</td>
+                            <td>Indicates formation scale</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Collision Count</strong></td>
+                            <td># of times distance &lt; threshold</td>
+                            <td>Should be 0 in safe missions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Task Completion</strong></td>
+                            <td>% of assigned tasks completed</td>
+                            <td>High = good swarm coordination</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Communication Ratio</strong></td>
+                            <td>Msgs received / Msgs sent</td>
+                            <td>High = reliable network, low = packet loss</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </section>
+
+            <!-- CLOSING -->
+            <section style="margin-top: 4rem; padding: 2rem; background-color: #12142a; border-radius: 8px;">
+                <h2 style="border-bottom: none; color: #5eead4;">What's Next?</h2>
+                <p>Part 3 covered the full software stack. You now understand:</p>
+                <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                    <li>Flight controller firmware (PX4, ArduPilot) and custom control loops</li>
+                    <li>Simulation environments (Gazebo, AirSim) for safe testing</li>
+                    <li>Communication protocols (MAVLink, ROS, mesh networks)</li>
+                    <li>Computer vision and perception for autonomous navigation</li>
+                    <li>Machine learning for swarm intelligence and RL-based control</li>
+                    <li>Ground station software and data analysis tools</li>
+                </ul>
+                <p><strong>Next:</strong> Part 4 covers actual swarm algorithms—flocking, task allocation, formation control, and multi-robot coordination strategies.</p>
+                <p><strong>Then:</strong> Part 5 is a complete end-to-end swarm project: build, test, and deploy a 4-drone autonomous swarm system.</p>
+            </section>
+
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Sim Vattanac | <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a></p>
+    </footer>
+
+    <script>
+        // Sidebar TOC toggle on mobile
+        const tocToggle = document.getElementById('tocToggle');
+        const tocSidebar = document.getElementById('tocSidebar');
+
+        if (tocToggle) {
+            tocToggle.addEventListener('click', () => {
+                tocSidebar.classList.toggle('open');
+            });
+
+            // Close sidebar when a link is clicked
+            tocSidebar.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    tocSidebar.classList.remove('open');
+                });
+            });
+        }
+
+        // Smooth scroll for TOC links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

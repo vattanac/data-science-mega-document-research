@@ -551,7 +551,7 @@
             "displayName": "original_paper.html",
             "type": "file",
             "ext": "html",
-            "size": 1523,
+            "size": 1492,
             "path": "swarm-drone-01-reynolds-boids/original_paper.html"
           },
           {
@@ -590,7 +590,7 @@
             "displayName": "original_paper.html",
             "type": "file",
             "ext": "html",
-            "size": 1516,
+            "size": 1493,
             "path": "swarm-drone-02-olfati-saber-flocking/original_paper.html"
           }
         ],
@@ -621,7 +621,7 @@
             "displayName": "original_paper.html",
             "type": "file",
             "ext": "html",
-            "size": 1461,
+            "size": 1439,
             "path": "swarm-drone-03-kennedy-pso/original_paper.html"
           }
         ],
@@ -652,7 +652,7 @@
             "displayName": "original_paper.html",
             "type": "file",
             "ext": "html",
-            "size": 1457,
+            "size": 1434,
             "path": "swarm-drone-04-dorigo-ant-colony/original_paper.html"
           }
         ],
@@ -683,7 +683,7 @@
             "displayName": "original_paper.html",
             "type": "file",
             "ext": "html",
-            "size": 1563,
+            "size": 1525,
             "path": "swarm-drone-05-brambilla-swarm-robotics/original_paper.html"
           }
         ],
@@ -714,7 +714,7 @@
             "displayName": "original_paper.html",
             "type": "file",
             "ext": "html",
-            "size": 1505,
+            "size": 1482,
             "path": "swarm-drone-06-chung-aerial-swarm-survey/original_paper.html"
           }
         ],
@@ -737,7 +737,7 @@
             "displayName": "original_paper.html",
             "type": "file",
             "ext": "html",
-            "size": 1586,
+            "size": 1552,
             "path": "swarm-drone-07-vasarhelyi-optimized-flocking/original_paper.html"
           },
           {
@@ -768,7 +768,7 @@
             "displayName": "original_paper.html",
             "type": "file",
             "ext": "html",
-            "size": 1531,
+            "size": 1508,
             "path": "swarm-drone-08-preiss-crazyswarm/original_paper.html"
           },
           {
@@ -799,7 +799,7 @@
             "displayName": "original_paper.html",
             "type": "file",
             "ext": "html",
-            "size": 1570,
+            "size": 1536,
             "path": "swarm-drone-09-zhou-micro-flying-robots/original_paper.html"
           },
           {
@@ -830,7 +830,7 @@
             "displayName": "original_paper.html",
             "type": "file",
             "ext": "html",
-            "size": 1511,
+            "size": 1500,
             "path": "swarm-drone-10-schilling-vision-swarm/original_paper.html"
           },
           {
@@ -840,6 +840,61 @@
             "ext": "docx",
             "size": 10790,
             "path": "swarm-drone-10-schilling-vision-swarm/schilling_vision_swarm_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
+        "name": "swarm-drone-complete-guide",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-complete-guide",
+            "type": "file",
+            "ext": "html",
+            "size": 17750,
+            "path": "swarm-drone-complete-guide/index.html"
+          },
+          {
+            "name": "part1-mathematics.html",
+            "displayName": "part1-mathematics.html",
+            "type": "file",
+            "ext": "html",
+            "size": 109794,
+            "path": "swarm-drone-complete-guide/part1-mathematics.html"
+          },
+          {
+            "name": "part2-algorithms.html",
+            "displayName": "part2-algorithms.html",
+            "type": "file",
+            "ext": "html",
+            "size": 91012,
+            "path": "swarm-drone-complete-guide/part2-algorithms.html"
+          },
+          {
+            "name": "part3-software.html",
+            "displayName": "part3-software.html",
+            "type": "file",
+            "ext": "html",
+            "size": 100161,
+            "path": "swarm-drone-complete-guide/part3-software.html"
+          },
+          {
+            "name": "part4-hardware.html",
+            "displayName": "part4-hardware.html",
+            "type": "file",
+            "ext": "html",
+            "size": 95528,
+            "path": "swarm-drone-complete-guide/part4-hardware.html"
+          },
+          {
+            "name": "part5-integration.html",
+            "displayName": "part5-integration.html",
+            "type": "file",
+            "ext": "html",
+            "size": 86787,
+            "path": "swarm-drone-complete-guide/part5-integration.html"
           }
         ],
         "category": "Swarm Drone Research"

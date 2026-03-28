@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 2: Algorithms & Control Theory - Zero to Swarm Drone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0b14;
+            --card: #12142a;
+            --card-hover: #1a1c3a;
+            --accent-purple: #a78bfa;
+            --accent-teal: #5eead4;
+            --text: #c8cad8;
+            --text-dim: #6b6e8a;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ============ STICKY NAV ============ */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, var(--bg) 0%, rgba(10, 11, 20, 0.95) 100%);
+            border-bottom: 1px solid rgba(167, 139, 250, 0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        nav .title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-purple);
+        }
+
+        nav .links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        nav a:hover {
+            color: var(--accent-purple);
+            border-bottom-color: var(--accent-purple);
+        }
+
+        nav a.home {
+            color: var(--accent-teal);
+        }
+
+        /* ============ TOC SIDEBAR ============ */
+        .toc-sidebar {
+            position: fixed;
+            left: 0;
+            top: 70px;
+            width: 280px;
+            max-height: calc(100vh - 70px);
+            background: var(--card);
+            border-right: 1px solid rgba(167, 139, 250, 0.1);
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            z-index: 50;
+        }
+
+        .toc-toggle {
+            display: none;
+            position: fixed;
+            top: 75px;
+            left: 1rem;
+            background: var(--accent-purple);
+            color: var(--bg);
+            border: none;
+            padding: 0.7rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            z-index: 60;
+            font-weight: 600;
+            width: 40px;
+            height: 40px;
+        }
+
+        .toc-sidebar h3 {
+            color: var(--accent-teal);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .toc-sidebar ul {
+            list-style: none;
+        }
+
+        .toc-sidebar li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc-sidebar a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            display: block;
+            padding: 0.3rem 0.5rem;
+            border-radius: 0.3rem;
+        }
+
+        .toc-sidebar a:hover {
+            color: var(--accent-teal);
+            background: rgba(94, 234, 212, 0.1);
+            padding-left: 1rem;
+        }
+
+        /* ============ MAIN CONTENT ============ */
+        main {
+            margin-left: 280px;
+            margin-top: 70px;
+            padding: 3rem 2rem;
+            max-width: 1200px;
+        }
+
+        section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 80px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-purple);
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-teal);
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .intro-text {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            padding-left: 1rem;
+            border-left: 3px solid var(--accent-teal);
+        }
+
+        /* ============ CALLOUT BOXES ============ */
+        .callout {
+            padding: 1.5rem;
+            border-radius: 0.8rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .callout.analogy {
+            background: rgba(94, 234, 212, 0.05);
+            border-left-color: var(--accent-teal);
+        }
+
+        .callout.application {
+            background: rgba(167, 139, 250, 0.05);
+            border-left-color: var(--accent-purple);
+        }
+
+        .callout h4 {
+            margin-top: 0;
+            color: var(--accent-teal);
+        }
+
+        .callout.application h4 {
+            color: var(--accent-purple);
+        }
+
+        /* ============ CODE BLOCKS ============ */
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 0.6rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-block code {
+            color: var(--accent-teal);
+        }
+
+        /* ============ FORMULA BLOCKS ============ */
+        .formula {
+            background: var(--card);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 0.6rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: var(--accent-teal);
+            text-align: center;
+        }
+
+        /* ============ CANVAS CONTAINERS ============ */
+        .canvas-container {
+            background: var(--card);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        canvas {
+            border: 1px solid rgba(94, 234, 212, 0.3);
+            border-radius: 0.6rem;
+            background: rgba(10, 11, 20, 0.8);
+            max-width: 100%;
+            height: auto;
+            margin: 1rem 0;
+        }
+
+        .canvas-controls {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 1.5rem;
+            align-items: center;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .slider-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        input[type="range"] {
+            width: 200px;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            background: var(--accent-purple);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            background: var(--accent-purple);
+        }
+
+        button {
+            background: var(--accent-purple);
+            color: var(--bg);
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        button:hover {
+            background: var(--accent-teal);
+            transform: translateY(-2px);
+        }
+
+        .value-display {
+            color: var(--accent-teal);
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+
+        /* ============ LISTS ============ */
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* ============ FOOTER ============ */
+        footer {
+            background: var(--card);
+            border-top: 1px solid rgba(167, 139, 250, 0.1);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            margin-top: 4rem;
+            margin-left: 280px;
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 1024px) {
+            .toc-sidebar {
+                left: -280px;
+                transition: left 0.3s;
+            }
+
+            .toc-sidebar.active {
+                left: 0;
+            }
+
+            .toc-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            main, footer {
+                margin-left: 0;
+            }
+
+            nav {
+                padding: 1rem;
+            }
+
+            nav .links {
+                gap: 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            h3 {
+                font-size: 1.1rem;
+            }
+
+            main {
+                padding: 2rem 1rem;
+            }
+
+            nav .title {
+                font-size: 1rem;
+            }
+
+            .canvas-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            input[type="range"] {
+                width: 100%;
+            }
+        }
+
+        /* ============ UTILITY ============ */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card-box {
+            background: var(--card);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 0.8rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .card-box:hover {
+            background: var(--card-hover);
+            border-color: var(--accent-purple);
+        }
+
+        .card-box h4 {
+            color: var(--accent-teal);
+            margin-top: 0;
+        }
+
+        .highlight {
+            color: var(--accent-teal);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- STICKY NAV -->
+    <nav>
+        <div class="title">📡 Part 2: Algorithms & Control</div>
+        <div class="links">
+            <a href="index.html" class="home">← Guide Home</a>
+            <a href="part1-mathematics.html">Part 1: Math</a>
+            <a href="part3-software.html">Part 3: Software</a>
+            <a href="part4-hardware.html">Part 4: Hardware</a>
+            <a href="part5-integration.html">Part 5: Integration</a>
+        </div>
+    </nav>
+
+    <button class="toc-toggle" onclick="toggleTOC()">☰ TOC</button>
+
+    <!-- TOC SIDEBAR -->
+    <aside class="toc-sidebar" id="tocSidebar">
+        <h3>Contents</h3>
+        <ul>
+            <li><a href="#pid-control">1. PID Control</a>
+                <ul>
+                    <li><a href="#pid-what">1.1 What is PID?</a></li>
+                    <li><a href="#pid-cascaded">1.2 Cascaded PID</a></li>
+                    <li><a href="#pid-tuning">1.3 PID Tuning</a></li>
+                </ul>
+            </li>
+            <li><a href="#state-estimation">2. State Estimation</a>
+                <ul>
+                    <li><a href="#complementary">2.1 Complementary Filter</a></li>
+                    <li><a href="#kalman">2.2 Kalman Filter</a></li>
+                    <li><a href="#ekf">2.3 Extended Kalman Filter</a></li>
+                    <li><a href="#particle">2.4 Particle Filter</a></li>
+                </ul>
+            </li>
+            <li><a href="#path-planning">3. Path Planning</a>
+                <ul>
+                    <li><a href="#astar">3.1 A* Algorithm</a></li>
+                    <li><a href="#rrt">3.2 RRT</a></li>
+                    <li><a href="#potential">3.3 Potential Fields</a></li>
+                    <li><a href="#trajectory">3.4 Trajectory Optimization</a></li>
+                </ul>
+            </li>
+            <li><a href="#swarm-algorithms">4. Swarm Algorithms</a>
+                <ul>
+                    <li><a href="#reynolds">4.1 Reynolds Rules</a></li>
+                    <li><a href="#consensus">4.2 Consensus</a></li>
+                    <li><a href="#task-alloc">4.3 Task Allocation</a></li>
+                    <li><a href="#formation">4.4 Formation Control</a></li>
+                    <li><a href="#pso">4.5 PSO</a></li>
+                    <li><a href="#aco">4.6 ACO</a></li>
+                </ul>
+            </li>
+            <li><a href="#collision">5. Collision Avoidance</a>
+                <ul>
+                    <li><a href="#velocity-obs">5.1 Velocity Obstacles</a></li>
+                    <li><a href="#apf">5.2 Artificial Potential Fields</a></li>
+                    <li><a href="#safety">5.3 Safety Certificates</a></li>
+                </ul>
+            </li>
+            <li><a href="#ml-swarms">6. Machine Learning</a>
+                <ul>
+                    <li><a href="#rl-basics">6.1 RL Basics</a></li>
+                    <li><a href="#marl">6.2 Multi-Agent RL</a></li>
+                    <li><a href="#imitation">6.3 Imitation Learning</a></li>
+                    <li><a href="#sim2real">6.4 Sim-to-Real Transfer</a></li>
+                </ul>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <h1>Part 2: Algorithms & Control Theory</h1>
+        <p class="intro-text">The brain of a drone swarm. This section covers the mathematical algorithms, control strategies, and distributed intelligence that allow drones to fly, plan, collaborate, and adapt. From fundamental PID loops to cutting-edge machine learning, we'll build from first principles to production-ready implementations.</p>
+
+        <!-- ======================================== SECTION 1: PID CONTROL ======================================== -->
+        <section id="pid-control">
+            <h2>Section 1: PID Control — The Foundation</h2>
+            <p>Every drone, whether solo or in a swarm, relies on <span class="highlight">PID (Proportional-Integral-Derivative) control</span> as its core stabilization mechanism. PID is simple enough for bare-metal microcontrollers yet powerful enough for demanding flight regimes. Understanding PID is non-negotiable for drone engineering.</p>
+
+            <h3 id="pid-what">1.1 What is PID?</h3>
+            <p><strong>Why PID matters for swarms:</strong> Each drone must maintain altitude, orientation, and position against disturbances (wind, sensor noise, actuator lag). PID provides the closed-loop feedback mechanism that corrects errors in real-time. Without PID, drones would not be stable enough to fly or cooperate.</p>
+
+            <h4>The Three Components</h4>
+            <p>PID breaks error correction into three independent actions:</p>
+
+            <div class="callout analogy">
+                <h4>🚗 Driving Analogy</h4>
+                <p>Imagine driving a car toward a target speed of 60 mph in heavy traffic.</p>
+                <ul>
+                    <li><strong>Proportional (P):</strong> Press the gas pedal harder the further you are from target speed. At 50 mph (10 mph too slow), press more than at 55 mph (5 mph too slow).</li>
+                    <li><strong>Integral (I):</strong> If you've been stuck at 50 mph for 5 seconds, start pressing even harder because the error is persistent. This eliminates steady-state error.</li>
+                    <li><strong>Derivative (D):</strong> If your speed is rapidly increasing toward the target, ease off the pedal to avoid overshoot. This dampens oscillation.</li>
+                </ul>
+            </div>
+
+            <h4>The PID Formula</h4>
+            <div class="formula">
+u(t) = Kp·e(t) + Ki·∫₀ᵗ e(τ)dτ + Kd·(de(t)/dt)
+            </div>
+            <p>Where:</p>
+            <ul>
+                <li><strong>u(t)</strong> = control output (motor thrust/angle command)</li>
+                <li><strong>e(t)</strong> = error = target - measured (e.g., target altitude - actual altitude)</li>
+                <li><strong>Kp</strong> = proportional gain</li>
+                <li><strong>Ki</strong> = integral gain</li>
+                <li><strong>Kd</strong> = derivative gain</li>
+            </ul>
+
+            <h4>Discrete Implementation (Real Drones)</h4>
+            <p>On microcontrollers, we can't integrate continuously. Instead, we discretize at each control loop (e.g., 50 Hz = 20 ms):</p>
+            <div class="code-block"><code>
+error = target - measured
+integral += error * dt
+derivative = (error - prev_error) / dt
+output = Kp*error + Ki*integral + Kd*derivative
+prev_error = error
+            </code></div>
+
+            <div class="callout application">
+                <h4>🚁 Drone Applications</h4>
+                <p>A quadcopter has <strong>at least 6 independent PID controllers</strong>:</p>
+                <ul>
+                    <li><strong>Altitude PID:</strong> target height → motor thrust</li>
+                    <li><strong>Roll PID:</strong> target roll angle → motor differential</li>
+                    <li><strong>Pitch PID:</strong> target pitch angle → motor differential</li>
+                    <li><strong>Yaw PID:</strong> target yaw angle → motor twist</li>
+                    <li><strong>X-Position PID:</strong> target X → desired roll/pitch</li>
+                    <li><strong>Y-Position PID:</strong> target Y → desired roll/pitch</li>
+                </ul>
+            </div>
+
+            <h4>Interactive: Drone Altitude Controller</h4>
+            <p>Adjust Kp, Ki, Kd to stabilize a drone at a target altitude. Watch the response curve and observe overshoot, oscillation, and steady-state behavior.</p>
+            <div class="canvas-container">
+                <canvas id="pidCanvas" width="900" height="400"></canvas>
+                <div class="canvas-controls">
+                    <div class="slider-group">
+                        <label>Kp (Proportional): <span class="value-display" id="kpValue">1.0</span></label>
+                        <input type="range" id="kpSlider" min="0" max="5" step="0.1" value="1.0" oninput="updatePID()">
+                    </div>
+                    <div class="slider-group">
+                        <label>Ki (Integral): <span class="value-display" id="kiValue">0.2</span></label>
+                        <input type="range" id="kiSlider" min="0" max="1" step="0.05" value="0.2" oninput="updatePID()">
+                    </div>
+                    <div class="slider-group">
+                        <label>Kd (Derivative): <span class="value-display" id="kdValue">0.5</span></label>
+                        <input type="range" id="kdSlider" min="0" max="2" step="0.1" value="0.5" oninput="updatePID()">
+                    </div>
+                    <button onclick="resetPID()">Reset</button>
+                </div>
+            </div>
+
+            <h3 id="pid-cascaded">1.2 Cascaded PID</h3>
+            <p><strong>Why cascaded:</strong> Different control objectives operate at different speeds. Position changes slowly, attitude changes faster, and motor commands are fastest. Cascading exploits this natural hierarchy for stability and decoupling.</p>
+
+            <div class="formula">
+Outer Loop:  position_error → desired_velocity
+Middle Loop: velocity_error → desired_attitude
+Inner Loop:  attitude_error → motor_commands
+            </div>
+
+            <div class="callout analogy">
+                <h4>🏢 Company Hierarchy Analogy</h4>
+                <p>CEO sets strategic goals (reach position X), managers plan intermediate steps (maintain velocity V), workers execute tactically (fire motors). Each level acts on the output of the level above.</p>
+            </div>
+
+            <h4>Why This Works</h4>
+            <ul>
+                <li><strong>Inner loops are fast:</strong> Attitude control loops run 200-400 Hz, ensuring stable flight dynamics.</li>
+                <li><strong>Outer loops are slow:</strong> Position control runs 10-50 Hz, planning overall movement.</li>
+                <li><strong>Decoupling:</strong> Once inner loop stabilizes attitude, outer loop can assume attitude commands are executed faithfully.</li>
+                <li><strong>Disturbance rejection:</strong> Wind gust perturbs attitude, inner loop corrects it before position is affected.</li>
+            </ul>
+
+            <h3 id="pid-tuning">1.3 PID Tuning</h3>
+            <p><strong>Challenge:</strong> Gains must be tuned per drone hardware. Too high → oscillation and instability. Too low → sluggish response and steady-state error. Too much Kd → noise amplification. Too much Ki → slow response and overshoot.</p>
+
+            <h4>Ziegler-Nichols Method (Classical)</h4>
+            <ol>
+                <li>Set Ki = 0, Kd = 0</li>
+                <li>Increase Kp until the system oscillates continuously with constant amplitude (critical gain Kc)</li>
+                <li>Measure the oscillation period Tc</li>
+                <li>Apply formulas:
+                    <div class="formula">
+Kp = 0.6·Kc,   Ki = 1.2·Kc/Tc,   Kd = 0.075·Kc·Tc
+                    </div>
+                </li>
+                <li>Fine-tune by hand (increase Kd for damping, Ki for offset elimination)</li>
+            </ol>
+
+            <h4>Manual Tuning Process (Used in Practice)</h4>
+            <div class="code-block"><code>
+1. Tune P (Kp):
+   - Start low (0.1), increase until drone responds sharply to disturbances
+   - Stop before oscillation
+
+2. Tune D (Kd):
+   - Reduce overshoot and oscillation
+   - Too high → jerky response and noise sensitivity
+
+3. Tune I (Ki):
+   - Eliminate steady-state error (e.g., altitude drift)
+   - Very small values typically (0.01–0.1)
+   - Too high → slow response and windup
+            </code></div>
+
+            <h4>Auto-Tuning (Modern)</h4>
+            <p>Many flight controllers (PX4, ArduPilot) implement auto-tuning:</p>
+            <ul>
+                <li>Relay autotuning: software applies relay to determine critical gain</li>
+                <li>Parameter optimization: genetic algorithms or Bayesian search to minimize error metrics</li>
+                <li>Machine learning: neural nets predict optimal gains from drone parameters and environment</li>
+            </ul>
+        </section>
+
+        <!-- ======================================== SECTION 2: STATE ESTIMATION ======================================== -->
+        <section id="state-estimation">
+            <h2>Section 2: State Estimation</h2>
+            <p>Drones cannot directly measure all their state (position, velocity, orientation). Instead, they must <span class="highlight">fuse multiple noisy sensors</span> into a best estimate. This section covers the algorithms that transform IMU, GPS, compass, and barometer data into a reliable state estimate for control.</p>
+
+            <h3 id="complementary">2.1 Complementary Filter</h3>
+            <p><strong>Why it matters:</strong> The complementary filter is the simplest, fastest sensor fusion algorithm. It's used in billions of consumer devices (phones, VR headsets, hobby drones) because it requires minimal computation.</p>
+
+            <h4>The Problem: Two Sensors with Opposite Flaws</h4>
+            <ul>
+                <li><strong>Gyroscope (angular velocity):</strong> Very fast response, no drift over milliseconds, but drifts over seconds/minutes (bias accumulation)</li>
+                <li><strong>Accelerometer (linear acceleration):</strong> No long-term drift, but slow and noisy, cannot distinguish static tilt from dynamic acceleration</li>
+            </ul>
+
+            <h4>The Solution: Blend Them</h4>
+            <div class="formula">
+angle = α·(angle + gyro_rate·dt) + (1-α)·accel_angle
+            </div>
+            <p>Where:</p>
+            <ul>
+                <li><strong>α</strong> = trust factor (0 to 1), typically 0.98</li>
+                <li><strong>gyro_rate</strong> = ω from gyroscope (deg/s)</li>
+                <li><strong>dt</strong> = time step</li>
+                <li><strong>accel_angle</strong> = atan2(ax, az) computed from accelerometer</li>
+            </ul>
+
+            <div class="callout analogy">
+                <h4>🧭 Two Hikers Analogy</h4>
+                <p>You're navigating a cave with two friends:</p>
+                <ul>
+                    <li><strong>Friend A:</strong> Excellent at remembering turns (gyro). But after 10 turns, forgets the overall direction.</li>
+                    <li><strong>Friend B:</strong> Always knows which direction is north (accel). But slow to process new turns.</li>
+                </ul>
+                <p>Best strategy: Trust A's recent turns (α=0.98), but occasionally check with B's compass (1-α=0.02) to correct long-term drift.</p>
+            </div>
+
+            <h4>Implementation</h4>
+            <div class="code-block"><code>
+# Pseudo-code for complementary filter
+alpha = 0.98
+angle = 0  # Initial estimate
+
+loop (every dt seconds):
+    gyro_rate = read_gyroscope()  # degrees/second
+    accel_x, accel_z = read_accelerometer()
+
+    # Gyro integration (fast, drifts)
+    gyro_angle = angle + gyro_rate * dt
+
+    # Accel estimate (slow, no drift)
+    accel_angle = atan2(accel_x, accel_z) * 180/pi
+
+    # Blend
+    angle = alpha * gyro_angle + (1 - alpha) * accel_angle
+            </code></div>
+
+            <h3 id="kalman">2.2 Kalman Filter (Detailed Implementation)</h3>
+            <p><strong>Why Kalman:</strong> The Kalman filter is mathematically optimal for linear systems. It provides:</p>
+            <ul>
+                <li><strong>Minimum variance:</strong> Smallest possible error bounds</li>
+                <li><strong>Automatic weighting:</strong> Adjusts trust in each sensor based on covariance estimates</li>
+                <li><strong>Prediction + correction:</strong> Two-stage algorithm naturally handles latency</li>
+            </ul>
+
+            <h4>State Vector</h4>
+            <p>A drone's full state for Kalman filtering:</p>
+            <div class="formula">
+x = [x, y, z, ẋ, ẏ, ż, φ, θ, ψ]ᵀ
+(position + velocity + Euler angles)
+            </div>
+
+            <h4>Two Steps: Predict and Update</h4>
+
+            <h5>Step 1: Prediction (Time Update)</h5>
+            <p>Use physics model (state transition matrix F) and control input (B, u):</p>
+            <div class="formula">
+x̂ₖ|ₖ₋₁ = F·x̂ₖ₋₁ + B·uₖ₋₁
+P̂ₖ|ₖ₋₁ = F·P̂ₖ₋₁·Fᵀ + Q
+            </div>
+            <p>Where P is covariance (uncertainty), Q is process noise.</p>
+
+            <h5>Step 2: Update (Measurement Update)</h5>
+            <p>Incorporate sensor measurement z:</p>
+            <div class="formula">
+Kₖ = P̂ₖ|ₖ₋₁·Hᵀ(H·P̂ₖ|ₖ₋₁·Hᵀ + R)⁻¹  (Kalman Gain)
+x̂ₖ = x̂ₖ|ₖ₋₁ + Kₖ(zₖ - H·x̂ₖ|ₖ₋₁)     (State Update)
+P̂ₖ = (I - Kₖ·H)P̂ₖ|ₖ₋₁               (Covariance Update)
+            </div>
+            <p>Where H maps state to measurement space, R is measurement noise.</p>
+
+            <h4>Kalman Gain Intuition</h4>
+            <p>K is automatic sensor weighting:</p>
+            <ul>
+                <li>If R (sensor noise) is small → K is large → trust measurement more</li>
+                <li>If P (prediction uncertainty) is small → K is small → trust prediction more</li>
+                <li>K balances the two to minimize total error</li>
+            </ul>
+
+            <h4>Numerical Example: 1D Altitude Filtering</h4>
+            <div class="code-block"><code>
+# Simple 1D Kalman filter (altitude)
+x = 100.0  # Estimated altitude (m)
+P = 1.0    # Estimation uncertainty
+Q = 0.01   # Process noise (acceleration uncertainty)
+R = 0.1    # Measurement noise (barometer uncertainty)
+dt = 0.01  # 100 Hz
+
+measurement = 101.5  # GPS says 101.5 m
+
+# Predict
+x_pred = x  # No control input
+P_pred = P + Q
+
+# Update
+K = P_pred / (P_pred + R)
+x = x_pred + K * (measurement - x_pred)
+P = (1 - K) * P_pred
+
+print(f"Estimated: {x:.2f} m, Uncertainty: {P:.3f}")
+            </code></div>
+
+            <h3 id="ekf">2.3 Extended Kalman Filter (EKF)</h3>
+            <p><strong>Why EKF:</strong> Drone dynamics are <strong>nonlinear</strong> (rotations, aerodynamics). Linear Kalman fails. EKF linearizes around the current estimate using Jacobian matrices.</p>
+
+            <h4>Nonlinearity Example</h4>
+            <p>Pitch and roll angles multiply to create combined rotation—not linear! And aerodynamic drag increases with velocity squared.</p>
+
+            <h4>EKF Solution: Linearization</h4>
+            <p>Compute Jacobian matrices at each step:</p>
+            <div class="formula">
+F = ∂f/∂x |ₓ=ₓ̂   (state transition Jacobian)
+H = ∂h/∂x |ₓ=ₓ̂   (measurement Jacobian)
+            </div>
+            <p>Then apply standard Kalman with these linearized matrices.</p>
+
+            <h4>Real-World Use</h4>
+            <p>PX4 flight controller (used on most professional drones) uses a sophisticated EKF estimator that fuses:</p>
+            <ul>
+                <li>IMU (gyro + accel) at 200 Hz</li>
+                <li>GPS at 5-10 Hz</li>
+                <li>Barometer at 50 Hz</li>
+                <li>Compass at 50 Hz</li>
+                <li>Vision (optional) for indoor GPS-denied flight</li>
+            </ul>
+
+            <h3 id="particle">2.4 Particle Filter</h3>
+            <p><strong>When to use:</strong> Highly nonlinear systems or multi-modal distributions (e.g., GPS gives ambiguous position in urban canyon).</p>
+
+            <h4>Concept</h4>
+            <p>Represent belief as a cloud of weighted particles, each a hypothetical state:</p>
+            <div class="formula">
+Belief ≈ {(x₁, w₁), (x₂, w₂), ..., (xₙ, wₙ)}
+where wᵢ = likelihood of particle i
+            </div>
+
+            <h4>Steps</h4>
+            <ol>
+                <li><strong>Predict:</strong> Move each particle by control+noise</li>
+                <li><strong>Weigh:</strong> Score each particle by measurement likelihood</li>
+                <li><strong>Resample:</strong> Draw new particles proportional to weights (eliminate low-weight particles)</li>
+            </ol>
+
+            <h4>Use in Swarms</h4>
+            <p>Particle filters are valuable when drones lose GPS (indoor) and must rely on noisy vision or ranging sensors. Each drone maintains a particle filter of its own position; neighboring drones share range measurements to improve estimates.</p>
+        </section>
+
+        <!-- ======================================== SECTION 3: PATH PLANNING ======================================== -->
+        <section id="path-planning">
+            <h2>Section 3: Path Planning</h2>
+            <p>A drone must navigate from start to goal while avoiding obstacles. This section covers classical graph-based search, sampling-based trees, potential fields, and trajectory optimization—the four pillars of motion planning.</p>
+
+            <h3 id="astar">3.1 A* Algorithm</h3>
+            <p><strong>Why A*:</strong> Optimal (finds shortest path) and efficient (explores fewer nodes than Dijkstra) grid-based pathfinding. Foundational for robotics and games.</p>
+
+            <h4>The Heuristic Search Formula</h4>
+            <div class="formula">
+f(n) = g(n) + h(n)
+where:
+g(n) = actual cost from start to node n
+h(n) = heuristic estimate (lower bound) of cost from n to goal
+            </div>
+            <p>Always expand the node with smallest f. <strong>Heuristic must be admissible:</strong> never overestimate true cost.</p>
+
+            <h4>Example: 2D Grid with Obstacles</h4>
+            <div class="code-block"><code>
+# A* pseudocode
+open_list = PriorityQueue()
+closed_list = set()
+open_list.add(start, f=0)
+
+while open_list not empty:
+    current = open_list.pop()  # Smallest f
+
+    if current == goal:
+        return reconstruct_path()
+
+    closed_list.add(current)
+
+    for neighbor in current.neighbors():
+        if neighbor in closed_list:
+            continue
+
+        g_new = g[current] + cost(current, neighbor)
+        h_new = heuristic(neighbor, goal)  # Euclidean distance
+        f_new = g_new + h_new
+
+        if neighbor not in open_list or f_new < f[neighbor]:
+            open_list.add(neighbor, f=f_new)
+            g[neighbor] = g_new
+            parent[neighbor] = current
+            </code></div>
+
+            <h4>Heuristics for Drones</h4>
+            <ul>
+                <li><strong>Euclidean distance:</strong> √((goal_x - x)² + (goal_y - y)²) — fast and admissible</li>
+                <li><strong>Manhattan distance:</strong> |goal_x - x| + |goal_y - y| — for grid-aligned movement</li>
+                <li><strong>Diagonal distance:</strong> max(|Δx|, |Δy|) — for 8-connected grids</li>
+            </ul>
+
+            <h4>Interactive: A* Grid Search</h4>
+            <p>Click to set start and goal, watch A* expand nodes. Compare with Dijkstra (h=0).</p>
+            <div class="canvas-container">
+                <canvas id="astarCanvas" width="900" height="500"></canvas>
+                <div class="canvas-controls">
+                    <button onclick="initASTAR()">Clear</button>
+                    <button onclick="runASTAR()">Run A*</button>
+                    <button onclick="runDijkstra()">Run Dijkstra</button>
+                    <p style="font-size: 0.9rem; color: var(--text-dim); margin-top: 1rem;">Click on canvas: left = start (green), right = goal (red). Draw obstacles by dragging.</p>
+                </div>
+            </div>
+
+            <h3 id="rrt">3.2 RRT (Rapidly-exploring Random Trees)</h3>
+            <p><strong>Why RRT:</strong> A* struggles in continuous high-dimensional spaces (3D + time). RRT samples randomly and grows a tree—exponentially faster in high dimensions and handles complex geometry easily.</p>
+
+            <h4>Algorithm</h4>
+            <ol>
+                <li>Start with tree T = {x_init}</li>
+                <li>Loop:
+                    <ol>
+                        <li>Sample random point x_rand in configuration space</li>
+                        <li>Find nearest node x_near in tree</li>
+                        <li>Extend from x_near toward x_rand by step size Δ</li>
+                        <li>If no collision, add new node to tree</li>
+                    </ol>
+                </li>
+                <li>Return path when tree reaches goal</li>
+            </ol>
+
+            <h4>RRT* (Optimized)</h4>
+            <p>Standard RRT finds a path quickly but not necessarily short. RRT* improves the tree:</p>
+            <ul>
+                <li>When adding a node, consider multiple parent candidates within a radius</li>
+                <li>Connect to parent with lowest cost-to-come</li>
+                <li>Rewire: update existing nodes' parents if new node offers a shorter path</li>
+                <li>Asymptotically optimal (converges to optimal path as iterations → ∞)</li>
+            </ul>
+
+            <div class="callout analogy">
+                <h4>🗻 Exploring a Cave</h4>
+                <p>Imagine exploring an unknown cave system with limited rope. You randomly throw ropes in unmapped directions (random samples). Each rope extends from your current position toward unexplored territory (nearest neighbor + extend). You mark safe territory and backtrack to other branches. Eventually, you find the exit (goal) and retrace your path (return path). RRT* then backtracks and reroutes your path to be shorter.</p>
+            </div>
+
+            <h4>Interactive: RRT Growth</h4>
+            <p>Watch RRT and RRT* grow branches toward the goal. Toggle between versions.</p>
+            <div class="canvas-container">
+                <canvas id="rrtCanvas" width="900" height="500"></canvas>
+                <div class="canvas-controls">
+                    <button onclick="initRRT()">Clear</button>
+                    <button onclick="stepRRT()">Step RRT</button>
+                    <button onclick="runFullRRT()">Run Full</button>
+                    <input type="checkbox" id="rrtStarToggle"> RRT* (with rewiring)
+                </div>
+            </div>
+
+            <h3 id="potential">3.3 Potential Field Methods</h3>
+            <p><strong>Concept:</strong> Treat the workspace as a potential energy landscape. Attractive potential at goal, repulsive at obstacles. Gradient descent to find path.</p>
+
+            <div class="formula">
+U_total(x) = U_attractive(x) + U_repulsive(x)
+F = -∇U_total(x)
+            </div>
+
+            <h4>Attractive Potential</h4>
+            <div class="formula">
+U_attractive(x) = ½ρ_goal ||x - x_goal||²
+            </div>
+            <p>Quadratic: pulls toward goal, stronger farther away.</p>
+
+            <h4>Repulsive Potential (Inverse-Squared)</h4>
+            <div class="formula">
+U_repulsive(x) = { ½η(1/d - 1/d_0)² if d < d_0
+                  { 0                if d ≥ d_0
+            </div>
+            <p>Where d = distance to obstacle, d_0 = influence radius.</p>
+
+            <h4>Problem: Local Minima</h4>
+            <p>The robot can get stuck in a U-shaped obstacle where attractive and repulsive forces balance locally but goal is not reached.</p>
+
+            <h4>Solutions</h4>
+            <ul>
+                <li><strong>Random walks:</strong> Inject random force when stuck</li>
+                <li><strong>Navigation functions:</strong> Analytically construct potentials without local minima</li>
+                <li><strong>Harmonic functions:</strong> Solve Laplace equation for collision-free potential</li>
+                <li><strong>Hybrid approach:</strong> Use potential fields for local planning, A* for global planning</li>
+            </ul>
+
+            <h3 id="trajectory">3.4 Trajectory Optimization</h3>
+            <p><strong>Beyond paths:</strong> A path specifies "where to go" but not "how fast" or "with what dynamics." Trajectory optimization adds time and smoothness.</p>
+
+            <h4>Minimum Snap Trajectories</h4>
+            <p>For smooth flight, minimize jerk (rate of change of acceleration, third derivative). A common objective:</p>
+            <div class="formula">
+J = ∫₀ᵀ ||d⁴x/dt⁴||² dt   (minimize snap)
+            </div>
+
+            <h4>Polynomial Parameterization</h4>
+            <p>Represent trajectory segment as polynomial:</p>
+            <div class="formula">
+x(t) = c₀ + c₁t + c₂t² + c₃t³ + ... + c₇t⁷  (7th-degree for snap)
+            </div>
+            <p>Constraints: continuity at waypoints, zero velocity/acceleration at start/end. Solve as quadratic program.</p>
+
+            <h4>Bezier and B-spline Curves</h4>
+            <ul>
+                <li><strong>Bezier:</strong> Passes through start/end, shape controlled by intermediate control points</li>
+                <li><strong>B-spline:</strong> Local control, smoother, better for long trajectories</li>
+            </ul>
+
+            <h4>Time Allocation</h4>
+            <p>How long to spend on each segment? Tradeoff:</p>
+            <ul>
+                <li>Fast segment → sharp curves → high snap → jerky (motors struggle)</li>
+                <li>Slow segment → smooth curves → low snap (but inefficient)</li>
+            </ul>
+            <p><strong>Solution:</strong> Solve for time allocation simultaneously with trajectory coefficients using convex optimization.</p>
+
+            <div class="callout application">
+                <h4>🚁 Swarm Trajectory Generation</h4>
+                <p>In a swarm, each drone generates smooth trajectories to its goal waypoints while maintaining safe distances from neighbors. Key techniques:</p>
+                <ul>
+                    <li>Centralized: compute all trajectories offline (simple, no communication)</li>
+                    <li>Decentralized: each drone plans locally, communicates predicted trajectory to neighbors (scalable, adaptive)</li>
+                    <li>Model predictive control (MPC): recompute trajectory every 50 ms to handle dynamic obstacles</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ======================================== SECTION 4: SWARM ALGORITHMS ======================================== -->
+        <section id="swarm-algorithms">
+            <h2>Section 4: Swarm Algorithms</h2>
+            <p>Individual drones are powerful; swarms are revolutionary. This section covers the distributed algorithms that allow hundreds of drones to self-organize, communicate implicitly, and achieve emergent behavior without centralized control.</p>
+
+            <h3 id="reynolds">4.1 Reynolds' Rules Implementation</h3>
+            <p><strong>Why these rules:</strong> Craig Reynolds' 1987 boid flocking model showed that three simple local rules generate complex, lifelike group behavior. It's the foundation of modern swarm robotics.</p>
+
+            <h4>The Three Rules</h4>
+
+            <h5>Rule 1: Separation (Avoid Crowding)</h5>
+            <div class="formula">
+F_separation = -Σ (neighbor_pos - my_pos) / ||distance||²
+            </div>
+            <p>Repulsive force proportional to inverse square of distance. Keeps drones from colliding.</p>
+
+            <h5>Rule 2: Alignment (Steer Toward Average Heading)</h5>
+            <div class="formula">
+F_alignment = (Σ neighbor_velocity / num_neighbors) - my_velocity
+            </div>
+            <p>Pulls velocity toward neighbor average. Drones naturally move in same direction.</p>
+
+            <h5>Rule 3: Cohesion (Steer Toward Average Position)</h5>
+            <div class="formula">
+F_cohesion = (Σ neighbor_pos / num_neighbors) - my_pos
+            </div>
+            <p>Attractive force toward the "center of mass" of neighbors. Drones stay grouped.</p>
+
+            <h4>Combined Force</h4>
+            <div class="formula">
+F_total = w₁·F_separation + w₂·F_alignment + w₃·F_cohesion
+acceleration = F_total / mass
+            </div>
+
+            <div class="callout application">
+                <h4>🚁 Drone Swarm Flocking</h4>
+                <p>Apply Reynolds rules to drone control: if drones weight separation high and cohesion low, they form sparse formations ideal for search missions. Flip the weights for dense formations for perimeter surveillance. No explicit communication needed—only local sensing of nearby neighbors.</p>
+            </div>
+
+            <h4>Interactive: Flocking Boid Swarm</h4>
+            <p>30 boids follow Reynolds rules. Adjust weights to see how each rule affects group behavior. Add obstacles and watch them flow around.</p>
+            <div class="canvas-container">
+                <canvas id="flockingCanvas" width="900" height="500"></canvas>
+                <div class="canvas-controls">
+                    <div class="slider-group">
+                        <label>Separation: <span class="value-display" id="w1Value">1.0</span></label>
+                        <input type="range" id="w1Slider" min="0" max="3" step="0.1" value="1.0" oninput="updateFlocking()">
+                    </div>
+                    <div class="slider-group">
+                        <label>Alignment: <span class="value-display" id="w2Value">1.0</span></label>
+                        <input type="range" id="w2Slider" min="0" max="3" step="0.1" value="1.0" oninput="updateFlocking()">
+                    </div>
+                    <div class="slider-group">
+                        <label>Cohesion: <span class="value-display" id="w3Value">1.0</span></label>
+                        <input type="range" id="w3Slider" min="0" max="3" step="0.1" value="1.0" oninput="updateFlocking()">
+                    </div>
+                    <button onclick="resetFlocking()">Reset</button>
+                </div>
+            </div>
+
+            <h3 id="consensus">4.2 Consensus Algorithms</h3>
+            <p><strong>Goal:</strong> All drones converge to a common value (position, temperature, opinion) through local communication only.</p>
+
+            <h4>Average Consensus</h4>
+            <div class="formula">
+ẋᵢ = Σⱼ∈ₙᵢ aᵢⱼ(xⱼ - xᵢ)
+            </div>
+            <p>Where aᵢⱼ is adjacency matrix (1 if drones i, j are neighbors). Each drone moves toward its neighbors' average.</p>
+
+            <h4>Guaranteed Convergence</h4>
+            <p>If the communication graph is connected, all drones converge to the average of initial values:</p>
+            <div class="formula">
+x_consensus = (Σ x₀ᵢ) / n
+            </div>
+
+            <h4>Variants</h4>
+            <ul>
+                <li><strong>Weighted consensus:</strong> x_consensus = weighted average (useful if some drones are more trusted)</li>
+                <li><strong>Constrained consensus:</strong> each drone converges but stays within bounds (e.g., altitude limits)</li>
+                <li><strong>Finite-time consensus:</strong> use nonlinear controls to converge in finite steps (not asymptotic)</li>
+            </ul>
+
+            <h3 id="task-alloc">4.3 Task Allocation</h3>
+            <p><strong>Problem:</strong> Assign N drones to M targets to minimize total cost (distance, time, energy).</p>
+
+            <h4>Centralized: Hungarian Algorithm</h4>
+            <p>Optimal assignment solved in O(n³) time. Construct cost matrix C where C[i,j] = cost of drone i servicing target j. Hungarian algorithm finds minimum-cost perfect matching.</p>
+
+            <h4>Decentralized: Auction Algorithm</h4>
+            <p>Each drone "bids" on tasks. Task goes to highest bidder; price increases, other drones bid higher:</p>
+            <div class="code-block"><code>
+for each iteration:
+    for each unassigned drone:
+        # Find best task (lowest cost relative to price)
+        best_task = argmin_j (cost[drone,task] + price[task])
+        bid = (second_best_cost - best_cost) + epsilon
+
+    # Assign highest bidder to task
+    assigned_drone = argmax(bid)
+    price[assigned_task] += bid
+            </code></div>
+
+            <h4>Market-Based Allocation</h4>
+            <p>Tasks have "prices" that adjust based on supply and demand. Expensive tasks attract more drones; if many drones bid, price drops. Analog to real markets. Naturally load-balances.</p>
+
+            <h3 id="formation">4.4 Formation Control</h3>
+            <p><strong>Goal:</strong> Drones maintain fixed relative positions while moving as a group.</p>
+
+            <h4>Position-Based Formation</h4>
+            <p>Each drone maintains target offset from virtual leader or centroid:</p>
+            <div class="formula">
+leader_desired_pos = path[t]
+drone_i_target = leader_desired_pos + offset_i
+control = PID(drone_i_target - drone_i_actual)
+            </div>
+
+            <h4>Distance-Based Formation</h4>
+            <p>Specify distances between neighbors (graph edges). Each drone pulls/pushes neighbors to correct distances:</p>
+            <div class="formula">
+F_formation = Σⱼ∈neighbors (desired_dist[i,j] - actual_dist[i,j]) · (p_j - p_i) / ||p_j - p_i||
+            </div>
+
+            <h4>Bearing-Based Formation</h4>
+            <p>Maintain angles to neighbors rather than distances. More robust to scale changes.</p>
+
+            <h3 id="pso">4.5 Particle Swarm Optimization (PSO)</h3>
+            <p><strong>Use:</strong> Optimize multi-dimensional functions (trajectory parameters, controller gains, path planning). Each "particle" is a candidate solution; they explore and exploit the search space as a swarm.</p>
+
+            <h4>Update Equations</h4>
+            <div class="formula">
+vᵢ(t+1) = w·vᵢ(t) + c₁·r₁·(pBestᵢ - xᵢ) + c₂·r₂·(gBest - xᵢ)
+xᵢ(t+1) = xᵢ(t) + vᵢ(t+1)
+            </div>
+            <p>Where:</p>
+            <ul>
+                <li><strong>pBestᵢ</strong> = best position particle i has visited</li>
+                <li><strong>gBest</strong> = best position any particle has found</li>
+                <li><strong>w</strong> = inertia weight (0.4–0.9), controls exploration vs exploitation</li>
+                <li><strong>c₁, c₂</strong> = cognitive and social coefficients (typically 2.0)</li>
+                <li><strong>r₁, r₂</strong> = random [0, 1] for stochasticity</li>
+            </ul>
+
+            <div class="callout analogy">
+                <h4>🐦 Bird Flock Foraging</h4>
+                <p>Birds search for food across a landscape. Each bird remembers the best spot it's found (pBest) and knows about the flock's best spot (gBest). It moves with momentum (inertia) but is pulled toward both—balancing personal experience and collective wisdom.</p>
+            </div>
+
+            <h4>Interactive: PSO on 2D Landscape</h4>
+            <p>Watch particles converge to the global minimum of a 2D function. Adjust w, c₁, c₂ to see convergence speed.</p>
+            <div class="canvas-container">
+                <canvas id="psoCanvas" width="900" height="500"></canvas>
+                <div class="canvas-controls">
+                    <div class="slider-group">
+                        <label>Inertia w: <span class="value-display" id="wValue">0.7</span></label>
+                        <input type="range" id="wSlider" min="0.3" max="1.0" step="0.05" value="0.7" oninput="updatePSO()">
+                    </div>
+                    <div class="slider-group">
+                        <label>Cognitive c₁: <span class="value-display" id="c1Value">2.0</span></label>
+                        <input type="range" id="c1Slider" min="0" max="4" step="0.2" value="2.0" oninput="updatePSO()">
+                    </div>
+                    <div class="slider-group">
+                        <label>Social c₂: <span class="value-display" id="c2Value">2.0</span></label>
+                        <input type="range" id="c2Slider" min="0" max="4" step="0.2" value="2.0" oninput="updatePSO()">
+                    </div>
+                    <button onclick="resetPSO()">Reset</button>
+                </div>
+            </div>
+
+            <h3 id="aco">4.6 Ant Colony Optimization (ACO)</h3>
+            <p><strong>Use:</strong> Multi-drone routing, task scheduling. Models real ants depositing pheromone (chemical trails) that attract other ants to good paths.</p>
+
+            <h4>Algorithm</h4>
+            <ol>
+                <li><strong>Initialization:</strong> Deposit uniform pheromone on all edges</li>
+                <li><strong>Ant tours:</strong> Each drone (ant) constructs a tour probabilistically:
+                    <div class="formula">
+P(edge i→j) ∝ [τᵢⱼ]^α · [ηᵢⱼ]^β
+where τ = pheromone, η = heuristic (1/distance), α, β = weights
+                    </div>
+                </li>
+                <li><strong>Pheromone update:</strong> Drones that found good tours deposit more pheromone:
+                    <div class="formula">
+τᵢⱼ ← (1 - ρ)·τᵢⱼ + Δτ  (evaporate old pheromone, deposit new)
+Δτ ∝ 1/tour_length
+                    </div>
+                </li>
+                <li><strong>Repeat:</strong> Positive feedback concentrates pheromone on good routes</li>
+            </ol>
+
+            <h4>Advantages</h4>
+            <ul>
+                <li>Naturally handles dynamic environments (evaporation forgets old solutions)</li>
+                <li>Parallelizable: ants (drones) work independently</li>
+                <li>Positive feedback: good solutions attract more exploration</li>
+                <li>Works in graph/combinatorial problems (routing, scheduling)</li>
+            </ul>
+        </section>
+
+        <!-- ======================================== SECTION 5: COLLISION AVOIDANCE ======================================== -->
+        <section id="collision">
+            <h2>Section 5: Collision Avoidance</h2>
+            <p>In dense swarms, collision avoidance is not a luxury—it's a safety requirement. This section covers velocity obstacles, artificial potential fields, and formal safety guarantees using control barrier functions.</p>
+
+            <h3 id="velocity-obs">5.1 Velocity Obstacles (VO) & ORCA</h3>
+            <p><strong>Concept:</strong> In velocity space, certain velocities are unsafe (lead to collision). Identify the "bad" region and choose a velocity outside it.</p>
+
+            <h4>Velocity Obstacle Definition</h4>
+            <p>If drones are at positions p₁, p₂ with relative velocity v_rel = v₁ - v₂, they collide if the relative position ever lies within a safety radius r:</p>
+            <div class="formula">
+VO₁|₂ = { v : (p₁ - p₂ + t·(v₁ - v₂)) ∈ Ball(origin, r) for some t > 0 }
+            </div>
+            <p>Geometrically, VO is a cone in velocity space. Choose v₁ outside this cone.</p>
+
+            <div class="callout analogy">
+                <h4>🚗 Driving Analogy</h4>
+                <p>You're driving toward an intersection. Certain speeds would lead to collision with oncoming traffic (velocity obstacle cone). You adjust speed to avoid the cone—not necessarily stopping, just choosing a safe velocity.</p>
+            </div>
+
+            <h4>ORCA (Optimal Reciprocal Collision Avoidance)</h4>
+            <p>Extension: each drone takes <strong>half</strong> responsibility for collision avoidance:</p>
+            <div class="formula">
+v₁_new = v₁_desired + w₁   (move toward desired, adjust by w₁)
+v₂_new = v₂_desired + w₂   (move toward desired, adjust by w₂)
+such that both stay outside each other's VO
+            </div>
+
+            <h4>Interactive: Two-Drone Avoidance</h4>
+            <p>Two drones approach head-on. See velocity obstacle cone update in real-time. Watch each drone select a velocity outside the cone.</p>
+            <div class="canvas-container">
+                <canvas id="voCanvas" width="900" height="500"></canvas>
+                <div class="canvas-controls">
+                    <button onclick="resetVO()">Reset</button>
+                    <button onclick="pauseResumeVO()" id="pauseBtn">Pause</button>
+                </div>
+            </div>
+
+            <h3 id="apf">5.2 Artificial Potential Fields for Collision</h3>
+            <p>Treat each drone as a repulsive bubble. Drones attract to goal, repel from obstacles and neighbors:</p>
+            <div class="formula">
+U_total = U_goal + Σ U_obstacle + Σ U_neighbor
+F = -∇U_total
+            </div>
+
+            <h4>Neighbor Repulsion</h4>
+            <div class="formula">
+U_neighbor(r) = { k/(r - d_min)²  if r < d_max
+                { 0              if r ≥ d_max
+            </div>
+            <p>Creates a safety bubble: repulsion increases as neighbors approach. Drones automatically space themselves.</p>
+
+            <h3 id="safety">5.3 Safety Certificates</h3>
+            <p><strong>Goal:</strong> Mathematically prove a swarm never collides. Not probabilistic—hard guarantees.</p>
+
+            <h4>Control Barrier Functions (CBF)</h4>
+            <p>Define safety as h(x) ≥ 0 (e.g., h = distance_to_neighbor - min_safe_distance). CBF modifies the control law to ensure h never goes negative:</p>
+            <div class="formula">
+u(t) = argmin ||u - u_nominal||²
+subject to:  ḣ(x) + γ·h(x) ≥ 0  (barrier constraint)
+            </div>
+
+            <h4>Guarantee</h4>
+            <p>If h(x₀) ≥ 0 initially and the constraint is satisfied, h remains ≥ 0 forever. <strong>No collision guaranteed.</strong></p>
+
+            <h4>Challenge for Swarms</h4>
+            <p>CBF requires each drone to solve a quadratic program every control step (expensive). Scalability to 100+ drones is an open challenge.</p>
+
+            <div class="callout application">
+                <h4>🚁 Real-World Swarm Safety</h4>
+                <p>Professional swarm systems combine multiple approaches:</p>
+                <ul>
+                    <li>Velocity obstacles for fast, reactive avoidance</li>
+                    <li>Potential fields for smooth motion</li>
+                    <li>Formal safety (CBF) at higher level to guarantee safety invariants</li>
+                    <li>Communication for coordination in complex scenarios</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ======================================== SECTION 6: MACHINE LEARNING ======================================== -->
+        <section id="ml-swarms">
+            <h2>Section 6: Machine Learning for Swarms</h2>
+            <p>Classical algorithms scale poorly to novel environments. Machine learning allows drones to <span class="highlight">learn adaptive behaviors</span> from data or interaction, enabling swarms to handle complexity and variability beyond hand-coded rules.</p>
+
+            <h3 id="rl-basics">6.1 Reinforcement Learning Basics</h3>
+            <p><strong>Paradigm:</strong> Agent (drone) interacts with environment, receives rewards for good actions, learns policy to maximize cumulative reward.</p>
+
+            <h4>Core Concepts</h4>
+            <ul>
+                <li><strong>State:</strong> Drone's position, velocity, sensor readings (partially observable in practice)</li>
+                <li><strong>Action:</strong> Motor commands, acceleration targets</li>
+                <li><strong>Reward:</strong> Positive for reaching goal, negative for collision/energy</li>
+                <li><strong>Policy:</strong> π(a|s) = probability of action a given state s. Goal: learn optimal policy π*</li>
+            </ul>
+
+            <h4>Q-Learning</h4>
+            <p>Learn the value of each state-action pair:</p>
+            <div class="formula">
+Q(s,a) ← Q(s,a) + α[r + γ·max_a' Q(s',a') - Q(s,a)]
+            </div>
+            <p>Off-policy: can learn from suboptimal experience. Converges to optimal Q* if all states visited enough.</p>
+
+            <h4>Policy Gradient</h4>
+            <p>Directly learn policy parameters θ by gradient ascent:</p>
+            <div class="formula">
+θ ← θ + α·∇_θ J(θ)   where J(θ) = expected cumulative reward
+            </div>
+            <p>Advantage: can learn in continuous action spaces (smooth motor commands).</p>
+
+            <div class="callout analogy">
+                <h4>🐕 Training a Puppy</h4>
+                <p>Reinforce good behaviors (stay close to handler → reward), ignore bad (wandering off → no reward). Puppy learns policy from accumulated feedback without explicit instruction.</p>
+            </div>
+
+            <h3 id="marl">6.2 Multi-Agent Reinforcement Learning (MARL)</h3>
+            <p><strong>Challenge:</strong> With multiple learning agents, the environment becomes non-stationary. Agent A's learned policy makes environment harder for agent B. Standard RL convergence guarantees break.</p>
+
+            <h4>Approaches</h4>
+
+            <h5>Centralized Training, Decentralized Execution (CTDE)</h5>
+            <p>Train all drones together with global state and reward. At deployment, each drone uses only local observations:</p>
+            <ul>
+                <li><strong>Training:</strong> Central controller has full state, reward = team objective</li>
+                <li><strong>Execution:</strong> Each drone runs learned policy using only local sensors</li>
+            </ul>
+
+            <h5>Communication Learning</h5>
+            <p>Drones learn what to communicate to neighbors. Message-passing layers in neural networks. Emergent communication reduces need for explicit protocols.</p>
+
+            <h5>Independent Learners vs. Shared Policy</h5>
+            <ul>
+                <li><strong>Independent:</strong> Each drone learns its own policy. Scalable but may be uncoordinated.</li>
+                <li><strong>Shared:</strong> All drones use same policy (homogeneous swarm). Highly coordinated, scales better.</li>
+            </ul>
+
+            <h3 id="imitation">6.3 Imitation Learning</h3>
+            <p><strong>Problem:</strong> RL requires millions of trial-and-error steps. Too slow for expensive robots. Better approach: learn from expert demonstrations.</p>
+
+            <h4>Supervised Learning from Demonstrations</h4>
+            <p>Expert flies drone, recorder state-action pairs. Train neural network: state → action via supervised learning. Fast and safe.</p>
+
+            <h4>Challenge: Distribution Shift</h4>
+            <p>Drone makes small mistake → sees different state than expert ever saw → compounds error. Cascading failures.</p>
+
+            <h4>DAgger (Dataset Aggregation)</h4>
+            <p>Iterative solution:</p>
+            <ol>
+                <li>Learn policy from expert demonstrations</li>
+                <li>Run policy on real system, record states where it fails</li>
+                <li>Ask expert for actions in those failure states</li>
+                <li>Add to training set, retrain</li>
+                <li>Repeat</li>
+            </ol>
+            <p>Guarantees convergence to expert performance in polynomial time.</p>
+
+            <h3 id="sim2real">6.4 Sim-to-Real Transfer</h3>
+            <p><strong>Problem:</strong> Training in simulation is fast and safe. But simulation is imperfect. Trained policy fails on real hardware. The <span class="highlight">reality gap</span> is a major challenge.</p>
+
+            <h4>Sources of Reality Gap</h4>
+            <ul>
+                <li><strong>Physics:</strong> Drag, motor lag, wind not modeled</li>
+                <li><strong>Sensors:</strong> Real sensors are noisier, slower, have bias</li>
+                <li><strong>Actuators:</strong> Real motors have nonlinearity, saturation</li>
+                <li><strong>Communication:</strong> Latency, packet loss</li>
+            </ul>
+
+            <h4>Domain Randomization</h4>
+            <p>During training, randomize simulator parameters within plausible ranges:</p>
+            <ul>
+                <li>Mass ±10%, aerodynamic coefficients ±20%</li>
+                <li>Sensor noise randomly drawn each episode</li>
+                <li>Actuator delays randomly sampled</li>
+                <li>Environmental wind and turbulence varied</li>
+            </ul>
+            <p>Policy trained on diverse simulation dynamics should transfer better to real world.</p>
+
+            <h4>System Identification</h4>
+            <p>Measure real drone parameters (inertia, drag, motor constants) and update simulator. Reduce reality gap by making simulation more accurate.</p>
+
+            <h4>Reinforcement Fine-Tuning</h4>
+            <p>Start with sim-trained policy. Deploy on real drone with low-level safety constraints (rate limiting, collision detection). Use real interaction to fine-tune.</p>
+
+            <div class="callout application">
+                <h4>🚁 Production Swarm Intelligence</h4>
+                <p>Modern swarm systems pipeline:</p>
+                <ol>
+                    <li>Design classical controllers (PID, A*, consensus) as baselines</li>
+                    <li>Use RL to learn adaptive improvements in simulation</li>
+                    <li>Apply domain randomization for robustness</li>
+                    <li>System ID to calibrate simulator</li>
+                    <li>Deploy with safety monitors and gradual autonomy increase</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ======================================== CONCLUSION ======================================== -->
+        <section id="conclusion">
+            <h2>Conclusion: Algorithms + Control = Swarm Autonomy</h2>
+            <p>You've now traversed the full algorithmic stack that powers autonomous swarms:</p>
+            <div class="grid">
+                <div class="card-box">
+                    <h4>Foundation</h4>
+                    <p><strong>PID & State Estimation</strong> — stabilize the drone and know where it is. No flight without these.</p>
+                </div>
+                <div class="card-box">
+                    <h4>Navigation</h4>
+                    <p><strong>Path Planning</strong> — get from A to B around obstacles. Grounded in geometry and graph theory.</p>
+                </div>
+                <div class="card-box">
+                    <h4>Coordination</h4>
+                    <p><strong>Swarm Algorithms</strong> — make 100 drones act as one. Emergent complexity from simple rules.</p>
+                </div>
+                <div class="card-box">
+                    <h4>Safety</h4>
+                    <p><strong>Collision Avoidance</strong> — provably safe. No crashes, no exceptions.</p>
+                </div>
+                <div class="card-box">
+                    <h4>Adaptation</h4>
+                    <p><strong>Machine Learning</strong> — learn from data, handle novel situations. Scalable to complexity.</p>
+                </div>
+            </div>
+
+            <h4>Next Steps</h4>
+            <p>Part 3 will translate these algorithms into software: ROS, simulation, real flight control stacks. Part 4 covers the hardware that executes them. And Part 5 ties everything together: an end-to-end swarm system.</p>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2025 Sim Vattanac | vattanacsim99@gmail.com</p>
+        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Part 2 of 5: Algorithms & Control Theory</p>
+    </footer>
+
+    <script>
+        // ===== TOC Toggle =====
+        function toggleTOC() {
+            const sidebar = document.getElementById('tocSidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // ===== PID SIMULATOR =====
+        let pidState = {
+            altitude: 50,
+            velocity: 0,
+            error: 0,
+            integral: 0,
+            prevError: 0,
+            target: 100,
+            time: 0,
+            history: []
+        };
+
+        let pidParams = {
+            Kp: 1.0,
+            Ki: 0.2,
+            Kd: 0.5,
+            dt: 0.02,
+            maxThrust: 20
+        };
+
+        function updatePID() {
+            pidParams.Kp = parseFloat(document.getElementById('kpSlider').value);
+            pidParams.Ki = parseFloat(document.getElementById('kiSlider').value);
+            pidParams.Kd = parseFloat(document.getElementById('kdSlider').value);
+            document.getElementById('kpValue').textContent = pidParams.Kp.toFixed(1);
+            document.getElementById('kiValue').textContent = pidParams.Ki.toFixed(2);
+            document.getElementById('kdValue').textContent = pidParams.Kd.toFixed(1);
+        }
+
+        function resetPID() {
+            pidState = {
+                altitude: 50, velocity: 0, error: 0, integral: 0, prevError: 0,
+                target: 100, time: 0, history: []
+            };
+        }
+
+        function simulatePIDStep() {
+            pidState.error = pidState.target - pidState.altitude;
+            pidState.integral += pidState.error * pidParams.dt;
+            pidState.integral = Math.max(-100, Math.min(100, pidState.integral)); // Anti-windup
+            const derivative = (pidState.error - pidState.prevError) / pidParams.dt;
+
+            const thrust = pidParams.Kp * pidState.error
+                         + pidParams.Ki * pidState.integral
+                         + pidParams.Kd * derivative;
+
+            const clampedThrust = Math.max(-pidParams.maxThrust, Math.min(pidParams.maxThrust, thrust));
+            const acceleration = clampedThrust - 9.81; // gravity
+
+            pidState.velocity += acceleration * pidParams.dt;
+            pidState.altitude += pidState.velocity * pidParams.dt;
+            pidState.prevError = pidState.error;
+            pidState.time += pidParams.dt;
+
+            pidState.history.push({
+                time: pidState.time,
+                altitude: pidState.altitude,
+                target: pidState.target,
+                error: pidState.error,
+                thrust: clampedThrust
+            });
+
+            if (pidState.history.length > 10000) pidState.history.shift();
+        }
+
+        function drawPIDCanvas() {
+            const canvas = document.getElementById('pidCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const padding = 50;
+            const graphW = canvas.width - 2 * padding;
+            const graphH = canvas.height - 2 * padding;
+
+            // Grid
+            ctx.strokeStyle = '#6b6e8a';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const y = padding + (i / 10) * graphH;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+            }
+
+            // Draw history
+            if (pidState.history.length > 1) {
+                const maxTime = pidState.history[pidState.history.length - 1].time;
+                const minAlt = Math.min(...pidState.history.map(h => h.altitude), pidState.target) - 10;
+                const maxAlt = Math.max(...pidState.history.map(h => h.altitude), pidState.target) + 10;
+                const altRange = maxAlt - minAlt;
+
+                // Target line
+                ctx.strokeStyle = '#5eead4';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                const targetY = padding + graphH - ((pidState.target - minAlt) / altRange) * graphH;
+                ctx.beginPath();
+                ctx.moveTo(padding, targetY);
+                ctx.lineTo(canvas.width - padding, targetY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Altitude line
+                ctx.strokeStyle = '#a78bfa';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                for (let i = 0; i < pidState.history.length; i++) {
+                    const h = pidState.history[i];
+                    const x = padding + (h.time / maxTime) * graphW;
+                    const y = padding + graphH - ((h.altitude - minAlt) / altRange) * graphH;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            // Labels
+            ctx.fillStyle = '#c8cad8';
+            ctx.font = '14px Inter';
+            ctx.fillText('Altitude (m)', 10, 20);
+            ctx.fillText('Time (s)', canvas.width - 80, canvas.height - 10);
+        }
+
+        // ===== ASTAR SIMULATOR =====
+        let astarState = {
+            gridW: 30, gridH: 20,
+            start: null, goal: null,
+            obstacles: new Set(),
+            openList: [],
+            closedList: new Set(),
+            path: null
+        };
+
+        function initASTAR() {
+            astarState = {
+                gridW: 30, gridH: 20,
+                start: null, goal: null,
+                obstacles: new Set(),
+                openList: [],
+                closedList: new Set(),
+                path: null
+            };
+        }
+
+        function runASTAR() {
+            if (!astarState.start || !astarState.goal) {
+                alert('Set start and goal first');
+                return;
+            }
+            // Simplified A* (full implementation would be extensive)
+            const path = simplePathfind(astarState.start, astarState.goal, true);
+            astarState.path = path;
+        }
+
+        function runDijkstra() {
+            if (!astarState.start || !astarState.goal) {
+                alert('Set start and goal first');
+                return;
+            }
+            const path = simplePathfind(astarState.start, astarState.goal, false);
+            astarState.path = path;
+        }
+
+        function simplePathfind(start, goal, useHeuristic) {
+            // BFS-based simple pathfinding (would be full A* in production)
+            const queue = [start];
+            const parent = new Map();
+            const visited = new Set();
+            visited.add(start[0] + ',' + start[1]);
+
+            while (queue.length > 0) {
+                const [x, y] = queue.shift();
+                if (x === goal[0] && y === goal[1]) {
+                    const path = [];
+                    let curr = [x, y];
+                    while (curr) {
+                        path.unshift(curr);
+                        curr = parent.get(curr[0] + ',' + curr[1]);
+                    }
+                    return path;
+                }
+
+                for (let [dx, dy] of [[0, 1], [1, 0], [0, -1], [-1, 0]]) {
+                    const nx = x + dx, ny = y + dy;
+                    if (nx < 0 || nx >= astarState.gridW || ny < 0 || ny >= astarState.gridH) continue;
+                    if (astarState.obstacles.has(nx + ',' + ny)) continue;
+                    const key = nx + ',' + ny;
+                    if (visited.has(key)) continue;
+                    visited.add(key);
+                    parent.set(key, [x, y]);
+                    queue.push([nx, ny]);
+                }
+            }
+            return null;
+        }
+
+        // ===== RRT SIMULATOR =====
+        let rrtState = {
+            start: [1, 1],
+            goal: [18, 18],
+            tree: [[1, 1]],
+            edges: [],
+            path: null,
+            obstacles: new Set()
+        };
+
+        function initRRT() {
+            rrtState = {
+                start: [1, 1],
+                goal: [18, 18],
+                tree: [[1, 1]],
+                edges: [],
+                path: null,
+                obstacles: new Set()
+            };
+        }
+
+        function stepRRT() {
+            const step = 0.5;
+            const randX = Math.random() * 20;
+            const randY = Math.random() * 20;
+            const nearest = rrtState.tree.reduce((prev, curr) => {
+                const d = Math.hypot(curr[0] - randX, curr[1] - randY);
+                const prevD = Math.hypot(prev[0] - randX, prev[1] - randY);
+                return d < prevD ? curr : prev;
+            });
+
+            const angle = Math.atan2(randY - nearest[1], randX - nearest[0]);
+            const newX = nearest[0] + step * Math.cos(angle);
+            const newY = nearest[1] + step * Math.sin(angle);
+            const newNode = [newX, newY];
+            rrtState.tree.push(newNode);
+            rrtState.edges.push([nearest, newNode]);
+
+            if (Math.hypot(newX - rrtState.goal[0], newY - rrtState.goal[1]) < step * 2) {
+                rrtState.tree.push(rrtState.goal);
+                rrtState.edges.push([newNode, rrtState.goal]);
+                rrtState.path = reconstructRRTPath();
+            }
+        }
+
+        function runFullRRT() {
+            for (let i = 0; i < 100; i++) stepRRT();
+        }
+
+        function reconstructRRTPath() {
+            // Simplified path reconstruction
+            const path = [];
+            let curr = rrtState.goal;
+            while (curr && !(curr[0] === rrtState.start[0] && curr[1] === rrtState.start[1])) {
+                path.unshift(curr);
+                const edges = rrtState.edges.filter(e => e[1] === curr);
+                curr = edges.length > 0 ? edges[0][0] : null;
+            }
+            path.unshift(rrtState.start);
+            return path;
+        }
+
+        // ===== ANIMATION LOOP =====
+        function animate() {
+            simulatePIDStep();
+            drawPIDCanvas();
+            requestAnimationFrame(animate);
+        }
+
+        // ===== FLOCKING BOIDS =====
+        let flockingState = {
+            boids: [],
+            width: 900,
+            height: 500,
+            numBoids: 30,
+            weights: { sep: 1.0, align: 1.0, coh: 1.0 },
+            paused: false
+        };
+
+        class Boid {
+            constructor(x, y) {
+                this.pos = { x, y };
+                this.vel = { x: Math.random() - 0.5, y: Math.random() - 0.5 };
+                this.acc = { x: 0, y: 0 };
+                this.maxSpeed = 2;
+                this.perception = 100;
+            }
+
+            update(boids, weights) {
+                this.acc = { x: 0, y: 0 };
+
+                let separation = { x: 0, y: 0 };
+                let alignment = { x: 0, y: 0 };
+                let cohesion = { x: 0, y: 0 };
+                let count = 0;
+
+                for (let other of boids) {
+                    if (other === this) continue;
+                    let d = Math.hypot(other.pos.x - this.pos.x, other.pos.y - this.pos.y);
+                    if (d < this.perception) {
+                        // Separation
+                        let diff = {
+                            x: this.pos.x - other.pos.x,
+                            y: this.pos.y - other.pos.y
+                        };
+                        let len = Math.hypot(diff.x, diff.y);
+                        if (len > 0) {
+                            diff.x /= len;
+                            diff.y /= len;
+                            separation.x += diff.x;
+                            separation.y += diff.y;
+                        }
+
+                        // Alignment
+                        alignment.x += other.vel.x;
+                        alignment.y += other.vel.y;
+
+                        // Cohesion
+                        cohesion.x += other.pos.x;
+                        cohesion.y += other.pos.y;
+
+                        count++;
+                    }
+                }
+
+                if (count > 0) {
+                    alignment.x /= count;
+                    alignment.y /= count;
+                    alignment.x -= this.vel.x;
+                    alignment.y -= this.vel.y;
+
+                    cohesion.x /= count;
+                    cohesion.y /= count;
+                    cohesion.x -= this.pos.x;
+                    cohesion.y -= this.pos.y;
+                }
+
+                this.acc.x = weights.sep * separation.x + weights.align * alignment.x + weights.coh * cohesion.x;
+                this.acc.y = weights.sep * separation.y + weights.align * alignment.y + weights.coh * cohesion.y;
+
+                this.vel.x += this.acc.x;
+                this.vel.y += this.acc.y;
+                let speed = Math.hypot(this.vel.x, this.vel.y);
+                if (speed > this.maxSpeed) {
+                    this.vel.x = (this.vel.x / speed) * this.maxSpeed;
+                    this.vel.y = (this.vel.y / speed) * this.maxSpeed;
+                }
+
+                this.pos.x += this.vel.x;
+                this.pos.y += this.vel.y;
+
+                // Wraparound
+                if (this.pos.x < 0) this.pos.x = flockingState.width;
+                if (this.pos.x > flockingState.width) this.pos.x = 0;
+                if (this.pos.y < 0) this.pos.y = flockingState.height;
+                if (this.pos.y > flockingState.height) this.pos.y = 0;
+            }
+
+            draw(ctx) {
+                ctx.fillStyle = '#a78bfa';
+                ctx.beginPath();
+                ctx.arc(this.pos.x, this.pos.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initFlocking() {
+            flockingState.boids = [];
+            for (let i = 0; i < flockingState.numBoids; i++) {
+                flockingState.boids.push(new Boid(Math.random() * flockingState.width, Math.random() * flockingState.height));
+            }
+        }
+
+        function updateFlocking() {
+            flockingState.weights.sep = parseFloat(document.getElementById('w1Slider').value);
+            flockingState.weights.align = parseFloat(document.getElementById('w2Slider').value);
+            flockingState.weights.coh = parseFloat(document.getElementById('w3Slider').value);
+            document.getElementById('w1Value').textContent = flockingState.weights.sep.toFixed(1);
+            document.getElementById('w2Value').textContent = flockingState.weights.align.toFixed(1);
+            document.getElementById('w3Value').textContent = flockingState.weights.coh.toFixed(1);
+        }
+
+        function resetFlocking() {
+            initFlocking();
+        }
+
+        function drawFlockingCanvas() {
+            const canvas = document.getElementById('flockingCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = '#6b6e8a';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 100) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 100) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            for (let boid of flockingState.boids) {
+                boid.update(flockingState.boids, flockingState.weights);
+                boid.draw(ctx);
+            }
+        }
+
+        // ===== PSO SIMULATOR =====
+        let psoState = {
+            particles: [],
+            width: 900,
+            height: 500,
+            params: { w: 0.7, c1: 2.0, c2: 2.0 },
+            gBest: null,
+            gBestValue: Infinity
+        };
+
+        class PSParticle {
+            constructor() {
+                this.x = Math.random() * 4 - 2;
+                this.y = Math.random() * 4 - 2;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.pBest = { x: this.x, y: this.y };
+                this.pBestValue = this.evaluate(this.x, this.y);
+            }
+
+            evaluate(x, y) {
+                return (x - 0.5) * (x - 0.5) + (y + 1.2) * (y + 1.2) + 0.5 * Math.sin(5 * x);
+            }
+
+            update(gBest, params) {
+                const r1 = Math.random();
+                const r2 = Math.random();
+                this.vx = params.w * this.vx
+                    + params.c1 * r1 * (this.pBest.x - this.x)
+                    + params.c2 * r2 * (gBest.x - this.x);
+                this.vy = params.w * this.vy
+                    + params.c1 * r1 * (this.pBest.y - this.y)
+                    + params.c2 * r2 * (gBest.y - this.y);
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Boundary
+                this.x = Math.max(-2, Math.min(2, this.x));
+                this.y = Math.max(-2, Math.min(2, this.y));
+
+                const val = this.evaluate(this.x, this.y);
+                if (val < this.pBestValue) {
+                    this.pBest = { x: this.x, y: this.y };
+                    this.pBestValue = val;
+                }
+            }
+
+            draw(ctx, w, h) {
+                ctx.fillStyle = '#5eead4';
+                const px = ((this.x + 2) / 4) * w;
+                const py = ((this.y + 2) / 4) * h;
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initPSO() {
+            psoState.particles = [];
+            for (let i = 0; i < 20; i++) {
+                psoState.particles.push(new PSParticle());
+            }
+            psoState.gBest = null;
+            psoState.gBestValue = Infinity;
+            for (let p of psoState.particles) {
+                if (p.pBestValue < psoState.gBestValue) {
+                    psoState.gBest = { x: p.pBest.x, y: p.pBest.y };
+                    psoState.gBestValue = p.pBestValue;
+                }
+            }
+        }
+
+        function updatePSO() {
+            psoState.params.w = parseFloat(document.getElementById('wSlider').value);
+            psoState.params.c1 = parseFloat(document.getElementById('c1Slider').value);
+            psoState.params.c2 = parseFloat(document.getElementById('c2Slider').value);
+            document.getElementById('wValue').textContent = psoState.params.w.toFixed(2);
+            document.getElementById('c1Value').textContent = psoState.params.c1.toFixed(1);
+            document.getElementById('c2Value').textContent = psoState.params.c2.toFixed(1);
+        }
+
+        function resetPSO() {
+            initPSO();
+        }
+
+        function drawPSOCanvas() {
+            const canvas = document.getElementById('psoCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw contours (simple sampling)
+            const cellSize = 20;
+            for (let ix = 0; ix < canvas.width; ix += cellSize) {
+                for (let iy = 0; iy < canvas.height; iy += cellSize) {
+                    const x = (ix / canvas.width) * 4 - 2;
+                    const y = (iy / canvas.height) * 4 - 2;
+                    const val = (x - 0.5) * (x - 0.5) + (y + 1.2) * (y + 1.2) + 0.5 * Math.sin(5 * x);
+                    const brightness = 100 - Math.min(255, val * 50);
+                    ctx.fillStyle = `rgb(${brightness}, ${brightness * 0.5}, 200)`;
+                    ctx.fillRect(ix, iy, cellSize, cellSize);
+                }
+            }
+
+            // Update and draw particles
+            for (let p of psoState.particles) {
+                p.update(psoState.gBest, psoState.params);
+                p.draw(ctx, canvas.width, canvas.height);
+
+                if (p.pBestValue < psoState.gBestValue) {
+                    psoState.gBest = { x: p.pBest.x, y: p.pBest.y };
+                    psoState.gBestValue = p.pBestValue;
+                }
+            }
+
+            // Draw global best
+            if (psoState.gBest) {
+                const gx = ((psoState.gBest.x + 2) / 4) * canvas.width;
+                const gy = ((psoState.gBest.y + 2) / 4) * canvas.height;
+                ctx.strokeStyle = '#a78bfa';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(gx, gy, 8, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        // ===== VELOCITY OBSTACLE =====
+        let voState = {
+            drone1: { x: 100, y: 250, vx: 2, vy: 0, r: 20 },
+            drone2: { x: 800, y: 250, vx: -2, vy: 0, r: 20 },
+            paused: false
+        };
+
+        function resetVO() {
+            voState = {
+                drone1: { x: 100, y: 250, vx: 2, vy: 0, r: 20 },
+                drone2: { x: 800, y: 250, vx: -2, vy: 0, r: 20 },
+                paused: false
+            };
+            document.getElementById('pauseBtn').textContent = 'Pause';
+        }
+
+        function pauseResumeVO() {
+            voState.paused = !voState.paused;
+            document.getElementById('pauseBtn').textContent = voState.paused ? 'Resume' : 'Pause';
+        }
+
+        function updateVO() {
+            if (voState.paused) return;
+
+            // Simple avoidance: if too close, adjust velocity
+            const dx = voState.drone2.x - voState.drone1.x;
+            const dy = voState.drone2.y - voState.drone1.y;
+            const dist = Math.hypot(dx, dy);
+            const minDist = 100;
+
+            if (dist < minDist) {
+                voState.drone1.vx -= 0.1 * (dx / dist);
+                voState.drone2.vx += 0.1 * (dx / dist);
+            }
+
+            voState.drone1.x += voState.drone1.vx;
+            voState.drone1.y += voState.drone1.vy;
+            voState.drone2.x += voState.drone2.vx;
+            voState.drone2.y += voState.drone2.vy;
+        }
+
+        function drawVOCanvas() {
+            const canvas = document.getElementById('voCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            updateVO();
+
+            // Draw velocity obstacle cone (simplified visualization)
+            const dx = voState.drone2.x - voState.drone1.x;
+            const dy = voState.drone2.y - voState.drone1.y;
+            const dist = Math.hypot(dx, dy);
+
+            ctx.strokeStyle = 'rgba(94, 234, 212, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            const angle = Math.atan2(dy, dx);
+            const coneAngle = Math.atan2(voState.drone1.r + voState.drone2.r, dist);
+            const x1 = voState.drone1.x + 200 * Math.cos(angle + coneAngle);
+            const y1 = voState.drone1.y + 200 * Math.sin(angle + coneAngle);
+            const x2 = voState.drone1.x + 200 * Math.cos(angle - coneAngle);
+            const y2 = voState.drone1.y + 200 * Math.sin(angle - coneAngle);
+            ctx.moveTo(voState.drone1.x, voState.drone1.y);
+            ctx.lineTo(x1, y1);
+            ctx.moveTo(voState.drone1.x, voState.drone1.y);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            // Draw drones
+            ctx.fillStyle = '#a78bfa';
+            ctx.beginPath();
+            ctx.arc(voState.drone1.x, voState.drone1.y, voState.drone1.r, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#5eead4';
+            ctx.beginPath();
+            ctx.arc(voState.drone2.x, voState.drone2.y, voState.drone2.r, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw velocity vectors
+            ctx.strokeStyle = '#a78bfa';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(voState.drone1.x, voState.drone1.y);
+            ctx.lineTo(voState.drone1.x + voState.drone1.vx * 20, voState.drone1.y + voState.drone1.vy * 20);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#5eead4';
+            ctx.beginPath();
+            ctx.moveTo(voState.drone2.x, voState.drone2.y);
+            ctx.lineTo(voState.drone2.x + voState.drone2.vx * 20, voState.drone2.y + voState.drone2.vy * 20);
+            ctx.stroke();
+        }
+
+        // ===== MAIN ANIMATION LOOP =====
+        updatePID();
+        initFlocking();
+        initPSO();
+
+        function mainLoop() {
+            // PID
+            simulatePIDStep();
+            drawPIDCanvas();
+
+            // Flocking
+            drawFlockingCanvas();
+
+            // PSO
+            drawPSOCanvas();
+
+            // VO
+            drawVOCanvas();
+
+            requestAnimationFrame(mainLoop);
+        }
+
+        mainLoop();
+    </script>
+
+</body>
+</html>

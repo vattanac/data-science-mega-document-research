@@ -1,0 +1,2264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 4: Hardware & Electronics - Zero to Swarm Drone Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0b14;
+            color: #c8cad8;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(18, 20, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(167, 139, 250, 0.2);
+            padding: 1rem 2rem;
+        }
+
+        nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #a78bfa;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #c8cad8;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #a78bfa;
+        }
+
+        .nav-breadcrumb {
+            font-size: 0.85rem;
+            color: #6b6e8a;
+        }
+
+        /* TOC Sidebar */
+        .toc-sidebar {
+            position: fixed;
+            left: 0;
+            top: 70px;
+            width: 280px;
+            max-height: calc(100vh - 70px);
+            background-color: #12142a;
+            border-right: 1px solid rgba(167, 139, 250, 0.2);
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+
+        .toc-sidebar h3 {
+            color: #a78bfa;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .toc-sidebar ul {
+            list-style: none;
+        }
+
+        .toc-sidebar li {
+            margin-bottom: 0.75rem;
+        }
+
+        .toc-sidebar a {
+            color: #c8cad8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+            display: block;
+            padding: 0.5rem 0;
+        }
+
+        .toc-sidebar a:hover {
+            color: #5eead4;
+            padding-left: 0.5rem;
+        }
+
+        .toc-sidebar .level-2 {
+            padding-left: 1rem;
+            font-size: 0.85rem;
+            color: #6b6e8a;
+        }
+
+        .toc-toggle {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: #a78bfa;
+            color: #0a0b14;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: 600;
+            z-index: 101;
+        }
+
+        /* Main Content */
+        main {
+            margin-left: 280px;
+            padding: 3rem 2rem;
+            max-width: 900px;
+        }
+
+        .hero {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(94, 234, 212, 0.05) 100%);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            border-radius: 8px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            color: #a78bfa;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #c8cad8;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: #5eead4;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(94, 234, 212, 0.3);
+            padding-bottom: 0.75rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            color: #a78bfa;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            font-size: 1.05rem;
+            color: #c8cad8;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #c8cad8;
+        }
+
+        /* Callout Boxes */
+        .callout {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-left: 4px solid;
+            border-radius: 4px;
+            background-color: rgba(18, 20, 42, 0.6);
+        }
+
+        .callout-pro {
+            border-left-color: #5eead4;
+            background-color: rgba(94, 234, 212, 0.05);
+        }
+
+        .callout-analogy {
+            border-left-color: #5eead4;
+            background-color: rgba(94, 234, 212, 0.05);
+        }
+
+        .callout-app {
+            border-left-color: #a78bfa;
+            background-color: rgba(167, 139, 250, 0.05);
+        }
+
+        .callout-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .callout-pro .callout-title {
+            color: #5eead4;
+        }
+
+        .callout-app .callout-title {
+            color: #a78bfa;
+        }
+
+        .callout p {
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background-color: #12142a;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: rgba(167, 139, 250, 0.2);
+            color: #a78bfa;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid rgba(167, 139, 250, 0.1);
+            color: #c8cad8;
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background-color: #1a1c3a;
+        }
+
+        /* Diagram */
+        .diagram {
+            background-color: #12142a;
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #5eead4;
+            line-height: 1.4;
+            font-size: 0.85rem;
+        }
+
+        /* Links */
+        a {
+            color: #5eead4;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #a78bfa;
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .toc-sidebar {
+                transform: translateX(-100%);
+                width: 250px;
+            }
+
+            .toc-sidebar.active {
+                transform: translateX(0);
+            }
+
+            .toc-toggle {
+                display: block;
+            }
+
+            main {
+                margin-left: 0;
+                padding: 2rem 1.5rem;
+            }
+
+            nav {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                flex-direction: column;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            td, th {
+                padding: 0.6rem 0.5rem;
+            }
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 5rem;
+            padding: 2rem;
+            border-top: 1px solid rgba(167, 139, 250, 0.2);
+            text-align: center;
+            color: #6b6e8a;
+            font-size: 0.9rem;
+            margin-left: 280px;
+        }
+
+        .footer-nav {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .footer-nav a {
+            color: #a78bfa;
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                margin-left: 0;
+            }
+        }
+
+        /* Card Style */
+        .spec-card {
+            background-color: #12142a;
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+        .spec-card:hover {
+            background-color: #1a1c3a;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        code {
+            background-color: #12142a;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            color: #5eead4;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        strong {
+            color: #a78bfa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto;">
+            <div class="nav-title">Part 4: Hardware & Electronics</div>
+            <ul class="nav-links">
+                <li><a href="index.html">← Home</a></li>
+                <li><a href="part1-fundamentals.html">Part 1</a></li>
+                <li><a href="part2-physics.html">Part 2</a></li>
+                <li><a href="part3-control.html">Part 3</a></li>
+                <li><a href="part5-software.html">Part 5</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- TOC Toggle Button -->
+    <button class="toc-toggle" onclick="toggleTOC()">☰ TOC</button>
+
+    <!-- Sidebar TOC -->
+    <aside class="toc-sidebar" id="tocSidebar">
+        <h3>Contents</h3>
+        <ul>
+            <li><a href="#section1">Section 1: Drone Anatomy</a>
+                <ul class="level-2">
+                    <li><a href="#frame">Frame</a></li>
+                    <li><a href="#motors">Motors</a></li>
+                    <li><a href="#propellers">Propellers</a></li>
+                    <li><a href="#esc">ESC</a></li>
+                    <li><a href="#battery">Battery</a></li>
+                    <li><a href="#pdb">Power Distribution</a></li>
+                </ul>
+            </li>
+            <li><a href="#section2">Section 2: Sensors</a>
+                <ul class="level-2">
+                    <li><a href="#imu">IMU</a></li>
+                    <li><a href="#barometer">Barometer</a></li>
+                    <li><a href="#gps">GPS</a></li>
+                    <li><a href="#magnetometer">Magnetometer</a></li>
+                    <li><a href="#lidar">LiDAR</a></li>
+                    <li><a href="#camera">Camera</a></li>
+                    <li><a href="#uwb">UWB</a></li>
+                    <li><a href="#optflow">Optical Flow</a></li>
+                </ul>
+            </li>
+            <li><a href="#section3">Section 3: Compute</a>
+                <ul class="level-2">
+                    <li><a href="#flightcontroller">Flight Controller</a></li>
+                    <li><a href="#companion">Companion Computer</a></li>
+                    <li><a href="#architecture">Architecture</a></li>
+                </ul>
+            </li>
+            <li><a href="#section4">Section 4: Communication</a>
+                <ul class="level-2">
+                    <li><a href="#rc">RC</a></li>
+                    <li><a href="#telemetry">Telemetry</a></li>
+                    <li><a href="#wifi">WiFi</a></li>
+                    <li><a href="#xbee">Zigbee</a></li>
+                </ul>
+            </li>
+            <li><a href="#section5">Section 5: Tools</a></li>
+            <li><a href="#section6">Section 6: Swarm Hardware</a></li>
+            <li><a href="#bom">BOM</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero -->
+        <div class="hero">
+            <h1>Part 4: Hardware & Electronics</h1>
+            <p><strong>Every component that makes a drone fly.</strong></p>
+            <p>From motors and sensors to compute platforms and communication hardware, this section breaks down the physical systems that enable swarm drones to perceive their environment, compute decisions, and execute synchronized flight.</p>
+        </div>
+
+        <!-- SECTION 1: DRONE ANATOMY -->
+        <section id="section1">
+            <h2>Section 1: Drone Anatomy — Every Part Explained</h2>
+            <p><strong>Why this matters for swarms:</strong> Every drone in your swarm must be mechanically identical to ensure predictable thrust, weight, and handling characteristics. A single mismatched motor or propeller creates inconsistency that cascades through formation control and synchronized maneuvers.</p>
+
+            <!-- FRAME -->
+            <h3 id="frame">1.1 Frame</h3>
+            <p>The frame is the skeletal structure that holds everything together. It determines the drone's weight, size, and mechanical stiffness.</p>
+
+            <h4>Materials</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Strength/Weight</th>
+                        <th>Cost</th>
+                        <th>Durability</th>
+                        <th>Swarm Use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Carbon Fiber</strong></td>
+                        <td>Excellent</td>
+                        <td>$$$</td>
+                        <td>High (brittle)</td>
+                        <td>Professional swarms</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Aluminum</strong></td>
+                        <td>Good</td>
+                        <td>$$</td>
+                        <td>Medium (bends)</td>
+                        <td>Budget swarms</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3D Printed (PETG)</strong></td>
+                        <td>Fair</td>
+                        <td>$</td>
+                        <td>Low (flexible)</td>
+                        <td>Custom prototypes</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Configurations</h4>
+            <ul>
+                <li><strong>Quadcopter (4 motors):</strong> Most common, simple control, no redundancy. Best for swarms where drones are expendable.</li>
+                <li><strong>Hexacopter (6 motors):</strong> Can lose one motor and still fly. More weight, more power consumption.</li>
+                <li><strong>Octocopter (8 motors):</strong> Heavy lift, extreme redundancy. Expensive, overkill for most swarms.</li>
+            </ul>
+
+            <h4>Size Classes</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Wheelbase</th>
+                        <th>Weight</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Nano</td>
+                        <td>&lt;100mm</td>
+                        <td>5-20g</td>
+                        <td>Crazyflie 2.1</td>
+                    </tr>
+                    <tr>
+                        <td>Micro</td>
+                        <td>100-250mm</td>
+                        <td>100-250g</td>
+                        <td>DJI Mini series</td>
+                    </tr>
+                    <tr>
+                        <td>Small</td>
+                        <td>250-500mm</td>
+                        <td>500g-1.5kg</td>
+                        <td>FPV Racing drones</td>
+                    </tr>
+                    <tr>
+                        <td>Medium</td>
+                        <td>500mm+</td>
+                        <td>1.5kg+</td>
+                        <td>Delivery drones</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Thrust-to-Weight Ratio</h4>
+            <p>Critical for swarm performance:</p>
+            <ul>
+                <li><strong>≥2:1</strong> = agile, responsive (racing, acrobatics)</li>
+                <li><strong>1-2:1</strong> = standard flight (formation, mapping)</li>
+                <li><strong>&lt;1:1</strong> = cannot hover (disaster)</li>
+            </ul>
+            <p>For synchronized swarms, target <strong>2-3:1</strong> to ensure all drones have identical acceleration and responsiveness.</p>
+
+            <div class="diagram">
+Quadcopter Frame Layout (Top View):
+
+        Motor 1 (Front-Left, CCW)
+              ↓
+        ┌─────────┐
+        │         │  Wheelbase (W)
+        │    FC   │
+        │         │
+        └─────────┘
+        ↑         ↑
+   Motor 4     Motor 2
+  (Rear-Left) (Front-Right)
+    (CW)        (CCW)
+
+        Motor 3 (Rear-Right, CW)
+            ↓
+
+Side View: Motor arms typically 5-15° down for stability
+            </div>
+
+            <div class="callout callout-pro">
+                <div class="callout-title">Pro Tip: Weight Budget</div>
+                <p>Build a weight breakdown for your frame design. In swarms, each drone should be ±10g of the target weight. Heavier drones consume more battery and fly slower; lighter ones may be underpowered. Use a precision scale during assembly.</p>
+            </div>
+
+            <!-- MOTORS -->
+            <h3 id="motors">1.2 Motors</h3>
+            <p>Brushless DC (BLDC) motors are the standard for drones. They're efficient, durable, and controllable.</p>
+
+            <h4>Key Specifications</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Spec</th>
+                        <th>Definition</th>
+                        <th>Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>KV Rating</strong></td>
+                        <td>RPM per volt</td>
+                        <td>Higher KV = faster, less torque. Lower KV = slower, more torque.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stator Size</strong></td>
+                        <td>2205 = 22mm diameter, 5mm height</td>
+                        <td>Larger stator = more torque. Smaller = lighter, faster.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Max Current (A)</strong></td>
+                        <td>Continuous & burst limits</td>
+                        <td>Must not exceed ESC current rating.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Weight</strong></td>
+                        <td>Grams</td>
+                        <td>Larger motors = heavier. 4× motors per drone!</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>KV Selection Guide</h4>
+            <ul>
+                <li><strong>Low KV (450-900)</strong>: Large props, heavy drones, slow but efficient. Endurance flights.</li>
+                <li><strong>Medium KV (1200-2300):</strong> Balanced. Most swarms use 1500-2000 KV.</li>
+                <li><strong>High KV (2500+):</strong> Small props, light drones, fast but power-hungry. Racing.</li>
+            </ul>
+
+            <div class="callout callout-app">
+                <div class="callout-title">Swarm Application</div>
+                <p>For a 10-drone swarm, buy <strong>5 spare motors</strong> (50% spare). Motors fail from stress/bearing wear. Stock the same KV/size for all drones—don't mix motor types in your swarm.</p>
+            </div>
+
+            <!-- PROPELLERS -->
+            <h3 id="propellers">1.3 Propellers</h3>
+            <p>Propellers convert motor rotation into thrust. Mismatched or damaged props are the #1 cause of swarm instability.</p>
+
+            <h4>Propeller Specs</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Definition</th>
+                        <th>Example: 10×4.5</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Diameter</strong></td>
+                        <td>Inches (side-to-side)</td>
+                        <td>10 inches = 25.4cm</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pitch</strong></td>
+                        <td>Distance traveled per revolution</td>
+                        <td>4.5 inches per rotation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Material</strong></td>
+                        <td>Plastic, carbon fiber, wood</td>
+                        <td>Plastic for training, CF for efficiency</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rotation</strong></td>
+                        <td>CW or CCW</td>
+                        <td>Must pair correctly to cancel torque</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Thrust vs. Diameter & Pitch</h4>
+            <ul>
+                <li><strong>Larger diameter:</strong> More thrust at lower RPM. More efficient, less noise.</li>
+                <li><strong>Higher pitch:</strong> More thrust at higher RPM. Faster but power-hungry.</li>
+            </ul>
+
+            <div class="diagram">
+Propeller Orientation (Top View):
+
+        Prop 1 (CCW)          Prop 2 (CW)
+             ↺                    ↻
+        ┌─────────────────────────┐
+        │                         │
+        │     Creates lift        │  Torque cancels
+        │     Upward thrust       │
+        │                         │
+        └─────────────────────────┘
+             ↻                    ↺
+        Prop 4 (CW)          Prop 3 (CCW)
+            </div>
+
+            <div class="callout callout-pro">
+                <div class="callout-title">Pro Tip: Propeller Inspection</div>
+                <p>Before every flight, inspect all propellers for cracks, warping, or dents. A damaged prop creates vibration that destabilizes the entire swarm. Keep 20+ spare props per drone—they break constantly during training.</p>
+            </div>
+
+            <!-- ESC -->
+            <h3 id="esc">1.4 Electronic Speed Controller (ESC)</h3>
+            <p>The ESC converts the flight controller's PWM signal into 3-phase AC current to drive the BLDC motor. Without an ESC, motors can't receive commands.</p>
+
+            <h4>ESC Specifications</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Spec</th>
+                        <th>What It Means</th>
+                        <th>Importance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Current Rating (A)</strong></td>
+                        <td>Max continuous & burst current</td>
+                        <td><strong>Critical:</strong> Must exceed motor peak current by 20%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Protocol</strong></td>
+                        <td>PWM, OneShot, DShot (digital)</td>
+                        <td>DShot (600/1200) = no calibration, faster response</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LiPo Cell Count</strong></td>
+                        <td>3S (11.1V), 4S (14.8V), 6S (22.2V)</td>
+                        <td>Must match your battery voltage</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BLHeli Firmware</strong></td>
+                        <td>Open-source ESC firmware</td>
+                        <td>Allows tuning, debugging, & updates via USB</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>4-in-1 vs. Individual ESCs</h4>
+            <div class="spec-card">
+                <h4>4-in-1 ESC (Integrated)</h4>
+                <ul>
+                    <li>All 4 ESCs on one board</li>
+                    <li>Saves weight: 1 board instead of 4</li>
+                    <li>Single point of failure: broken board = unflying drone</li>
+                    <li>Best for: small swarm drones, space-constrained designs</li>
+                </ul>
+            </div>
+
+            <div class="spec-card">
+                <h4>Individual ESCs</h4>
+                <ul>
+                    <li>4 separate ESCs mounted on frame arms</li>
+                    <li>One failed ESC = one motor down (hexacopter can survive)</li>
+                    <li>Harder to wire, heavier total weight</li>
+                    <li>Best for: larger drones, redundancy-critical swarms</li>
+                </ul>
+            </div>
+
+            <div class="callout callout-analogy">
+                <div class="callout-title">Real-World Analogy</div>
+                <p>Think of the ESC as a dimmer switch. The flight controller says "spin to 30% power," and the ESC modulates the voltage/frequency to achieve exactly that rotation speed. No ESC = motor gets raw battery voltage and spins uncontrollably.</p>
+            </div>
+
+            <!-- BATTERY -->
+            <h3 id="battery">1.5 Battery (LiPo)</h3>
+            <p>Lithium-Polymer batteries dominate drone propulsion. They're high energy density but require careful handling to prevent fire.</p>
+
+            <h4>LiPo Naming Convention</h4>
+            <p><strong>Example: 4S 1500mAh 100C LiPo</strong></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Meaning</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Cell Count (S)</strong></td>
+                        <td>Nominal voltage = S × 3.7V</td>
+                        <td>4S = 14.8V nominal, 16.8V full, 12V depleted</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capacity (mAh)</strong></td>
+                        <td>Energy storage (milliamp-hours)</td>
+                        <td>1500mAh = 1.5Ah. 5000mAh = endurance</td>
+                    </tr>
+                    <tr>
+                        <td><strong>C-Rating</strong></td>
+                        <td>Discharge multiplier</td>
+                        <td>100C × 1500mAh = 150A max burst</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Max Discharge</strong></td>
+                        <td>C × mAh (amps)</td>
+                        <td>1500mAh 100C = max 150A draw</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Flight Time Estimation</h4>
+            <p><strong>Formula: Flight Time (min) = Capacity (mAh) / Average Current (mA) × 60</strong></p>
+            <p>Example: 1500mAh battery, average draw 20A (20,000 mA) → 1500 / 20,000 × 60 = 4.5 minutes</p>
+
+            <div class="diagram">
+Voltage Discharge Curve (4S LiPo):
+
+Voltage (V)
+   16.8V ├─ Fully charged (dangerous zone!)
+         │
+   14.8V ├────●────●────●────●
+         │     ╲    ╲    ╲    ╲  Good flight region
+   13.0V ├─────●────●────●────●──○
+         │            ╲   ╲    ╲ ╱
+   12.0V ├──────────────●──●────●  Alarm threshold
+         │                   ╲ ╱
+   11.1V ├──────────────────●  Minimum safe (3.0V/cell)
+         │
+         └─ Time / Capacity Consumed (%)
+
+   Never discharge below 3.0V per cell!
+            </div>
+
+            <h4>Swarm Battery Strategy</h4>
+            <ul>
+                <li><strong>Identical batteries:</strong> All drones in the swarm should use the same capacity, voltage, and C-rating for synchronized flight times.</li>
+                <li><strong>Battery rotation:</strong> Each drone carries 2 batteries. Land, swap, launch. Maximize swarm uptime.</li>
+                <li><strong>Storage voltage:</strong> Store LiPos at 3.8-3.85V per cell (~60% charge). Prevents capacity loss.</li>
+                <li><strong>Fire prevention:</strong> Charge in a LiPo-safe bag. Never leave batteries charging unattended.</li>
+            </ul>
+
+            <div class="callout callout-pro">
+                <div class="callout-title">Pro Tip: Battery Labeling</div>
+                <p>Mark each battery with a cycle count and date. Track capacity degradation with a discharge tester. When a battery drops below 85% of rated capacity, retire it. Degraded batteries become safety risks.</p>
+            </div>
+
+            <!-- POWER DISTRIBUTION -->
+            <h3 id="pdb">1.6 Power Distribution Board (PDB)</h3>
+            <p>The PDB is the electrical hub. It takes battery power in and distributes it to ESCs, flight controller, and accessories.</p>
+
+            <h4>PDB Features</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Purpose</th>
+                        <th>Required?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Power Rails</strong></td>
+                        <td>Distribute unregulated battery voltage to ESCs</td>
+                        <td>Yes (essential)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5V Regulator</strong></td>
+                        <td>Step down to 5V for flight controller & receiver</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>12V Boost (optional)</strong></td>
+                        <td>Supply 12V for LED, cameras, accessories</td>
+                        <td>Optional (nice-to-have)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Current Sensor</strong></td>
+                        <td>Measure real-time current draw for battery monitoring</td>
+                        <td>Optional (useful for endurance flights)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout callout-pro">
+                <div class="callout-title">Pro Tip: Capacitor on PDB</div>
+                <p>Many PDBs include a large capacitor (470µF–2200µF) to smooth voltage spikes when ESCs switch. This reduces voltage dips during aggressive maneuvers. Ensure the cap is rated for your battery voltage (6S = 22.2V peak).</p>
+            </div>
+
+        </section>
+
+        <!-- SECTION 2: SENSORS -->
+        <section id="section2">
+            <h2>Section 2: Sensors — The Drone's Senses</h2>
+            <p><strong>Why this matters for swarms:</strong> Sensors are how drones perceive position, orientation, velocity, altitude, and obstacles. Inconsistent sensor quality across your swarm creates position estimate drift, which breaks formation control. Every drone must have the same sensor package and calibration.</p>
+
+            <!-- IMU -->
+            <h3 id="imu">2.1 IMU (Inertial Measurement Unit)</h3>
+            <p>The IMU is the core sensor for flight stabilization. It measures acceleration and angular velocity at 1-8 kHz, enabling tight feedback loops.</p>
+
+            <h4>IMU Grades</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Sensors</th>
+                        <th>Use Case</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>6-DOF</strong></td>
+                        <td>3-axis accel + 3-axis gyro</td>
+                        <td>Stabilization, basic flight</td>
+                        <td>$5-15</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9-DOF</strong></td>
+                        <td>+ 3-axis magnetometer</td>
+                        <td>Heading reference, yaw hold</td>
+                        <td>$15-30</td>
+                    </tr>
+                    <tr>
+                        <td><strong>10-DOF</strong></td>
+                        <td>+ barometer</td>
+                        <td>Altitude hold, pressure trending</td>
+                        <td>$20-40</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Common IMU Chips</h4>
+            <ul>
+                <li><strong>MPU6050:</strong> Classic, cheap, noisy. Learning projects.</li>
+                <li><strong>ICM20689:</strong> Better noise floor, 8kHz sampling. Racing drones.</li>
+                <li><strong>BMI270:</strong> High-precision, low drift. Professional drones.</li>
+            </ul>
+
+            <h4>Key Parameters</h4>
+            <ul>
+                <li><strong>Sampling Rate:</strong> 1-8 kHz. Higher = tighter control but more CPU load. Typical: 1-4 kHz.</li>
+                <li><strong>Noise Density:</strong> Lower is better. Look for &lt;100 µg/√Hz for accelerometers, &lt;0.05°/s/√Hz for gyros.</li>
+                <li><strong>Bias Drift:</strong> Angular velocity bias changes with temperature. Causes yaw drift. Mitigated by EKF (Extended Kalman Filter).</li>
+            </ul>
+
+            <div class="callout callout-analogy">
+                <div class="callout-title">Real-World Analogy</div>
+                <p>The IMU is like your inner ear (vestibular system). It senses acceleration and rotation in real-time, letting you balance without looking. Raw IMU data is noisy (like feeling tipsy), so the flight controller filters it through an EKF to get a clean signal.</p>
+            </div>
+
+            <!-- BAROMETER -->
+            <h3 id="barometer">2.2 Barometer</h3>
+            <p>Atmospheric pressure drops predictably with altitude. A barometer provides a vertical reference independent of GPS.</p>
+
+            <h4>Barometer Specs</h4>
+            <ul>
+                <li><strong>Accuracy:</strong> ±0.1 hPa (≈ ±1 meter altitude)</li>
+                <li><strong>Resolution:</strong> 1 Pa (≈ 8cm)</li>
+                <li><strong>Sample Rate:</strong> 50-100 Hz</li>
+                <li><strong>Limitations:</strong> Affected by wind, temperature variations, nearby heat sources</li>
+            </ul>
+
+            <h4>Use in Swarms</h4>
+            <ul>
+                <li>Altitude hold: maintain constant height during formation flight</li>
+                <li>GPS-denied regions: barometer provides vertical control when GPS is unavailable</li>
+                <li>Vertical takeoff calibration: establish starting altitude baseline</li>
+            </ul>
+
+            <div class="callout callout-pro">
+                <div class="callout-title">Pro Tip: Barometer Drift</div>
+                <p>Barometers drift with temperature and weather changes. Recalibrate the pressure baseline every 30 minutes during long flights. In a swarm, sync all drones' altimeter baselines before launching formation.</p>
+            </div>
+
+            <!-- GPS -->
+            <h3 id="gps">2.3 GPS & RTK GPS</h3>
+            <p>GPS triangulation from satellites is essential for outdoor swarms. RTK (Real-Time Kinematic) GPS provides cm-level accuracy for precise formations.</p>
+
+            <h4>Standard GPS</h4>
+            <ul>
+                <li><strong>Accuracy:</strong> 2-5 meters (civilian, standard)</li>
+                <li><strong>Update Rate:</strong> 5-20 Hz</li>
+                <li><strong>Acquisition Time:</strong> 30-60 seconds cold start, 5-10 seconds warm start</li>
+                <li><strong>Limitations:</strong> Multipath (urban canyons), atmospheric delay, satellite geometry</li>
+                <li><strong>Cost:</strong> $20-100</li>
+            </ul>
+
+            <h4>RTK GPS</h4>
+            <ul>
+                <li><strong>Accuracy:</strong> 2cm horizontal, 3cm vertical (with base station)</li>
+                <li><strong>How it works:</strong> Drone + ground-based reference station both track satellites. Compare carrier-phase measurements to eliminate atmospheric errors.</li>
+                <li><strong>Requirements:</strong> Base station (fixed or local), correction radio link or internet</li>
+                <li><strong>Cost:</strong> $200-600 per drone + $500-2000 base station</li>
+                <li><strong>Latency:</strong> 5-50ms (critical for real-time swarm control)</li>
+            </ul>
+
+            <h4>GPS-Denied Alternatives</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Accuracy</th>
+                        <th>Environment</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Ultra-Wideband (UWB)</strong></td>
+                        <td>10cm-1m</td>
+                        <td>Indoor/dense urban</td>
+                        <td>$100-300 per drone + anchors</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Motion Capture</strong></td>
+                        <td>1-5mm</td>
+                        <td>Indoor (lab)</td>
+                        <td>$50k-200k system</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Visual SLAM</strong></td>
+                        <td>5-50cm</td>
+                        <td>Indoor/outdoor with features</td>
+                        <td>Embedded on drone</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout callout-app">
+                <div class="callout-title">Swarm Application: RTK Formations</div>
+                <p>For precise outdoor swarms (>10 drones), RTK GPS enables cm-level formation stability. Each drone carries an RTK receiver. A single base station on the ground corrects all drones simultaneously. Total cost ≈ 10 × $300 + $1000 base = $4000.</p>
+            </div>
+
+            <!-- MAGNETOMETER -->
+            <h3 id="magnetometer">2.4 Magnetometer (Compass)</h3>
+            <p>Measures Earth's magnetic field to establish absolute heading/yaw reference.</p>
+
+            <h4>Magnetometer Use</h4>
+            <ul>
+                <li><strong>Yaw initialization:</strong> Figure-out drone heading at startup</li>
+                <li><strong>Heading hold:</strong> Resist drift of gyroscope yaw estimate</li>
+                <li><strong>EKF heading aiding:</strong> Fusion of mag + gyro for accurate heading</li>
+            </ul>
+
+            <h4>Problems & Solutions</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Problem</th>
+                        <th>Cause</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Magnetic interference</td>
+                        <td>ESCs, motors, battery create local fields</td>
+                        <td>Mount mag away from electronics; calibrate on-site</td>
+                    </tr>
+                    <tr>
+                        <td>Heading oscillation</td>
+                        <td>Poor calibration, low confidence</td>
+                        <td>Figure-8 calibration at flying location</td>
+                    </tr>
+                    <tr>
+                        <td>Yaw drift</td>
+                        <td>Mag disabled due to interference</td>
+                        <td>Gyro-only yaw (acceptable for short flights)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout callout-pro">
+                <div class="callout-title">Pro Tip: Swarm Compass Calibration</div>
+                <p>Calibrate the magnetometer at your flying location before every session. Magnetic interference varies by location. Do a slow figure-8 rotation 5 meters away from metal structures and power lines.</p>
+            </div>
+
+            <!-- LIDAR -->
+            <h3 id="lidar">2.5 LiDAR (Light Detection & Ranging)</h3>
+            <p>LiDAR uses laser pulses to measure distance to objects. Essential for obstacle avoidance and autonomous mapping in swarms.</p>
+
+            <h4>LiDAR Types</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Measurement</th>
+                        <th>Range</th>
+                        <th>Update</th>
+                        <th>Weight</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1D (TFMini)</strong></td>
+                        <td>Single-point distance</td>
+                        <td>0.3-12m</td>
+                        <td>100 Hz</td>
+                        <td>5g</td>
+                        <td>$40</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2D (RPLidar A1)</strong></td>
+                        <td>360° scan</td>
+                        <td>0.15-12m</td>
+                        <td>10 Hz</td>
+                        <td>170g</td>
+                        <td>$99</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3D (Velodyne)</strong></td>
+                        <td>3D point cloud</td>
+                        <td>0.5-100m</td>
+                        <td>10 Hz</td>
+                        <td>900g</td>
+                        <td>$5000</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Swarm LiDAR Strategy</h4>
+            <ul>
+                <li><strong>Lightweight swarms:</strong> Use 1D downward-facing LiDAR for altitude fallback & ground distance</li>
+                <li><strong>Obstacle-dense environments:</strong> 2D LiDAR for fast obstacle mapping and avoidance</li>
+                <li><strong>Large swarms:</strong> Centralized mapping (one drone or ground station processes LiDAR) to reduce per-drone computation</li>
+            </ul>
+
+            <div class="callout callout-analogy">
+                <div class="callout-title">Real-World Analogy</div>
+                <p>1D LiDAR = reading a range finder (distance to wall ahead). 2D LiDAR = sonar scan (full circle). 3D LiDAR = seeing in 3D like human eyes. Higher dimension = more info but more power and weight.</p>
+            </div>
+
+            <!-- CAMERA -->
+            <h3 id="camera">2.6 Camera Systems</h3>
+            <p>Cameras enable visual navigation, object detection, tracking, and mapping. The choice depends on your swarm mission.</p>
+
+            <h4>Camera Types & Tradeoffs</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Sensors</th>
+                        <th>Use</th>
+                        <th>Weight</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Monocular</strong></td>
+                        <td>Single RGB camera</td>
+                        <td>Visual odometry, detection, 2D tracking</td>
+                        <td>10-50g</td>
+                        <td>$20-100</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stereo</strong></td>
+                        <td>Two synchronized cameras</td>
+                        <td>3D reconstruction, depth estimation, obstacle detection</td>
+                        <td>50-150g</td>
+                        <td>$100-300</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RGB-D</strong></td>
+                        <td>Color + depth sensor (IR projector + detector)</td>
+                        <td>Real-time 3D mapping, close-range object detection</td>
+                        <td>100-200g</td>
+                        <td>$150-400</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Thermal (FLIR)</strong></td>
+                        <td>Infrared only</td>
+                        <td>Night search & rescue, heat detection</td>
+                        <td>50-100g</td>
+                        <td>$500-2000</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>FOV (Field of View)</h4>
+            <ul>
+                <li><strong>Standard (50-90°):</strong> Balanced for navigation & tracking</li>
+                <li><strong>Wide/Fisheye (120-160°):</strong> More scene context, SLAM works better</li>
+                <li><strong>Narrow (20-40°):</strong> Telephoto, good for tracking distant objects</li>
+            </ul>
+
+            <h4>For Swarms: Downward-Facing vs. Forward-Facing</h4>
+            <div class="spec-card">
+                <h4>Downward-Facing</h4>
+                <ul>
+                    <li>Optical flow for velocity estimation (no GPS)</li>
+                    <li>Ground texture for visual odometry</li>
+                    <li>Works at very low altitude</li>
+                </ul>
+            </div>
+
+            <div class="spec-card">
+                <h4>Forward-Facing</h4>
+                <ul>
+                    <li>Obstacle detection for avoidance</li>
+                    <li>Target detection & tracking</li>
+                    <li>Situational awareness for swarms</li>
+                </ul>
+            </div>
+
+            <!-- UWB -->
+            <h3 id="uwb">2.7 Ultra-Wideband (UWB)</h3>
+            <p>UWB provides indoor positioning at cm-level accuracy. Essential for indoor swarms where GPS is unavailable.</p>
+
+            <h4>UWB Positioning Basics</h4>
+            <ul>
+                <li><strong>Principle:</strong> Time-of-flight (ToF) measurement from 4+ fixed anchors</li>
+                <li><strong>Accuracy:</strong> 10cm-1m depending on LoS and multipath</li>
+                <li><strong>Range:</strong> 50-100m outdoor, 10-50m indoor</li>
+                <li><strong>Latency:</strong> 10-100ms (suitable for swarm control)</li>
+            </ul>
+
+            <h4>Practical Setup</h4>
+            <ul>
+                <li>Mount 4+ anchors (stationary, known positions) around flying space</li>
+                <li>Each drone carries a UWB tag receiver (DW1000/DW3000)</li>
+                <li>Tag broadcasts range requests; anchors respond with their location</li>
+                <li>Drone computes 3D position via trilateration</li>
+            </ul>
+
+            <h4>UWB Chip Options</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Chip</th>
+                        <th>Frequency</th>
+                        <th>Power</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>DW1000</td>
+                        <td>3.5-6.5 GHz</td>
+                        <td>80mW peak</td>
+                        <td>$40</td>
+                    </tr>
+                    <tr>
+                        <td>DW3000</td>
+                        <td>3.5-6.5 GHz</td>
+                        <td>50mW peak</td>
+                        <td>$60</td>
+                    </tr>
+                    <tr>
+                        <td>Crazyflie Loco</td>
+                        <td>DW1000-based</td>
+                        <td>Integrated package</td>
+                        <td>$50-100 per unit</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout callout-app">
+                <div class="callout-title">Indoor Swarm Example: Crazyflie + Loco Positioning</div>
+                <p>The Crazyflie 2.1 is a popular nano-quadcopter (10cm) with integrated UWB support. Mount 8 Loco anchors around a 20m×20m room. Each Crazyflie (~50g) carries a tag, providing cm-level position estimates at 10 Hz. Perfect for 5-10 drone swarms indoors.</p>
+            </div>
+
+            <!-- OPTICAL FLOW -->
+            <h3 id="optflow">2.8 Optical Flow</h3>
+            <p>Optical flow sensors track texture movement on the ground to estimate drone velocity—no GPS needed.</p>
+
+            <h4>How It Works</h4>
+            <ul>
+                <li><strong>Downward-facing camera</strong> (or dedicated sensor) tracks pixels</li>
+                <li><strong>Image correlation:</strong> Compare consecutive frames to estimate motion</li>
+                <li><strong>Velocity estimate:</strong> Pixel displacement × altitude = XY velocity</li>
+                <li><strong>Requirements:</strong> Textured ground (not blank white), altitude &lt;5m, good lighting</li>
+            </ul>
+
+            <h4>Optical Flow Sensors</h4>
+            <ul>
+                <li><strong>PMW3901:</strong> Dedicated 35×35 pixel sensor, very cheap ($5-15), 100 Hz</li>
+                <li><strong>Camera-based:</strong> Standard RGB camera with software processing, better FOV</li>
+            </ul>
+
+            <h4>Swarm Use: GPS-Denied Indoors</h4>
+            <ul>
+                <li>Pair optical flow with barometer for altitude hold</li>
+                <li>Use UWB for absolute position; optical flow for between-anchor velocity</li>
+                <li>Requires textured floor (carpet, checkerboard pattern), not polished wood or concrete</li>
+            </ul>
+
+            <div class="callout callout-pro">
+                <div class="callout-title">Pro Tip: Optical Flow Calibration</div>
+                <p>Optical flow estimates vary with ground texture and lighting. Calibrate in your specific flying environment. A featureless white room will cause complete failure—add patterns or use it only on textured floors.</p>
+            </div>
+
+        </section>
+
+        <!-- SECTION 3: COMPUTE PLATFORMS -->
+        <section id="section3">
+            <h2>Section 3: Compute Platforms — The Drone's Brain</h2>
+            <p><strong>Why this matters for swarms:</strong> Drones have a two-tier compute architecture: a real-time flight controller handles motor control, and a companion computer handles AI, planning, and inter-drone communication. Standardizing both tiers ensures all swarm drones behave identically.</p>
+
+            <!-- FLIGHT CONTROLLER -->
+            <h3 id="flightcontroller">3.1 Flight Controller (Low-Level Control)</h3>
+            <p>The flight controller runs at 1-4 kHz, reading IMU/sensors and commanding motors. It's the drone's spinal cord.</p>
+
+            <h4>Flight Controller Comparison</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Controller</th>
+                        <th>Processor</th>
+                        <th>Clock</th>
+                        <th>Sensors</th>
+                        <th>Price</th>
+                        <th>Swarm Suit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Pixhawk 4</strong></td>
+                        <td>STM32F7</td>
+                        <td>216 MHz</td>
+                        <td>IMU, Baro, Compass, SD</td>
+                        <td>$100</td>
+                        <td>Excellent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pixhawk 6C</strong></td>
+                        <td>STM32H7</td>
+                        <td>480 MHz</td>
+                        <td>Dual IMU, Baro, Compass</td>
+                        <td>$150</td>
+                        <td>Excellent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Kakute H7</strong></td>
+                        <td>STM32H7</td>
+                        <td>480 MHz</td>
+                        <td>Integrated ESC support</td>
+                        <td>$80</td>
+                        <td>Good (FPV racing)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cube Orange</strong></td>
+                        <td>STM32H7</td>
+                        <td>480 MHz</td>
+                        <td>Modular, redundant</td>
+                        <td>$200</td>
+                        <td>Professional</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Flight Controller Firmware</h4>
+            <ul>
+                <li><strong>PX4:</strong> Open-source, modular, excellent for research/swarms</li>
+                <li><strong>ArduPilot:</strong> Feature-rich, large community, stable</li>
+                <li><strong>Betaflight:</strong> FPV racing, not ideal for precise formation control</li>
+            </ul>
+
+            <h4>Real-Time Control Loop</h4>
+            <div class="diagram">
+Flight Controller Main Loop (1 kHz):
+
+┌─────────────────────────────────────┐
+│ 1. Read IMU (accel + gyro)          │ ← 1 ms
+│ 2. Sensor fusion (EKF)              │
+│ 3. Attitude estimation              │
+│ 4. Run attitude controller           │
+│ 5. Compute motor commands (PWM)     │
+│ 6. Send to ESCs                     │
+└─────────────────────────────────────┘
+        ↓ (repeat)
+   Total latency: ~2-5 ms
+
+   Fast enough for manual flight,
+   but companion computer adds
+   10-100 ms for perception.
+            </div>
+
+            <!-- COMPANION COMPUTER -->
+            <h3 id="companion">3.2 Companion Computer (High-Level Compute)</h3>
+            <p>A companion computer (Raspberry Pi, Jetson, etc.) runs on the drone alongside the flight controller. It handles AI, planning, and swarm coordination.</p>
+
+            <h4>Companion Computer Options</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>CPU/GPU</th>
+                        <th>Power Draw</th>
+                        <th>Weight</th>
+                        <th>Cost</th>
+                        <th>AI Capability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>RPi 4 Model B</strong></td>
+                        <td>BCM2711 (4-core ARM)</td>
+                        <td>3-5W</td>
+                        <td>50g</td>
+                        <td>$75</td>
+                        <td>Basic (TensorFlow Lite)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RPi 5</strong></td>
+                        <td>BCM2712 (4-core ARM)</td>
+                        <td>5-10W</td>
+                        <td>55g</td>
+                        <td>$80</td>
+                        <td>Improved (faster inference)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Jetson Nano</strong></td>
+                        <td>ARM + 128 CUDA cores</td>
+                        <td>5W idle, 10W load</td>
+                        <td>65g</td>
+                        <td>$99</td>
+                        <td>Good (20-40 TOPS)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Jetson Xavier NX</strong></td>
+                        <td>ARM + 384 CUDA cores</td>
+                        <td>10W idle, 20W load</td>
+                        <td>70g</td>
+                        <td>$250</td>
+                        <td>Excellent (20 TFLOPS)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Jetson Orin Nano</strong></td>
+                        <td>ARM + 1024 CUDA cores</td>
+                        <td>5W idle, 15W load</td>
+                        <td>80g</td>
+                        <td>$200</td>
+                        <td>Excellent (40 TOPS)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Power Budget</h4>
+            <p>A 5000mAh 4S LiPo battery (14.8V, 74Wh) powering a drone with:</p>
+            <ul>
+                <li>4× 25A motors @ 50% throttle = 50W</li>
+                <li>Flight controller = 2W</li>
+                <li>Jetson Nano = 10W</li>
+                <li><strong>Total: 62W → ~1.2 hours flight time</strong></li>
+            </ul>
+
+            <h4>Jetson vs. Raspberry Pi for Swarms</h4>
+            <div class="spec-card">
+                <h4>Raspberry Pi 4/5</h4>
+                <ul>
+                    <li>Cost: cheap ($75)</li>
+                    <li>Community: huge (most tutorials)</li>
+                    <li>GPU: no hardware acceleration</li>
+                    <li>Best for: vision processing, ROS, basic swarm coordination</li>
+                </ul>
+            </div>
+
+            <div class="spec-card">
+                <h4>Jetson Nano / Orin Nano</h4>
+                <ul>
+                    <li>Cost: moderate ($99-200)</li>
+                    <li>GPU: NVIDIA CUDA (neural networks, parallel compute)</li>
+                    <li>Best for: real-time object detection, swarm AI, autonomous decision-making</li>
+                </ul>
+            </div>
+
+            <!-- ARCHITECTURE -->
+            <h3 id="architecture">3.3 Flight Controller + Companion Architecture</h3>
+            <p>The two-tier compute model separates real-time control from high-level planning.</p>
+
+            <div class="diagram">
+Swarm Drone Compute Architecture:
+
+┌────────────────────────────────────────────┐
+│      Companion Computer (Jetson Nano)      │
+│  - ROS / custom software                   │
+│  - Object detection, tracking              │
+│  - Path planning, swarm coordination       │
+│  - Runs at 10-30 Hz                        │
+│                                            │
+│  Inter-drone comms (WiFi/UWB/XBee)        │
+│  ↓ (sends target positions @ 10Hz)        │
+└────────────────────────────────────────────┘
+         ↓ UART/MAVROS Bridge
+┌────────────────────────────────────────────┐
+│   Flight Controller (Pixhawk / STM32H7)    │
+│  - PX4 / ArduPilot firmware                │
+│  - Sensor fusion (EKF)                     │
+│  - Motor control loop (1 kHz)              │
+│  - Stabilization (no thinking needed)      │
+└────────────────────────────────────────────┘
+         ↓ PWM/DShot to ESCs
+┌─────────────────────────────────────────────┐
+│   4× ESCs + Motors                         │
+└─────────────────────────────────────────────┘
+
+Latency Budget:
+- Companion decision: 50-100 ms
+- MAVROS transmission: 2-5 ms
+- FC processing + motor update: 2-5 ms
+- Total: 54-110 ms (safe for formation control)
+            </div>
+
+            <h4>Communication Between FC & Companion</h4>
+            <ul>
+                <li><strong>Serial (UART):</strong> 57,600-500,000 baud. Standard MAVLINK protocol. Simple, reliable.</li>
+                <li><strong>MAVROS (ROS middleware):</strong> Provides publish-subscribe interface to flight controller. Ideal for swarm coordination.</li>
+                <li><strong>SDK (e.g., Dronekit-Python):</strong> Python API for drone control. Good for rapid prototyping.</li>
+            </ul>
+
+            <div class="callout callout-analogy">
+                <div class="callout-title">Real-World Analogy</div>
+                <p>The flight controller is like your spinal cord + brainstem: handles reflexes (stability, balance) at high speed. The companion computer is like your cerebral cortex: slow but clever (planning, reasoning, communication). They talk via the MAVLINK protocol, which is like your corpus callosum.</p>
+            </div>
+
+        </section>
+
+        <!-- SECTION 4: COMMUNICATION -->
+        <section id="section4">
+            <h2>Section 4: Communication Hardware</h2>
+            <p><strong>Why this matters for swarms:</strong> Drones must communicate with ground control, each other, and stay under manual override. Reliable comms are critical for safety and swarm coordination.</p>
+
+            <!-- RC -->
+            <h3 id="rc">4.1 Radio Control (RC)</h3>
+            <p>RC receivers allow manual pilot override. Non-negotiable safety feature.</p>
+
+            <h4>RC Transmitter/Receiver Specs</h4>
+            <ul>
+                <li><strong>Frequency:</strong> 2.4 GHz (universal, license-free in most countries)</li>
+                <li><strong>Channels:</strong> 4-16 channels (throttle, pitch, roll, yaw, + aux switches)</li>
+                <li><strong>Range:</strong> 1-40 km depending on antenna and power</li>
+                <li><strong>Protocols:</strong> SBUS, PPM, CRSF (Crossfire, newer)</li>
+            </ul>
+
+            <h4>Popular RC Systems for Swarms</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>System</th>
+                        <th>Protocol</th>
+                        <th>Range</th>
+                        <th>Latency</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Taranis X9D + X4R</td>
+                        <td>SBUS</td>
+                        <td>1-2 km</td>
+                        <td>7 ms</td>
+                        <td>$250</td>
+                    </tr>
+                    <tr>
+                        <td>Crossfire Transmitter + Receiver</td>
+                        <td>CRSF</td>
+                        <td>40 km</td>
+                        <td>7 ms</td>
+                        <td>$300</td>
+                    </tr>
+                    <tr>
+                        <td>FrSky Taranis QX7</td>
+                        <td>SBUS/D16</td>
+                        <td>1-2 km</td>
+                        <td>7 ms</td>
+                        <td>$200</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- TELEMETRY -->
+            <h3 id="telemetry">4.2 Telemetry Radios</h3>
+            <p>Telemetry radios send drone data (GPS, battery, attitude) back to ground control and allow command injection.</p>
+
+            <h4>SiK Radios (Popular for Drones)</h4>
+            <ul>
+                <li><strong>Frequency:</strong> 433 MHz or 915 MHz (region-dependent)</li>
+                <li><strong>Range:</strong> 1-2 km line-of-sight (can extend to 5km with external antennas)</li>
+                <li><strong>Bandwidth:</strong> 57,600 baud (sufficient for MAVLINK telemetry)</li>
+                <li><strong>Latency:</strong> 10-50 ms</li>
+                <li><strong>Cost:</strong> $30-60 per pair (drone + ground)</li>
+            </ul>
+
+            <h4>Telemetry Protocol: MAVLink</h4>
+            <ul>
+                <li><strong>Micro Aerial Vehicle Link:</strong> Standardized binary protocol for drone communication</li>
+                <li><strong>Heartbeat:</strong> Regular drone status broadcasts (GPS, battery, attitude)</li>
+                <li><strong>Command injection:</strong> Ground station can send waypoints, mode changes, etc.</li>
+                <li><strong>Bandwidth efficient:</strong> ~50 bytes/sec for basic telemetry on 10 drones</li>
+            </ul>
+
+            <h4>Swarm Telemetry Strategy</h4>
+            <ul>
+                <li><strong>Single ground telemetry:</strong> Centralized receiver for all 10 drones' data</li>
+                <li><strong>Bandwidth sharing:</strong> Stagger telemetry updates (drone 1 @ 0ms, 2 @ 10ms, 3 @ 20ms...)</li>
+                <li><strong>Fallback:</strong> If telemetry lost, drones continue mission (autonomous)</li>
+            </ul>
+
+            <!-- WIFI -->
+            <h3 id="wifi">4.3 WiFi</h3>
+            <p>WiFi provides high bandwidth for real-time video/data transfer. Limited range but useful for indoor swarms.</p>
+
+            <h4>WiFi on Drones</h4>
+            <ul>
+                <li><strong>2.4 GHz vs. 5 GHz:</strong> 2.4 GHz better range, 5 GHz faster</li>
+                <li><strong>Power draw:</strong> 0.5-2W (significant)</li>
+                <li><strong>Range:</strong> 50-200m depending on environment and antenna</li>
+                <li><strong>Latency:</strong> 5-50ms (variable, affected by network congestion)</li>
+            </ul>
+
+            <h4>WiFi Mesh Networking</h4>
+            <ul>
+                <li>Drones act as WiFi relays, extending range</li>
+                <li>Drone A connects to ground, Drone B connects to Drone A</li>
+                <li>Seamless but adds latency (2× per hop)</li>
+                <li>Good for outdoor swarms covering large areas</li>
+            </ul>
+
+            <h4>WiFi Module: ESP32</h4>
+            <ul>
+                <li><strong>Cheap ($5):</strong> Popular for DIY swarms</li>
+                <li><strong>WiFi + Bluetooth:</strong> Dual radios for flexibility</li>
+                <li><strong>Power:</strong> 80-160 mA peak, can be powered from drone battery</li>
+                <li><strong>Limitations:</strong> Only ~100m range solo, not reliable for precise control</li>
+            </ul>
+
+            <div class="callout callout-app">
+                <div class="callout-title">WiFi Swarm Example: Indoor Mesh</div>
+                <p>10 Crazyflie drones, each with ESP32 WiFi module. Drones relay video + position data through the mesh. Ground station (laptop with WiFi adapter) monitors and commands all 10. Works within a building but adds 100+ ms latency (too high for tight formation control).</p>
+            </div>
+
+            <!-- XBEE -->
+            <h3 id="xbee">4.4 XBee / Zigbee Mesh</h3>
+            <p>Zigbee is a low-power mesh networking protocol. Perfect for inter-drone communication in dense swarms.</p>
+
+            <h4>Zigbee Specs</h4>
+            <ul>
+                <li><strong>Frequency:</strong> 2.4 GHz (same as WiFi/Bluetooth, shared spectrum)</li>
+                <li><strong>Range:</strong> 100m-1.5km depending on environment and antenna</li>
+                <li><strong>Bandwidth:</strong> 250 kbps (low, but sufficient for swarm coordination)</li>
+                <li><strong>Power:</strong> 10-100 mA (moderate)</li>
+                <li><strong>Topology:</strong> Mesh (automatic routing)</li>
+            </ul>
+
+            <h4>XBee Pro S2C (Popular)</h4>
+            <ul>
+                <li>20 dBm output power</li>
+                <li>1.6km range in open space</li>
+                <li>Self-healing mesh (if one node dies, others reroute)</li>
+                <li>Cost: $20-50 per module</li>
+            </ul>
+
+            <h4>Swarm Mesh Coordination Example</h4>
+            <ul>
+                <li>Drone 1 (leader): Broadcasts target formation via Zigbee</li>
+                <li>Drones 2-10 (followers): Receive message, update their local position targets</li>
+                <li>All drones maintain formation locally using on-board sensors (no centralized control)</li>
+                <li>If link drops: swarms continue on last known formation (autonomous)</li>
+            </ul>
+
+            <div class="callout callout-pro">
+                <div class="callout-title">Pro Tip: Swarm Communication Stack</div>
+                <p>Use SiK telemetry for ground control (reliable, low-latency), and Zigbee for inter-drone coordination (mesh, autonomous failover). This separates concerns: RC/ground ↔ drone, drone ↔ drone.</p>
+            </div>
+
+        </section>
+
+        <!-- SECTION 5: TOOLS -->
+        <section id="section5">
+            <h2>Section 5: Tools & Equipment</h2>
+            <p><strong>Why this matters for swarms:</strong> You'll build and maintain 10+ identical drones. Professional tools save time and prevent mistakes (bad solder joints, crossed wires, damaged components).</p>
+
+            <h3>5.1 Building Tools</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tool</th>
+                        <th>Purpose</th>
+                        <th>Cost</th>
+                        <th>Essential?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Soldering Station</strong></td>
+                        <td>Join wires to motors, ESCs, battery</td>
+                        <td>$40-200</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Digital Multimeter</strong></td>
+                        <td>Check voltage, current, continuity</td>
+                        <td>$20-80</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Heat Shrink Tubing</strong></td>
+                        <td>Waterproof and insulate joints</td>
+                        <td>$5</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Crimping Tool</strong></td>
+                        <td>Crimp JST/XT60 connectors</td>
+                        <td>$15-50</td>
+                        <td>Recommended</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wire Stripper</strong></td>
+                        <td>Strip insulation cleanly</td>
+                        <td>$10</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Oscilloscope</strong></td>
+                        <td>Debug signal issues (PWM, SPI, I2C)</td>
+                        <td>$100-500</td>
+                        <td>Optional (but helpful)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3D Printer</strong></td>
+                        <td>Custom mounts, brackets, sensor holders</td>
+                        <td>$200-600</td>
+                        <td>Very helpful for swarms</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>5.2 Testing Equipment</h3>
+            <ul>
+                <li><strong>Thrust Stand:</strong> Measure motor + prop efficiency. Cost $30-100. Essential if optimizing swarm designs.</li>
+                <li><strong>LiPo Charger (ISDT/ToolkitRC):</strong> Balanced charging, temperature monitoring. Cost $50-150.</li>
+                <li><strong>Smoke Stopper (XT60 current limiter):</strong> Protects against shorts on first power-up. Cost $10. Highly recommended!</li>
+                <li><strong>LiPo Voltage Checker:</strong> Quick cell voltage check. Cost $5-20.</li>
+                <li><strong>Battery Capacity Tester:</strong> Track degradation over time. Cost $20-60.</li>
+            </ul>
+
+            <h3>5.3 Safety Equipment</h3>
+            <ul>
+                <li><strong>LiPo-Safe Charging Bag:</strong> Fire containment if battery fails. Cost $10-30. Non-negotiable!</li>
+                <li><strong>Fire Extinguisher (Class C/D):</strong> For lithium fires. Cost $50-150.</li>
+                <li><strong>Propeller Guards:</strong> Safety for indoor testing. Cost $20-50.</li>
+                <li><strong>Safety Netting/Enclosure:</strong> Contain flying propellers. Cost $100-500.</li>
+                <li><strong>Eye Protection:</strong> Props can shatter. Cost $10.</li>
+            </ul>
+
+            <div class="callout callout-pro">
+                <div class="callout-title">Pro Tip: Soldering Station Temperature</div>
+                <p>Set soldering iron to 350-380°C for electronics. Too hot = damage traces; too cold = cold joints. Use rosin-core solder (60/40 or lead-free). For swarm drones, pre-tin all pads before assembly to speed up building.</p>
+            </div>
+
+        </section>
+
+        <!-- SECTION 6: SWARM-SPECIFIC -->
+        <section id="section6">
+            <h2>Section 6: Swarm-Specific Hardware Considerations</h2>
+            <p><strong>Building 10+ identical drones introduces manufacturing and logistics challenges.</strong></p>
+
+            <h3>6.1 Standardization & Consistency</h3>
+            <ul>
+                <li><strong>Buy in bulk:</strong> Order all parts for 10+ drones at once to ensure identical batches (same manufacturing date = same reliability).</li>
+                <li><strong>Quality control:</strong> Test every motor, ESC, and battery on a thrust stand or load tester before assembly.</li>
+                <li><strong>Spare parts policy:</strong> For every 10 drones, buy 2-3 extra of: motors, props, ESCs, batteries. Things break!</li>
+                <li><strong>Drone labeling:</strong> Label each drone (Drone 01, Drone 02...) and track parts/history in a spreadsheet.</li>
+            </ul>
+
+            <h3>6.2 Charging Infrastructure</h3>
+            <div class="spec-card">
+                <h4>Parallel Charging Board</h4>
+                <ul>
+                    <li>Charge 4-6 batteries simultaneously from a single charger</li>
+                    <li>Reduces turnaround time between flights</li>
+                    <li>Cost: $30-100</li>
+                    <li>Typical scenario: Land 10 drones, swap batteries, launch 10 fresh ones in &lt;60 seconds</li>
+                </ul>
+            </div>
+
+            <h3>6.3 Swarm Deployment Model</h3>
+            <ul>
+                <li><strong>Quick-swap battery design:</strong> Batteries accessible in &lt;10 seconds</li>
+                <li><strong>Battery rotation:</strong> Rotate 3 batteries per drone (1 flying, 2 charging)</li>
+                <li><strong>Charger capacity:</strong> For 10 drones with 2 batteries each = 20 batteries. Charger must handle 4-6 in parallel. Total charge time: 3-4 hours for full rotation.</li>
+            </ul>
+
+            <h3>6.4 Indoor vs. Outdoor Considerations</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Environment</th>
+                        <th>Positioning</th>
+                        <th>Sensors</th>
+                        <th>Size</th>
+                        <th>Example System</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Indoor Lab</strong></td>
+                        <td>Motion capture (Vicon/OptiTrack) or UWB</td>
+                        <td>UWB tag, IMU, barometer</td>
+                        <td>Nano (10-15cm)</td>
+                        <td>Crazyflie 2.1 + Loco</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Indoor Warehouse</strong></td>
+                        <td>UWB or LiDAR SLAM</td>
+                        <td>UWB, stereo camera, LiDAR</td>
+                        <td>Micro (20-30cm)</td>
+                        <td>Custom 250mm build + Jetson</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Outdoor (good GPS)</strong></td>
+                        <td>GPS or RTK GPS</td>
+                        <td>GPS, IMU, barometer, compass</td>
+                        <td>Small-Medium (30-50cm)</td>
+                        <td>Matrice 300 or custom build</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Outdoor (GPS-denied)</strong></td>
+                        <td>Visual SLAM + UWB backup</td>
+                        <td>Camera, IMU, LiDAR, UWB</td>
+                        <td>Medium (40-60cm)</td>
+                        <td>Custom build + ROS + SLAM</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>6.5 Cost Breakdown for Different Swarm Sizes</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Swarm Type</th>
+                        <th>Drone Count</th>
+                        <th>Per-Drone Cost</th>
+                        <th>Infrastructure</th>
+                        <th>Total Swarm Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Budget Nano</strong></td>
+                        <td>5</td>
+                        <td>$200 (Crazyflie)</td>
+                        <td>$500 (charging, UWB anchors)</td>
+                        <td>$1,500</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Research Micro</strong></td>
+                        <td>10</td>
+                        <td>$500 (frame, motors, electronics)</td>
+                        <td>$2,000 (charger, radio, tools)</td>
+                        <td>$7,000</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Professional Small</strong></td>
+                        <td>20</td>
+                        <td>$800 (quad with Jetson)</td>
+                        <td>$5,000 (infrastructure)</td>
+                        <td>$21,000</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Large Swarm</strong></td>
+                        <td>50+</td>
+                        <td>$1000+</td>
+                        <td>$10,000+</td>
+                        <td>$60,000+</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </section>
+
+        <!-- BILL OF MATERIALS -->
+        <section id="bom">
+            <h2>Section 7: Complete Bill of Materials (BOM)</h2>
+            <p><strong>Build one swarm-capable drone:</strong> This BOM is for a single small quadcopter (250-350mm wheelbase) suitable for outdoor swarms with GPS and companion computing.</p>
+
+            <h3>7.1 Airframe & Structure</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Part Name / Spec</th>
+                        <th>Quantity</th>
+                        <th>Weight</th>
+                        <th>Cost</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Frame Kit</td>
+                        <td>Carbon fiber 250mm quadcopter frame</td>
+                        <td>1</td>
+                        <td>150g</td>
+                        <td>$60</td>
+                        <td>Includes arms, center plates, landing gear</td>
+                    </tr>
+                    <tr>
+                        <td>Motors</td>
+                        <td>BLDC 2207 1500KV</td>
+                        <td>4</td>
+                        <td>30g each (120g)</td>
+                        <td>$15 each ($60)</td>
+                        <td>Consistent across all swarm drones</td>
+                    </tr>
+                    <tr>
+                        <td>Props</td>
+                        <td>7×4.5" plastic propellers</td>
+                        <td>8</td>
+                        <td>10g set</td>
+                        <td>$8</td>
+                        <td>4× CW, 4× CCW. Buy 20 total (spares)</td>
+                    </tr>
+                    <tr>
+                        <td>ESC 4-in-1</td>
+                        <td>30A BLHeli_32 DShot600</td>
+                        <td>1</td>
+                        <td>25g</td>
+                        <td>$60</td>
+                        <td>All 4 motors on one board</td>
+                    </tr>
+                    <tr>
+                        <td>Fasteners</td>
+                        <td>M2, M3 screws, standoffs</td>
+                        <td>1 set</td>
+                        <td>20g</td>
+                        <td>$10</td>
+                        <td>Stainless steel for durability</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>7.2 Power & Distribution</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Part Name / Spec</th>
+                        <th>Qty</th>
+                        <th>Weight</th>
+                        <th>Cost</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Battery (LiPo)</td>
+                        <td>4S 1500mAh 100C XT60</td>
+                        <td>2</td>
+                        <td>90g each</td>
+                        <td>$25 each ($50)</td>
+                        <td>1 flying, 1 charging. Rotate 3 per drone.</td>
+                    </tr>
+                    <tr>
+                        <td>PDB</td>
+                        <td>Power Distribution w/ 5V regulator</td>
+                        <td>1</td>
+                        <td>15g</td>
+                        <td>$25</td>
+                        <td>Includes BEC for FC & receiver</td>
+                    </tr>
+                    <tr>
+                        <td>Connectors</td>
+                        <td>XT60 (battery), XT30 (ESC out)</td>
+                        <td>2 XT60, 4 XT30</td>
+                        <td>10g</td>
+                        <td>$8</td>
+                        <td>Soldered or crimped</td>
+                    </tr>
+                    <tr>
+                        <td>Wiring</td>
+                        <td>12AWG silicone (bat to PDB), 18AWG to motors</td>
+                        <td>1m total</td>
+                        <td>30g</td>
+                        <td>$10</td>
+                        <td>Heat-shrink all joints</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>7.3 Flight Control</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Part Name / Spec</th>
+                        <th>Qty</th>
+                        <th>Weight</th>
+                        <th>Cost</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Flight Controller</td>
+                        <td>Pixhawk 4 Mini (or Kakute H7)</td>
+                        <td>1</td>
+                        <td>12g</td>
+                        <td>$80</td>
+                        <td>Integrated IMU, baro, compass</td>
+                    </tr>
+                    <tr>
+                        <td>GPS Module</td>
+                        <td>u-blox M9N RTK-capable (optional)</td>
+                        <td>1</td>
+                        <td>20g</td>
+                        <td>$150</td>
+                        <td>RTK = cm accuracy for formations</td>
+                    </tr>
+                    <tr>
+                        <td>GPS Antenna</td>
+                        <td>Ceramic, 25×25mm</td>
+                        <td>1</td>
+                        <td>5g</td>
+                        <td>$10</td>
+                        <td>Mount high on drone for clear sky view</td>
+                    </tr>
+                    <tr>
+                        <td>Telemetry Radio</td>
+                        <td>SiK 915 MHz</td>
+                        <td>1</td>
+                        <td>15g</td>
+                        <td>$40</td>
+                        <td>Transmits telemetry to ground</td>
+                    </tr>
+                    <tr>
+                        <td>RC Receiver</td>
+                        <td>SBUS receiver (FrSky, CRSF)</td>
+                        <td>1</td>
+                        <td>5g</td>
+                        <td>$20</td>
+                        <td>Pairs with RC transmitter for manual override</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>7.4 Sensors (Optional but Recommended for Swarms)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Part Name / Spec</th>
+                        <th>Qty</th>
+                        <th>Weight</th>
+                        <th>Cost</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>UWB Module</td>
+                        <td>DW1000 tag (for indoor)</td>
+                        <td>1</td>
+                        <td>10g</td>
+                        <td>$50</td>
+                        <td>Pair with 8 anchors ($400 total). Good for 5-10 drones indoor.</td>
+                    </tr>
+                    <tr>
+                        <td>Downward LiDAR</td>
+                        <td>TFMini S</td>
+                        <td>1</td>
+                        <td>5g</td>
+                        <td>$40</td>
+                        <td>Altitude hold + obstacle detection near ground</td>
+                    </tr>
+                    <tr>
+                        <td>Camera</td>
+                        <td>OV7251 monocular (small, low power)</td>
+                        <td>1</td>
+                        <td>5g</td>
+                        <td>$20</td>
+                        <td>Visual odometry, detection. Optional.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>7.5 Companion Computer (Optional)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Part Name / Spec</th>
+                        <th>Qty</th>
+                        <th>Weight</th>
+                        <th>Cost</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Jetson Nano</td>
+                        <td>NVIDIA Jetson Nano Developer Kit</td>
+                        <td>1</td>
+                        <td>65g + case 50g</td>
+                        <td>$99</td>
+                        <td>GPU for AI/vision. Overkill for simple swarms.</td>
+                    </tr>
+                    <tr>
+                        <td>microSD Card</td>
+                        <td>64GB class 10</td>
+                        <td>1</td>
+                        <td>2g</td>
+                        <td>$15</td>
+                        <td>OS + software storage</td>
+                    </tr>
+                    <tr>
+                        <td>USB Hub</td>
+                        <td>4-port powered USB 3.0</td>
+                        <td>1</td>
+                        <td>50g</td>
+                        <td>$15</td>
+                        <td>Connect FC, camera, peripherals</td>
+                    </tr>
+                    <tr>
+                        <td>WiFi Dongle</td>
+                        <td>USB WiFi 5 (optional)</td>
+                        <td>1</td>
+                        <td>10g</td>
+                        <td>$15</td>
+                        <td>For mesh coordination</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>7.6 Accessories & Assembly</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Description</th>
+                        <th>Cost</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Vibration Dampers</td>
+                        <td>Silicone isolators for FC mounting</td>
+                        <td>$5</td>
+                        <td>Reduces motor vibration noise on IMU</td>
+                    </tr>
+                    <tr>
+                        <td>Cable Ties</td>
+                        <td>Nylon cable management</td>
+                        <td>$2</td>
+                        <td>Keep wiring organized</td>
+                    </tr>
+                    <tr>
+                        <td>Foam Tape</td>
+                        <td>Double-sided, waterproof</td>
+                        <td>$3</td>
+                        <td>Mount electronics to frame</td>
+                    </tr>
+                    <tr>
+                        <td>TP4056 Charger Module</td>
+                        <td>For parallel charging board</td>
+                        <td>$5 each</td>
+                        <td>Buy 4-6 for multi-battery charging</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>7.7 Summary: Single Drone Total</h3>
+            <ul>
+                <li><strong>Airframe & Motors:</strong> $150</li>
+                <li><strong>Electronics (ESC, PDB, FC, GPS, radio):</strong> $350</li>
+                <li><strong>Battery (2 units):</strong> $50</li>
+                <li><strong>Sensors (optional):</strong> $100</li>
+                <li><strong>Companion Computer (optional):</strong> $150</li>
+                <li><strong>Fasteners, wiring, connectors:</strong> $30</li>
+                <li><strong>Assembly labor:</strong> 4-6 hours</li>
+                <li><strong>TOTAL PER DRONE: ~$750-900 (without companion)</strong></li>
+            </ul>
+
+            <h3>7.8 Swarm Infrastructure (One-Time Costs)</h3>
+            <ul>
+                <li><strong>RC Transmitter + 10 receivers:</strong> $200-300</li>
+                <li><strong>Telemetry ground receiver + laptop/tablet:</strong> $100</li>
+                <li><strong>LiPo Charger (6S capable):</strong> $100-150</li>
+                <li><strong>Parallel charging board (4-in-1):</strong> $30</li>
+                <li><strong>Tools (soldering, multimeter, etc.):</strong> $150-300</li>
+                <li><strong>Safety equipment (fire extinguisher, LiPo bag):</strong> $50</li>
+                <li><strong>RTK GPS base station (optional):</strong> $1,000-2,000</li>
+                <li><strong>UWB anchors (4-8, optional):</strong> $400-1,000</li>
+                <li><strong>Motion capture system (optional):</strong> $50,000+</li>
+                <li><strong>TOTAL ONE-TIME: ~$1,000-2,000 (basic), $5,000+ (advanced)</strong></li>
+            </ul>
+
+            <h3>7.9 10-Drone Swarm Total Cost Estimate</h3>
+            <ul>
+                <li>10 drones @ $800 each = <strong>$8,000</strong></li>
+                <li>30 batteries (3 per drone) @ $25 = <strong>$750</strong></li>
+                <li>Infrastructure = <strong>$1,500</strong></li>
+                <li><strong>TOTAL FOR 10-DRONE SWARM: ~$10,250</strong></li>
+            </ul>
+
+            <div class="callout callout-pro">
+                <div class="callout-title">Pro Tip: Build Sheet</div>
+                <p>Create a spreadsheet tracking all 10 drones: serial numbers, battery cycles, repair history, and part swaps. When a drone fails, you'll want to know which parts have been swapped or if it's chronically broken. Plan to retire ~10% of drones every year due to crashes or wear.</p>
+            </div>
+
+        </section>
+
+        <!-- CLOSING -->
+        <section>
+            <h2>Summary: You Now Understand Swarm Hardware</h2>
+            <p>You know the anatomy of a drone (frame, motors, propellers, ESCs), the sensor suite for positioning and perception, the compute platforms for real-time and high-level control, and the communication channels for ground and inter-drone links. You understand cost tradeoffs, swarm standardization requirements, and complete bill of materials for building your first drone.</p>
+            <p><strong>Next steps:</strong></p>
+            <ul>
+                <li>Read <strong>Part 5: Software & Control Algorithms</strong> for the firmware, ROS setup, and swarm coordination algorithms</li>
+                <li>Build ONE drone first. Test it alone. Then replicate 9 more.</li>
+                <li>Invest in safety equipment before flying.</li>
+                <li>Join the drone community (Drones StackExchange, DIYDrones forum) for shared knowledge.</li>
+            </ul>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Sim Vattanac | vattanacsim99@gmail.com</p>
+        <div class="footer-nav">
+            <a href="index.html">← Home</a>
+            <a href="part3-control.html">← Part 3: Control</a>
+            <a href="part5-software.html">Part 5: Software →</a>
+        </div>
+    </footer>
+
+    <script>
+        function toggleTOC() {
+            const toc = document.getElementById('tocSidebar');
+            toc.classList.toggle('active');
+        }
+
+        // Close TOC when clicking a link on mobile
+        const tocLinks = document.querySelectorAll('.toc-sidebar a');
+        tocLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    document.getElementById('tocSidebar').classList.remove('active');
+                }
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
