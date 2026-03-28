@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regression Models — Interactive Lesson</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #18181f;
+    --surface2: #22222c;
+    --border: rgba(255,255,255,0.08);
+    --text: #e8e8f0;
+    --muted: #8888a0;
+    --accent: #7c6af5;
+    --accent2: #f5a623;
+    --green: #3ecf8e;
+    --red: #f56565;
+    --blue: #4fa3e8;
+    --font-head: 'DM Serif Display', Georgia, serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grain */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.6;
+  }
+
+  .wrap { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem 4rem; position: relative; z-index: 1; }
+
+  /* Header */
+  header { text-align: center; padding: 3rem 0 2.5rem; }
+  .label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); font-family: var(--font-mono); margin-bottom: 1rem; }
+  h1 { font-family: var(--font-head); font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.1; color: #fff; margin-bottom: 0.8rem; }
+  h1 em { color: var(--accent); font-style: italic; }
+  .subtitle { font-size: 15px; color: var(--muted); max-width: 480px; margin: 0 auto; line-height: 1.6; }
+
+  /* Step nav */
+  .stepper { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin: 2.5rem 0 2rem; }
+  .step-btn {
+    padding: 6px 14px; border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--muted);
+    font-size: 12px; font-family: var(--font-body); cursor: pointer;
+    transition: all .2s; white-space: nowrap;
+  }
+  .step-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .step-btn.active {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent); font-weight: 500;
+  }
+
+  /* Progress bar */
+  .progress-track { height: 2px; background: var(--border); border-radius: 1px; margin-bottom: 2.5rem; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 1px; transition: width .4s ease; }
+
+  /* Panel */
+  .panel { display: none; animation: fadeIn .3s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .panel-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  h2 { font-family: var(--font-head); font-size: 1.6rem; color: #fff; margin-bottom: 0.6rem; }
+  p { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 0.8rem; }
+  p strong { color: var(--text); font-weight: 500; }
+  .hi-p { color: var(--accent); font-weight: 500; }
+  .hi-o { color: var(--accent2); font-weight: 500; }
+  .hi-g { color: var(--green); font-weight: 500; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 1rem 0; }
+  th { background: var(--surface2); color: var(--text); font-weight: 500; padding: 8px 12px; border: 1px solid var(--border); text-align: center; letter-spacing: 0.3px; font-size: 12px; }
+  td { padding: 7px 12px; border: 1px solid var(--border); text-align: center; color: var(--muted); }
+  .train-row td { background: rgba(124,106,245,0.06); }
+  .val-row td { background: rgba(245,166,35,0.06); }
+
+  /* Formula block */
+  .formula {
+    background: var(--surface2); border-left: 3px solid var(--accent);
+    padding: 10px 16px; border-radius: 0 8px 8px 0;
+    font-family: var(--font-mono); font-size: 14px; color: var(--text);
+    margin: 1rem 0;
+  }
+
+  /* Metric grid */
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1rem 0; }
+  .metric-card {
+    background: var(--surface2); border-radius: 10px; padding: 14px 16px;
+    border: 1px solid var(--border);
+  }
+  .metric-label { font-size: 11px; color: var(--muted); margin-bottom: 5px; font-family: var(--font-mono); letter-spacing: 1px; text-transform: uppercase; }
+  .metric-val { font-size: 22px; font-weight: 600; color: #fff; }
+  .metric-val.sm { font-size: 13px; color: var(--text); font-weight: 400; margin-top: 3px; }
+
+  /* SVG */
+  svg { display: block; width: 100%; margin: 1rem 0; }
+  .axis-text { font-family: 'DM Sans', sans-serif; }
+
+  /* Tags */
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; font-family: var(--font-mono); }
+  .tag-blue { background: rgba(124,106,245,0.15); color: var(--accent); border: 1px solid rgba(124,106,245,0.3); }
+  .tag-orange { background: rgba(245,166,35,0.12); color: var(--accent2); border: 1px solid rgba(245,166,35,0.25); }
+
+  /* Note box */
+  .note {
+    background: rgba(62,207,142,0.07); border: 1px solid rgba(62,207,142,0.2);
+    border-radius: 10px; padding: 12px 16px; margin-top: 1rem;
+  }
+  .note p { color: var(--green); margin: 0; font-size: 13px; }
+
+  /* Nav buttons */
+  .nav-btns { display: flex; gap: 10px; margin-top: 1.5rem; flex-wrap: wrap; }
+  .nav-btn {
+    padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border);
+    background: transparent; color: var(--text); font-size: 13px;
+    font-family: var(--font-body); cursor: pointer; transition: all .2s;
+  }
+  .nav-btn:hover { background: var(--surface2); border-color: rgba(255,255,255,0.2); }
+  .nav-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .nav-btn.primary:hover { opacity: 0.9; }
+
+  code {
+    font-family: var(--font-mono); font-size: 12px;
+    background: var(--surface2); padding: 2px 7px; border-radius: 4px;
+    color: var(--accent2);
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 1.2rem 0; }
+
+  @media (max-width: 600px) {
+    .metric-grid { grid-template-columns: 1fr; }
+    .panel-card { padding: 1.2rem; }
+    h2 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="label">Machine Learning · Supervised Learning</div>
+    <h1>Regression <em>Models</em><br>Explained</h1>
+    <p class="subtitle">A step-by-step interactive lesson using the ice cream sales example — from raw data to evaluation metrics.</p>
+  </header>
+
+  <div class="stepper">
+    <button class="step-btn active" onclick="goto(0)">1. What is regression?</button>
+    <button class="step-btn" onclick="goto(1)">2. Split the data</button>
+    <button class="step-btn" onclick="goto(2)">3. Train the model</button>
+    <button class="step-btn" onclick="goto(3)">4. Make predictions</button>
+    <button class="step-btn" onclick="goto(4)">5. MAE</button>
+    <button class="step-btn" onclick="goto(5)">6. MSE &amp; RMSE</button>
+    <button class="step-btn" onclick="goto(6)">7. R²</button>
+    <button class="step-btn" onclick="goto(7)">8. Iterate</button>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="progress" style="width:12.5%"></div></div>
+
+  <!-- PANEL 0 -->
+  <div class="panel active" id="panel-0">
+    <div class="panel-card">
+      <h2>What is regression?</h2>
+      <p>Regression is a type of <span class="hi-p">supervised machine learning</span> where the goal is to predict a <span class="hi-p">numeric value</span> from input features.</p>
+      <p><strong>Example:</strong> We want to predict <span class="hi-o">how many ice creams are sold</span> on a given day, based on <span class="hi-p">the temperature</span>.</p>
+      <svg viewBox="0 0 620 120">
+        <defs><marker id="a0" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#7c6af5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <rect x="20" y="30" width="160" height="56" rx="10" fill="rgba(124,106,245,0.12)" stroke="rgba(124,106,245,0.4)" stroke-width="1"/>
+        <text x="100" y="52" text-anchor="middle" font-size="12" font-weight="600" fill="#a89af9" font-family="DM Sans, sans-serif">Feature (x)</text>
+        <text x="100" y="72" text-anchor="middle" font-size="11" fill="#a89af9" font-family="DM Sans, sans-serif">Temperature = 77°</text>
+        <rect x="230" y="30" width="160" height="56" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <text x="310" y="52" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8f0" font-family="DM Sans, sans-serif">Regression Model</text>
+        <text x="310" y="72" text-anchor="middle" font-size="11" fill="#8888a0" font-family="DM Mono, monospace">f(x) = x − 50</text>
+        <rect x="440" y="30" width="160" height="56" rx="10" fill="rgba(245,166,35,0.12)" stroke="rgba(245,166,35,0.35)" stroke-width="1"/>
+        <text x="520" y="52" text-anchor="middle" font-size="12" font-weight="600" fill="#f5bc60" font-family="DM Sans, sans-serif">Label (ŷ)</text>
+        <text x="520" y="72" text-anchor="middle" font-size="11" fill="#f5bc60" font-family="DM Sans, sans-serif">Predicted = 27 🍦</text>
+        <line x1="180" y1="58" x2="228" y2="58" stroke="#7c6af5" stroke-width="1.5" marker-end="url(#a0)"/>
+        <line x1="390" y1="58" x2="438" y2="58" stroke="#7c6af5" stroke-width="1.5" marker-end="url(#a0)"/>
+      </svg>
+      <p>The model <strong>learns a pattern</strong> from historical data (days where we know both the temperature and the actual ice cream sales). Once trained, it can predict sales for any new temperature.</p>
+      <p>Think of it this way: the model finds a mathematical formula that converts temperature into a predicted ice cream count. The process of finding that formula is called <span class="hi-p">training</span>.</p>
+      <div class="nav-btns"><button class="nav-btn primary" onclick="goto(1)">Next: Split the data →</button></div>
+    </div>
+  </div>
+
+  <!-- PANEL 1 -->
+  <div class="panel" id="panel-1">
+    <div class="panel-card">
+      <h2>Step 1 — Split the data</h2>
+      <p>We have 12 rows of historical data. Before training, we <span class="hi-p">randomly split</span> them into two groups:</p>
+      <div style="display:flex;gap:12px;margin:0.5rem 0 1rem;flex-wrap:wrap">
+        <div><span class="tag tag-blue">Training set (6 rows)</span><span style="font-size:12px;color:var(--muted);margin-left:8px">Used to build the model</span></div>
+        <div><span class="tag tag-orange">Validation set (6 rows)</span><span style="font-size:12px;color:var(--muted);margin-left:8px">Used to test accuracy</span></div>
+      </div>
+      <table>
+        <tr><th>Temperature (x)</th><th>Ice cream sales (y)</th><th>Assigned to</th></tr>
+        <tr class="train-row"><td>51</td><td>1</td><td><span class="tag tag-blue">Train</span></td></tr>
+        <tr class="val-row"><td>52</td><td>0</td><td><span class="tag tag-orange">Validate</span></td></tr>
+        <tr class="val-row"><td>67</td><td>14</td><td><span class="tag tag-orange">Validate</span></td></tr>
+        <tr class="train-row"><td>65</td><td>14</td><td><span class="tag tag-blue">Train</span></td></tr>
+        <tr class="val-row"><td>70</td><td>23</td><td><span class="tag tag-orange">Validate</span></td></tr>
+        <tr class="train-row"><td>69</td><td>20</td><td><span class="tag tag-blue">Train</span></td></tr>
+        <tr class="train-row"><td>72</td><td>23</td><td><span class="tag tag-blue">Train</span></td></tr>
+        <tr class="val-row"><td>73</td><td>22</td><td><span class="tag tag-orange">Validate</span></td></tr>
+        <tr class="train-row"><td>75</td><td>26</td><td><span class="tag tag-blue">Train</span></td></tr>
+        <tr class="val-row"><td>78</td><td>26</td><td><span class="tag tag-orange">Validate</span></td></tr>
+        <tr class="train-row"><td>81</td><td>30</td><td><span class="tag tag-blue">Train</span></td></tr>
+        <tr class="val-row"><td>83</td><td>36</td><td><span class="tag tag-orange">Validate</span></td></tr>
+      </table>
+      <p><strong>Why split?</strong> If we test the model on the same data it trained on, it looks perfect — but it hasn't proven it can generalize to <em>new</em> data. The validation set simulates real-world unseen data.</p>
+      <div class="nav-btns">
+        <button class="nav-btn" onclick="goto(0)">← Back</button>
+        <button class="nav-btn primary" onclick="goto(2)">Next: Train the model →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2 -->
+  <div class="panel" id="panel-2">
+    <div class="panel-card">
+      <h2>Step 2 — Train the model</h2>
+      <p>We plot the <span class="hi-p">6 training points</span> on a chart (temperature on x-axis, sales on y-axis). The linear regression algorithm draws the <span class="hi-p">best-fit straight line</span> that minimizes the average distance to all points.</p>
+      <svg viewBox="0 0 620 290">
+        <defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <!-- axes -->
+        <line x1="65" y1="250" x2="590" y2="250" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+        <line x1="65" y1="20" x2="65" y2="250" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+        <!-- gridlines -->
+        <line x1="65" y1="200" x2="590" y2="200" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        <line x1="65" y1="150" x2="590" y2="150" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        <line x1="65" y1="100" x2="590" y2="100" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        <line x1="65" y1="50"  x2="590" y2="50"  stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        <!-- x labels (50→65px, scale 10.5px per unit) -->
+        <text x="65"  y="266" text-anchor="middle" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">50</text>
+        <text x="170" y="266" text-anchor="middle" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">60</text>
+        <text x="275" y="266" text-anchor="middle" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">70</text>
+        <text x="380" y="266" text-anchor="middle" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">80</text>
+        <text x="485" y="266" text-anchor="middle" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">90</text>
+        <!-- y labels (0→250px, scale 5px per unit) -->
+        <text x="55" y="254" text-anchor="end" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">0</text>
+        <text x="55" y="204" text-anchor="end" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">10</text>
+        <text x="55" y="154" text-anchor="end" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">20</text>
+        <text x="55" y="104" text-anchor="end" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">30</text>
+        <text x="55" y="54"  text-anchor="end" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">40</text>
+        <!-- axis titles -->
+        <text x="328" y="283" text-anchor="middle" font-size="12" fill="#8888a0" font-family="DM Sans,sans-serif">Temperature (x)</text>
+        <text x="16" y="135" text-anchor="middle" font-size="12" fill="#8888a0" font-family="DM Sans,sans-serif" transform="rotate(-90,16,135)">Ice cream sales (y)</text>
+        <!-- Regression line: y=x-50, from (50,0)→px(65,250) to (87,37)→px(572,65) -->
+        <line x1="65" y1="250" x2="572" y2="65" stroke="#7c6af5" stroke-width="2" opacity="0.7"/>
+        <!-- Training data points: px = 65 + (x-50)*10.5, py = 250 - y*5 -->
+        <!-- x=51,y=1 → 75.5, 245 -->
+        <circle cx="75"  cy="245" r="7" fill="rgba(124,106,245,0.2)" stroke="#7c6af5" stroke-width="1.5"/>
+        <!-- x=65,y=14 → 222.5, 180 -->
+        <circle cx="222" cy="180" r="7" fill="rgba(124,106,245,0.2)" stroke="#7c6af5" stroke-width="1.5"/>
+        <!-- x=69,y=20 → 264.5, 150 -->
+        <circle cx="264" cy="150" r="7" fill="rgba(124,106,245,0.2)" stroke="#7c6af5" stroke-width="1.5"/>
+        <!-- x=72,y=23 → 296, 135 -->
+        <circle cx="296" cy="135" r="7" fill="rgba(124,106,245,0.2)" stroke="#7c6af5" stroke-width="1.5"/>
+        <!-- x=75,y=26 → 327.5, 120 -->
+        <circle cx="327" cy="120" r="7" fill="rgba(124,106,245,0.2)" stroke="#7c6af5" stroke-width="1.5"/>
+        <!-- x=81,y=30 → 390.5, 100 -->
+        <circle cx="390" cy="100" r="7" fill="rgba(124,106,245,0.2)" stroke="#7c6af5" stroke-width="1.5"/>
+        <!-- legend -->
+        <circle cx="440" cy="38" r="6" fill="rgba(124,106,245,0.2)" stroke="#7c6af5" stroke-width="1.5"/>
+        <text x="452" y="42" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">Training points</text>
+        <line x1="434" y1="58" x2="454" y2="58" stroke="#7c6af5" stroke-width="2" opacity="0.7"/>
+        <text x="460" y="62" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">Best-fit line</text>
+      </svg>
+      <p>The algorithm found that the best line for our data has the formula:</p>
+      <div class="formula">f(x) = x − 50</div>
+      <p>The line crosses x=50 at y=0, and rises by 1 ice cream for every 1-degree increase in temperature.</p>
+      <p><strong>Quick example:</strong> Temperature = 77°F → predicted sales = 77 − 50 = <span class="hi-o">27 ice creams</span></p>
+      <div class="nav-btns">
+        <button class="nav-btn" onclick="goto(1)">← Back</button>
+        <button class="nav-btn primary" onclick="goto(3)">Next: Make predictions →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3 -->
+  <div class="panel" id="panel-3">
+    <div class="panel-card">
+      <h2>Step 3 — Predict &amp; compare</h2>
+      <p>Now we apply <code>ŷ = x − 50</code> to each row in the <span class="tag tag-orange">validation set</span> and compare the predicted values to the actual values:</p>
+      <table>
+        <tr><th>Temp (x)</th><th>Actual (y)</th><th>Predicted (ŷ)</th><th>Error (y − ŷ)</th></tr>
+        <tr class="val-row"><td>52</td><td>0</td><td>2</td><td style="color:#f56565">−2</td></tr>
+        <tr class="val-row"><td>67</td><td>14</td><td>17</td><td style="color:#f56565">−3</td></tr>
+        <tr class="val-row"><td>70</td><td>23</td><td>20</td><td style="color:#3ecf8e">+3</td></tr>
+        <tr class="val-row"><td>73</td><td>22</td><td>23</td><td style="color:#f56565">−1</td></tr>
+        <tr class="val-row"><td>78</td><td>26</td><td>28</td><td style="color:#f56565">−2</td></tr>
+        <tr class="val-row"><td>83</td><td>36</td><td>33</td><td style="color:#3ecf8e">+3</td></tr>
+      </table>
+      <svg viewBox="0 0 620 270">
+        <!-- axes -->
+        <line x1="65" y1="240" x2="570" y2="240" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+        <line x1="65" y1="20"  x2="65"  y2="240" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+        <text x="318" y="258" text-anchor="middle" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">Temperature</text>
+        <!-- regression line from x=50→px65,y=0→py240 to x=87→px453,y=37→py55 -->
+        <line x1="65" y1="240" x2="453" y2="55" stroke="#7c6af5" stroke-width="1.5" opacity="0.45"/>
+        <!-- scale: px = 65+(x-50)*10.5, py = 240-y*5 -->
+        <!-- x=52: px=86, pred=2→py=230, act=0→py=240 -->
+        <line x1="86" y1="230" x2="86" y2="240" stroke="#f56565" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <circle cx="86" cy="240" r="6" fill="rgba(245,166,35,0.15)" stroke="#f5a623" stroke-width="1.5"/>
+        <circle cx="86" cy="230" r="5" fill="rgba(124,106,245,0.15)" stroke="#7c6af5" stroke-width="1"/>
+        <!-- x=67: px=227.5, pred=17→py=155, act=14→py=170 -->
+        <line x1="227" y1="155" x2="227" y2="170" stroke="#f56565" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <circle cx="227" cy="170" r="6" fill="rgba(245,166,35,0.15)" stroke="#f5a623" stroke-width="1.5"/>
+        <circle cx="227" cy="155" r="5" fill="rgba(124,106,245,0.15)" stroke="#7c6af5" stroke-width="1"/>
+        <!-- x=70: px=259, pred=20→py=140, act=23→py=125 -->
+        <line x1="259" y1="125" x2="259" y2="140" stroke="#f56565" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <circle cx="259" cy="125" r="6" fill="rgba(245,166,35,0.15)" stroke="#f5a623" stroke-width="1.5"/>
+        <circle cx="259" cy="140" r="5" fill="rgba(124,106,245,0.15)" stroke="#7c6af5" stroke-width="1"/>
+        <!-- x=73: px=290.5, pred=23→py=125, act=22→py=130 -->
+        <line x1="290" y1="125" x2="290" y2="130" stroke="#f56565" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <circle cx="290" cy="130" r="6" fill="rgba(245,166,35,0.15)" stroke="#f5a623" stroke-width="1.5"/>
+        <circle cx="290" cy="125" r="5" fill="rgba(124,106,245,0.15)" stroke="#7c6af5" stroke-width="1"/>
+        <!-- x=78: px=343, pred=28→py=100, act=26→py=110 -->
+        <line x1="343" y1="100" x2="343" y2="110" stroke="#f56565" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <circle cx="343" cy="110" r="6" fill="rgba(245,166,35,0.15)" stroke="#f5a623" stroke-width="1.5"/>
+        <circle cx="343" cy="100" r="5" fill="rgba(124,106,245,0.15)" stroke="#7c6af5" stroke-width="1"/>
+        <!-- x=83: px=395.5, pred=33→py=75, act=36→py=60 -->
+        <line x1="395" y1="60" x2="395" y2="75" stroke="#f56565" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <circle cx="395" cy="60"  r="6" fill="rgba(245,166,35,0.15)" stroke="#f5a623" stroke-width="1.5"/>
+        <circle cx="395" cy="75"  r="5" fill="rgba(124,106,245,0.15)" stroke="#7c6af5" stroke-width="1"/>
+        <!-- legend -->
+        <circle cx="460" cy="55" r="6" fill="rgba(245,166,35,0.15)" stroke="#f5a623" stroke-width="1.5"/>
+        <text x="472" y="59" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">Actual (y)</text>
+        <circle cx="460" cy="75" r="5" fill="rgba(124,106,245,0.15)" stroke="#7c6af5" stroke-width="1"/>
+        <text x="472" y="79" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">Predicted (ŷ)</text>
+        <line x1="454" y1="96" x2="466" y2="104" stroke="#f56565" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="472" y="104" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">Error gap</text>
+      </svg>
+      <p>The dashed red lines show the <span style="color:#f56565;font-weight:500">error</span> — how far off each prediction was. Next, we'll turn all these errors into a single evaluation number.</p>
+      <div class="nav-btns">
+        <button class="nav-btn" onclick="goto(2)">← Back</button>
+        <button class="nav-btn primary" onclick="goto(4)">Next: MAE →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 4: MAE -->
+  <div class="panel" id="panel-4">
+    <div class="panel-card">
+      <h2>Metric 1 — Mean Absolute Error (MAE)</h2>
+      <p>The errors are: <code>−2, −3, +3, −1, −2, +3</code></p>
+      <p>We don't care about direction — only <span class="hi-p">how large the error is</span>. So we take the <strong>absolute value</strong> (remove the sign):</p>
+      <svg viewBox="0 0 620 170">
+        <rect x="20" y="15" width="580" height="52" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <text x="310" y="36" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8f0" font-family="DM Sans,sans-serif">Step 1 — Take absolute values</text>
+        <text x="310" y="56" text-anchor="middle" font-size="12" fill="#8888a0" font-family="DM Mono,monospace">|−2|=2  |−3|=3  |+3|=3  |−1|=1  |−2|=2  |+3|=3</text>
+        <rect x="20" y="90" width="580" height="52" rx="10" fill="rgba(124,106,245,0.1)" stroke="rgba(124,106,245,0.3)" stroke-width="1"/>
+        <text x="310" y="111" text-anchor="middle" font-size="12" font-weight="600" fill="#a89af9" font-family="DM Sans,sans-serif">Step 2 — Average them (the mean)</text>
+        <text x="310" y="131" text-anchor="middle" font-size="12" fill="#a89af9" font-family="DM Mono,monospace">MAE = (2+3+3+1+2+3) ÷ 6 = 14 ÷ 6 ≈ 2.33</text>
+      </svg>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">MAE result</div>
+          <div class="metric-val">2.33</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">In plain English</div>
+          <div class="metric-val sm">On average, our predictions were off by 2.33 ice creams</div>
+        </div>
+      </div>
+      <p><strong>When to use MAE:</strong> It's simple and easy to understand. It treats all errors equally — whether you miss by 1 or miss by 5, they contribute proportionally to the score.</p>
+      <div class="nav-btns">
+        <button class="nav-btn" onclick="goto(3)">← Back</button>
+        <button class="nav-btn primary" onclick="goto(5)">Next: MSE &amp; RMSE →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 5: MSE & RMSE -->
+  <div class="panel" id="panel-5">
+    <div class="panel-card">
+      <h2>Metrics 2 &amp; 3 — MSE and RMSE</h2>
+      <p><strong>The problem with MAE:</strong> It treats a small error (1) and a large error (5) proportionally. But large errors are often much worse in practice — being off by 10 is more than 2× as bad as being off by 5.</p>
+      <p><strong>Mean Squared Error (MSE)</strong> fixes this by <span class="hi-p">squaring</span> each error — making larger errors count much more heavily:</p>
+      <svg viewBox="0 0 620 215">
+        <rect x="20" y="10" width="580" height="52" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <text x="310" y="31" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8f0" font-family="DM Sans,sans-serif">Step 1 — Square each absolute error</text>
+        <text x="310" y="51" text-anchor="middle" font-size="12" fill="#8888a0" font-family="DM Mono,monospace">2²=4  3²=9  3²=9  1²=1  2²=4  3²=9</text>
+        <rect x="20" y="80" width="580" height="52" rx="10" fill="rgba(245,166,35,0.08)" stroke="rgba(245,166,35,0.25)" stroke-width="1"/>
+        <text x="310" y="101" text-anchor="middle" font-size="12" font-weight="600" fill="#f5bc60" font-family="DM Sans,sans-serif">Step 2 — Average the squared errors → MSE</text>
+        <text x="310" y="121" text-anchor="middle" font-size="12" fill="#f5bc60" font-family="DM Mono,monospace">MSE = (4+9+9+1+4+9) ÷ 6 = 36 ÷ 6 = 6</text>
+        <rect x="20" y="150" width="580" height="50" rx="10" fill="rgba(62,207,142,0.08)" stroke="rgba(62,207,142,0.25)" stroke-width="1"/>
+        <text x="310" y="170" text-anchor="middle" font-size="12" font-weight="600" fill="#3ecf8e" font-family="DM Sans,sans-serif">Step 3 — Square root of MSE → RMSE (back to original units)</text>
+        <text x="310" y="190" text-anchor="middle" font-size="12" fill="#3ecf8e" font-family="DM Mono,monospace">RMSE = √6 ≈ 2.45 ice creams</text>
+      </svg>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">MSE</div>
+          <div class="metric-val">6.0</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">In "squared ice creams" — hard to interpret on its own</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">RMSE</div>
+          <div class="metric-val">2.45</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Back in ice creams — with bigger errors penalized more</div>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn" onclick="goto(4)">← Back</button>
+        <button class="nav-btn primary" onclick="goto(6)">Next: R² →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 6: R2 -->
+  <div class="panel" id="panel-6">
+    <div class="panel-card">
+      <h2>Metric 4 — R² (R-Squared)</h2>
+      <p>MAE/MSE/RMSE measure absolute error size. <span class="hi-p">R²</span> asks a different question: <em>what proportion of the variation in sales does our model actually explain?</em></p>
+      <svg viewBox="0 0 620 185">
+        <rect x="20" y="15" width="270" height="65" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <text x="155" y="37" text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8f0" font-family="DM Sans,sans-serif">Dumb baseline: guess the mean</text>
+        <text x="155" y="55" text-anchor="middle" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">Mean ȳ = 20.17 every time</text>
+        <text x="155" y="72" text-anchor="middle" font-size="10" fill="#666680" font-family="DM Mono,sans-serif">Σ(y − ȳ)² = total variance</text>
+        <rect x="330" y="15" width="270" height="65" rx="10" fill="rgba(124,106,245,0.08)" stroke="rgba(124,106,245,0.25)" stroke-width="1"/>
+        <text x="465" y="37" text-anchor="middle" font-size="12" font-weight="600" fill="#a89af9" font-family="DM Sans,sans-serif">Our model predictions</text>
+        <text x="465" y="55" text-anchor="middle" font-size="11" fill="#8888a0" font-family="DM Sans,sans-serif">ŷ = x − 50</text>
+        <text x="465" y="72" text-anchor="middle" font-size="10" fill="#666680" font-family="DM Mono,sans-serif">Σ(y − ŷ)² = unexplained variance</text>
+        <rect x="100" y="110" width="420" height="58" rx="10" fill="rgba(62,207,142,0.08)" stroke="rgba(62,207,142,0.25)" stroke-width="1"/>
+        <text x="310" y="132" text-anchor="middle" font-size="12" font-weight="600" fill="#3ecf8e" font-family="DM Sans,sans-serif">R² = 1 − (unexplained ÷ total)</text>
+        <text x="310" y="152" text-anchor="middle" font-size="11" fill="#3ecf8e" font-family="DM Mono,monospace">R² = 1 − Σ(y−ŷ)² ÷ Σ(y−ȳ)²  =  0.95</text>
+      </svg>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">R² = 0</div>
+          <div class="metric-val sm">Model explains nothing. Might as well always guess the average.</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">R² = 1</div>
+          <div class="metric-val sm">Perfect model. Explains 100% of the variation in y.</div>
+        </div>
+      </div>
+      <div class="note">
+        <p><strong>Our R² = 0.95</strong> means temperature explains 95% of the variation in ice cream sales. Only 5% is left unexplained — random factors like local events, unusual weather, etc.</p>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn" onclick="goto(5)">← Back</button>
+        <button class="nav-btn primary" onclick="goto(7)">Next: Iterate →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 7: Iterate -->
+  <div class="panel" id="panel-7">
+    <div class="panel-card">
+      <h2>Step 8 — Iterate &amp; improve</h2>
+      <p>One training run is rarely the end. In practice, data scientists <span class="hi-p">repeat the whole process</span> with different settings until the evaluation metrics are satisfactory.</p>
+      <svg viewBox="0 0 620 200">
+        <defs><marker id="a7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#7c6af5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+        <marker id="a7r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#f56565" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <rect x="20"  y="75" width="110" height="44" rx="8" fill="rgba(124,106,245,0.12)" stroke="rgba(124,106,245,0.3)" stroke-width="1"/>
+        <rect x="170" y="75" width="110" height="44" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <rect x="320" y="75" width="110" height="44" rx="8" fill="rgba(245,166,35,0.1)" stroke="rgba(245,166,35,0.3)" stroke-width="1"/>
+        <rect x="470" y="75" width="110" height="44" rx="8" fill="rgba(62,207,142,0.1)" stroke="rgba(62,207,142,0.3)" stroke-width="1"/>
+        <text x="75"  y="95"  text-anchor="middle" font-size="12" font-weight="600" fill="#a89af9" font-family="DM Sans,sans-serif">Train</text>
+        <text x="75"  y="111" text-anchor="middle" font-size="10" fill="#8888a0" font-family="DM Sans,sans-serif">Fit algorithm</text>
+        <text x="225" y="95"  text-anchor="middle" font-size="12" font-weight="600" fill="#e8e8f0" font-family="DM Sans,sans-serif">Predict</text>
+        <text x="225" y="111" text-anchor="middle" font-size="10" fill="#8888a0" font-family="DM Sans,sans-serif">On val. set</text>
+        <text x="375" y="95"  text-anchor="middle" font-size="12" font-weight="600" fill="#f5bc60" font-family="DM Sans,sans-serif">Evaluate</text>
+        <text x="375" y="111" text-anchor="middle" font-size="10" fill="#8888a0" font-family="DM Sans,sans-serif">MAE / RMSE / R²</text>
+        <text x="525" y="95"  text-anchor="middle" font-size="12" font-weight="600" fill="#3ecf8e" font-family="DM Sans,sans-serif">Accept?</text>
+        <text x="525" y="111" text-anchor="middle" font-size="10" fill="#3ecf8e" font-family="DM Sans,sans-serif">Deploy!</text>
+        <!-- forward arrows -->
+        <line x1="130" y1="97" x2="168" y2="97" stroke="#7c6af5" stroke-width="1.5" marker-end="url(#a7)"/>
+        <line x1="280" y1="97" x2="318" y2="97" stroke="#7c6af5" stroke-width="1.5" marker-end="url(#a7)"/>
+        <line x1="430" y1="97" x2="468" y2="97" stroke="#7c6af5" stroke-width="1.5" marker-end="url(#a7)"/>
+        <!-- feedback loop -->
+        <path d="M 430 119 L 430 162 L 75 162 L 75 121" fill="none" stroke="#f56565" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#a7r)"/>
+        <text x="258" y="178" text-anchor="middle" font-size="11" fill="#f56565" font-family="DM Sans,sans-serif">↺ Not good enough — adjust &amp; try again</text>
+      </svg>
+      <p><strong>What can you change?</strong></p>
+      <table>
+        <tr><th>What to change</th><th>Example</th></tr>
+        <tr><td><strong style="font-weight:500;color:var(--text)">Features</strong></td><td>Add humidity, day of week; remove noisy features</td></tr>
+        <tr><td><strong style="font-weight:500;color:var(--text)">Algorithm</strong></td><td>Linear regression → polynomial → decision tree</td></tr>
+        <tr><td><strong style="font-weight:500;color:var(--text)">Hyperparameters</strong></td><td>Learning rate, tree depth, regularization</td></tr>
+      </table>
+
+      <div class="divider"></div>
+      <p><strong>Summary of all 4 metrics for our ice cream model:</strong></p>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">MAE</div>
+          <div class="metric-val">2.33 <span style="font-size:14px;color:var(--muted)">ice creams</span></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">MSE</div>
+          <div class="metric-val">6.0</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">RMSE</div>
+          <div class="metric-val">2.45 <span style="font-size:14px;color:var(--muted)">ice creams</span></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">R²</div>
+          <div class="metric-val" style="color:#3ecf8e">0.95</div>
+        </div>
+      </div>
+      <div class="note">
+        <p>✓ R² of 0.95 is excellent — temperature alone explains 95% of the variation in ice cream sales. This is a well-fitting model!</p>
+      </div>
+      <div class="nav-btns"><button class="nav-btn" onclick="goto(6)">← Back</button></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function goto(n) {
+    document.querySelectorAll('.panel').forEach((p,i) => p.classList.toggle('active', i===n));
+    document.querySelectorAll('.step-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+    const pct = ((n+1)/8*100).toFixed(1)+'%';
+    document.getElementById('progress').style.width = pct;
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

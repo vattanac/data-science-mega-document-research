@@ -113,6 +113,20 @@
         ]
       },
       {
+        "name": "Regression-Models-Explained",
+        "type": "folder",
+        "children": [
+          {
+            "name": "regression_lesson.html",
+            "displayName": "regression_lesson.html",
+            "type": "file",
+            "ext": "html",
+            "size": 36978,
+            "path": "Regression-Models-Explained/regression_lesson.html"
+          }
+        ]
+      },
+      {
         "name": "singular-value-decomposition(svd)",
         "type": "folder",
         "children": [
