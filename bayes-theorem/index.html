@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bayes' Theorem - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #0a0b14;
+            color: #e5e7eb;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header & Tags */
+        header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid #1e2045;
+            padding-bottom: 2rem;
+        }
+
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: #1e2045;
+            color: #a78bfa;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            border: 1px solid #5eead4;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #f3f4f6;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            font-size: 1.1rem;
+        }
+
+        /* Cards */
+        .card {
+            background-color: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: border-color 0.3s;
+        }
+
+        .card:hover {
+            border-color: #a78bfa;
+        }
+
+        .card h2 {
+            color: #f3f4f6;
+            margin-bottom: 1rem;
+            font-size: 1.75rem;
+        }
+
+        .card h3 {
+            color: #d1d5db;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .card p {
+            margin-bottom: 1rem;
+            color: #d1d5db;
+        }
+
+        /* Math Blocks */
+        .math-block {
+            background-color: rgba(167, 139, 250, 0.1);
+            border: 1px solid #1e2045;
+            border-left: 3px solid #a78bfa;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .math-block .formula {
+            font-size: 1.3rem;
+            color: #a78bfa;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+
+        /* Callout Boxes */
+        .callout {
+            background-color: rgba(94, 234, 212, 0.05);
+            border: 1px solid #1e2045;
+            border-left: 3px solid #5eead4;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.25rem;
+        }
+
+        .callout-title {
+            color: #5eead4;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .callout p {
+            color: #d1d5db;
+            margin: 0;
+        }
+
+        /* Interactive Controls */
+        .controls {
+            background-color: #12142a;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid #1e2045;
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #d1d5db;
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #a78bfa 0%, #5eead4 100%);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #a78bfa;
+            cursor: pointer;
+            border: 2px solid #12142a;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #a78bfa;
+            cursor: pointer;
+            border: 2px solid #12142a;
+        }
+
+        .value-display {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        /* Results Section */
+        .results {
+            background-color: rgba(167, 139, 250, 0.1);
+            border: 1px solid #a78bfa;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #1e2045;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .result-label {
+            color: #9ca3af;
+        }
+
+        .result-value {
+            color: #5eead4;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            background-color: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* List Styles */
+        .card ul, .card ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card li {
+            margin-bottom: 0.5rem;
+            color: #d1d5db;
+        }
+
+        /* Emphasis */
+        .accent-text {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        .accent2-text {
+            color: #5eead4;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid #1e2045;
+            padding-top: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: #a78bfa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .math-block {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="tags">
+                <span class="tag">PROBABILITY</span>
+                <span class="tag">BAYESIAN</span>
+            </div>
+            <h1>Bayes' Theorem</h1>
+            <p class="subtitle">Understanding conditional probability and its applications in data science</p>
+        </header>
+
+        <!-- Section 1: What Is Bayes' Theorem? -->
+        <section class="card">
+            <h2>What Is Bayes' Theorem?</h2>
+            <p>Bayes' Theorem is a mathematical formula that describes how to update our beliefs in light of new evidence. It tells us how to calculate the probability of an event happening given that another event has occurred. This is called <span class="accent-text">conditional probability</span>.</p>
+
+            <div class="math-block">
+                <div class="formula">P(A|B) = P(B|A) · P(A) / P(B)</div>
+            </div>
+
+            <div class="callout">
+                <div class="callout-title">Why It's Powerful</div>
+                <p>Bayes' Theorem is the foundation of modern machine learning, medical diagnosis, spam filtering, and countless other applications. It provides a principled way to reason under uncertainty.</p>
+            </div>
+
+            <h3>The Components Explained</h3>
+            <ul>
+                <li><span class="accent-text">Prior P(A)</span> — Our initial belief about the probability of event A before any evidence. What did we think before we observed anything?</li>
+                <li><span class="accent-text">Likelihood P(B|A)</span> — The probability of observing evidence B given that A is true. How likely is the evidence if our hypothesis is correct?</li>
+                <li><span class="accent-text">Evidence P(B)</span> — The total probability of observing the evidence B across all scenarios. This normalizes our result.</li>
+                <li><span class="accent2-text">Posterior P(A|B)</span> — Our updated belief about A after seeing evidence B. This is what we want to calculate.</li>
+            </ul>
+
+            <p style="margin-top: 1.5rem;">In plain English: <span class="accent-text">How likely is our hypothesis given the evidence?</span> depends on three things: how likely we thought it was before (prior), how well it explains the evidence (likelihood), and how common the evidence is overall (evidence).</p>
+        </section>
+
+        <!-- Section 2: The Formula Explained -->
+        <section class="card">
+            <h2>The Formula Explained Step by Step</h2>
+            <p>Let's break down Bayes' Theorem with a concrete example to understand each component.</p>
+
+            <div class="math-block">
+                <div style="margin-bottom: 1rem; color: #d1d5db;">The Formula:</div>
+                <div class="formula">P(A|B) = P(B|A) · P(A) / P(B)</div>
+            </div>
+
+            <h3>Example: Cancer Diagnosis</h3>
+            <p>Suppose you take a cancer screening test. You want to know: <span class="accent-text">What is the probability I actually have cancer given that my test is positive?</span></p>
+
+            <ul>
+                <li><span class="accent-text">A</span> = You have cancer</li>
+                <li><span class="accent-text">B</span> = Your test came back positive</li>
+            </ul>
+
+            <h3>Breaking It Down</h3>
+            <p><span class="accent-text">P(A)</span> = Probability you have cancer (before test) = 1%<br/>
+            This is your <span class="accent-text">prior</span>. Most people don't have cancer.</p>
+
+            <p><span class="accent-text">P(B|A)</span> = Probability test is positive IF you have cancer = 99%<br/>
+            This is the test's <span class="accent-text">sensitivity</span>. It correctly identifies cancer 99% of the time.</p>
+
+            <p><span class="accent-text">P(B)</span> = Probability of a positive test (overall) = ?<br/>
+            This must account for both true positives and false positives.</p>
+
+            <p><span class="accent-text">P(A|B)</span> = Probability you have cancer GIVEN a positive test<br/>
+            This is our <span class="accent-text">posterior</span>. What we calculate with Bayes' Theorem.</p>
+
+            <div class="callout">
+                <div class="callout-title">Key Insight</div>
+                <p>Even with a 99% accurate test, if the disease is rare (1%), a positive test doesn't mean you probably have it. This counter-intuitive result is why Bayes' Theorem is so important in medical diagnosis.</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Interactive Medical Test Example -->
+        <section class="card">
+            <h2>Interactive: Medical Test Example</h2>
+            <p>Adjust the sliders below to see how disease prevalence, test sensitivity, and specificity affect the probability of actually having the disease given a positive test.</p>
+
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Disease Prevalence (Prior)</span>
+                        <span class="value-display" id="prevalenceDisplay">1%</span>
+                    </div>
+                    <input type="range" id="prevalenceSlider" min="0.1" max="10" step="0.1" value="1">
+                    <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">What % of the population has this disease?</p>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Test Sensitivity (True Positive Rate)</span>
+                        <span class="value-display" id="sensitivityDisplay">95%</span>
+                    </div>
+                    <input type="range" id="sensitivitySlider" min="50" max="100" step="1" value="95">
+                    <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">If you have the disease, what % chance does the test catch it?</p>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Test Specificity (True Negative Rate)</span>
+                        <span class="value-display" id="specificityDisplay">90%</span>
+                    </div>
+                    <input type="range" id="specificitySlider" min="50" max="100" step="1" value="90">
+                    <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">If you don't have the disease, what % chance does the test correctly say so?</p>
+                </div>
+            </div>
+
+            <div class="results">
+                <div class="result-row">
+                    <span class="result-label">Prior (Disease Prevalence)</span>
+                    <span class="result-value" id="medicalPrior">1%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Likelihood (Test Sensitivity)</span>
+                    <span class="result-value" id="medicalLikelihood">95%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">False Positive Rate</span>
+                    <span class="result-value" id="falsePositiveRate">10%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">P(Positive Test)</span>
+                    <span class="result-value" id="totalPositive">10.85%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label" style="font-weight: 600; color: #5eead4;">Posterior: P(Disease | Positive Test)</span>
+                    <span class="result-value" style="font-size: 1.3rem; color: #5eead4;">
+                        <span id="posteriorProbability">8.76%</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="callout" style="margin-top: 1.5rem;">
+                <div class="callout-title">Interpretation</div>
+                <p>The posterior probability shows: given that your test came back positive, what's the actual probability you have the disease? Notice how even with a high-accuracy test, the result depends heavily on how common the disease is in the population.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Interactive Probability Tree -->
+        <section class="card">
+            <h2>Interactive: Visual Probability Tree</h2>
+            <p>This diagram shows how probabilities flow through the calculation. Hover over branches to see the math.</p>
+
+            <div class="canvas-container">
+                <canvas id="treeCanvas" width="600" height="500"></canvas>
+            </div>
+
+            <div class="callout">
+                <div class="callout-title">How to Read the Tree</div>
+                <p>The tree shows two paths: (1) you have the disease and test positive (true positive), or (2) you don't have the disease but test positive anyway (false positive). The posterior combines these two probabilities.</p>
+            </div>
+        </section>
+
+        <!-- Section 5: Naive Bayes Classifier -->
+        <section class="card">
+            <h2>Naive Bayes Classifier in Machine Learning</h2>
+            <p>Bayes' Theorem powers one of the most practical machine learning algorithms: the <span class="accent-text">Naive Bayes Classifier</span>. It's "naive" because it makes a simplifying assumption: it treats all features (input variables) as independent.</p>
+
+            <h3>How It Works</h3>
+            <p>Given a document with words [w₁, w₂, ..., wₙ], what class C should it belong to?</p>
+
+            <div class="math-block">
+                <div class="formula">P(C | w₁, w₂, ..., wₙ) ∝ P(C) · P(w₁|C) · P(w₂|C) · ... · P(wₙ|C)</div>
+            </div>
+
+            <h3>Real-World Applications</h3>
+            <ul>
+                <li><span class="accent-text">Spam Filtering</span> — Is this email spam or legitimate? Calculate P(Spam|words in email)</li>
+                <li><span class="accent-text">Sentiment Analysis</span> — Is this review positive or negative? Calculate P(Positive|review words)</li>
+                <li><span class="accent-text">Text Classification</span> — What category does this article belong to? Calculate P(Category|document)</li>
+                <li><span class="accent-text">Disease Diagnosis</span> — Does the patient have disease A or B? Calculate P(Disease|symptoms)</li>
+            </ul>
+
+            <h3>Why It's Popular</h3>
+            <ol>
+                <li><span class="accent2-text">Fast to train</span> — Just count word frequencies in each class</li>
+                <li><span class="accent2-text">Fast to predict</span> — Simple probability multiplication</li>
+                <li><span class="accent2-text">Works well despite being "naive"</span> — The independence assumption is often good enough</li>
+                <li><span class="accent2-text">Interpretable</span> — You can see which words matter for each class</li>
+                <li><span class="accent2-text">Good for text</span> — Especially when you have limited training data</li>
+            </ol>
+
+            <div class="callout">
+                <div class="callout-title">Spam Filter Example</div>
+                <p><span class="accent-text">Prior:</span> 30% of emails are spam. <span class="accent-text">Likelihood:</span> The word "FREE" appears in 80% of spam but only 5% of legitimate emails. <span class="accent-text">Result:</span> If an email contains "FREE", Bayes' Theorem tells us the probability it's spam jumps significantly.</p>
+            </div>
+        </section>
+
+        <!-- Section 6: Prior vs Posterior Visualization -->
+        <section class="card">
+            <h2>Prior vs Posterior: How Evidence Updates Belief</h2>
+            <p>This visualization shows the classic Bayesian update: how a <span class="accent-text">prior distribution</span> (what we believed before) becomes a <span class="accent2-text">posterior distribution</span> (what we believe after seeing evidence).</p>
+
+            <div class="canvas-container">
+                <canvas id="distributionCanvas" width="700" height="350"></canvas>
+            </div>
+
+            <div class="callout">
+                <div class="callout-title">What's Happening</div>
+                <p><span class="accent-text">Blue curve (Prior):</span> Our initial belief that a coin is fair. The peak is at 50% heads. <span class="accent2-text">Red curve (Posterior):</span> After flipping it 100 times and seeing 65 heads, our belief shifts toward a coin that's biased toward heads. Evidence has updated our belief.</p>
+            </div>
+
+            <h3>The Bayesian Workflow</h3>
+            <ol>
+                <li>Start with a <span class="accent-text">prior</span> — your initial belief</li>
+                <li>Observe <span class="accent-text">evidence</span> — new data</li>
+                <li>Calculate <span class="accent-text">likelihood</span> — how likely is the evidence under different hypotheses?</li>
+                <li>Compute <span class="accent-text">posterior</span> — your updated belief after combining prior and evidence</li>
+                <li>Use the posterior as your new prior for the next iteration</li>
+            </ol>
+
+            <p style="margin-top: 1.5rem;">This iterative process is why Bayes' Theorem is so powerful for learning from data. Each observation refines our understanding.</p>
+        </section>
+
+        <!-- Section 7: Why It Matters in Data Science -->
+        <section class="card">
+            <h2>Why Bayes' Theorem Matters in Data Science</h2>
+            <p>Bayes' Theorem isn't just a mathematical curiosity—it's foundational to modern data science and machine learning. Here's why it matters:</p>
+
+            <h3>1. Spam Filters & Email Systems</h3>
+            <p>Every major email provider uses Bayesian filtering. When you report an email as spam, the system learns P(Spam|words), making it better at filtering. Gmail, Outlook, and others rely on this principle to keep spam out of your inbox.</p>
+
+            <h3>2. Medical Diagnosis & Healthcare</h3>
+            <p>Doctors use Bayesian reasoning (whether explicitly or intuitively) to interpret test results. A positive COVID-19 test means different things depending on prevalence. Bayesian networks power clinical decision support systems that help doctors diagnose diseases.</p>
+
+            <h3>3. Recommendation Systems</h3>
+            <p>Netflix, Amazon, and Spotify use Bayesian methods to estimate P(You'll like this movie | Movies you've watched). This powers personalization across the internet.</p>
+
+            <h3>4. A/B Testing & Experiments</h3>
+            <p>Bayesian statistics are used to interpret experiments. Instead of p-values, we directly compute P(Treatment A is better than B | observed data), which is what we actually want to know.</p>
+
+            <h3>5. Natural Language Processing</h3>
+            <p>Spam detection, sentiment analysis, and text classification all use Naive Bayes or Bayesian deep learning architectures. Probabilistic language models (like those behind modern AI) are built on Bayesian principles.</p>
+
+            <h3>6. Computer Vision & Robotics</h3>
+            <p>Bayesian networks help robots understand what they're seeing. P(Object is a cat | pixel patterns) allows machines to recognize and classify images. Autonomous vehicles use Bayesian filtering to track other cars.</p>
+
+            <h3>7. Decision Making Under Uncertainty</h3>
+            <p>Bayes' Theorem is the principled way to make decisions when you don't have perfect information. It's used in finance, insurance, operations research, and anywhere you need to account for uncertainty.</p>
+
+            <div class="callout">
+                <div class="callout-title">Bottom Line</div>
+                <p>Bayes' Theorem provides a mathematically sound framework for <span class="accent-text">learning from data and updating beliefs</span>. In a world of uncertainty, this is invaluable. Whether you're filtering spam, diagnosing diseases, or building recommendation systems, Bayesian thinking helps you reason clearly about probability and evidence.</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2025 Sim Vattanac &middot; <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a></p>
+        </footer>
+    </div>
+
+    <!-- Canvas Drawing Scripts -->
+    <script>
+        // ==================== Medical Test Calculator ====================
+        function updateMedicalCalculations() {
+            const prevalence = parseFloat(document.getElementById('prevalenceSlider').value) / 100;
+            const sensitivity = parseFloat(document.getElementById('sensitivitySlider').value) / 100;
+            const specificity = parseFloat(document.getElementById('specificitySlider').value) / 100;
+
+            // Update displays
+            document.getElementById('prevalenceDisplay').textContent =
+                document.getElementById('prevalenceSlider').value + '%';
+            document.getElementById('sensitivityDisplay').textContent =
+                document.getElementById('sensitivitySlider').value + '%';
+            document.getElementById('specificityDisplay').textContent =
+                document.getElementById('specificitySlider').value + '%';
+
+            // Update results
+            document.getElementById('medicalPrior').textContent =
+                (prevalence * 100).toFixed(1) + '%';
+            document.getElementById('medicalLikelihood').textContent =
+                (sensitivity * 100).toFixed(1) + '%';
+
+            const falsePositiveRate = 1 - specificity;
+            document.getElementById('falsePositiveRate').textContent =
+                (falsePositiveRate * 100).toFixed(1) + '%';
+
+            // Calculate P(B) - total probability of positive test
+            const truePositive = sensitivity * prevalence;
+            const falsePositive = falsePositiveRate * (1 - prevalence);
+            const totalPositive = truePositive + falsePositive;
+
+            document.getElementById('totalPositive').textContent =
+                (totalPositive * 100).toFixed(2) + '%';
+
+            // Calculate posterior using Bayes' theorem: P(A|B) = P(B|A) * P(A) / P(B)
+            const posterior = totalPositive > 0 ? truePositive / totalPositive : 0;
+
+            document.getElementById('posteriorProbability').textContent =
+                (posterior * 100).toFixed(2) + '%';
+
+            // Update tree visualization
+            drawProbabilityTree(prevalence, sensitivity, specificity);
+        }
+
+        // ==================== Probability Tree Visualization ====================
+        function drawProbabilityTree(prevalence, sensitivity, specificity) {
+            const canvas = document.getElementById('treeCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const startX = 50;
+            const startY = canvas.height / 2;
+
+            // Colors
+            const primaryColor = '#a78bfa';
+            const secondaryColor = '#5eead4';
+            const lineColor = '#1e2045';
+            const textColor = '#d1d5db';
+
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillStyle = textColor;
+
+            // Draw initial node
+            ctx.fillStyle = primaryColor;
+            ctx.beginPath();
+            ctx.arc(startX, startY, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Upper branch: Has disease
+            const hasDisease = startY - 100;
+            const diseaseProb = prevalence;
+
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(startX + 10, startY - 5);
+            ctx.lineTo(150, hasDisease);
+            ctx.stroke();
+
+            ctx.fillStyle = primaryColor;
+            ctx.beginPath();
+            ctx.arc(150, hasDisease, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Upper-upper: Disease + Positive
+            const diseasePositive = hasDisease - 50;
+            const dPosProb = diseaseProb * sensitivity;
+
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(160, hasDisease - 5);
+            ctx.lineTo(300, diseasePositive);
+            ctx.stroke();
+
+            ctx.fillStyle = secondaryColor;
+            ctx.beginPath();
+            ctx.arc(300, diseasePositive, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'left';
+            ctx.fillText('Has Disease + Test+', 310, diseasePositive + 5);
+            ctx.fillText(`P: ${(dPosProb * 100).toFixed(2)}%`, 310, diseasePositive + 20);
+
+            // Upper-lower: Disease + Negative
+            const diseaseNegative = hasDisease + 50;
+            const dNegProb = diseaseProb * (1 - sensitivity);
+
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(160, hasDisease + 5);
+            ctx.lineTo(300, diseaseNegative);
+            ctx.stroke();
+
+            ctx.fillStyle = primaryColor;
+            ctx.beginPath();
+            ctx.arc(300, diseaseNegative, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'left';
+            ctx.fillText('Has Disease + Test-', 310, diseaseNegative + 5);
+            ctx.fillText(`P: ${(dNegProb * 100).toFixed(2)}%`, 310, diseaseNegative + 20);
+
+            // Label upper branch
+            ctx.fillStyle = primaryColor;
+            ctx.textAlign = 'center';
+            ctx.fillText(`P(D) = ${(diseaseProb * 100).toFixed(1)}%`, 100, hasDisease - 25);
+
+            // Lower branch: No disease
+            const noDisease = startY + 100;
+            const noDiseaseProb = 1 - prevalence;
+
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(startX + 10, startY + 5);
+            ctx.lineTo(150, noDisease);
+            ctx.stroke();
+
+            ctx.fillStyle = primaryColor;
+            ctx.beginPath();
+            ctx.arc(150, noDisease, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Lower-upper: No disease + Positive (False Positive)
+            const nodiseasePositive = noDisease - 50;
+            const ndPosProb = noDiseaseProb * (1 - specificity);
+
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(160, noDisease - 5);
+            ctx.lineTo(300, nodiseasePositive);
+            ctx.stroke();
+
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(300, nodiseasePositive, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'left';
+            ctx.fillText('No Disease + Test+ (FP)', 310, nodiseasePositive + 5);
+            ctx.fillText(`P: ${(ndPosProb * 100).toFixed(2)}%`, 310, nodiseasePositive + 20);
+
+            // Lower-lower: No disease + Negative
+            const nodiseaseNegative = noDisease + 50;
+            const ndNegProb = noDiseaseProb * specificity;
+
+            ctx.strokeStyle = lineColor;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(160, noDisease + 5);
+            ctx.lineTo(300, nodiseaseNegative);
+            ctx.stroke();
+
+            ctx.fillStyle = primaryColor;
+            ctx.beginPath();
+            ctx.arc(300, nodiseaseNegative, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'left';
+            ctx.fillText('No Disease + Test-', 310, nodiseaseNegative + 5);
+            ctx.fillText(`P: ${(ndNegProb * 100).toFixed(2)}%`, 310, ndNegProb + 20);
+
+            // Label lower branch
+            ctx.fillStyle = primaryColor;
+            ctx.textAlign = 'center';
+            ctx.fillText(`P(¬D) = ${(noDiseaseProb * 100).toFixed(1)}%`, 100, noDisease + 25);
+        }
+
+        // ==================== Prior vs Posterior Distribution ====================
+        function drawDistribution() {
+            const canvas = document.getElementById('distributionCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const padding = 60;
+            const graphWidth = canvas.width - 2 * padding;
+            const graphHeight = canvas.height - 2 * padding;
+            const centerY = canvas.height / 2;
+
+            // Draw axes
+            ctx.strokeStyle = '#1e2045';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, centerY);
+            ctx.lineTo(canvas.width - padding, centerY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Probability of Heads', canvas.width / 2, canvas.height - 20);
+
+            ctx.save();
+            ctx.translate(20, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText('Likelihood', 0, 0);
+            ctx.restore();
+
+            // Draw tick marks and labels
+            for (let i = 0; i <= 10; i++) {
+                const x = padding + (i / 10) * graphWidth;
+                ctx.strokeStyle = '#1e2045';
+                ctx.beginPath();
+                ctx.moveTo(x, centerY - 3);
+                ctx.lineTo(x, centerY + 3);
+                ctx.stroke();
+
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '10px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText((i * 10) + '%', x, centerY + 15);
+            }
+
+            // Prior distribution (Beta distribution at 0.5)
+            ctx.strokeStyle = '#a78bfa';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+
+            for (let i = 0; i <= graphWidth; i++) {
+                const p = i / graphWidth;
+                // Beta(2, 2) centered at 0.5
+                const y = Math.pow(p, 1) * Math.pow(1 - p, 1) * 4;
+                const x = padding + i;
+                const displayY = centerY - y * graphHeight * 0.4;
+
+                if (i === 0) ctx.moveTo(x, displayY);
+                else ctx.lineTo(x, displayY);
+            }
+            ctx.stroke();
+
+            // Posterior distribution (Beta distribution shifted toward 0.65)
+            ctx.strokeStyle = '#5eead4';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+
+            for (let i = 0; i <= graphWidth; i++) {
+                const p = i / graphWidth;
+                // Beta distribution shifted toward observed 65 heads out of 100
+                const alpha = 65 + 1;  // observed heads + 1
+                const beta = (100 - 65) + 1;  // observed tails + 1
+
+                // Simplified beta distribution
+                const y = Math.pow(p, alpha - 1) * Math.pow(1 - p, beta - 1) * 0.15;
+                const x = padding + i;
+                const displayY = centerY - y * graphHeight * 0.4;
+
+                if (i === 0) ctx.moveTo(x, displayY);
+                else ctx.lineTo(x, displayY);
+            }
+            ctx.stroke();
+
+            // Legend
+            ctx.font = '12px Inter, sans-serif';
+            ctx.textAlign = 'left';
+
+            ctx.strokeStyle = '#a78bfa';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(20, 15);
+            ctx.lineTo(50, 15);
+            ctx.stroke();
+            ctx.fillStyle = '#a78bfa';
+            ctx.fillText('Prior: Before seeing evidence', 60, 20);
+
+            ctx.strokeStyle = '#5eead4';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(20, 35);
+            ctx.lineTo(50, 35);
+            ctx.stroke();
+            ctx.fillStyle = '#5eead4';
+            ctx.fillText('Posterior: After 65 heads in 100 flips', 60, 40);
+        }
+
+        // ==================== Event Listeners ====================
+        document.getElementById('prevalenceSlider').addEventListener('input', updateMedicalCalculations);
+        document.getElementById('sensitivitySlider').addEventListener('input', updateMedicalCalculations);
+        document.getElementById('specificitySlider').addEventListener('input', updateMedicalCalculations);
+
+        // Initial render
+        window.addEventListener('load', () => {
+            updateMedicalCalculations();
+            drawDistribution();
+        });
+
+        // Redraw on window resize
+        window.addEventListener('resize', () => {
+            updateMedicalCalculations();
+            drawDistribution();
+        });
+    </script>
+</body>
+</html>

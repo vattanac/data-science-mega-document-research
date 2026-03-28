@@ -5,6 +5,50 @@
     "type": "folder",
     "children": [
       {
+        "name": "bayes-theorem",
+        "type": "folder",
+        "children": [
+          {
+            "name": "bayes_theorem_guide.docx",
+            "displayName": "bayes_theorem_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10118,
+            "path": "bayes-theorem/bayes_theorem_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "bayes-theorem",
+            "type": "file",
+            "ext": "html",
+            "size": 36568,
+            "path": "bayes-theorem/index.html"
+          }
+        ]
+      },
+      {
+        "name": "correlation-vs-causation",
+        "type": "folder",
+        "children": [
+          {
+            "name": "correlation_vs_causation_guide.docx",
+            "displayName": "correlation_vs_causation_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10203,
+            "path": "correlation-vs-causation/correlation_vs_causation_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "correlation-vs-causation",
+            "type": "file",
+            "ext": "html",
+            "size": 37941,
+            "path": "correlation-vs-causation/index.html"
+          }
+        ]
+      },
+      {
         "name": "drone-top20-research-topic",
         "type": "folder",
         "children": [
@@ -72,7 +116,8 @@
             "type": "file",
             "ext": "html",
             "size": 374,
-            "path": "gradient-descent-react/index.html"
+            "path": "gradient-descent-react/index.html",
+            "externalUrl": "https://gradient-descent-saas.netlify.app"
           }
         ]
       },
@@ -87,6 +132,28 @@
             "ext": "html",
             "size": 92824,
             "path": "gradient-descent-saas/index.html"
+          }
+        ]
+      },
+      {
+        "name": "hypothesis-testing",
+        "type": "folder",
+        "children": [
+          {
+            "name": "hypothesis_testing_guide.docx",
+            "displayName": "hypothesis_testing_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10055,
+            "path": "hypothesis-testing/hypothesis_testing_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "hypothesis-testing",
+            "type": "file",
+            "ext": "html",
+            "size": 35830,
+            "path": "hypothesis-testing/index.html"
           }
         ]
       },
@@ -109,6 +176,28 @@
             "ext": "docx",
             "size": 21352,
             "path": "kdd_process/KDD_Process_DataMining.docx"
+          }
+        ]
+      },
+      {
+        "name": "normal-distribution-and-clt",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "normal-distribution-and-clt",
+            "type": "file",
+            "ext": "html",
+            "size": 19246,
+            "path": "normal-distribution-and-clt/index.html"
+          },
+          {
+            "name": "normal_distribution_clt_guide.docx",
+            "displayName": "normal_distribution_clt_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10302,
+            "path": "normal-distribution-and-clt/normal_distribution_clt_guide.docx"
           }
         ]
       },

@@ -47,6 +47,12 @@ SKIP_FILES = {
     "generate_manifest.py",
 }
 
+# Folders with external URLs (e.g. React/Vite apps deployed on Netlify)
+# These will show as links to the external URL instead of loading the local file
+EXTERNAL_URLS = {
+    "gradient-descent-react": "https://gradient-descent-saas.netlify.app",
+}
+
 
 def build_tree(root_path: Path) -> dict:
     """
@@ -100,14 +106,20 @@ def build_tree(root_path: Path) -> dict:
                 if entry.name.lower() == "index.html":
                     display_name = root_path.name
 
-                node["children"].append({
+                file_entry = {
                     "name": entry.name,
                     "displayName": display_name,
                     "type": "file",
                     "ext": entry.suffix.lower().lstrip("."),
                     "size": entry.stat().st_size,
                     "path": rel_path,
-                })
+                }
+
+                # Add external URL if this folder is mapped
+                if root_path.name in EXTERNAL_URLS and entry.name.lower() == "index.html":
+                    file_entry["externalUrl"] = EXTERNAL_URLS[root_path.name]
+
+                node["children"].append(file_entry)
 
     return node
 

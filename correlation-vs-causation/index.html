@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correlation vs Causation - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0b14;
+            color: #e5e7eb;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: #12142a;
+            border-bottom: 1px solid #1e2045;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #1e2045;
+            border: 1px solid #a78bfa;
+            color: #a78bfa;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #a78bfa;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            font-size: 1.1rem;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Cards */
+        .card {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #a78bfa;
+        }
+
+        .card h2 {
+            color: #a78bfa;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h3 {
+            color: #5eead4;
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Callout Boxes */
+        .callout {
+            background: #1e2045;
+            border-left: 4px solid #a78bfa;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.25rem;
+        }
+
+        .callout.note {
+            border-left-color: #5eead4;
+        }
+
+        .callout.warning {
+            border-left-color: #f87171;
+        }
+
+        .callout p {
+            margin: 0;
+            color: #d1d5db;
+        }
+
+        .callout strong {
+            color: #a78bfa;
+        }
+
+        /* Math Blocks */
+        .math-block {
+            background: #1e2045;
+            border: 1px solid #a78bfa;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            color: #5eead4;
+            text-align: center;
+            font-size: 1.1rem;
+            overflow-x: auto;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1.5rem 0 1.5rem 2rem;
+        }
+
+        li {
+            margin-bottom: 0.75rem;
+            color: #d1d5db;
+        }
+
+        /* Buttons */
+        button {
+            background: #a78bfa;
+            color: #0a0b14;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background: #5eead4;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Canvas Containers */
+        .canvas-container {
+            background: #0a0b14;
+            border: 1px solid #1e2045;
+            border-radius: 0.25rem;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .canvas-info {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        .result-box {
+            background: #1e2045;
+            border: 1px solid #5eead4;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
+            color: #5eead4;
+            font-weight: 600;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .grid-item {
+            background: #1e2045;
+            border: 1px solid #1e2045;
+            padding: 1.5rem;
+            border-radius: 0.25rem;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .grid-item:hover {
+            border-color: #a78bfa;
+        }
+
+        .grid-item h4 {
+            color: #a78bfa;
+            margin-bottom: 1rem;
+        }
+
+        .grid-item canvas {
+            margin: 1rem auto;
+        }
+
+        /* Footer */
+        footer {
+            background: #12142a;
+            border-top: 1px solid #1e2045;
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        footer a {
+            color: #a78bfa;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #5eead4;
+        }
+
+        /* Input Styles */
+        input[type="text"],
+        input[type="number"],
+        select {
+            background: #1e2045;
+            border: 1px solid #1e2045;
+            color: #e5e7eb;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #a78bfa;
+        }
+
+        /* Control Groups */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            align-items: center;
+        }
+
+        .section-spacer {
+            margin: 3rem 0;
+            border-top: 1px solid #1e2045;
+            padding-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="tags">
+                <span class="tag">STATISTICS</span>
+                <span class="tag">CAUSALITY</span>
+            </div>
+            <h1>Correlation vs Causation</h1>
+            <p class="subtitle">Understanding the difference that matters in data science</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- What Is Correlation? -->
+        <div class="card">
+            <h2>📊 What Is Correlation?</h2>
+
+            <p>Correlation measures the strength and direction of a linear relationship between two variables. When two variables move together in a predictable pattern, they are said to be correlated.</p>
+
+            <h3>Pearson Correlation Coefficient (r)</h3>
+            <p>The most common measure of correlation is Pearson's r, which quantifies how closely two variables follow a linear relationship.</p>
+
+            <div class="math-block">
+                r = Σ[(x - x̄)(y - ȳ)] / √[Σ(x - x̄)² × Σ(y - ȳ)²]
+            </div>
+
+            <h3>Interpretation Scale</h3>
+            <div class="grid">
+                <div class="grid-item">
+                    <h4>r = 1</h4>
+                    <p>Perfect positive correlation - variables move together perfectly</p>
+                </div>
+                <div class="grid-item">
+                    <h4>0.7 to 0.9</h4>
+                    <p>Strong positive correlation - strong relationship</p>
+                </div>
+                <div class="grid-item">
+                    <h4>0.3 to 0.7</h4>
+                    <p>Moderate correlation - reasonable relationship</p>
+                </div>
+                <div class="grid-item">
+                    <h4>0 to 0.3</h4>
+                    <p>Weak correlation - minimal relationship</p>
+                </div>
+                <div class="grid-item">
+                    <h4>r = 0</h4>
+                    <p>No correlation - variables independent</p>
+                </div>
+                <div class="grid-item">
+                    <h4>r = -1</h4>
+                    <p>Perfect negative correlation - inverse relationship</p>
+                </div>
+            </div>
+
+            <div class="callout note">
+                <strong>Key Point:</strong> Correlation ranges from -1 to 1. The sign tells direction (positive vs negative), the magnitude tells strength. Correlation only captures linear relationships.
+            </div>
+        </div>
+
+        <!-- What Is Causation? -->
+        <div class="card">
+            <h2>⚡ What Is Causation?</h2>
+
+            <p>Causation means that changes in one variable directly cause changes in another variable. There's a mechanism or process by which one variable influences the other.</p>
+
+            <h3>Characteristics of Causation</h3>
+            <ul>
+                <li><strong>Mechanism:</strong> There's a clear explanation for why one thing causes another</li>
+                <li><strong>Temporal Order:</strong> The cause must occur before the effect</li>
+                <li><strong>Controlled Environment:</strong> Relationships hold true when other factors are controlled</li>
+                <li><strong>Reproducibility:</strong> The effect can be replicated in multiple contexts</li>
+            </ul>
+
+            <h3>Establishing Causation</h3>
+            <p>The gold standard for establishing causation is the <strong>randomized controlled experiment</strong>:</p>
+            <ul>
+                <li>Randomly assign subjects to treatment and control groups</li>
+                <li>Apply the treatment to the treatment group only</li>
+                <li>Compare outcomes between groups</li>
+                <li>Any differences can be attributed to the treatment</li>
+            </ul>
+
+            <div class="callout">
+                <strong>Bradford Hill Criteria:</strong> Strength of association, consistency, specificity, temporality, biological gradient, plausibility, coherence, experiment, and analogy help establish causation.
+            </div>
+        </div>
+
+        <!-- Why Correlation ≠ Causation -->
+        <div class="card">
+            <h2>🔄 Why Correlation ≠ Causation</h2>
+
+            <p>Just because two variables move together doesn't mean one causes the other. There are several reasons why correlation can occur without causation:</p>
+
+            <h3>1. Confounding Variables</h3>
+            <p>A third variable causes changes in both the variables you're observing, creating a spurious correlation.</p>
+            <div class="callout warning">
+                <strong>Example:</strong> Ice cream sales correlate with drowning deaths, but a confounding variable—summer weather—causes both to increase independently.
+            </div>
+
+            <h3>2. Reverse Causation</h3>
+            <p>You might think X causes Y, but actually Y causes X, or both cause each other in a feedback loop.</p>
+
+            <h3>3. Selection Bias</h3>
+            <p>Your sample selection might create spurious correlations that don't exist in the broader population.</p>
+
+            <h3>4. Coincidence</h3>
+            <p>With enough variables, some will correlate by pure chance. This is why multiple hypothesis testing requires corrections.</p>
+
+            <h3>Famous Spurious Correlations</h3>
+            <div class="grid">
+                <div class="grid-item">
+                    <h4>Nicolas Cage Films & Drowning Deaths</h4>
+                    <p>Strong positive correlation, zero causation. Pure coincidence of timing.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Shoe Size & Reading Ability (Children)</h4>
+                    <p>Correlated because age confounds both. Older children have bigger feet AND read better.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Coffee Consumption & Heart Disease</h4>
+                    <p>Early studies showed correlation, but confounders (stress, smoking) caused both, not the coffee.</p>
+                </div>
+                <div class="grid-item">
+                    <h4>Low Cholesterol & Mortality</h4>
+                    <p>Correlation exists, but causation is reversed: illness lowers cholesterol as people get sicker.</p>
+                </div>
+            </div>
+
+            <div class="callout">
+                <strong>The Key Insight:</strong> Correlation is necessary for causation, but not sufficient. You need correlation AND evidence ruling out alternative explanations.
+            </div>
+        </div>
+
+        <!-- Types of Correlation -->
+        <div class="card">
+            <h2>📈 Types of Correlation</h2>
+
+            <h3>Visual Examples</h3>
+            <p>Below are visual examples of different correlation patterns. These help you recognize correlation visually before computing r values.</p>
+
+            <div class="grid">
+                <div class="grid-item">
+                    <h4>Strong Positive (r ≈ 0.9)</h4>
+                    <canvas id="corrStrongPos" width="250" height="200"></canvas>
+                </div>
+                <div class="grid-item">
+                    <h4>Weak Positive (r ≈ 0.4)</h4>
+                    <canvas id="corrWeakPos" width="250" height="200"></canvas>
+                </div>
+                <div class="grid-item">
+                    <h4>No Correlation (r ≈ 0)</h4>
+                    <canvas id="corrNone" width="250" height="200"></canvas>
+                </div>
+                <div class="grid-item">
+                    <h4>Strong Negative (r ≈ -0.9)</h4>
+                    <canvas id="corrStrongNeg" width="250" height="200"></canvas>
+                </div>
+                <div class="grid-item">
+                    <h4>Non-Linear (r ≈ 0)</h4>
+                    <canvas id="corrNonLinear" width="250" height="200"></canvas>
+                </div>
+                <div class="grid-item">
+                    <h4>Outlier Effect (r ≈ 0.7)</h4>
+                    <canvas id="corrOutlier" width="250" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Scatter Plot Generator -->
+        <div class="card">
+            <h2>🎨 Interactive Scatter Plot Generator</h2>
+
+            <p>Create your own scatter plot by clicking on the canvas. Watch how the Pearson correlation coefficient (r) changes as you add points. A regression line shows the linear trend.</p>
+
+            <div class="controls">
+                <button onclick="clearScatterPoints()">Clear Points</button>
+                <span style="color: #9ca3af; margin-left: auto;">Click on the canvas to add points</span>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="scatterPlot" width="800" height="400"></canvas>
+                <div class="canvas-info">Left-click to add points • Right-click to remove last point</div>
+            </div>
+
+            <div class="result-box" id="correlationResult">
+                Click to add points and compute correlation
+            </div>
+
+            <div class="callout">
+                <strong>Try This:</strong> Create a strong positive correlation (points going up-right), then a strong negative correlation (points going down-right). Notice how r changes!
+            </div>
+        </div>
+
+        <!-- Correlation Guessing Game -->
+        <div class="card">
+            <h2>🎯 Correlation Guessing Game</h2>
+
+            <p>Random scatter plots are generated. Your challenge: guess the Pearson r value. After you guess, the actual value reveals how close you were.</p>
+
+            <div class="controls">
+                <button onclick="generateGuessingGame()">Generate New Plot</button>
+                <button onclick="showGameAnswer()">Show Answer</button>
+                <button onclick="resetGame()">Next Round</button>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="gameCanvas" width="800" height="400"></canvas>
+                <div class="canvas-info">Estimate the correlation coefficient (r)</div>
+            </div>
+
+            <div class="controls">
+                <input type="number" id="guessInput" placeholder="Enter your guess (-1 to 1)" min="-1" max="1" step="0.1">
+                <button onclick="checkGuess()">Submit Guess</button>
+            </div>
+
+            <div class="result-box" id="gameResult" style="display: none;">
+                Result will appear here
+            </div>
+
+            <div class="callout" id="gameCallout" style="display: none;">
+                <span id="gameCalloutText"></span>
+            </div>
+        </div>
+
+        <!-- Simpson's Paradox -->
+        <div class="card">
+            <h2>🔀 Simpson's Paradox</h2>
+
+            <p>Simpson's Paradox is a phenomenon where a trend appears in aggregated data but reverses when the data is broken down by subgroups. It's a powerful example of why understanding data requires careful analysis.</p>
+
+            <h3>Classic Example: Berkeley Admissions (1973)</h3>
+            <p>Overall, the University of California at Berkeley appeared to discriminate against female applicants. However, when analyzing by department, most departments actually had higher acceptance rates for women.</p>
+
+            <div class="callout warning">
+                <strong>What Happened:</strong> Women applied disproportionately to competitive departments with lower acceptance rates for everyone. Men applied more to less competitive departments with higher acceptance rates. The confounding variable was the department, not gender bias.
+            </div>
+
+            <h3>Why This Matters</h3>
+            <ul>
+                <li>Always disaggregate your data by relevant subgroups</li>
+                <li>Correlations at aggregate level may not hold at granular level</li>
+                <li>Be cautious of causal claims based on aggregate data alone</li>
+                <li>Identify potential confounders and stratify by them</li>
+            </ul>
+
+            <div class="math-block">
+                Aggregate Trend ≠ Trend Within Each Subgroup
+            </div>
+        </div>
+
+        <!-- Why It Matters in Data Science -->
+        <div class="card">
+            <h2>💡 Why It Matters in Data Science</h2>
+
+            <p>Understanding correlation vs causation is critical for responsible data science practice:</p>
+
+            <h3>Feature Selection & Model Building</h3>
+            <p>Including highly correlated features might improve prediction accuracy, but it doesn't mean those features cause the outcome. This matters for interpretability and generalization.</p>
+
+            <div class="callout">
+                <strong>Lesson:</strong> A feature correlated with your target in training data might not be available or predictive in production if the causal relationship doesn't exist.
+            </div>
+
+            <h3>A/B Testing</h3>
+            <p>Randomized experiments (A/B tests) establish causation by eliminating confounders. This is why they're the gold standard for testing product changes.</p>
+
+            <h3>Causal Inference Techniques</h3>
+            <p>When randomized experiments aren't possible, techniques like propensity score matching, instrumental variables, and difference-in-differences help estimate causal effects from observational data.</p>
+
+            <h3>Business Impact</h3>
+            <ul>
+                <li><strong>Prediction:</strong> You only need correlation (does feature predict outcome?)</li>
+                <li><strong>Explanation:</strong> You need causation (does feature cause outcome?)</li>
+                <li><strong>Action:</strong> Only causal relationships guide effective interventions</li>
+                <li><strong>Risk:</strong> Acting on spurious correlations can waste resources or cause harm</li>
+            </ul>
+
+            <div class="callout note">
+                <strong>Rule of Thumb:</strong> For prediction tasks, correlation is enough. For causal decisions (policy, intervention, marketing), you need evidence of causation.
+            </div>
+        </div>
+
+        <div class="section-spacer"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Sim Vattanac &middot; <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a></p>
+    </footer>
+
+    <script>
+        // ===== UTILITY FUNCTIONS =====
+
+        function calculatePearsonR(points) {
+            if (points.length < 2) return 0;
+
+            const n = points.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+
+            for (let p of points) {
+                sumX += p.x;
+                sumY += p.y;
+                sumXY += p.x * p.y;
+                sumX2 += p.x * p.x;
+                sumY2 += p.y * p.y;
+            }
+
+            const numerator = n * sumXY - sumX * sumY;
+            const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+
+            if (denominator === 0) return 0;
+            return numerator / denominator;
+        }
+
+        function calculateRegression(points) {
+            if (points.length < 2) return null;
+
+            const n = points.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+
+            for (let p of points) {
+                sumX += p.x;
+                sumY += p.y;
+                sumXY += p.x * p.y;
+                sumX2 += p.x * p.x;
+            }
+
+            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+
+            return { slope, intercept };
+        }
+
+        function drawAxes(ctx, width, height, padding) {
+            ctx.strokeStyle = '#1e2045';
+            ctx.lineWidth = 2;
+
+            // Axes
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.stroke();
+
+            // Grid
+            ctx.strokeStyle = '#0f1119';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const x = padding + (i / 10) * (width - 2 * padding);
+                const y = height - padding - (i / 10) * (height - 2 * padding);
+
+                ctx.beginPath();
+                ctx.moveTo(x, height - padding + 5);
+                ctx.lineTo(x, padding);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(padding - 5, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawPoint(ctx, x, y, color = '#a78bfa', size = 5) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawLine(ctx, x1, y1, x2, y2, color = '#5eead4', lineWidth = 2) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+        // ===== CORRELATION TYPE VISUALIZATIONS =====
+
+        function initCorrelationExamples() {
+            // Strong Positive
+            drawCorrelationExample('corrStrongPos', 0.9, true);
+
+            // Weak Positive
+            drawCorrelationExample('corrWeakPos', 0.4, true);
+
+            // No Correlation
+            drawCorrelationExample('corrNone', 0, false);
+
+            // Strong Negative
+            drawCorrelationExample('corrStrongNeg', -0.9, true);
+
+            // Non-Linear
+            drawNonLinearExample();
+
+            // Outlier Effect
+            drawOutlierExample();
+        }
+
+        function drawCorrelationExample(canvasId, targetR, addLine) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const padding = 30;
+
+            // Clear
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw axes
+            drawAxes(ctx, canvas.width, canvas.height, padding);
+
+            // Generate points
+            const points = [];
+            for (let i = 0; i < 30; i++) {
+                let x = Math.random();
+                let y;
+
+                if (Math.abs(targetR) > 0.1) {
+                    const noise = (Math.random() - 0.5) * (1 - Math.abs(targetR));
+                    y = targetR > 0 ? x + noise : 1 - x + noise;
+                    y = Math.max(0, Math.min(1, y));
+                } else {
+                    y = Math.random();
+                }
+
+                points.push({ x, y });
+            }
+
+            // Draw points
+            const plotX = (x) => padding + x * (canvas.width - 2 * padding);
+            const plotY = (y) => canvas.height - padding - y * (canvas.height - 2 * padding);
+
+            for (let p of points) {
+                drawPoint(ctx, plotX(p.x), plotY(p.y), '#a78bfa', 4);
+            }
+
+            // Draw regression line
+            if (addLine) {
+                const reg = calculateRegression(points);
+                if (reg) {
+                    const x1 = 0, y1 = reg.intercept;
+                    const x2 = 1, y2 = reg.slope + reg.intercept;
+
+                    if (y1 >= 0 && y1 <= 1) {
+                        drawLine(ctx, plotX(x1), plotY(y1), plotX(x2), plotY(Math.max(0, Math.min(1, y2))), '#5eead4', 2);
+                    }
+                }
+            }
+
+            // Labels
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '11px Inter, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('X', canvas.width - 10, canvas.height - padding + 15);
+            ctx.textAlign = 'center';
+            ctx.fillText('Y', padding - 15, 15);
+        }
+
+        function drawNonLinearExample() {
+            const canvas = document.getElementById('corrNonLinear');
+            const ctx = canvas.getContext('2d');
+            const padding = 30;
+
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            drawAxes(ctx, canvas.width, canvas.height, padding);
+
+            const plotX = (x) => padding + x * (canvas.width - 2 * padding);
+            const plotY = (y) => canvas.height - padding - y * (canvas.height - 2 * padding);
+
+            // Quadratic relationship
+            for (let i = 0; i < 50; i++) {
+                const x = Math.random();
+                const y = 4 * x * (1 - x) + (Math.random() - 0.5) * 0.2;
+                drawPoint(ctx, plotX(x), plotY(Math.max(0, Math.min(1, y))), '#a78bfa', 4);
+            }
+        }
+
+        function drawOutlierExample() {
+            const canvas = document.getElementById('corrOutlier');
+            const ctx = canvas.getContext('2d');
+            const padding = 30;
+
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            drawAxes(ctx, canvas.width, canvas.height, padding);
+
+            const plotX = (x) => padding + x * (canvas.width - 2 * padding);
+            const plotY = (y) => canvas.height - padding - y * (canvas.height - 2 * padding);
+
+            // Regular points with positive correlation
+            for (let i = 0; i < 25; i++) {
+                const x = Math.random();
+                const y = x + (Math.random() - 0.5) * 0.2;
+                drawPoint(ctx, plotX(x), plotY(Math.max(0, Math.min(1, y))), '#a78bfa', 4);
+            }
+
+            // Outlier
+            drawPoint(ctx, plotX(0.9), plotY(0.1), '#f87171', 5);
+        }
+
+        // ===== SCATTER PLOT GENERATOR =====
+
+        let scatterPoints = [];
+
+        function drawScatterPlot() {
+            const canvas = document.getElementById('scatterPlot');
+            const ctx = canvas.getContext('2d');
+            const padding = 60;
+
+            // Clear
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw axes with labels
+            ctx.strokeStyle = '#1e2045';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.stroke();
+
+            // Grid
+            ctx.strokeStyle = '#0f1119';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const x = padding + (i / 10) * (canvas.width - 2 * padding);
+                const y = canvas.height - padding - (i / 10) * (canvas.height - 2 * padding);
+
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height - padding + 5);
+                ctx.lineTo(x, padding);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(padding - 5, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+            }
+
+            // Labels
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('X Variable', canvas.width - 20, canvas.height - 20);
+            ctx.save();
+            ctx.translate(20, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText('Y Variable', 0, 0);
+            ctx.restore();
+
+            const plotX = (x) => padding + x * (canvas.width - 2 * padding);
+            const plotY = (y) => canvas.height - padding - y * (canvas.height - 2 * padding);
+
+            // Draw regression line if enough points
+            if (scatterPoints.length >= 2) {
+                const reg = calculateRegression(scatterPoints);
+                if (reg) {
+                    const x1 = 0, y1 = reg.intercept;
+                    const x2 = 1, y2 = reg.slope + reg.intercept;
+
+                    if (y1 >= 0 && y1 <= 1) {
+                        ctx.strokeStyle = '#5eead4';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(plotX(x1), plotY(y1));
+                        ctx.lineTo(plotX(x2), plotY(Math.max(0, Math.min(1, y2))));
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw points
+            for (let p of scatterPoints) {
+                drawPoint(ctx, plotX(p.x), plotY(p.y), '#a78bfa', 6);
+            }
+
+            // Update correlation display
+            const r = calculatePearsonR(scatterPoints);
+            const resultBox = document.getElementById('correlationResult');
+            if (scatterPoints.length === 0) {
+                resultBox.textContent = 'Click to add points and compute correlation';
+            } else {
+                resultBox.innerHTML = `<strong>Pearson r = ${r.toFixed(3)}</strong> (${scatterPoints.length} points)`;
+            }
+        }
+
+        function addScatterPoint(event) {
+            const canvas = document.getElementById('scatterPlot');
+            const rect = canvas.getBoundingClientRect();
+            const padding = 60;
+
+            const clientX = event.clientX - rect.left;
+            const clientY = event.clientY - rect.top;
+
+            const x = (clientX - padding) / (canvas.width - 2 * padding);
+            const y = (canvas.height - padding - clientY) / (canvas.height - 2 * padding);
+
+            if (x >= 0 && x <= 1 && y >= 0 && y <= 1) {
+                scatterPoints.push({ x, y });
+                drawScatterPlot();
+            }
+        }
+
+        function clearScatterPoints() {
+            scatterPoints = [];
+            drawScatterPlot();
+        }
+
+        // ===== GUESSING GAME =====
+
+        let gamePoints = [];
+        let actualR = 0;
+        let gameAnswerShown = false;
+
+        function generateRandomPoints(numPoints = 25) {
+            const points = [];
+            const targetR = (Math.random() - 0.5) * 2;
+
+            for (let i = 0; i < numPoints; i++) {
+                let x = Math.random();
+                let y;
+
+                if (Math.abs(targetR) > 0.05) {
+                    const noise = (Math.random() - 0.5) * (1 - Math.abs(targetR)) * 1.5;
+                    y = targetR > 0 ? x + noise : 1 - x + noise;
+                    y = Math.max(0, Math.min(1, y));
+                } else {
+                    y = Math.random();
+                }
+
+                points.push({ x, y });
+            }
+
+            return points;
+        }
+
+        function generateGuessingGame() {
+            gamePoints = generateRandomPoints();
+            actualR = calculatePearsonR(gamePoints);
+            gameAnswerShown = false;
+            document.getElementById('gameResult').style.display = 'none';
+            document.getElementById('gameCallout').style.display = 'none';
+            document.getElementById('guessInput').value = '';
+            drawGamePlot();
+        }
+
+        function drawGamePlot() {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const padding = 60;
+
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawAxes(ctx, canvas.width, canvas.height, padding);
+
+            const plotX = (x) => padding + x * (canvas.width - 2 * padding);
+            const plotY = (y) => canvas.height - padding - y * (canvas.height - 2 * padding);
+
+            for (let p of gamePoints) {
+                drawPoint(ctx, plotX(p.x), plotY(p.y), '#a78bfa', 6);
+            }
+
+            // Labels
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('X', canvas.width - 20, canvas.height - 20);
+            ctx.textAlign = 'center';
+            ctx.save();
+            ctx.translate(20, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Y', 0, 0);
+            ctx.restore();
+        }
+
+        function checkGuess() {
+            const guess = parseFloat(document.getElementById('guessInput').value);
+
+            if (isNaN(guess) || guess < -1 || guess > 1) {
+                alert('Please enter a value between -1 and 1');
+                return;
+            }
+
+            const error = Math.abs(guess - actualR);
+            const resultBox = document.getElementById('gameResult');
+
+            let quality;
+            if (error < 0.1) quality = 'Excellent!';
+            else if (error < 0.2) quality = 'Very Good!';
+            else if (error < 0.35) quality = 'Good!';
+            else if (error < 0.5) quality = 'Not Bad!';
+            else quality = 'Keep Practicing!';
+
+            resultBox.innerHTML = `
+                <div style="text-align: center;">
+                    <div><strong>Your Guess:</strong> ${guess.toFixed(2)}</div>
+                    <div><strong>Actual r:</strong> ${actualR.toFixed(3)}</div>
+                    <div><strong>Error:</strong> ${error.toFixed(3)}</div>
+                    <div style="font-size: 1.2rem; color: #5eead4; margin-top: 0.5rem;">${quality}</div>
+                </div>
+            `;
+            resultBox.style.display = 'block';
+            gameAnswerShown = true;
+        }
+
+        function showGameAnswer() {
+            const resultBox = document.getElementById('gameResult');
+            resultBox.innerHTML = `<div style="text-align: center;"><strong>Actual Pearson r:</strong> ${actualR.toFixed(3)}</div>`;
+            resultBox.style.display = 'block';
+            gameAnswerShown = true;
+        }
+
+        function resetGame() {
+            generateGuessingGame();
+        }
+
+        // ===== INITIALIZATION =====
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initCorrelationExamples();
+            drawScatterPlot();
+            generateGuessingGame();
+
+            document.getElementById('scatterPlot').addEventListener('click', addScatterPoint);
+            document.getElementById('scatterPlot').addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                if (scatterPoints.length > 0) {
+                    scatterPoints.pop();
+                    drawScatterPlot();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

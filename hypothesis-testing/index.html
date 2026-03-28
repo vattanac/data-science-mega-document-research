@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hypothesis Testing: T-Test & P-Value</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0b14;
+            --bg-secondary: #12142a;
+            --border-color: #1e2045;
+            --accent: #a78bfa;
+            --accent2: #5eead4;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --danger: #ff6b6b;
+            --success: #51cf66;
+            --warning: #ffd43b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 30px;
+        }
+
+        .tags {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: var(--border-color);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent);
+            border-left: 4px solid var(--accent);
+            padding-left: 15px;
+        }
+
+        h3 {
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: var(--accent2);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+            font-size: 1em;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            background-color: rgba(167, 139, 250, 0.05);
+        }
+
+        .callout {
+            background-color: rgba(167, 139, 250, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .callout-info {
+            background-color: rgba(94, 234, 212, 0.1);
+            border-left-color: var(--accent2);
+        }
+
+        .math-block {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px dashed var(--border-color);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: var(--accent2);
+            overflow-x: auto;
+        }
+
+        .step-list {
+            list-style: none;
+            counter-reset: step-counter;
+            margin: 20px 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 20px;
+            padding-left: 40px;
+            position: relative;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-color: var(--accent);
+            color: var(--bg-primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .error-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .error-table th,
+        .error-table td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .error-table th {
+            background-color: rgba(167, 139, 250, 0.1);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .error-table tr:hover {
+            background-color: rgba(167, 139, 250, 0.05);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--accent2);
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+            border: none;
+            border-radius: 4px;
+            color: var(--bg-primary);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1em;
+            transition: transform 0.2s ease;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-box {
+            background-color: var(--border-color);
+            padding: 20px;
+            border-radius: 4px;
+            margin-top: 20px;
+            border-left: 4px solid var(--accent2);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(167, 139, 250, 0.2);
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+        }
+
+        .result-value {
+            color: var(--accent2);
+            font-weight: 600;
+            font-family: 'Monaco', monospace;
+        }
+
+        .decision {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .decision.reject {
+            background-color: rgba(255, 107, 107, 0.2);
+            color: #ff9999;
+            border: 1px solid rgba(255, 107, 107, 0.5);
+        }
+
+        .decision.fail {
+            background-color: rgba(81, 207, 102, 0.2);
+            color: #7fffa0;
+            border: 1px solid rgba(81, 207, 102, 0.5);
+        }
+
+        canvas {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin: 20px 0;
+            background-color: var(--bg-primary);
+        }
+
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border-color);
+            outline: none;
+            -webkit-appearance: none;
+            margin-bottom: 10px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(167, 139, 250, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(167, 139, 250, 0.5);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background-color: rgba(167, 139, 250, 0.1);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background-color: rgba(167, 139, 250, 0.05);
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--accent2);
+        }
+
+        .highlight {
+            color: var(--accent2);
+            font-weight: 600;
+        }
+
+        .description-list {
+            margin: 15px 0;
+        }
+
+        .description-list dt {
+            color: var(--accent);
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .description-list dd {
+            margin-left: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="tags">
+                <span class="tag">Statistics</span>
+                <span class="tag">Inference</span>
+            </div>
+            <h1>Hypothesis Testing</h1>
+            <p style="margin-top: 15px; font-size: 1.1em;">Understanding T-Tests, P-Values, and Statistical Decision Making</p>
+        </header>
+
+        <!-- Section 1: What Is Hypothesis Testing? -->
+        <section>
+            <h2>What Is Hypothesis Testing?</h2>
+            <div class="card">
+                <p>Hypothesis testing is a statistical method used to make decisions about populations based on sample data. It provides a structured framework for evaluating whether observed differences or relationships are statistically significant or simply due to random chance.</p>
+
+                <div class="callout callout-info">
+                    <p><strong>Core Concept:</strong> We start by assuming a "null hypothesis" (H₀) is true, then ask: "How likely is our observed data if H₀ is really true?" If the answer is "very unlikely," we reject H₀ in favor of the "alternative hypothesis" (H₁).</p>
+                </div>
+
+                <h3>The Two Hypotheses</h3>
+                <dl class="description-list">
+                    <dt>Null Hypothesis (H₀)</dt>
+                    <dd>Assumes no effect, no difference, or no relationship exists. It's the "default" position we start with. Example: "The average height of men and women is the same."</dd>
+
+                    <dt>Alternative Hypothesis (H₁)</dt>
+                    <dd>Contradicts the null hypothesis. It represents what we're trying to find evidence for. Example: "The average height of men and women is different."</dd>
+                </dl>
+
+                <div class="callout">
+                    <strong>Key Insight:</strong> Hypothesis testing never "proves" H₁ is true; it only decides whether there's enough evidence to reject H₀. If we reject H₀, we have statistical support for H₁.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The Steps -->
+        <section>
+            <h2>The Five Steps of Hypothesis Testing</h2>
+            <div class="card">
+                <ol class="step-list">
+                    <li>
+                        <strong>State the Hypotheses</strong>
+                        <p>Define H₀ and H₁ based on your research question. Be clear about whether you're testing for equality, difference, greater than, or less than.</p>
+                    </li>
+                    <li>
+                        <strong>Choose a Significance Level (α)</strong>
+                        <p>Select your "cutoff" probability for rejecting H₀. Common values are α = 0.05 (5%) or α = 0.01 (1%). This is your tolerance for "Type I Error."</p>
+                    </li>
+                    <li>
+                        <strong>Compute the Test Statistic</strong>
+                        <p>Calculate the appropriate statistic (t-statistic, z-score, chi-square, etc.) based on your data and the test you're using.</p>
+                    </li>
+                    <li>
+                        <strong>Find the P-Value</strong>
+                        <p>Determine the probability of observing data as extreme (or more extreme) than what you observed, assuming H₀ is true.</p>
+                    </li>
+                    <li>
+                        <strong>Make a Decision</strong>
+                        <p>Compare p-value to α. If p-value ≤ α, <span class="highlight">reject H₀</span>. If p-value > α, <span class="highlight">fail to reject H₀</span>.</p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 3: Type I and Type II Errors -->
+        <section>
+            <h2>Type I and Type II Errors</h2>
+            <div class="card">
+                <p>Hypothesis testing is not perfect. There are two ways we can make mistakes:</p>
+
+                <table class="error-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>H₀ Is Actually True</th>
+                            <th>H₀ Is Actually False</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Reject H₀</strong></td>
+                            <td style="color: var(--danger);">Type I Error (False Positive)<br>α (significance level)</td>
+                            <td style="color: var(--success);">Correct Decision<br>(Power: 1 - β)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fail to Reject H₀</strong></td>
+                            <td style="color: var(--success);">Correct Decision<br>(True Negative)</td>
+                            <td style="color: var(--danger);">Type II Error (False Negative)<br>β</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout">
+                    <strong>Type I Error (α):</strong> Rejecting H₀ when it's actually true. This is a "false alarm" or "false positive." We control this by setting our significance level.
+                </div>
+
+                <div class="callout">
+                    <strong>Type II Error (β):</strong> Failing to reject H₀ when it's actually false. This is a "missed detection." Reducing β requires larger sample sizes or more powerful tests.
+                </div>
+
+                <div class="callout callout-info">
+                    <strong>Power (1 - β):</strong> The probability of correctly rejecting H₀ when it's false. Higher power is better. Power depends on sample size, effect size, and significance level.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Interactive T-Test Calculator -->
+        <section>
+            <h2>Interactive: T-Test Calculator</h2>
+            <div class="card">
+                <p>Use this tool to perform an independent samples t-test. Enter two groups of data as comma-separated numbers, and the calculator will compute the t-statistic and p-value.</p>
+
+                <div class="input-group">
+                    <label for="group1">Group 1 Data (comma-separated)</label>
+                    <input type="text" id="group1" placeholder="e.g., 10, 12, 15, 18, 20">
+                </div>
+
+                <div class="input-group">
+                    <label for="group2">Group 2 Data (comma-separated)</label>
+                    <input type="text" id="group2" placeholder="e.g., 22, 24, 26, 28, 30">
+                </div>
+
+                <div class="input-group">
+                    <label for="alphaInput">Significance Level (α)</label>
+                    <input type="number" id="alphaInput" min="0.001" max="0.5" step="0.01" value="0.05">
+                </div>
+
+                <button onclick="calculateTTest()">Calculate T-Test</button>
+
+                <div id="tTestResult"></div>
+            </div>
+        </section>
+
+        <!-- Section 5: Interactive P-Value Visualizer -->
+        <section>
+            <h2>Interactive: P-Value Visualizer</h2>
+            <div class="card">
+                <p>Visualize the normal distribution and see how the rejection region changes with different significance levels. Adjust the slider to change α and observe the critical values.</p>
+
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Significance Level (α)</span>
+                        <span id="alphaDisplay">0.05</span>
+                    </div>
+                    <input type="range" id="alphaSlider" min="0.001" max="0.2" step="0.001" value="0.05" onchange="updateVisualization()">
+                </div>
+
+                <canvas id="distributionCanvas" width="800" height="400"></canvas>
+
+                <div class="result-box">
+                    <div class="result-item">
+                        <span class="result-label">Left Critical Value (one-tailed)</span>
+                        <span class="result-value" id="criticalLeft">-1.96</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Right Critical Value (one-tailed)</span>
+                        <span class="result-value" id="criticalRight">1.96</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Rejection Region Probability</span>
+                        <span class="result-value" id="rejectionProb">5.00%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: When to Use Which Test -->
+        <section>
+            <h2>When to Use Which Test</h2>
+            <div class="card">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>When to Use</th>
+                            <th>Conditions</th>
+                            <th>Output</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Z-Test</strong></td>
+                            <td>Compare one sample to a population with known σ</td>
+                            <td>σ known, large n (n ≥ 30)</td>
+                            <td>Z-score, p-value</td>
+                        </tr>
+                        <tr>
+                            <td><strong>T-Test</strong></td>
+                            <td>Compare means of 1 or 2 samples with unknown σ</td>
+                            <td>σ unknown, small to medium n</td>
+                            <td>T-statistic, p-value, df</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Paired T-Test</strong></td>
+                            <td>Compare two related samples (before/after)</td>
+                            <td>Observations are paired, independent pairs</td>
+                            <td>T-statistic, p-value</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Chi-Square</strong></td>
+                            <td>Test independence or goodness-of-fit for categorical data</td>
+                            <td>Categorical variables, expected freq ≥ 5</td>
+                            <td>χ² statistic, p-value, df</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ANOVA</strong></td>
+                            <td>Compare means across 3+ groups</td>
+                            <td>Independent groups, approximately normal, equal variances</td>
+                            <td>F-statistic, p-value</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info">
+                    <strong>Rule of Thumb:</strong> Use t-test for comparing 2 group means, ANOVA for 3+ groups, chi-square for categorical associations, and z-test only when population standard deviation is known.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Why It Matters in Data Science -->
+        <section>
+            <h2>Why Hypothesis Testing Matters in Data Science</h2>
+            <div class="card">
+                <h3>A/B Testing & Experimentation</h3>
+                <p>Before rolling out a new feature or change, data scientists run A/B tests to determine if the difference in conversion rates, engagement, or other metrics is statistically significant or just random noise. Hypothesis testing ensures decisions are data-driven.</p>
+
+                <h3>Feature Selection</h3>
+                <p>When building models, we test whether each feature has a statistically significant relationship with the target variable. Features with low p-values are kept; those with high p-values may be dropped to improve model simplicity and reduce overfitting.</p>
+
+                <h3>Model Comparison</h3>
+                <p>Comparing two models? Hypothesis testing helps determine if one truly outperforms the other, or if differences are due to chance. This prevents us from choosing a model that just got lucky on a particular test set.</p>
+
+                <h3>Quality Assurance & Monitoring</h3>
+                <p>In production systems, we monitor key metrics and use hypothesis tests to detect when performance deviates significantly from expected levels, triggering alerts for investigation.</p>
+
+                <div class="callout">
+                    <strong>The Bottom Line:</strong> Hypothesis testing protects data scientists from being misled by random variation. It's the bridge between data and confident decision-making.
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 Sim Vattanac · <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // T-Test Calculator
+        function calculateTTest() {
+            const group1Input = document.getElementById('group1').value;
+            const group2Input = document.getElementById('group2').value;
+            const alpha = parseFloat(document.getElementById('alphaInput').value);
+            const resultDiv = document.getElementById('tTestResult');
+
+            try {
+                const group1 = group1Input.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+                const group2 = group2Input.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+
+                if (group1.length < 2 || group2.length < 2) {
+                    resultDiv.innerHTML = '<div class="result-box" style="border-left-color: var(--danger);">Please enter at least 2 values in each group.</div>';
+                    return;
+                }
+
+                // Calculate means
+                const mean1 = group1.reduce((a, b) => a + b, 0) / group1.length;
+                const mean2 = group2.reduce((a, b) => a + b, 0) / group2.length;
+
+                // Calculate variances
+                const var1 = group1.reduce((a, b) => a + Math.pow(b - mean1, 2), 0) / (group1.length - 1);
+                const var2 = group2.reduce((a, b) => a + Math.pow(b - mean2, 2), 0) / (group2.length - 1);
+
+                // Pooled standard error
+                const se = Math.sqrt((var1 / group1.length) + (var2 / group2.length));
+
+                // T-statistic
+                const tStatistic = (mean1 - mean2) / se;
+
+                // Degrees of freedom (Welch's approximation)
+                const df = Math.pow((var1 / group1.length) + (var2 / group2.length), 2) /
+                    (Math.pow(var1 / group1.length, 2) / (group1.length - 1) + Math.pow(var2 / group2.length, 2) / (group2.length - 1));
+
+                // Approximate p-value using normal distribution (for simplicity)
+                // For more accuracy, this would use t-distribution
+                const pValue = 2 * (1 - normalCDF(Math.abs(tStatistic)));
+
+                const decision = pValue <= alpha ? 'reject' : 'fail';
+                const decisionText = decision === 'reject' ? 'Reject H₀' : 'Fail to Reject H₀';
+                const decisionClass = decision === 'reject' ? 'reject' : 'fail';
+
+                resultDiv.innerHTML = `
+                    <div class="result-box">
+                        <div class="result-item">
+                            <span class="result-label">Group 1 Mean</span>
+                            <span class="result-value">${mean1.toFixed(4)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Group 2 Mean</span>
+                            <span class="result-value">${mean2.toFixed(4)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Difference in Means</span>
+                            <span class="result-value">${(mean1 - mean2).toFixed(4)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">T-Statistic</span>
+                            <span class="result-value">${tStatistic.toFixed(4)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Degrees of Freedom</span>
+                            <span class="result-value">${df.toFixed(2)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">P-Value (two-tailed)</span>
+                            <span class="result-value">${pValue.toFixed(6)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Significance Level (α)</span>
+                            <span class="result-value">${alpha.toFixed(4)}</span>
+                        </div>
+                    </div>
+                    <div class="decision ${decisionClass}">
+                        ${decisionText}: p-value (${pValue.toFixed(6)}) ${pValue <= alpha ? '≤' : '>'} α (${alpha})
+                    </div>
+                `;
+            } catch (e) {
+                resultDiv.innerHTML = '<div class="result-box" style="border-left-color: var(--danger);">Error: Please check your input format.</div>';
+            }
+        }
+
+        // Normal CDF approximation
+        function normalCDF(x) {
+            const a1 = 0.254829592;
+            const a2 = -0.284496736;
+            const a3 = 1.421413741;
+            const a4 = -1.453152027;
+            const a5 = 1.061405429;
+            const p = 0.3275911;
+
+            const sign = x < 0 ? -1 : 1;
+            x = Math.abs(x) / Math.sqrt(2);
+
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t) * Math.exp(-x * x);
+
+            return 0.5 * (1.0 + sign * y);
+        }
+
+        // Inverse normal CDF (for critical values)
+        function inverseNormalCDF(p) {
+            const a = [
+                -3.969683028665376e+01,
+                2.221946437313768e+02,
+                -2.895859897969262e+02,
+                4.742636279934215e+02,
+                -2.638859649230992e+02,
+                2.402850432691503e+01,
+                6.915228163828350e-01,
+                -5.373480210289369e-03
+            ];
+            const b = [
+                -5.447609879822406e+01,
+                1.615858368580409e+02,
+                -1.556989798598866e+02,
+                6.680131188771972e+01,
+                -4.087141635313458e+00
+            ];
+            const c = [
+                -7.784894002430293e-03,
+                -3.223964580411365e-01,
+                -2.400758277161838e+00,
+                -2.549732539343734e+00,
+                4.374664141464968e+00,
+                2.938163357918667e+00
+            ];
+            const d = [
+                7.784695709041462e-03,
+                3.224671290700398e-01,
+                2.445134137142996e+00,
+                3.754408661907416e+00
+            ];
+
+            let q, r, val;
+
+            if (p < 0.02425) {
+                q = Math.sqrt(-2 * Math.log(p));
+                val = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+                    ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+            } else if (p < 0.5) {
+                q = p - 0.5;
+                r = q * q;
+                val = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q /
+                    (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+            } else {
+                q = Math.sqrt(-2 * Math.log(1 - p));
+                val = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+                    ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+            }
+
+            return val;
+        }
+
+        // Gaussian PDF
+        function gaussianPDF(x, mu = 0, sigma = 1) {
+            const coefficient = 1 / (sigma * Math.sqrt(2 * Math.PI));
+            const exponent = -Math.pow(x - mu, 2) / (2 * Math.pow(sigma, 2));
+            return coefficient * Math.exp(exponent);
+        }
+
+        // Draw normal distribution
+        function drawDistribution() {
+            const canvas = document.getElementById('distributionCanvas');
+            const ctx = canvas.getContext('2d');
+            const alpha = parseFloat(document.getElementById('alphaSlider').value);
+
+            // Clear canvas
+            ctx.fillStyle = 'rgba(10, 11, 20, 1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = 'rgba(30, 32, 69, 0.5)';
+            ctx.lineWidth = 0.5;
+            for (let i = -4; i <= 4; i += 0.5) {
+                const x = (i + 4) * (canvas.width / 8);
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            // Calculate critical values
+            const criticalValue = inverseNormalCDF(1 - alpha / 2);
+
+            // Draw curve
+            ctx.strokeStyle = 'rgba(94, 234, 212, 0.8)';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+
+            for (let i = -4; i <= 4; i += 0.05) {
+                const x = (i + 4) * (canvas.width / 8);
+                const y = canvas.height - gaussianPDF(i) * canvas.height * 2;
+                if (i === -4) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Fill rejection regions
+            ctx.fillStyle = 'rgba(255, 107, 107, 0.3)';
+            ctx.beginPath();
+            for (let i = -4; i <= -criticalValue; i += 0.05) {
+                const x = (i + 4) * (canvas.width / 8);
+                const y = canvas.height - gaussianPDF(i) * canvas.height * 2;
+                if (i === -4) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.lineTo((-criticalValue + 4) * (canvas.width / 8), canvas.height);
+            ctx.lineTo((-4 + 4) * (canvas.width / 8), canvas.height);
+            ctx.fill();
+
+            ctx.beginPath();
+            for (let i = criticalValue; i <= 4; i += 0.05) {
+                const x = (i + 4) * (canvas.width / 8);
+                const y = canvas.height - gaussianPDF(i) * canvas.height * 2;
+                if (i === criticalValue) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.lineTo((4 + 4) * (canvas.width / 8), canvas.height);
+            ctx.lineTo((criticalValue + 4) * (canvas.width / 8), canvas.height);
+            ctx.fill();
+
+            // Draw critical value lines
+            ctx.strokeStyle = 'rgba(255, 107, 107, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+
+            const leftX = (-criticalValue + 4) * (canvas.width / 8);
+            const rightX = (criticalValue + 4) * (canvas.width / 8);
+
+            ctx.beginPath();
+            ctx.moveTo(leftX, 0);
+            ctx.lineTo(leftX, canvas.height);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(rightX, 0);
+            ctx.lineTo(rightX, canvas.height);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+
+            // Draw labels
+            ctx.fillStyle = 'rgba(166, 173, 187, 1)';
+            ctx.font = 'bold 14px Inter, -apple-system';
+            ctx.textAlign = 'center';
+
+            for (let i = -4; i <= 4; i += 2) {
+                const x = (i + 4) * (canvas.width / 8);
+                ctx.fillText(i.toString(), x, canvas.height - 10);
+            }
+
+            ctx.fillStyle = 'rgba(255, 107, 107, 0.8)';
+            ctx.font = 'bold 12px Inter, -apple-system';
+            ctx.fillText('Reject', (leftX / 2), 30);
+            ctx.fillText('Reject', (leftX + rightX) / 2 + (canvas.width - rightX) / 2, 30);
+
+            ctx.fillStyle = 'rgba(94, 234, 212, 0.8)';
+            ctx.fillText('Fail to Reject', (leftX + rightX) / 2, canvas.height - 30);
+
+            // Update result display
+            document.getElementById('alphaDisplay').textContent = alpha.toFixed(4);
+            document.getElementById('criticalLeft').textContent = (-criticalValue).toFixed(4);
+            document.getElementById('criticalRight').textContent = criticalValue.toFixed(4);
+            document.getElementById('rejectionProb').textContent = (alpha * 100).toFixed(2) + '%';
+        }
+
+        function updateVisualization() {
+            drawDistribution();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            drawDistribution();
+        });
+    </script>
+</body>
+</html>

@@ -24,6 +24,21 @@
       --sidebar-w: 320px;
     }
 
+    /* ── Light Theme ──────────────────────────────────── */
+    [data-theme="light"] {
+      --bg:        #f5f6fa;
+      --bg-side:   #ffffff;
+      --bg-card:   #edeef3;
+      --bg-hover:  #e2e4ed;
+      --bg-active: #d6d9e8;
+      --border:    #d0d3e0;
+      --text:      #2c2e3a;
+      --text-dim:  #7a7d94;
+      --accent:    #7c5cbf;
+      --accent2:   #0d9488;
+      --accent-bg: rgba(124,92,191,.08);
+    }
+
     html, body { height: 100%; }
 
     body {
@@ -303,6 +318,14 @@
     .sidebar-footer a { color: var(--accent2); text-decoration: none; }
     .sidebar-footer a:hover { text-decoration: underline; }
 
+    /* Light theme overrides */
+    [data-theme="light"] .badge-html { background: rgba(13,148,136,.1); color: #0d9488; }
+    [data-theme="light"] .badge-docx { background: rgba(59,130,246,.1); color: #3b82f6; }
+    [data-theme="light"] .resize-handle:hover,
+    [data-theme="light"] .resize-handle.active { background: var(--accent); }
+    [data-theme="light"] .preview-bar { background: var(--bg-card); }
+    [data-theme="light"] .sidebar-header .logo { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+
     /* ── Responsive ───────────────────────────────────── */
     @media (max-width: 768px) {
       :root { --sidebar-w: 100vw; }
@@ -366,7 +389,9 @@
     <div class="logo">E</div>
     <h1>Explorer</h1>
     <div class="sidebar-actions">
-      <button onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <button id="themeBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+      <button onclick="toggleAllFolders(true)" title="Expand all">📂</button>
+      <button onclick="toggleAllFolders(false)" title="Collapse all">📁</button>
       <button onclick="loadManifest()" title="Refresh">🔄</button>
     </div>
   </div>
@@ -451,6 +476,7 @@ function createNode(node) {
 
     const item = document.createElement('div');
     item.className = 'tree-item';
+    item.title = node.name;
     item.innerHTML = `
       <span class="chevron open">▶</span>
       <span class="icon">📁</span>
@@ -499,6 +525,7 @@ function createNode(node) {
     const icon = node.ext === 'html' ? '🌐' : '📄';
     const badgeClass = node.ext === 'html' ? 'badge-html' : 'badge-docx';
 
+    item.title = label;
     item.innerHTML = `
       <span style="width:12px"></span>
       <span class="icon">${icon}</span>
@@ -533,8 +560,8 @@ function selectFile(node, element) {
 
   if (node.ext === 'html') {
     const iframe = document.createElement('iframe');
-    iframe.src = node.path;
-    iframe.title = node.name;
+    iframe.src = node.externalUrl || node.path;
+    iframe.title = node.displayName || node.name;
     body.appendChild(iframe);
   } else if (node.ext === 'docx') {
     // Use Microsoft Office Online viewer for .docx preview
@@ -568,7 +595,7 @@ function selectFile(node, element) {
 
 function openInNewTab() {
   if (!currentFile) return;
-  window.open(currentFile.path, '_blank');
+  window.open(currentFile.externalUrl || currentFile.path, '_blank');
 }
 
 function downloadFile(path) {
@@ -631,8 +658,35 @@ function escHtml(str) {
   return div.innerHTML;
 }
 
+function toggleAllFolders(expand) {
+  document.querySelectorAll('.tree-folder').forEach(folder => {
+    const children = folder.querySelector('.tree-children');
+    const chev = folder.querySelector('.chevron');
+    const icon = folder.querySelector('.tree-item .icon');
+    if (!children) return;
+    if (expand) {
+      children.classList.remove('collapsed');
+      if (chev) chev.classList.add('open');
+      if (icon) icon.textContent = '📂';
+    } else {
+      children.classList.add('collapsed');
+      if (chev) chev.classList.remove('open');
+      if (icon) icon.textContent = '📁';
+    }
+  });
+}
+
 function toggleTheme() {
-  // Placeholder for future light/dark toggle
+  const html = document.documentElement;
+  const btn = document.getElementById('themeBtn');
+  const isLight = html.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    html.removeAttribute('data-theme');
+    btn.textContent = '🌙';
+  } else {
+    html.setAttribute('data-theme', 'light');
+    btn.textContent = '☀️';
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════

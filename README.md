@@ -6,13 +6,13 @@ A collection of interactive, self-contained HTML explainers covering foundationa
 
 Each project runs entirely in the browser with zero dependencies.
 
-> **23 projects** across **8 categories**
+> **27 projects** across **8 categories**
 
 ---
 
 ## 🗂️ Projects
 
-### 🗃️ Data Mining & Statistics `4 projects`
+### 🗃️ Data Mining & Statistics `8 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
@@ -20,6 +20,10 @@ Each project runs entirely in the browser with zero dependencies.
 | 2 | Why Starters Use the Iris Dataset | [why-starter-use-iris-dataset.netlify.app](https://why-starter-use-iris-dataset.netlify.app) | [`why_start_with_iris/`](why_start_with_iris/) |
 | 3 | Expected Value vs Mean | [exspected-value-vs-mean.netlify.app](https://exspected-value-vs-mean.netlify.app) | [`expected-value-vs-mean/`](expected-value-vs-mean/) |
 | 4 | Variance & Standard Deviation Guide | [variance-and-standard-deviation-guide.netlify.app](https://variance-and-standard-deviation-guide.netlify.app/) | — |
+| 5 | Normal Distribution & Central Limit Theorem | — | [`normal-distribution-and-clt/`](normal-distribution-and-clt/) |
+| 6 | Hypothesis Testing (t-test, p-value) | — | [`hypothesis-testing/`](hypothesis-testing/) |
+| 7 | Bayes' Theorem — Conditional Probability | — | [`bayes-theorem/`](bayes-theorem/) |
+| 8 | Correlation vs Causation | — | [`correlation-vs-causation/`](correlation-vs-causation/) |
 
 ---
 
@@ -80,12 +84,13 @@ Projects from other repositories, grouped by topic.
 
 ---
 
-### 📈 Regression & Signal Processing `2 projects`
+### 📈 Regression & Signal Processing `3 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
 | 1 | 3D Regression Lab — Interactive visualization | [regression-lab.netlify.app](https://regression-lab.netlify.app/) | — |
 | 2 | Image 2D FFT Denoising — Presentation | [presentation-image-2d-fft-denoicing.netlify.app](https://presentation-image-2d-fft-denoicing.netlify.app/) | — |
+| 3 | Regression Models Explained — Interactive lesson | — | [`Regression-Models-Explained/`](Regression-Models-Explained/) |
 
 ---
 

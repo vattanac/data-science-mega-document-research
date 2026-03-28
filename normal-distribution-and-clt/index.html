@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Normal Distribution & Central Limit Theorem</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0b14;--card:#12142a;--border:#1e2045;--text:#c8cad8;--dim:#6b6e8a;--accent:#a78bfa;--accent2:#5eead4;--green:#34d399;--red:#f87171;--blue:#60a5fa}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding:0}
+.container{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:2.2rem;text-align:center;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:var(--dim);font-size:.95rem;margin-bottom:48px}
+h2{font-size:1.4rem;color:var(--accent);margin:48px 0 16px;display:flex;align-items:center;gap:10px}
+h3{font-size:1.1rem;color:var(--text);margin:24px 0 12px}
+p{margin-bottom:16px;color:var(--text)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin:20px 0}
+.callout{display:flex;gap:14px;padding:18px;border-radius:10px;border-left:3px solid var(--accent);background:rgba(167,139,250,.06);margin:20px 0}
+.callout-icon{font-size:1.3rem;flex-shrink:0}
+.math{background:rgba(167,139,250,.08);padding:16px 20px;border-radius:8px;font-family:'Courier New',monospace;font-size:1rem;text-align:center;margin:16px 0;color:var(--accent);letter-spacing:.5px}
+ul{padding-left:24px;margin:12px 0}li{margin:6px 0;color:var(--text)}
+strong{color:#e2e4f0}
+em{color:var(--accent2)}
+canvas{display:block;margin:16px auto;border-radius:10px;background:var(--card);border:1px solid var(--border)}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;margin:16px 0}
+.controls label{font-size:.82rem;color:var(--dim)}
+.controls input[type=range]{width:160px;accent-color:var(--accent)}
+.controls select,.controls button{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:.82rem;cursor:pointer}
+.controls button{background:var(--accent);color:#fff;border:none;font-weight:600}
+.controls button:hover{filter:brightness(1.15)}
+.val{color:var(--accent);font-weight:600;min-width:36px;text-align:center;font-size:.82rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr}}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-box .label{font-size:.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.stat-box .value{font-size:1.6rem;font-weight:700;color:var(--accent);margin-top:4px}
+.footer{text-align:center;margin-top:60px;padding:24px;border-top:1px solid var(--border);font-size:.78rem;color:var(--dim)}
+.footer a{color:var(--accent2);text-decoration:none}
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600;margin-right:6px}
+.tag-stats{background:rgba(94,234,212,.1);color:var(--accent2)}
+.tag-ml{background:rgba(167,139,250,.1);color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="container">
+<div style="margin-bottom:8px"><span class="tag tag-stats">STATISTICS</span><span class="tag tag-ml">FOUNDATIONS</span></div>
+<h1>Normal Distribution & Central Limit Theorem</h1>
+<p class="subtitle">The bell curve that governs everything — and the theorem that explains why.</p>
+
+<!-- ═══ SECTION 1: Normal Distribution ═══ -->
+<h2>📊 What Is the Normal Distribution?</h2>
+<div class="card">
+<p>The <strong>Normal (Gaussian) Distribution</strong> is a symmetric, bell-shaped probability distribution defined by two parameters:</p>
+<ul>
+<li><strong>Mean (μ)</strong> — the center of the bell</li>
+<li><strong>Standard Deviation (σ)</strong> — how spread out the data is</li>
+</ul>
+<div class="math">f(x) = (1 / σ√(2π)) · e<sup>−(x−μ)² / 2σ²</sup></div>
+<p>About <strong>68%</strong> of data falls within 1σ, <strong>95%</strong> within 2σ, and <strong>99.7%</strong> within 3σ of the mean. This is called the <em>68-95-99.7 rule</em> (or empirical rule).</p>
+</div>
+
+<h3>Interactive: Explore the Bell Curve</h3>
+<p>Adjust the mean and standard deviation to see how the curve changes.</p>
+<div class="controls">
+<label>μ (Mean): <span class="val" id="vMu">0</span></label>
+<input type="range" id="slMu" min="-5" max="5" step="0.5" value="0"/>
+<label>σ (Std Dev): <span class="val" id="vSig">1</span></label>
+<input type="range" id="slSig" min="0.3" max="4" step="0.1" value="1"/>
+</div>
+<canvas id="bellCanvas" width="860" height="340"></canvas>
+
+<!-- ═══ SECTION 2: 68-95-99.7 ═══ -->
+<h2>📐 The 68-95-99.7 Rule</h2>
+<div class="card">
+<p>For <em>any</em> normal distribution:</p>
+<ul>
+<li><strong style="color:var(--green)">68.27%</strong> of values lie within <strong>μ ± 1σ</strong></li>
+<li><strong style="color:var(--blue)">95.45%</strong> of values lie within <strong>μ ± 2σ</strong></li>
+<li><strong style="color:var(--accent)">99.73%</strong> of values lie within <strong>μ ± 3σ</strong></li>
+</ul>
+<p style="margin-top:12px">This is why outliers (data beyond 3σ) are so rare — less than <strong>0.27%</strong> of the time.</p>
+</div>
+
+<!-- ═══ SECTION 3: Standard Normal ═══ -->
+<h2>🔢 Standard Normal Distribution (Z-Score)</h2>
+<div class="card">
+<p>The <strong>Standard Normal Distribution</strong> has μ = 0 and σ = 1. Any normal distribution can be converted to standard normal using the <em>Z-score</em>:</p>
+<div class="math">Z = (X − μ) / σ</div>
+<p>The Z-score tells you how many standard deviations a value is from the mean. This makes it possible to compare values from completely different distributions.</p>
+</div>
+
+<h3>Z-Score Calculator</h3>
+<div class="card">
+<div class="controls" style="justify-content:flex-start;gap:16px">
+<label>Value (X): <input type="number" id="zX" value="75" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text)"/></label>
+<label>Mean (μ): <input type="number" id="zMu" value="70" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text)"/></label>
+<label>Std Dev (σ): <input type="number" id="zSig" value="10" style="width:70px;padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text)"/></label>
+<button onclick="calcZ()">Calculate</button>
+</div>
+<div id="zResult" style="margin-top:12px;font-size:.95rem"></div>
+</div>
+
+<!-- ═══ SECTION 4: CLT ═══ -->
+<h2>🎯 The Central Limit Theorem (CLT)</h2>
+<div class="card">
+<p>The CLT is one of the most important theorems in all of statistics:</p>
+<div class="callout">
+<div class="callout-icon">💡</div>
+<div><p style="margin:0"><strong>Central Limit Theorem:</strong> When you take sufficiently large random samples from <em>any</em> population (regardless of its shape), the distribution of the <strong>sample means</strong> will approximate a normal distribution — even if the original population is not normal.</p></div>
+</div>
+<div class="math">X̄ ~ N(μ, σ² / n)</div>
+<p>Where <strong>n</strong> is the sample size. As n increases, the distribution of sample means becomes more normal and more narrow (σ/√n gets smaller).</p>
+</div>
+
+<h3>Interactive: Watch the CLT in Action</h3>
+<p>Choose a source distribution (uniform, exponential, or bimodal), then draw samples. Watch how the distribution of sample means becomes normal regardless of the source!</p>
+<div class="controls">
+<label>Source Distribution:</label>
+<select id="cltDist">
+<option value="uniform">Uniform</option>
+<option value="exponential">Exponential (Skewed)</option>
+<option value="bimodal">Bimodal</option>
+</select>
+<label>Sample Size (n): <span class="val" id="vN">30</span></label>
+<input type="range" id="slN" min="2" max="100" value="30"/>
+<button onclick="runCLT()">Draw 500 Samples</button>
+<button onclick="resetCLT()" style="background:var(--card);color:var(--text);border:1px solid var(--border)">Reset</button>
+</div>
+<div class="grid-2">
+<div>
+<p style="text-align:center;font-size:.82rem;color:var(--dim);margin-bottom:4px">Source Population</p>
+<canvas id="srcCanvas" width="420" height="260"></canvas>
+</div>
+<div>
+<p style="text-align:center;font-size:.82rem;color:var(--dim);margin-bottom:4px">Distribution of Sample Means</p>
+<canvas id="cltCanvas" width="420" height="260"></canvas>
+</div>
+</div>
+<div class="grid-2" style="margin-top:12px" id="cltStats"></div>
+
+<!-- ═══ SECTION 5: Why It Matters ═══ -->
+<h2>🌍 Why Does This Matter?</h2>
+<div class="card">
+<h3>In Data Science & Machine Learning</h3>
+<ul>
+<li><strong>Confidence Intervals</strong> — CLT lets us estimate population parameters from samples</li>
+<li><strong>Hypothesis Testing</strong> — Most statistical tests assume normality of sample means (thanks to CLT)</li>
+<li><strong>Feature Engineering</strong> — Many ML algorithms perform better with normally distributed features</li>
+<li><strong>Anomaly Detection</strong> — Z-scores help identify outliers</li>
+<li><strong>A/B Testing</strong> — CLT justifies comparing means of two groups</li>
+</ul>
+<h3 style="margin-top:20px">In Real Life</h3>
+<ul>
+<li><strong>Heights, weights, test scores</strong> — naturally follow normal distributions</li>
+<li><strong>Measurement errors</strong> — aggregate of many small random errors → normal</li>
+<li><strong>Financial returns</strong> — approximately normal (with fat tails)</li>
+<li><strong>Quality control</strong> — 6σ methodology is built on the normal distribution</li>
+</ul>
+</div>
+
+<div class="callout">
+<div class="callout-icon">🔑</div>
+<div><p style="margin:0"><strong>Key Takeaway:</strong> The normal distribution appears everywhere because of the CLT — whenever many small, independent random effects add up, the result tends toward a bell curve. This is why it's the single most important distribution in statistics.</p></div>
+</div>
+
+<div class="footer">
+<p>© 2025 <strong>Sim Vattanac</strong> · <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a></p>
+<p style="margin-top:6px">Built with HTML5 Canvas & Vanilla JavaScript</p>
+</div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   BELL CURVE VISUALIZATION
+   ═══════════════════════════════════════════════ */
+const bellC = document.getElementById('bellCanvas');
+const bellCtx = bellC.getContext('2d');
+const slMu = document.getElementById('slMu');
+const slSig = document.getElementById('slSig');
+
+function gaussian(x, mu, sig) {
+  return (1 / (sig * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((x - mu) / sig) ** 2);
+}
+
+function drawBell() {
+  const mu = parseFloat(slMu.value);
+  const sig = parseFloat(slSig.value);
+  document.getElementById('vMu').textContent = mu;
+  document.getElementById('vSig').textContent = sig;
+
+  const W = bellC.width, H = bellC.height;
+  const pad = { t: 30, r: 30, b: 50, l: 50 };
+  const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+
+  bellCtx.clearRect(0, 0, W, H);
+
+  // Grid
+  bellCtx.strokeStyle = '#1e2045';
+  bellCtx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = pad.t + (ph / 5) * i;
+    bellCtx.beginPath(); bellCtx.moveTo(pad.l, y); bellCtx.lineTo(W - pad.r, y); bellCtx.stroke();
+  }
+
+  const xMin = -10, xMax = 10;
+  const toX = v => pad.l + ((v - xMin) / (xMax - xMin)) * pw;
+
+  // X axis labels
+  bellCtx.fillStyle = '#6b6e8a';
+  bellCtx.font = '11px Inter, sans-serif';
+  bellCtx.textAlign = 'center';
+  for (let v = -10; v <= 10; v += 2) {
+    bellCtx.fillText(v, toX(v), H - pad.b + 20);
+  }
+
+  // Sigma bands
+  const bands = [
+    { s: 3, color: 'rgba(167,139,250,.08)', label: '99.7%' },
+    { s: 2, color: 'rgba(96,165,250,.1)', label: '95%' },
+    { s: 1, color: 'rgba(52,211,153,.12)', label: '68%' },
+  ];
+  const yMax = gaussian(mu, mu, sig) * 1.15;
+  const toY = v => pad.t + ph - (v / yMax) * ph;
+
+  bands.forEach(b => {
+    bellCtx.fillStyle = b.color;
+    bellCtx.beginPath();
+    const left = mu - b.s * sig, right = mu + b.s * sig;
+    bellCtx.moveTo(toX(left), toY(0));
+    for (let x = left; x <= right; x += 0.05) {
+      bellCtx.lineTo(toX(x), toY(gaussian(x, mu, sig)));
+    }
+    bellCtx.lineTo(toX(right), toY(0));
+    bellCtx.closePath();
+    bellCtx.fill();
+  });
+
+  // Curve
+  bellCtx.strokeStyle = '#a78bfa';
+  bellCtx.lineWidth = 2.5;
+  bellCtx.beginPath();
+  for (let x = xMin; x <= xMax; x += 0.05) {
+    const px = toX(x), py = toY(gaussian(x, mu, sig));
+    x === xMin ? bellCtx.moveTo(px, py) : bellCtx.lineTo(px, py);
+  }
+  bellCtx.stroke();
+
+  // Mean line
+  bellCtx.strokeStyle = var_accent2 = '#5eead4';
+  bellCtx.lineWidth = 1.5;
+  bellCtx.setLineDash([6, 4]);
+  bellCtx.beginPath();
+  bellCtx.moveTo(toX(mu), pad.t);
+  bellCtx.lineTo(toX(mu), H - pad.b);
+  bellCtx.stroke();
+  bellCtx.setLineDash([]);
+
+  bellCtx.fillStyle = '#5eead4';
+  bellCtx.font = 'bold 12px Inter, sans-serif';
+  bellCtx.textAlign = 'center';
+  bellCtx.fillText('μ = ' + mu, toX(mu), pad.t - 8);
+
+  // Sigma labels
+  bellCtx.font = '10px Inter, sans-serif';
+  [1, 2, 3].forEach((s, i) => {
+    const colors = ['#34d399', '#60a5fa', '#a78bfa'];
+    const labels = ['68%', '95%', '99.7%'];
+    bellCtx.fillStyle = colors[i];
+    const y = toY(gaussian(mu + s * sig, mu, sig)) - 6;
+    bellCtx.fillText(labels[i], toX(mu + s * sig * 0.5), Math.max(y, pad.t + 16));
+  });
+}
+
+slMu.oninput = drawBell;
+slSig.oninput = drawBell;
+drawBell();
+
+/* ═══════════════════════════════════════════════
+   Z-SCORE CALCULATOR
+   ═══════════════════════════════════════════════ */
+function calcZ() {
+  const x = parseFloat(document.getElementById('zX').value);
+  const mu = parseFloat(document.getElementById('zMu').value);
+  const sig = parseFloat(document.getElementById('zSig').value);
+  if (!sig || isNaN(x) || isNaN(mu)) return;
+  const z = (x - mu) / sig;
+  const dir = z >= 0 ? 'above' : 'below';
+  document.getElementById('zResult').innerHTML =
+    `<strong style="color:var(--accent)">Z = ${z.toFixed(4)}</strong> — The value ${x} is <strong>${Math.abs(z).toFixed(2)} standard deviations ${dir}</strong> the mean.`;
+}
+
+/* ═══════════════════════════════════════════════
+   CLT SIMULATION
+   ═══════════════════════════════════════════════ */
+let sampleMeans = [];
+
+function genPopulation(type, size) {
+  const arr = [];
+  for (let i = 0; i < size; i++) {
+    if (type === 'uniform') arr.push(Math.random() * 10);
+    else if (type === 'exponential') arr.push(-2 * Math.log(Math.random()));
+    else if (type === 'bimodal') arr.push(Math.random() < 0.5 ? 2 + Math.random() : 8 + Math.random());
+  }
+  return arr;
+}
+
+function drawHist(canvas, data, color, label, overlayNormal) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pad = { t: 20, r: 20, b: 40, l: 40 };
+  const pw = W - pad.l - pad.r, ph = H - pad.t - pad.b;
+  ctx.clearRect(0, 0, W, H);
+
+  if (data.length === 0) {
+    ctx.fillStyle = '#6b6e8a';
+    ctx.font = '13px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Click "Draw 500 Samples"', W / 2, H / 2);
+    return;
+  }
+
+  const min = Math.min(...data), max = Math.max(...data);
+  const bins = 30;
+  const binW = (max - min) / bins || 1;
+  const counts = new Array(bins).fill(0);
+  data.forEach(v => {
+    let idx = Math.floor((v - min) / binW);
+    if (idx >= bins) idx = bins - 1;
+    counts[idx]++;
+  });
+  const maxCount = Math.max(...counts);
+
+  // Draw bars
+  const barW = pw / bins;
+  counts.forEach((c, i) => {
+    const h = (c / maxCount) * ph;
+    const x = pad.l + i * barW;
+    const y = pad.t + ph - h;
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, barW - 1, h);
+  });
+
+  // Normal overlay
+  if (overlayNormal && data.length > 10) {
+    const mean = data.reduce((a, b) => a + b, 0) / data.length;
+    const std = Math.sqrt(data.reduce((a, b) => a + (b - mean) ** 2, 0) / data.length);
+    ctx.strokeStyle = '#f87171';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= pw; i++) {
+      const x = min + (i / pw) * (max - min);
+      const y = gaussian(x, mean, std);
+      const scaledY = (y * data.length * binW / maxCount) * ph;
+      const px = pad.l + i;
+      const py = pad.t + ph - scaledY;
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+
+  // X axis
+  ctx.fillStyle = '#6b6e8a';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const v = min + (i / 4) * (max - min);
+    ctx.fillText(v.toFixed(1), pad.l + (i / 4) * pw, H - pad.b + 16);
+  }
+}
+
+function runCLT() {
+  const dist = document.getElementById('cltDist').value;
+  const n = parseInt(document.getElementById('slN').value);
+
+  // Draw source population
+  const pop = genPopulation(dist, 10000);
+  drawHist(document.getElementById('srcCanvas'), pop, 'rgba(94,234,212,.4)', 'Source');
+
+  // Draw 500 samples and compute means
+  for (let i = 0; i < 500; i++) {
+    const sample = genPopulation(dist, n);
+    const mean = sample.reduce((a, b) => a + b, 0) / n;
+    sampleMeans.push(mean);
+  }
+
+  drawHist(document.getElementById('cltCanvas'), sampleMeans, 'rgba(167,139,250,.45)', 'Sample Means', true);
+
+  // Stats
+  const grandMean = sampleMeans.reduce((a, b) => a + b, 0) / sampleMeans.length;
+  const stdMeans = Math.sqrt(sampleMeans.reduce((a, b) => a + (b - grandMean) ** 2, 0) / sampleMeans.length);
+  document.getElementById('cltStats').innerHTML = `
+    <div class="stat-box"><div class="label">Total Samples Drawn</div><div class="value">${sampleMeans.length}</div></div>
+    <div class="stat-box"><div class="label">Mean of Sample Means</div><div class="value">${grandMean.toFixed(3)}</div></div>
+  `;
+}
+
+function resetCLT() {
+  sampleMeans = [];
+  const srcCtx = document.getElementById('srcCanvas').getContext('2d');
+  const cltCtx = document.getElementById('cltCanvas').getContext('2d');
+  srcCtx.clearRect(0, 0, 420, 260);
+  cltCtx.clearRect(0, 0, 420, 260);
+  document.getElementById('cltStats').innerHTML = '';
+  drawHist(document.getElementById('srcCanvas'), [], '', '');
+  drawHist(document.getElementById('cltCanvas'), [], '', '');
+}
+
+document.getElementById('slN').oninput = function() {
+  document.getElementById('vN').textContent = this.value;
+};
+
+// Initial empty state
+drawHist(document.getElementById('srcCanvas'), [], '', '');
+drawHist(document.getElementById('cltCanvas'), [], '', '');
+</script>
+</body>
+</html>
