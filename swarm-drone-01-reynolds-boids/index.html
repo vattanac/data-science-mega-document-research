@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boids: Flocking Behavior Model</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0b14;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #a78bfa;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #a78bfa;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .paper-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .meta-item {
+            background-color: #12142a;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #5eead4;
+        }
+
+        .meta-label {
+            color: #5eead4;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .meta-value {
+            color: #e0e0e0;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #a78bfa;
+            color: #0a0b14;
+        }
+
+        .btn-primary:hover {
+            background-color: #c9a3ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(167, 139, 250, 0.4);
+        }
+
+        .section {
+            background-color: #12142a;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 4px solid #5eead4;
+        }
+
+        .section h2 {
+            color: #a78bfa;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .section h3 {
+            color: #5eead4;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        canvas {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #5eead4;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #0a0b14 0%, #12142a 100%);
+            margin: 20px 0;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .control-group {
+            background-color: #0a0b14;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #5eead4;
+        }
+
+        .control-group label {
+            display: block;
+            color: #5eead4;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #a78bfa;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #5eead4;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(94, 234, 212, 0.4);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #5eead4;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(94, 234, 212, 0.4);
+        }
+
+        .value-display {
+            color: #a78bfa;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .explanation {
+            background-color: #0a0b14;
+            border-left: 4px solid #a78bfa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .explanation strong {
+            color: #5eead4;
+        }
+
+        .takeaway-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .takeaway-list li {
+            background-color: #0a0b14;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #a78bfa;
+            border-radius: 4px;
+        }
+
+        .takeaway-list li:before {
+            content: "✓ ";
+            color: #5eead4;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 2px solid #a78bfa;
+            margin-top: 40px;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .section {
+                padding: 15px;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐦 Flocks, Herds, and Schools</h1>
+            <p>A Distributed Behavioral Model</p>
+
+            <div class="paper-meta">
+                <div class="meta-item">
+                    <div class="meta-label">AUTHOR</div>
+                    <div class="meta-value">Craig W. Reynolds</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">YEAR</div>
+                    <div class="meta-value">1987</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">JOURNAL</div>
+                    <div class="meta-value">SIGGRAPH Conference Proceedings</div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <a href="https://www.red3d.com/cwr/papers/1987/SIGGRAPH87.pdf" target="_blank" class="btn btn-primary">Read Original Paper</a>
+            </div>
+        </header>
+
+        <div class="section">
+            <h2>Why This Paper Matters</h2>
+            <p>The Boids model is foundational to swarm robotics and collective behavior. Reynolds discovered that you don't need a central controller or complex rules—just three simple local behaviors allow individuals to create emergent group dynamics. This paper unlocked how to model everything from bird flocks to fish schools to autonomous drone swarms, and it's still used in robotics, game AI, and animation today.</p>
+        </div>
+
+        <div class="section">
+            <h2>The Three Rules of Boids</h2>
+
+            <h3>Rule 1: Separation (Don't Crowd Each Other)</h3>
+            <div class="explanation">
+                <strong>What it does:</strong> Each boid steers away from nearby boids to avoid overcrowding.
+                <p style="margin-top: 10px;">Imagine being in a crowded dance floor—you naturally step back if someone gets too close. Boids do the same by calculating the average distance to neighbors and moving away if they're too close.</p>
+            </div>
+
+            <h3>Rule 2: Alignment (Steer Toward Average Direction)</h3>
+            <div class="explanation">
+                <strong>What it does:</strong> Each boid steers toward the average heading (velocity direction) of nearby boids.
+                <p style="margin-top: 10px;">On a dance floor, you follow the music's beat and rhythm—everyone naturally moves in the same direction. Boids compute the average velocity of neighbors and adjust their velocity to match.</p>
+            </div>
+
+            <h3>Rule 3: Cohesion (Move Toward Center of Group)</h3>
+            <div class="explanation">
+                <strong>What it does:</strong> Each boid steers toward the average position (center of mass) of nearby boids.
+                <p style="margin-top: 10px;">You don't wander off the dance floor—you stay in the group. Boids calculate the average position of neighbors and move toward it, keeping the flock together.</p>
+            </div>
+
+            <div class="explanation" style="background-color: #1a1c3a; border-left-color: #5eead4;">
+                <strong>The Analogy:</strong> A school dance has dancers following three natural rules: don't step on toes (separation), follow the music beat (alignment), and stay on the dance floor (cohesion). No choreographer needed—just these three simple rules, and you get a beautiful, coordinated crowd.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Real-World Applications</h2>
+
+            <h3>Bird Flocking</h3>
+            <p>Starlings perform murmurations—thousands of birds moving in perfect synchrony without a leader. The Boids model perfectly explains this emergent behavior with no central command.</p>
+
+            <h3>Fish Schooling</h3>
+            <p>Fish schools move as one organism, reacting instantly to predators or obstacles. Each fish follows only local rules about its neighbors, creating the collective intelligence of the entire school.</p>
+
+            <h3>Pixar Animation</h3>
+            <p>Pixar used a refined version of Boids to animate the penguin colony in "Madagascar 3" and swarms in various films. Instead of hand-animating hundreds of characters, they set the three rules and let the algorithm create natural, realistic motion.</p>
+
+            <h3>Autonomous Drone Swarms</h3>
+            <p>Military and civilian drone researchers use Boids as the foundation for swarms that need to coordinate without central communication. Each drone follows simple rules about nearby drones, enabling autonomous multi-drone missions.</p>
+        </div>
+
+        <div class="section">
+            <h2>Interactive Visualization</h2>
+            <p>Watch boids organize themselves below. Adjust the sliders to see how changing each rule's influence affects the swarm behavior. The dots are colored by speed—faster boids are brighter.</p>
+
+            <canvas id="boidsCanvas" width="1000" height="600"></canvas>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="separationSlider">Separation Strength</label>
+                    <input type="range" id="separationSlider" min="0" max="2" step="0.1" value="1">
+                    <div class="value-display" id="separationValue">1.0</div>
+                </div>
+                <div class="control-group">
+                    <label for="alignmentSlider">Alignment Strength</label>
+                    <input type="range" id="alignmentSlider" min="0" max="2" step="0.1" value="1">
+                    <div class="value-display" id="alignmentValue">1.0</div>
+                </div>
+                <div class="control-group">
+                    <label for="cohesionSlider">Cohesion Strength</label>
+                    <input type="range" id="cohesionSlider" min="0" max="2" step="0.1" value="1">
+                    <div class="value-display" id="cohesionValue">1.0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Key Takeaways</h2>
+            <ul class="takeaway-list">
+                <li>Simple local rules create complex global behavior—no central controller needed</li>
+                <li>Three rules (separation, alignment, cohesion) are sufficient to model flocking</li>
+                <li>Emergent behavior arises from agents responding only to nearby neighbors</li>
+                <li>The model works across scales: birds, fish, robots, animations, and more</li>
+                <li>Boids demonstrate how distributed control systems can be more robust than centralized ones</li>
+                <li>This foundation has inspired decades of research in swarm robotics and multi-agent systems</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        © 2025 Sim Vattanac | vattanacsim99@gmail.com
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('boidsCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Responsive canvas
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Boid class
+        class Boid {
+            constructor(x, y) {
+                this.position = { x, y };
+                this.velocity = { x: Math.random() - 0.5, y: Math.random() - 0.5 };
+                this.acceleration = { x: 0, y: 0 };
+                this.maxSpeed = 4;
+                this.maxForce = 0.1;
+                this.perceptionRadius = 80;
+                this.trail = [];
+                this.maxTrailLength = 15;
+            }
+
+            applyForce(force) {
+                this.acceleration.x += force.x;
+                this.acceleration.y += force.y;
+            }
+
+            separation(boids, weights) {
+                let steering = { x: 0, y: 0 };
+                let count = 0;
+                for (let boid of boids) {
+                    let distance = Math.hypot(
+                        boid.position.x - this.position.x,
+                        boid.position.y - this.position.y
+                    );
+                    if (distance < this.perceptionRadius && distance > 0) {
+                        let diff = {
+                            x: this.position.x - boid.position.x,
+                            y: this.position.y - boid.position.y
+                        };
+                        let len = Math.hypot(diff.x, diff.y);
+                        if (len > 0) {
+                            diff.x /= len;
+                            diff.y /= len;
+                            steering.x += diff.x;
+                            steering.y += diff.y;
+                        }
+                        count++;
+                    }
+                }
+                if (count > 0) {
+                    steering.x /= count;
+                    steering.y /= count;
+                }
+                return steering;
+            }
+
+            alignment(boids, weights) {
+                let avg = { x: 0, y: 0 };
+                let count = 0;
+                for (let boid of boids) {
+                    let distance = Math.hypot(
+                        boid.position.x - this.position.x,
+                        boid.position.y - this.position.y
+                    );
+                    if (distance < this.perceptionRadius && distance > 0) {
+                        avg.x += boid.velocity.x;
+                        avg.y += boid.velocity.y;
+                        count++;
+                    }
+                }
+                if (count > 0) {
+                    avg.x /= count;
+                    avg.y /= count;
+                }
+                return avg;
+            }
+
+            cohesion(boids, weights) {
+                let steerTarget = { x: 0, y: 0 };
+                let count = 0;
+                for (let boid of boids) {
+                    let distance = Math.hypot(
+                        boid.position.x - this.position.x,
+                        boid.position.y - this.position.y
+                    );
+                    if (distance < this.perceptionRadius && distance > 0) {
+                        steerTarget.x += boid.position.x;
+                        steerTarget.y += boid.position.y;
+                        count++;
+                    }
+                }
+                if (count > 0) {
+                    steerTarget.x /= count;
+                    steerTarget.y /= count;
+                    let desire = {
+                        x: steerTarget.x - this.position.x,
+                        y: steerTarget.y - this.position.y
+                    };
+                    let len = Math.hypot(desire.x, desire.y);
+                    if (len > 0) {
+                        desire.x /= len;
+                        desire.y /= len;
+                    }
+                    return desire;
+                }
+                return { x: 0, y: 0 };
+            }
+
+            flock(boids, weights) {
+                const sep = this.separation(boids, weights);
+                const ali = this.alignment(boids, weights);
+                const coh = this.cohesion(boids, weights);
+
+                this.applyForce({ x: sep.x * weights.separation, y: sep.y * weights.separation });
+                this.applyForce({ x: ali.x * weights.alignment, y: ali.y * weights.alignment });
+                this.applyForce({ x: coh.x * weights.cohesion, y: coh.y * weights.cohesion });
+            }
+
+            update() {
+                this.velocity.x += this.acceleration.x;
+                this.velocity.y += this.acceleration.y;
+
+                let speed = Math.hypot(this.velocity.x, this.velocity.y);
+                if (speed > this.maxSpeed) {
+                    this.velocity.x = (this.velocity.x / speed) * this.maxSpeed;
+                    this.velocity.y = (this.velocity.y / speed) * this.maxSpeed;
+                }
+
+                this.position.x += this.velocity.x;
+                this.position.y += this.velocity.y;
+
+                // Wrap around
+                if (this.position.x < 0) this.position.x = canvas.width;
+                if (this.position.x > canvas.width) this.position.x = 0;
+                if (this.position.y < 0) this.position.y = canvas.height;
+                if (this.position.y > canvas.height) this.position.y = 0;
+
+                this.trail.push({ x: this.position.x, y: this.position.y });
+                if (this.trail.length > this.maxTrailLength) this.trail.shift();
+
+                this.acceleration.x = 0;
+                this.acceleration.y = 0;
+            }
+
+            display() {
+                // Draw trail
+                ctx.strokeStyle = `rgba(167, 139, 250, 0.3)`;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                for (let i = 0; i < this.trail.length; i++) {
+                    if (i === 0) ctx.moveTo(this.trail[i].x, this.trail[i].y);
+                    else ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                }
+                ctx.stroke();
+
+                // Draw boid
+                let speed = Math.hypot(this.velocity.x, this.velocity.y);
+                let brightness = Math.min(255, speed * 50);
+                let color = `rgb(167, 139, ${255 - brightness / 2})`;
+
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(this.position.x, this.position.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Initialize boids
+        let boids = [];
+        for (let i = 0; i < 80; i++) {
+            boids.push(new Boid(Math.random() * canvas.width, Math.random() * canvas.height));
+        }
+
+        // Control elements
+        const separationSlider = document.getElementById('separationSlider');
+        const alignmentSlider = document.getElementById('alignmentSlider');
+        const cohesionSlider = document.getElementById('cohesionSlider');
+
+        let weights = { separation: 1, alignment: 1, cohesion: 1 };
+
+        separationSlider.addEventListener('input', (e) => {
+            weights.separation = parseFloat(e.target.value);
+            document.getElementById('separationValue').textContent = weights.separation.toFixed(1);
+        });
+
+        alignmentSlider.addEventListener('input', (e) => {
+            weights.alignment = parseFloat(e.target.value);
+            document.getElementById('alignmentValue').textContent = weights.alignment.toFixed(1);
+        });
+
+        cohesionSlider.addEventListener('input', (e) => {
+            weights.cohesion = parseFloat(e.target.value);
+            document.getElementById('cohesionValue').textContent = weights.cohesion.toFixed(1);
+        });
+
+        // Animation loop
+        function animate() {
+            // Clear canvas with fade effect
+            ctx.fillStyle = 'rgba(10, 11, 20, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let boid of boids) {
+                boid.flock(boids, weights);
+                boid.update();
+                boid.display();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

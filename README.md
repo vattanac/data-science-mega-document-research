@@ -2,30 +2,51 @@
 
 🔗 **Live Demo:** [data-science-mega-document-research.netlify.app](https://data-science-mega-document-research.netlify.app/)
 
-A collection of interactive, self-contained HTML explainers covering foundational Data Science and Machine Learning concepts — built for **MDSE (Master of Data Science and Engineering) Cohort 4**.
+An interactive data science research hub that transforms complex mathematical and computational concepts into accessible, hands-on learning experiences. Each topic is presented through richly designed, browser-based visualizations and interactive explainers — featuring live calculators, animated charts, step-by-step walkthroughs, and real-time simulations — allowing readers to explore and experiment with ideas rather than passively consume them.
 
-Each project runs entirely in the browser with zero dependencies.
-
-> **32 projects** across **9 categories**
+> **39 projects** across **7 categories**
 
 ---
 
-## 🗂️ Projects
+## 🗂️ All Projects by Topic
 
-### 🗃️ Data Mining & Statistics `8 projects`
+### 📊 Statistics & Probability `8 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 1 | KDD Process — Interactive Data Mining Guide | [kdd-process.netlify.app](https://kdd-process.netlify.app) | [`kdd_process/`](kdd_process/) |
-| 2 | Why Starters Use the Iris Dataset | [why-starter-use-iris-dataset.netlify.app](https://why-starter-use-iris-dataset.netlify.app) | [`why_start_with_iris/`](why_start_with_iris/) |
-| 3 | Expected Value vs Mean | [exspected-value-vs-mean.netlify.app](https://exspected-value-vs-mean.netlify.app) | [`expected-value-vs-mean/`](expected-value-vs-mean/) |
-| 4 | Variance & Standard Deviation Guide | [variance-and-standard-deviation-guide.netlify.app](https://variance-and-standard-deviation-guide.netlify.app/) | — |
-| 5 | Normal Distribution & Central Limit Theorem | — | [`normal-distribution-and-clt/`](normal-distribution-and-clt/) |
-| 6 | Hypothesis Testing (t-test, p-value) | — | [`hypothesis-testing/`](hypothesis-testing/) |
-| 7 | Bayes' Theorem — Conditional Probability | — | [`bayes-theorem/`](bayes-theorem/) |
-| 8 | Correlation vs Causation | — | [`correlation-vs-causation/`](correlation-vs-causation/) |
+| 1 | Expected Value vs Mean | [Demo](https://exspected-value-vs-mean.netlify.app) | [`expected-value-vs-mean/`](expected-value-vs-mean/) |
+| 2 | Variance & Standard Deviation Guide | [Demo](https://variance-and-standard-deviation-guide.netlify.app/) | [`variance-and-standard-deviation/`](variance-and-standard-deviation/) |
+| 3 | Normal Distribution & Central Limit Theorem | — | [`normal-distribution-and-clt/`](normal-distribution-and-clt/) |
+| 4 | Hypothesis Testing (t-test, p-value) | — | [`hypothesis-testing/`](hypothesis-testing/) |
+| 5 | Bayes' Theorem — Conditional Probability | — | [`bayes-theorem/`](bayes-theorem/) |
+| 6 | Correlation vs Causation | — | [`correlation-vs-causation/`](correlation-vs-causation/) |
+| 7 | Why Starters Use the Iris Dataset | [Demo](https://why-starter-use-iris-dataset.netlify.app) | [`why_start_with_iris/`](why_start_with_iris/) |
+| 8 | KDD Process — Interactive Data Mining Guide | [Demo](https://kdd-process.netlify.app) | [`kdd_process/`](kdd_process/) |
 
-### 🤖 Machine Learning Foundations `5 projects`
+---
+
+### 🔢 Linear Algebra `14 projects`
+
+| # | Project | Demo | Repo |
+|---|---------|------|------|
+| 1 | Matrix Transformations — 2D Playground | — | [`matrix-transformations/`](matrix-transformations/) |
+| 2 | Dot Product & Cosine Similarity | — | [`dot-product-and-cosine-similarity/`](dot-product-and-cosine-similarity/) |
+| 3 | Eigenvalues & Eigenvectors — Case Study | [Demo](https://eigenvalues-eigenvectors-case-study.netlify.app/) | — |
+| 4 | Eigenvalue & Eigenvector Resource | [Demo](https://eigenvalue-eigenvector-resource.netlify.app/) | — |
+| 5 | Eigenvectors Roadmap | [Demo](https://eigentvalues-eigenvectors-roadmap.netlify.app/) | — |
+| 6 | Eigenvalues & Eigenvectors Tutorial | [Demo](https://eigentvalues-eigentvectors-tutorial.netlify.app/) | — |
+| 7 | Eigenfaces — Face Recognition with SVD | [Demo](https://eigenfaces-face-recognition-svd-doc.netlify.app/) | [GitHub](https://github.com/vattanac/Eigenfaces-face-recognition-SVD.git) |
+| 8 | SVD MIT Gilbert Strang Lecture | [Demo](https://svd-mit-gilbert-strang-lecture.netlify.app/) | [`singular-value-decomposition(svd)/`](singular-value-decomposition(svd)/) |
+| 9 | SVD Image Surgeon — Compress images with SVD | [Demo](https://svd-image-surgeon.netlify.app/) | — |
+| 10 | SVD Case Study | [Demo](https://svd-case-study.netlify.app/) | — |
+| 11 | Eckart-Young Theorem — Closest Rank-k Matrix | — | [`eckart-young-the-closest-rank-k-matrix-to-A/`](eckart-young-the-closest-rank-k-matrix-to-A/) |
+| 12 | PCA Document — Conceptual explainer | [Demo](https://pca-document.netlify.app/) | — |
+| 13 | PCA Problem & Solution | [Demo](https://pca-proble-solution.netlify.app/) | — |
+| 14 | PCA MIT Gilbert Strang Lecture | [Demo](https://pca-mit-gilbert-strang-lecture.netlify.app/) | — |
+
+---
+
+### 🤖 Machine Learning `9 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
@@ -34,73 +55,41 @@ Each project runs entirely in the browser with zero dependencies.
 | 3 | Bias-Variance Tradeoff — Interactive Explorer | — | [`bias-variance-tradeoff/`](bias-variance-tradeoff/) |
 | 4 | Confusion Matrix, Precision, Recall & F1 | — | [`confusion-matrix-and-metrics/`](confusion-matrix-and-metrics/) |
 | 5 | Cross-Validation — K-Fold Visualizer | — | [`cross-validation/`](cross-validation/) |
+| 6 | Regression Models Explained | — | [`Regression-Models-Explained/`](Regression-Models-Explained/) |
+| 7 | 3D Regression Lab — Interactive visualization | [Demo](https://regression-lab.netlify.app/) | — |
+| 8 | Gradient Descent — Interactive Guide (SaaS) | [Demo](https://gradient-descent-saas.netlify.app/) | [`gradient-descent-saas/`](gradient-descent-saas/) |
+| 9 | Gradient Descent — React App | [Demo](https://gradient-descent-saas.netlify.app/) | [`gradient-descent-react/`](gradient-descent-react/) |
 
 ---
 
-## 🔗 Related Projects (External Repos & Demos)
-
-Projects from other repositories, grouped by topic.
-
----
-
-### 🔢 Eigenvalues & Eigenvectors `5 projects`
+### 🧠 Deep Learning `3 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 1 | Eigenvalues & Eigenvectors — Case Study | [eigenvalues-eigenvectors-case-study.netlify.app](https://eigenvalues-eigenvectors-case-study.netlify.app/) | — |
-| 2 | Eigenfaces — Face Recognition with SVD | [eigenfaces-face-recognition-svd-doc.netlify.app](https://eigenfaces-face-recognition-svd-doc.netlify.app/) | [GitHub](https://github.com/vattanac/Eigenfaces-face-recognition-SVD.git) |
-| 3 | Eigenvalue & Eigenvector Resource | [eigenvalue-eigenvector-resource.netlify.app](https://eigenvalue-eigenvector-resource.netlify.app/) | — |
-| 4 | Eigenvectors Roadmap | [eigentvalues-eigenvectors-roadmap.netlify.app](https://eigentvalues-eigenvectors-roadmap.netlify.app/) | — |
-| 5 | Eigenvalues & Eigenvectors Tutorial | [eigentvalues-eigentvectors-tutorial.netlify.app](https://eigentvalues-eigentvectors-tutorial.netlify.app/) | — |
+| 1 | Neural Network Forward Pass & Backpropagation | — | [`neural-network-backpropagation/`](neural-network-backpropagation/) |
+| 2 | Activation Functions — Interactive Comparison | — | [`activation-functions/`](activation-functions/) |
+| 3 | Loss Functions — MSE, MAE, Cross-Entropy | — | [`loss-functions/`](loss-functions/) |
 
 ---
 
-### 📐 Singular Value Decomposition (SVD) `4 projects`
+### 🔧 Data Processing `2 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 1 | Eigenfaces — Face Recognition with SVD | [eigenfaces-face-recognition-svd-doc.netlify.app](https://eigenfaces-face-recognition-svd-doc.netlify.app/) | [GitHub](https://github.com/vattanac/Eigenfaces-face-recognition-SVD.git) |
-| 2 | SVD Image Surgeon — Compress images with SVD | [svd-image-surgeon.netlify.app](https://svd-image-surgeon.netlify.app/) | — |
-| 3 | SVD Case Study | [svd-case-study.netlify.app](https://svd-case-study.netlify.app/) | — |
-| 4 | SVD MIT Gilbert Strang Lecture | [svd-mit-gilbert-strang-lecture.netlify.app](https://svd-mit-gilbert-strang-lecture.netlify.app/) | — |
+| 1 | Feature Scaling — Normalization vs Standardization | — | [`feature-scaling/`](feature-scaling/) |
+| 2 | Handling Missing Data — Strategies & Simulator | — | [`handling-missing-data/`](handling-missing-data/) |
 
 ---
 
-### 📊 Principal Component Analysis (PCA) `3 projects`
+### 🌐 Applied Research `5 projects`
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 1 | PCA Document — Conceptual explainer | [pca-document.netlify.app](https://pca-document.netlify.app/) | — |
-| 2 | PCA Problem & Solution | [pca-proble-solution.netlify.app](https://pca-proble-solution.netlify.app/) | — |
-| 3 | PCA MIT Gilbert Strang Lecture | [pca-mit-gilbert-strang-lecture.netlify.app](https://pca-mit-gilbert-strang-lecture.netlify.app/) | — |
-
----
-
-### 🇰🇭 Khmer OCR `2 projects`
-
-| # | Project | Demo | Repo |
-|---|---------|------|------|
-| 1 | Toward a Baseline for Khmer OCR — Case Study | [khmer-orc-case-study-presentation01.netlify.app](https://khmer-orc-case-study-presentation01.netlify.app/) | [GitHub](https://github.com/vattanac/khmer_ocr_architecture_case_study.git) |
-| 2 | Khmer OCR Case Study 2 | [khmer-orc-case-study2.netlify.app](https://khmer-orc-case-study2.netlify.app/) | — |
-
----
-
-### 🌐 Graph Neural Networks & Physics `2 projects`
-
-| # | Project | Demo | Repo |
-|---|---------|------|------|
-| 1 | GNN Physics Case Study | [gnn-physic-case-study.netlify.app](https://gnn-physic-case-study.netlify.app/) | — |
-| 2 | Schrödinger Equation — Quantum Case Study | [schdigner-equation-casestudy-quantum1.netlify.app](https://schdigner-equation-casestudy-quantum1.netlify.app/) | — |
-
----
-
-### 📈 Regression & Signal Processing `3 projects`
-
-| # | Project | Demo | Repo |
-|---|---------|------|------|
-| 1 | 3D Regression Lab — Interactive visualization | [regression-lab.netlify.app](https://regression-lab.netlify.app/) | — |
-| 2 | Image 2D FFT Denoising — Presentation | [presentation-image-2d-fft-denoicing.netlify.app](https://presentation-image-2d-fft-denoicing.netlify.app/) | — |
-| 3 | Regression Models Explained — Interactive lesson | — | [`Regression-Models-Explained/`](Regression-Models-Explained/) |
+| 1 | Toward a Baseline for Khmer OCR — Case Study | [Demo](https://khmer-orc-case-study-presentation01.netlify.app/) | [GitHub](https://github.com/vattanac/khmer_ocr_architecture_case_study.git) |
+| 2 | Khmer OCR Case Study 2 | [Demo](https://khmer-orc-case-study2.netlify.app/) | — |
+| 3 | GNN Physics Case Study | [Demo](https://gnn-physic-case-study.netlify.app/) | — |
+| 4 | Schrödinger Equation — Quantum Case Study | [Demo](https://schdigner-equation-casestudy-quantum1.netlify.app/) | — |
+| 5 | Image 2D FFT Denoising — Presentation | [Demo](https://presentation-image-2d-fft-denoicing.netlify.app/) | — |
 
 ---
 
@@ -108,7 +97,7 @@ Projects from other repositories, grouped by topic.
 
 | # | Project | Demo | Repo |
 |---|---------|------|------|
-| 1 | Drone Top 20 Research Topics | [drone-top20-research-top.netlify.app](https://drone-top20-research-top.netlify.app/) | — |
+| 1 | Drone Top 20 Research Topics | [Demo](https://drone-top20-research-top.netlify.app/) | [`drone-top20-research-topic/`](drone-top20-research-topic/) |
 
 ---
 

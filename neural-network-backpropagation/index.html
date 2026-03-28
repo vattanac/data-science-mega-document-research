@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Forward Pass & Backpropagation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0b14;
+            color: #c8cad8;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #1e2045;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #a78bfa, #5eead4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #6b6e8a;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tags {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #a78bfa;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            scroll-margin-top: 2rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #a78bfa;
+            border-bottom: 2px solid #1e2045;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: #5eead4;
+        }
+
+        .card {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card p {
+            margin-bottom: 0.8rem;
+        }
+
+        .callout {
+            background: #12142a;
+            border-left: 4px solid #a78bfa;
+            border-radius: 0 12px 12px 0;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .callout.info {
+            border-left-color: #5eead4;
+        }
+
+        .callout.warning {
+            border-left-color: #f97316;
+        }
+
+        .math-block {
+            background: #0f1118;
+            border: 1px solid #1e2045;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            color: #5eead4;
+        }
+
+        .math-inline {
+            background: #12142a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #5eead4;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: #6b6e8a;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+
+        input[type="number"],
+        input[type="range"],
+        button {
+            background: #1a1d30;
+            border: 1px solid #1e2045;
+            color: #c8cad8;
+            padding: 0.6rem;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        input[type="number"]:focus,
+        input[type="range"]:focus {
+            outline: none;
+            border-color: #a78bfa;
+            background: #22253d;
+        }
+
+        button {
+            background: #a78bfa;
+            color: #0a0b14;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #5eead4;
+            transform: translateY(-2px);
+        }
+
+        .canvas-container {
+            background: #0f1118;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .computation-steps {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .step {
+            background: #0f1118;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: 8px;
+            border-left: 3px solid #5eead4;
+        }
+
+        .step-number {
+            font-weight: 600;
+            color: #a78bfa;
+            margin-right: 0.5rem;
+        }
+
+        .step-value {
+            font-family: 'Courier New', monospace;
+            color: #5eead4;
+            background: #0a0b14;
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            margin-top: 0.4rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .gradient-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .gradient-table th,
+        .gradient-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #1e2045;
+        }
+
+        .gradient-table th {
+            background: #1a1d30;
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        .gradient-table tbody tr:hover {
+            background: #1a1d30;
+        }
+
+        .gradient-value {
+            font-family: 'Courier New', monospace;
+            color: #5eead4;
+        }
+
+        .slider-container {
+            margin: 1.5rem 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        footer {
+            text-align: center;
+            border-top: 1px solid #1e2045;
+            padding-top: 2rem;
+            margin-top: 3rem;
+            color: #6b6e8a;
+            font-size: 0.9rem;
+        }
+
+        .nav-section {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #12142a;
+            border-radius: 12px;
+            border: 1px solid #1e2045;
+        }
+
+        .nav-section a {
+            color: #5eead4;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-section a:hover {
+            background: #1a1d30;
+            color: #a78bfa;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        strong {
+            color: #a78bfa;
+        }
+
+        code {
+            background: #12142a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #5eead4;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .legend {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .nav-section {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Neural Network Backpropagation</h1>
+            <p class="subtitle">Understanding Forward Pass & Gradient Flow</p>
+            <div class="tags">
+                <span class="tag">DEEP LEARNING</span>
+                <span class="tag">OPTIMIZATION</span>
+            </div>
+        </header>
+
+        <nav class="nav-section">
+            <a href="#what-is">What Is a Neural Network?</a>
+            <a href="#forward-pass">Forward Pass</a>
+            <a href="#forward-calc">Forward Calculator</a>
+            <a href="#loss">Loss Functions</a>
+            <a href="#backprop">Backpropagation</a>
+            <a href="#backprop-viz">Backprop Visualizer</a>
+            <a href="#training-loop">Training Loop</a>
+            <a href="#applications">Applications & Tips</a>
+        </nav>
+
+        <!-- Section 1: What Is a Neural Network? -->
+        <section id="what-is">
+            <h2>1. What Is a Neural Network?</h2>
+
+            <div class="card">
+                <h3>The Basic Components</h3>
+                <p>A neural network is a computational model inspired by biological neurons. It consists of:</p>
+                <ul>
+                    <li><strong>Neurons:</strong> Basic processing units that receive inputs and produce outputs.</li>
+                    <li><strong>Layers:</strong> Collections of neurons organized into input, hidden, and output layers.</li>
+                    <li><strong>Weights:</strong> Learnable parameters that scale the importance of each connection between neurons.</li>
+                    <li><strong>Biases:</strong> Additional learnable parameters that shift the activation function output.</li>
+                    <li><strong>Activation Functions:</strong> Non-linear functions (ReLU, Sigmoid, Tanh) that introduce complexity.</li>
+                </ul>
+            </div>
+
+            <div class="callout info">
+                <strong>Key Insight:</strong> A neural network learns by adjusting weights and biases to minimize prediction error. The forward pass computes predictions, and backpropagation calculates gradients to update parameters.
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="basicNetworkCanvas" width="600" height="300"></canvas>
+            </div>
+
+            <div class="card">
+                <h3>How Neurons Work</h3>
+                <p>Each neuron computes a weighted sum of its inputs plus a bias, then applies an activation function:</p>
+                <div class="math-block">
+neuron_output = activation(Σ(weight_i × input_i) + bias)
+                </div>
+                <p>The activation function introduces non-linearity, allowing neural networks to model complex patterns. Common choices include:</p>
+                <ul>
+                    <li><strong>ReLU:</strong> <code>f(x) = max(0, x)</code> — Most popular in hidden layers</li>
+                    <li><strong>Sigmoid:</strong> <code>f(x) = 1 / (1 + e^(-x))</code> — Binary classification outputs</li>
+                    <li><strong>Tanh:</strong> <code>f(x) = (e^x - e^(-x)) / (e^x + e^(-x))</code> — Zero-centered sigmoid</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 2: The Forward Pass -->
+        <section id="forward-pass">
+            <h2>2. The Forward Pass</h2>
+
+            <div class="card">
+                <h3>Computing Predictions</h3>
+                <p>The forward pass propagates input data through the network layer by layer to produce predictions. Each layer's output becomes the next layer's input.</p>
+                <p>For a simple network with one hidden layer:</p>
+                <div class="math-block">
+z1 = w1·x1 + w2·x2 + b1
+a1 = ReLU(z1)
+z2 = w3·a1 + w4·a2 + b2
+output = sigmoid(z2)
+                </div>
+            </div>
+
+            <div class="callout">
+                <strong>Step-by-Step Process:</strong>
+                <ol>
+                    <li>Input layer receives raw data (features)</li>
+                    <li>First hidden layer: compute <span class="math-inline">z = Wx + b</span>, apply activation</li>
+                    <li>Subsequent layers: repeat with new inputs</li>
+                    <li>Output layer: final predictions (with appropriate activation)</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h3>Information Flow</h3>
+                <p>Think of the forward pass as information flowing from left to right:</p>
+                <ul>
+                    <li><strong>Input:</strong> Raw features (x1, x2, ...)</li>
+                    <li><strong>Weighted Sum:</strong> Linear combination of inputs scaled by weights</li>
+                    <li><strong>Activation:</strong> Non-linear transformation applied</li>
+                    <li><strong>Hidden Layer Output:</strong> Becomes input to next layer</li>
+                    <li><strong>Output:</strong> Final prediction(s)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 3: Interactive Forward Pass Calculator -->
+        <section id="forward-calc">
+            <h2>3. Interactive: Forward Pass Calculator</h2>
+
+            <div class="card">
+                <p>Enter values for inputs, weights, and biases. Watch how data flows through the network and see the computation step-by-step.</p>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="x1">Input x1:</label>
+                    <input type="number" id="x1" value="0.5" step="0.1" min="-2" max="2">
+                </div>
+                <div class="control-group">
+                    <label for="x2">Input x2:</label>
+                    <input type="number" id="x2" value="1.0" step="0.1" min="-2" max="2">
+                </div>
+                <div class="control-group">
+                    <label for="w1">Weight w1 (x1→h1):</label>
+                    <input type="number" id="w1" value="0.4" step="0.1" min="-1" max="1">
+                </div>
+                <div class="control-group">
+                    <label for="w2">Weight w2 (x2→h1):</label>
+                    <input type="number" id="w2" value="0.6" step="0.1" min="-1" max="1">
+                </div>
+                <div class="control-group">
+                    <label for="w3">Weight w3 (x1→h2):</label>
+                    <input type="number" id="w3" value="0.3" step="0.1" min="-1" max="1">
+                </div>
+                <div class="control-group">
+                    <label for="w4">Weight w4 (x2→h2):</label>
+                    <input type="number" id="w4" value="0.7" step="0.1" min="-1" max="1">
+                </div>
+                <div class="control-group">
+                    <label for="w5">Weight w5 (h1→o):</label>
+                    <input type="number" id="w5" value="0.5" step="0.1" min="-1" max="1">
+                </div>
+                <div class="control-group">
+                    <label for="w6">Weight w6 (h2→o):</label>
+                    <input type="number" id="w6" value="0.4" step="0.1" min="-1" max="1">
+                </div>
+                <div class="control-group">
+                    <label for="b1">Bias b1 (hidden1):</label>
+                    <input type="number" id="b1" value="0.1" step="0.1" min="-1" max="1">
+                </div>
+                <div class="control-group">
+                    <label for="b2">Bias b2 (hidden2):</label>
+                    <input type="number" id="b2" value="-0.1" step="0.1" min="-1" max="1">
+                </div>
+                <div class="control-group">
+                    <label for="b3">Bias b3 (output):</label>
+                    <input type="number" id="b3" value="0.2" step="0.1" min="-1" max="1">
+                </div>
+            </div>
+
+            <button onclick="computeForwardPass()">Compute Forward Pass</button>
+
+            <div class="canvas-container">
+                <canvas id="forwardNetworkCanvas" width="700" height="400"></canvas>
+            </div>
+
+            <div class="computation-steps" id="forwardSteps">
+                <p style="color: #6b6e8a; text-align: center;">Click "Compute Forward Pass" to see step-by-step computation...</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Loss Functions -->
+        <section id="loss">
+            <h2>4. Loss Functions</h2>
+
+            <div class="card">
+                <h3>Mean Squared Error (MSE)</h3>
+                <p>Used primarily for regression tasks. Measures the average squared difference between predicted and actual values.</p>
+                <div class="math-block">
+MSE = (1/n) × Σ(y_true - y_pred)²
+                </div>
+                <p><strong>Properties:</strong> Penalizes large errors heavily; sensitive to outliers; always non-negative.</p>
+            </div>
+
+            <div class="card">
+                <h3>Cross-Entropy Loss</h3>
+                <p>Used primarily for classification tasks. Measures the difference between predicted probability distributions and true labels.</p>
+                <div class="math-block">
+CrossEntropy = -Σ(y_true × log(y_pred))
+                </div>
+                <p><strong>Properties:</strong> Naturally aligns with probability outputs; well-suited for classification; numerically stable variants exist.</p>
+            </div>
+
+            <div class="callout warning">
+                <strong>Important:</strong> The choice of loss function significantly impacts training. MSE works well for regression; Cross-Entropy works well for classification. The loss function's gradient drives backpropagation.
+            </div>
+        </section>
+
+        <!-- Section 5: Backpropagation Explained -->
+        <section id="backprop">
+            <h2>5. Backpropagation Explained</h2>
+
+            <div class="card">
+                <h3>The Chain Rule Foundation</h3>
+                <p>Backpropagation uses the chain rule from calculus to compute gradients. If we want to know how a weight affects the loss, we chain partial derivatives:</p>
+                <div class="math-block">
+∂Loss/∂w = (∂Loss/∂output) × (∂output/∂z) × (∂z/∂w)
+                </div>
+                <p>This breaks the complex derivative into manageable pieces that we can compute layer by layer.</p>
+            </div>
+
+            <div class="card">
+                <h3>Gradient Flow Backwards</h3>
+                <p>Backpropagation flows error signals backwards through the network:</p>
+                <ul>
+                    <li><strong>Step 1:</strong> Compute loss from predictions</li>
+                    <li><strong>Step 2:</strong> Calculate gradient of loss w.r.t. output</li>
+                    <li><strong>Step 3:</strong> Propagate gradient backwards through output layer</li>
+                    <li><strong>Step 4:</strong> Continue for each hidden layer using chain rule</li>
+                    <li><strong>Step 5:</strong> Calculate gradient for each weight: <span class="math-inline">∂L/∂w</span></li>
+                </ul>
+            </div>
+
+            <div class="callout info">
+                <strong>Key Insight:</strong> Once you have <span class="math-inline">∂Loss/∂weight</span>, you update the weight in the opposite direction: <span class="math-inline">w_new = w_old - learning_rate × ∂Loss/∂w</span>
+            </div>
+
+            <div class="card">
+                <h3>Weight Updates</h3>
+                <p>After computing gradients, weights are updated using gradient descent:</p>
+                <div class="math-block">
+w_new = w_old - α × (∂L/∂w)
+b_new = b_old - α × (∂L/∂b)
+                </div>
+                <p>Where <span class="math-inline">α</span> (alpha) is the learning rate. A larger learning rate means bigger steps, but risks overshooting. A smaller learning rate means slower, more stable learning.</p>
+            </div>
+        </section>
+
+        <!-- Section 6: Interactive Backprop Visualizer -->
+        <section id="backprop-viz">
+            <h2>6. Interactive: Backprop Visualizer</h2>
+
+            <div class="card">
+                <p>Set a target output and learning rate, then run backpropagation. Watch how gradients flow backwards and weights update to fit the target.</p>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="targetOutput">Target Output:</label>
+                    <input type="number" id="targetOutput" value="1.0" step="0.1" min="0" max="1">
+                </div>
+                <div class="control-group">
+                    <label for="learningRate">Learning Rate:</label>
+                    <input type="number" id="learningRate" value="0.1" step="0.01" min="0.001" max="1">
+                </div>
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-label">
+                    <label>Learning Rate Slider:</label>
+                    <span id="lrDisplay">0.1</span>
+                </div>
+                <input type="range" id="lrSlider" min="0.001" max="1" step="0.01" value="0.1" oninput="updateLRDisplay()">
+            </div>
+
+            <button onclick="runBackprop()">Run Backpropagation Step</button>
+            <button onclick="resetBackprop()" style="margin-left: 0.5rem;">Reset Network</button>
+
+            <div class="canvas-container">
+                <canvas id="backpropNetworkCanvas" width="700" height="400"></canvas>
+            </div>
+
+            <div class="computation-steps" id="backpropSteps">
+                <p style="color: #6b6e8a; text-align: center;">Click "Run Backpropagation Step" to see gradients and weight updates...</p>
+            </div>
+
+            <div class="card">
+                <h3>Gradient Summary</h3>
+                <table class="gradient-table" id="gradientTable">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Current Value</th>
+                            <th>Gradient (∂L/∂w)</th>
+                            <th>Update Δw</th>
+                            <th>New Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #6b6e8a;">Run backprop to see updates...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 7: The Training Loop -->
+        <section id="training-loop">
+            <h2>7. The Training Loop</h2>
+
+            <div class="card">
+                <h3>Putting It All Together</h3>
+                <p>Training combines the forward pass and backpropagation in a repeating cycle:</p>
+                <div class="math-block">
+for each epoch:
+    for each batch in training_data:
+        forward_pass(batch)
+        compute_loss(predictions, true_labels)
+        backward_pass()
+        update_weights()
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Key Concepts</h3>
+                <ul>
+                    <li><strong>Epoch:</strong> One complete pass through the entire training dataset.</li>
+                    <li><strong>Batch:</strong> A subset of training data processed together (trade-off between memory and gradient stability).</li>
+                    <li><strong>Iteration:</strong> One gradient update step, equivalent to one batch.</li>
+                    <li><strong>Convergence:</strong> When the loss stops improving significantly, indicating the network has learned.</li>
+                    <li><strong>Overfitting:</strong> When the network memorizes training data instead of learning generalizable patterns (detected by validation loss increasing).</li>
+                </ul>
+            </div>
+
+            <div class="callout info">
+                <strong>Training Strategy:</strong> Split data into training, validation, and test sets. Monitor validation loss to detect overfitting early. Use early stopping to halt training when validation loss plateaus.
+            </div>
+        </section>
+
+        <!-- Section 8: Applications & Tips -->
+        <section id="applications">
+            <h2>8. Applications & Tips</h2>
+
+            <div class="card">
+                <h3>Common Challenges & Solutions</h3>
+
+                <h3 style="margin-top: 1.5rem;">Vanishing Gradients</h3>
+                <p><strong>Problem:</strong> In deep networks, gradients become exponentially smaller moving backwards through layers, especially with sigmoid/tanh activations. Weights in early layers barely update.</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Use ReLU activations instead of sigmoid/tanh</li>
+                    <li>Use batch normalization to stabilize gradient flow</li>
+                    <li>Use skip connections (residual networks)</li>
+                    <li>Carefully initialize weights (He initialization for ReLU)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Exploding Gradients</h3>
+                <p><strong>Problem:</strong> The opposite of vanishing gradients—gradients become exponentially larger, causing unstable training and NaN losses.</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Gradient clipping: cap gradient magnitude to a threshold</li>
+                    <li>Reduce learning rate</li>
+                    <li>Use batch normalization</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Batch Normalization</h3>
+                <p>Normalizes layer inputs to have zero mean and unit variance:</p>
+                <div class="math-block">
+z_norm = (z - batch_mean) / sqrt(batch_variance + epsilon)
+z_scaled = γ × z_norm + β
+                </div>
+                <p><strong>Benefits:</strong> Stabilizes learning, allows higher learning rates, reduces internal covariate shift, provides regularization effect.</p>
+            </div>
+
+            <div class="card">
+                <h3>Dropout Regularization</h3>
+                <p>Randomly deactivates neurons during training (typically 20-50% dropout rate):</p>
+                <p><strong>Benefits:</strong> Prevents co-adaptation of neurons, reduces overfitting, forces network to learn robust features, effectively creates ensemble of networks.</p>
+                <p><strong>Note:</strong> Dropout is only applied during training; all neurons are active during inference.</p>
+            </div>
+
+            <div class="callout warning">
+                <strong>Training Tips:</strong>
+                <ul>
+                    <li>Normalize/standardize input features to zero mean and unit variance</li>
+                    <li>Initialize weights carefully (avoid all zeros or very large values)</li>
+                    <li>Use appropriate activation functions for each layer type</li>
+                    <li>Monitor both training and validation loss for overfitting</li>
+                    <li>Use learning rate scheduling to decay learning rate over time</li>
+                    <li>Consider momentum or adaptive optimizers (Adam, RMSprop) instead of vanilla SGD</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Real-World Applications</h3>
+                <ul>
+                    <li><strong>Computer Vision:</strong> Image classification, object detection, segmentation (CNNs)</li>
+                    <li><strong>Natural Language Processing:</strong> Text classification, machine translation, language modeling (RNNs, Transformers)</li>
+                    <li><strong>Time Series:</strong> Forecasting, anomaly detection (LSTMs, GRUs)</li>
+                    <li><strong>Speech:</strong> Speech recognition, speaker identification</li>
+                    <li><strong>Reinforcement Learning:</strong> Game playing, robotics, autonomous control</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            © 2025 Sim Vattanac · vattanacsim99@gmail.com
+        </footer>
+    </div>
+
+    <script>
+        // Global state for forward pass
+        let forwardState = {
+            z_h1: 0, a_h1: 0,
+            z_h2: 0, a_h2: 0,
+            z_o: 0, output: 0,
+            loss: 0
+        };
+
+        // Global state for backprop
+        let backpropState = {
+            weights: [0.4, 0.6, 0.3, 0.7, 0.5, 0.4],
+            biases: [0.1, -0.1, 0.2],
+            forwardCache: {}
+        };
+
+        // Utility functions
+        function relu(x) {
+            return Math.max(0, x);
+        }
+
+        function reluDerivative(x) {
+            return x > 0 ? 1 : 0;
+        }
+
+        function sigmoid(x) {
+            return 1 / (1 + Math.exp(-Math.min(Math.max(x, -500), 500)));
+        }
+
+        function sigmoidDerivative(x) {
+            const s = sigmoid(x);
+            return s * (1 - s);
+        }
+
+        function mse(yTrue, yPred) {
+            return Math.pow(yTrue - yPred, 2) / 2;
+        }
+
+        // Canvas drawing functions
+        function drawBasicNetwork() {
+            const canvas = document.getElementById('basicNetworkCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Clear canvas
+            ctx.fillStyle = '#0f1118';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const layerWidth = 120;
+            const nodeRadius = 15;
+            const padding = 60;
+
+            // Layer positions
+            const layers = [
+                { x: padding, label: 'Input', nodes: 2 },
+                { x: padding + layerWidth * 2, label: 'Hidden', nodes: 3 },
+                { x: padding + layerWidth * 4, label: 'Output', nodes: 1 }
+            ];
+
+            // Draw connections
+            ctx.strokeStyle = '#1e2045';
+            ctx.lineWidth = 2;
+
+            for (let i = 0; i < layers.length - 1; i++) {
+                const fromLayer = layers[i];
+                const toLayer = layers[i + 1];
+
+                for (let j = 0; j < fromLayer.nodes; j++) {
+                    const fromY = 80 + (canvas.height - 160) * j / (fromLayer.nodes - 1 || 1);
+                    for (let k = 0; k < toLayer.nodes; k++) {
+                        const toY = 80 + (canvas.height - 160) * k / (toLayer.nodes - 1 || 1);
+                        ctx.beginPath();
+                        ctx.moveTo(fromLayer.x + nodeRadius, fromY);
+                        ctx.lineTo(toLayer.x - nodeRadius, toY);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw nodes
+            for (let layer of layers) {
+                for (let i = 0; i < layer.nodes; i++) {
+                    const y = 80 + (canvas.height - 160) * i / (layer.nodes - 1 || 1);
+
+                    // Node circle
+                    ctx.fillStyle = '#a78bfa';
+                    ctx.beginPath();
+                    ctx.arc(layer.x, y, nodeRadius, 0, 2 * Math.PI);
+                    ctx.fill();
+
+                    // Node label
+                    ctx.fillStyle = '#0a0b14';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(['x' + (i + 1), 'h' + (i + 1), 'o'][Math.min(i, 0)], layer.x, y);
+                }
+
+                // Layer label
+                ctx.fillStyle = '#5eead4';
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(layer.label, layer.x, 30);
+            }
+
+            // Draw legend
+            const legendX = padding;
+            const legendY = canvas.height - 35;
+            ctx.fillStyle = '#c8cad8';
+            ctx.font = '12px Inter';
+            ctx.textAlign = 'left';
+            ctx.fillText('→ Weights scale each connection', legendX, legendY);
+            ctx.fillText('→ Biases shift neuron outputs', legendX, legendY + 18);
+        }
+
+        function drawForwardNetwork() {
+            const canvas = document.getElementById('forwardNetworkCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#0f1118';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const x1 = parseFloat(document.getElementById('x1').value);
+            const x2 = parseFloat(document.getElementById('x2').value);
+
+            const layerPositions = [
+                { x: 60, label: 'Input', values: [x1, x2] },
+                { x: 250, label: 'Hidden 1', values: [forwardState.a_h1, forwardState.a_h2] },
+                { x: 440, label: 'Output', values: [forwardState.output] }
+            ];
+
+            // Draw connections with gradient effect
+            for (let i = 0; i < layerPositions.length - 1; i++) {
+                const fromLayer = layerPositions[i];
+                const toLayer = layerPositions[i + 1];
+
+                for (let j = 0; j < fromLayer.values.length; j++) {
+                    for (let k = 0; k < toLayer.values.length; k++) {
+                        const fromY = 80 + j * 80;
+                        const toY = 80 + k * 80;
+
+                        ctx.strokeStyle = '#5eead4';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(fromLayer.x + 20, fromY);
+                        ctx.lineTo(toLayer.x - 20, toY);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw nodes
+            layerPositions.forEach((layer, layerIdx) => {
+                for (let i = 0; i < layer.values.length; i++) {
+                    const y = 80 + i * 80;
+                    const value = layer.values[i];
+
+                    // Node circle
+                    ctx.fillStyle = '#a78bfa';
+                    ctx.beginPath();
+                    ctx.arc(layer.x, y, 20, 0, 2 * Math.PI);
+                    ctx.fill();
+
+                    // Value text
+                    ctx.fillStyle = '#0a0b14';
+                    ctx.font = 'bold 11px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(value.toFixed(2), layer.x, y);
+
+                    // Node label below
+                    ctx.fillStyle = '#6b6e8a';
+                    ctx.font = '10px Inter';
+                    ctx.fillText(['x' + (i + 1), 'h' + (i + 1), 'o'][Math.min(layerIdx, 1)], layer.x, y + 35);
+                }
+
+                // Layer title
+                ctx.fillStyle = '#5eead4';
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(layer.label, layer.x, 30);
+            });
+
+            // Display loss
+            ctx.fillStyle = '#c8cad8';
+            ctx.font = '12px Inter';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Loss (MSE): ${forwardState.loss.toFixed(4)}`, 60, canvas.height - 20);
+        }
+
+        function drawBackpropNetwork() {
+            const canvas = document.getElementById('backpropNetworkCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#0f1118';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Simplified visualization
+            ctx.fillStyle = '#c8cad8';
+            ctx.font = '12px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Network visualization will show gradient flow backwards', canvas.width / 2, canvas.height / 2);
+        }
+
+        function computeForwardPass() {
+            const x1 = parseFloat(document.getElementById('x1').value);
+            const x2 = parseFloat(document.getElementById('x2').value);
+            const w1 = parseFloat(document.getElementById('w1').value);
+            const w2 = parseFloat(document.getElementById('w2').value);
+            const w3 = parseFloat(document.getElementById('w3').value);
+            const w4 = parseFloat(document.getElementById('w4').value);
+            const w5 = parseFloat(document.getElementById('w5').value);
+            const w6 = parseFloat(document.getElementById('w6').value);
+            const b1 = parseFloat(document.getElementById('b1').value);
+            const b2 = parseFloat(document.getElementById('b2').value);
+            const b3 = parseFloat(document.getElementById('b3').value);
+
+            // Forward pass
+            forwardState.z_h1 = w1 * x1 + w2 * x2 + b1;
+            forwardState.a_h1 = relu(forwardState.z_h1);
+
+            forwardState.z_h2 = w3 * x1 + w4 * x2 + b2;
+            forwardState.a_h2 = relu(forwardState.z_h2);
+
+            forwardState.z_o = w5 * forwardState.a_h1 + w6 * forwardState.a_h2 + b3;
+            forwardState.output = sigmoid(forwardState.z_o);
+
+            // For demo, assume target is 0.7
+            const target = 0.7;
+            forwardState.loss = mse(target, forwardState.output);
+
+            // Render visualization
+            drawForwardNetwork();
+
+            // Display steps
+            const stepsHtml = `
+                <div class="step">
+                    <span class="step-number">Hidden Layer 1:</span>
+                    <div class="step-value">z₁ = ${w1.toFixed(2)}×${x1.toFixed(2)} + ${w2.toFixed(2)}×${x2.toFixed(2)} + ${b1.toFixed(2)} = ${forwardState.z_h1.toFixed(4)}</div>
+                    <div class="step-value">a₁ = ReLU(${forwardState.z_h1.toFixed(4)}) = ${forwardState.a_h1.toFixed(4)}</div>
+                </div>
+                <div class="step">
+                    <span class="step-number">Hidden Layer 2:</span>
+                    <div class="step-value">z₂ = ${w3.toFixed(2)}×${x1.toFixed(2)} + ${w4.toFixed(2)}×${x2.toFixed(2)} + ${b2.toFixed(2)} = ${forwardState.z_h2.toFixed(4)}</div>
+                    <div class="step-value">a₂ = ReLU(${forwardState.z_h2.toFixed(4)}) = ${forwardState.a_h2.toFixed(4)}</div>
+                </div>
+                <div class="step">
+                    <span class="step-number">Output Layer:</span>
+                    <div class="step-value">z₃ = ${w5.toFixed(2)}×${forwardState.a_h1.toFixed(4)} + ${w6.toFixed(2)}×${forwardState.a_h2.toFixed(4)} + ${b3.toFixed(2)} = ${forwardState.z_o.toFixed(4)}</div>
+                    <div class="step-value">output = Sigmoid(${forwardState.z_o.toFixed(4)}) = ${forwardState.output.toFixed(4)}</div>
+                </div>
+                <div class="step">
+                    <span class="step-number">Loss:</span>
+                    <div class="step-value">Loss = (1/2)(${target} - ${forwardState.output.toFixed(4)})² = ${forwardState.loss.toFixed(4)}</div>
+                </div>
+            `;
+
+            document.getElementById('forwardSteps').innerHTML = stepsHtml;
+        }
+
+        function updateLRDisplay() {
+            const lr = parseFloat(document.getElementById('lrSlider').value);
+            document.getElementById('lrDisplay').textContent = lr.toFixed(3);
+            document.getElementById('learningRate').value = lr;
+        }
+
+        function runBackprop() {
+            const x1 = parseFloat(document.getElementById('x1').value) || 0.5;
+            const x2 = parseFloat(document.getElementById('x2').value) || 1.0;
+            const targetOutput = parseFloat(document.getElementById('targetOutput').value);
+            const learningRate = parseFloat(document.getElementById('learningRate').value);
+
+            // Use current forward state
+            const [w1, w2, w3, w4, w5, w6] = backpropState.weights;
+            const [b1, b2, b3] = backpropState.biases;
+
+            // Forward pass
+            let z_h1 = w1 * x1 + w2 * x2 + b1;
+            let a_h1 = relu(z_h1);
+            let z_h2 = w3 * x1 + w4 * x2 + b2;
+            let a_h2 = relu(z_h2);
+            let z_o = w5 * a_h1 + w6 * a_h2 + b3;
+            let output = sigmoid(z_o);
+
+            // Backward pass
+            const loss = mse(targetOutput, output);
+            const dL_dOutput = -(targetOutput - output); // derivative of MSE
+            const dOutput_dZo = sigmoidDerivative(z_o);
+            const dL_dZo = dL_dOutput * dOutput_dZo;
+
+            // Gradients for weights 5 and 6
+            const dL_dw5 = dL_dZo * a_h1;
+            const dL_dw6 = dL_dZo * a_h2;
+            const dL_db3 = dL_dZo;
+
+            // Backprop to hidden layers
+            const dL_dAh1 = dL_dZo * w5;
+            const dL_dAh2 = dL_dZo * w6;
+            const dL_dZh1 = dL_dAh1 * reluDerivative(z_h1);
+            const dL_dZh2 = dL_dAh2 * reluDerivative(z_h2);
+
+            // Gradients for weights 1-4
+            const dL_dw1 = dL_dZh1 * x1;
+            const dL_dw2 = dL_dZh1 * x2;
+            const dL_dw3 = dL_dZh2 * x1;
+            const dL_dw4 = dL_dZh2 * x2;
+            const dL_db1 = dL_dZh1;
+            const dL_db2 = dL_dZh2;
+
+            // Update weights
+            backpropState.weights[0] -= learningRate * dL_dw1;
+            backpropState.weights[1] -= learningRate * dL_dw2;
+            backpropState.weights[2] -= learningRate * dL_dw3;
+            backpropState.weights[3] -= learningRate * dL_dw4;
+            backpropState.weights[4] -= learningRate * dL_dw5;
+            backpropState.weights[5] -= learningRate * dL_dw6;
+
+            backpropState.biases[0] -= learningRate * dL_db1;
+            backpropState.biases[1] -= learningRate * dL_db2;
+            backpropState.biases[2] -= learningRate * dL_db3;
+
+            // Display backprop steps
+            const stepsHtml = `
+                <div class="step">
+                    <span class="step-number">Output Gradient:</span>
+                    <div class="step-value">∂L/∂output = -(${targetOutput.toFixed(2)} - ${output.toFixed(4)}) = ${dL_dOutput.toFixed(4)}</div>
+                    <div class="step-value">∂L/∂z₃ = ${dL_dOutput.toFixed(4)} × σ'(${z_o.toFixed(4)}) = ${dL_dZo.toFixed(4)}</div>
+                </div>
+                <div class="step">
+                    <span class="step-number">Hidden Layer Gradients:</span>
+                    <div class="step-value">∂L/∂a₁ = ${dL_dAh1.toFixed(4)}, ∂L/∂z₁ = ${dL_dZh1.toFixed(4)}</div>
+                    <div class="step-value">∂L/∂a₂ = ${dL_dAh2.toFixed(4)}, ∂L/∂z₂ = ${dL_dZh2.toFixed(4)}</div>
+                </div>
+                <div class="step">
+                    <span class="step-number">Weight Updates (α = ${learningRate.toFixed(3)}):</span>
+                    <div class="step-value">w₅: ${w5.toFixed(4)} → ${backpropState.weights[4].toFixed(4)} (Δw = ${(-learningRate * dL_dw5).toFixed(4)})</div>
+                    <div class="step-value">w₆: ${w6.toFixed(4)} → ${backpropState.weights[5].toFixed(4)} (Δw = ${(-learningRate * dL_dw6).toFixed(4)})</div>
+                </div>
+                <div class="step">
+                    <span class="step-number">Loss Update:</span>
+                    <div class="step-value">Loss: ${loss.toFixed(4)} (Goal: reduce towards zero)</div>
+                </div>
+            `;
+
+            document.getElementById('backpropSteps').innerHTML = stepsHtml;
+
+            // Update gradient table
+            const tableBody = document.querySelector('#gradientTable tbody');
+            tableBody.innerHTML = `
+                <tr>
+                    <td>w₁</td>
+                    <td class="gradient-value">${w1.toFixed(4)}</td>
+                    <td class="gradient-value">${dL_dw1.toFixed(4)}</td>
+                    <td class="gradient-value">${(-learningRate * dL_dw1).toFixed(4)}</td>
+                    <td class="gradient-value">${backpropState.weights[0].toFixed(4)}</td>
+                </tr>
+                <tr>
+                    <td>w₅</td>
+                    <td class="gradient-value">${w5.toFixed(4)}</td>
+                    <td class="gradient-value">${dL_dw5.toFixed(4)}</td>
+                    <td class="gradient-value">${(-learningRate * dL_dw5).toFixed(4)}</td>
+                    <td class="gradient-value">${backpropState.weights[4].toFixed(4)}</td>
+                </tr>
+                <tr>
+                    <td>w₆</td>
+                    <td class="gradient-value">${w6.toFixed(4)}</td>
+                    <td class="gradient-value">${dL_dw6.toFixed(4)}</td>
+                    <td class="gradient-value">${(-learningRate * dL_dw6).toFixed(4)}</td>
+                    <td class="gradient-value">${backpropState.weights[5].toFixed(4)}</td>
+                </tr>
+                <tr>
+                    <td>b₃</td>
+                    <td class="gradient-value">${b3.toFixed(4)}</td>
+                    <td class="gradient-value">${dL_db3.toFixed(4)}</td>
+                    <td class="gradient-value">${(-learningRate * dL_db3).toFixed(4)}</td>
+                    <td class="gradient-value">${backpropState.biases[2].toFixed(4)}</td>
+                </tr>
+            `;
+
+            drawBackpropNetwork();
+        }
+
+        function resetBackprop() {
+            backpropState.weights = [0.4, 0.6, 0.3, 0.7, 0.5, 0.4];
+            backpropState.biases = [0.1, -0.1, 0.2];
+            document.getElementById('backpropSteps').innerHTML = '<p style="color: #6b6e8a; text-align: center;">Network reset. Click "Run Backpropagation Step" to begin...</p>';
+            document.querySelector('#gradientTable tbody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #6b6e8a;">Reset complete, ready for backprop...</td></tr>';
+            drawBackpropNetwork();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            drawBasicNetwork();
+            drawForwardNetwork();
+            drawBackpropNetwork();
+
+            // Add event listeners for real-time computation
+            ['x1', 'x2', 'w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'b1', 'b2', 'b3'].forEach(id => {
+                document.getElementById(id).addEventListener('change', () => {
+                    // Optionally compute forward pass on input change
+                });
+            });
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('.nav-section a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (href.startsWith('#')) {
+                    e.preventDefault();
+                    const element = document.querySelector(href);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

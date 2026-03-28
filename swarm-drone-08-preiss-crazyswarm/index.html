@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crazyswarm: A Large Nano-Quadcopter Swarm - Preiss et al. (2017)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0b14;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: #12142a;
+            border-bottom: 2px solid #a78bfa;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #a78bfa;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .paper-meta {
+            color: #5eead4;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+        }
+
+        .paper-meta strong {
+            color: #a78bfa;
+        }
+
+        .button-group {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        a.paper-btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #5eead4;
+            color: #0a0b14;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid #5eead4;
+        }
+
+        a.paper-btn:hover {
+            background-color: #0a0b14;
+            color: #5eead4;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        section {
+            background-color: #12142a;
+            border: 1px solid #a78bfa;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        section h2 {
+            color: #5eead4;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #a78bfa;
+            padding-bottom: 0.5rem;
+        }
+
+        section h3 {
+            color: #a78bfa;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .why-matters {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(94, 234, 212, 0.1) 100%);
+            border-left: 4px solid #a78bfa;
+        }
+
+        .step {
+            background-color: rgba(167, 139, 250, 0.05);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            border-left: 3px solid #5eead4;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            background-color: #a78bfa;
+            color: #0a0b14;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .analogy, .example {
+            background-color: rgba(94, 234, 212, 0.1);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            border-left: 3px solid #5eead4;
+        }
+
+        .canvas-container {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            background-color: #0a0b14;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #a78bfa;
+            color: #0a0b14;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5eead4;
+            transform: translateY(-2px);
+        }
+
+        .takeaways {
+            background-color: rgba(94, 234, 212, 0.1);
+            border-left: 4px solid #5eead4;
+        }
+
+        .takeaway-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background-color: rgba(167, 139, 250, 0.05);
+            border-radius: 0.5rem;
+        }
+
+        .takeaway-item::before {
+            content: "✓ ";
+            color: #5eead4;
+            font-weight: bold;
+        }
+
+        footer {
+            background-color: #12142a;
+            border-top: 2px solid #a78bfa;
+            padding: 1.5rem;
+            text-align: center;
+            color: #888;
+            margin-top: 2rem;
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .spec-box {
+            background-color: rgba(167, 139, 250, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #a78bfa;
+        }
+
+        .spec-value {
+            color: #5eead4;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .spec-label {
+            color: #a78bfa;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .architecture-box {
+            background: linear-gradient(135deg, rgba(94, 234, 212, 0.2) 0%, rgba(167, 139, 250, 0.2) 100%);
+            border: 2px solid #5eead4;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            section {
+                padding: 1rem;
+            }
+
+            .button-group {
+                gap: 0.5rem;
+            }
+
+            a.paper-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Crazyswarm: A Large Nano-Quadcopter Swarm</h1>
+        <p class="paper-meta">By <strong>James A. Preiss, Wolfgang Hönig, Gaurav S. Sukhatme, Nora Ayanian</strong></p>
+        <p class="paper-meta"><strong>Year:</strong> 2017 | <strong>Conference:</strong> IEEE ICRA, pp. 3299-3304</p>
+        <div class="button-group">
+            <a href="https://ieeexplore.ieee.org/document/7989376" target="_blank" class="paper-btn">Read Original Paper</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="why-matters">
+            <h2>Why This Paper Matters</h2>
+            <p>Crazyswarm represents the most accessible and practical large-scale drone swarm platform in academic robotics. Published in 2017 at ICRA, it enabled the "democratization" of swarm research: instead of each lab building proprietary systems, researchers worldwide could use Crazyswarm.</p>
+            <div class="architecture-box">
+                <strong>Impact:</strong> Over 100 research labs now use Crazyswarm. It's the platform of choice for swarm algorithm testing, algorithm development, and indoor drone shows.
+            </div>
+            <p style="margin-top: 1rem;">The key innovation isn't the drones themselves — it's the system architecture. The paper shows how to achieve <strong>&lt;2cm position accuracy with 49 drones</strong> using commodity motion capture cameras and simple radio communication. This architecture became the standard for indoor swarm research.</p>
+        </section>
+
+        <section>
+            <h2>The System Architecture: Information Flow</h2>
+
+            <div class="analogy">
+                <strong>Orchestra Analogy:</strong> Imagine conducting an orchestra of 49 musicians without giving them real-time instructions:
+                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                    <li><strong>Motion Capture (Conductor):</strong> Cameras see all musicians and measure their positions at 120 Hz (120 times per second).</li>
+                    <li><strong>Ground Computer (Score Distributor):</strong> Uses position data to compute trajectories and broadcasts them. But since broadcast is slow, it sends the full trajectory ahead of time: "In 0.5 seconds, you go to (1,2,3); at 1.0 seconds, go to (1,3,3)," etc.</li>
+                    <li><strong>Each Drone (Musician):</strong> Has internal control and state estimation. When motion capture broadcast is slow or fails, the drone interpolates its own trajectory. The drone doesn't need real-time instructions.</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Motion Capture System</h3>
+                <p>The Vicon motion capture system uses 12 infrared cameras in a room. Drones have reflective markers attached. The system tracks positions at 120 Hz with <2 cm accuracy.</p>
+                <p style="margin-top: 0.5rem;"><strong>Why it works:</strong> Each marker's 3D position is triangulated from multiple camera views. Errors average out. The system is the same technology used in movie special effects (Avatar, Lord of the Rings).</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Ground Controller (Central Computer)</h3>
+                <p>Receives position data from motion capture. Runs centralized algorithms to plan trajectories, make decisions, and compute desired control inputs. Broadcasts trajectories to drones via radio.</p>
+                <p style="margin-top: 0.5rem;"><strong>Challenge:</strong> Broadcasting to 49 drones takes time. Solution: send full trajectory polynomials, not real-time control commands. The trajectory encodes the entire planned path for the next 1-2 seconds.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Onboard Drone Control</h3>
+                <p>Each nano-quadcopter (Crazyflie) has an ARM processor and IMU. When it receives a trajectory broadcast, it stores the polynomial coefficients. The drone's onboard controller interpolates the trajectory and performs feedback control to follow it, even with sensor noise and delays.</p>
+                <p style="margin-top: 0.5rem;"><strong>Why it matters:</strong> Drones don't need perfect GPS or ultra-fast communication. Each drone autonomously tracks its assigned trajectory. This decouples swarm coordination (centralized) from individual drone control (decentralized).</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Communication Infrastructure</h2>
+
+            <h3>The Challenge: Bandwidth Bottleneck</h3>
+            <p>Standard radio communication has limited bandwidth. Sending individual position commands to each drone would require enormous bandwidth. Crazyswarm solves this elegantly:</p>
+
+            <div class="spec-grid">
+                <div class="spec-box">
+                    <div class="spec-value">Polynomial</div>
+                    <div class="spec-label">Trajectory Format</div>
+                </div>
+                <div class="spec-box">
+                    <div class="spec-value">1 Radio</div>
+                    <div class="spec-label">Per 15 Drones</div>
+                </div>
+                <div class="spec-box">
+                    <div class="spec-value">Broadcast</div>
+                    <div class="spec-label">All Drones Get Message</div>
+                </div>
+                <div class="spec-box">
+                    <div class="spec-value">Compressed</div>
+                    <div class="spec-label">Data Format</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 1rem;">How Polynomial Trajectories Work</h3>
+            <p>Instead of sending thousands of waypoints (x(t) = [1.0, 1.1, 1.2, 1.3, ...]), Crazyswarm sends a polynomial:</p>
+            <p style="margin-left: 1.5rem; background-color: rgba(167, 139, 250, 0.1); padding: 0.5rem; border-radius: 0.3rem; font-family: monospace;">
+                x(t) = a₀ + a₁·t + a₂·t² + a₃·t³
+            </p>
+            <p style="margin-top: 0.5rem;">Just 4 coefficients encode a smooth position trajectory. The drone's onboard controller evaluates this polynomial at each time step (every 10ms) to compute its desired position and velocity. This is <strong>exponentially more bandwidth-efficient</strong> than sending waypoints.</p>
+        </section>
+
+        <section>
+            <h2>Hardware Specifications</h2>
+
+            <div class="spec-grid">
+                <div class="spec-box">
+                    <div class="spec-value">49</div>
+                    <div class="spec-label">Max Drones</div>
+                </div>
+                <div class="spec-box">
+                    <div class="spec-value">&lt;2cm</div>
+                    <div class="spec-label">Position Accuracy</div>
+                </div>
+                <div class="spec-box">
+                    <div class="spec-value">27g</div>
+                    <div class="spec-label">Drone Weight</div>
+                </div>
+                <div class="spec-box">
+                    <div class="spec-value">120 Hz</div>
+                    <div class="spec-label">Mocap Rate</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 1rem;">Why Nano-Quadcopters?</h3>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li><strong>Safety:</strong> Light drones mean collisions are harmless.</li>
+                <li><strong>Density:</strong> Many drones fit in one room (49 in a 10m × 10m space).</li>
+                <li><strong>Cost:</strong> Affordable for research budgets ($100-200 per drone).</li>
+                <li><strong>Acrobatics:</strong> Can perform flips and sharp maneuvers for impressive demonstrations.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Interactive Crazyswarm Choreography</h2>
+            <p>Watch 49 drones perform synchronized choreography: grid formation → circle → figure-8 → wave → return to grid. The colored halos show tracking accuracy: green = excellent, yellow = some drift.</p>
+
+            <div class="canvas-container">
+                <canvas id="choreographyCanvas" width="800" height="600"></canvas>
+                <div class="controls">
+                    <button onclick="playChoreography()">Play</button>
+                    <button onclick="pauseChoreography()">Pause</button>
+                    <button onclick="resetChoreography()">Reset</button>
+                    <button onclick="nextPattern()">Next Pattern</button>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.9rem;">
+                    <span style="color: #5eead4;">●</span> Drone Position |
+                    <span style="color: #90ee90;">◯</span> Good Tracking |
+                    <span style="color: #ffdd00;">◯</span> Drift Detected |
+                    <span style="color: #a78bfa;">─</span> Trajectory
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Why Crazyswarm Became the Standard</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Accessibility</h3>
+                <p>Researchers don't need to build hardware from scratch. They buy drones, set up motion capture, download Crazyswarm software, and start experimenting. This lowered the barrier to entry dramatically.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Reliability</h3>
+                <p>The system works reliably with 49 drones for hours. Earlier systems could maybe handle 5-10 drones before failures. This scale enables complex research impossible at smaller scales.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Flexibility</h3>
+                <p>The architecture cleanly separates motion capture (localization), planning (centralized coordination), and onboard control (individual drone control). Researchers can modify one part independently.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Reproducibility</h3>
+                <p>Because the platform is standardized, research results on Crazyswarm are reproducible. Different labs can run the same experiments and compare results.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Open Source</h3>
+                <p>Full source code is publicly available on GitHub. Researchers can fix bugs, contribute improvements, and build on the platform collaboratively.</p>
+            </div>
+        </section>
+
+        <section class="takeaways">
+            <h2>Key Takeaways</h2>
+            <div class="takeaway-item">Polynomial trajectory encoding achieves massive bandwidth savings: encode complex paths with just a few coefficients.</div>
+            <div class="takeaway-item">Separating localization (motion capture), planning (centralized), and control (onboard) creates a flexible, scalable architecture.</div>
+            <div class="takeaway-item">Achieving &lt;2cm accuracy with 49 drones requires careful system integration: motion capture quality, communication reliability, and robust onboard control.</div>
+            <div class="takeaway-item">Nano-quadcopters balance safety, cost, and capability for research swarms.</div>
+            <div class="takeaway-item">Crazyswarm proves that accessible research platforms can become standards that accelerate entire fields. 100+ labs use it because it's reliable and easy.</div>
+            <div class="takeaway-item">The system works with mixed centralized and decentralized control: global coordination via motion capture and planning, local execution via onboard control.</div>
+        </section>
+    </main>
+
+    <footer>
+        © 2025 Sim Vattanac | vattanacsim99@gmail.com
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('choreographyCanvas');
+        const ctx = canvas.getContext('2d');
+
+        class CrazyflieDrone {
+            constructor(id, startX, startY) {
+                this.id = id;
+                this.x = startX;
+                this.y = startY;
+                this.targetX = startX;
+                this.targetY = startY;
+                this.trackerError = 0;
+                this.maxTrackerError = 15;
+            }
+
+            update(targetX, targetY) {
+                this.targetX = targetX;
+                this.targetY = targetY;
+
+                // Move toward target
+                const dx = this.targetX - this.x;
+                const dy = this.targetY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist > 1) {
+                    const speed = 2;
+                    this.x += (dx / dist) * speed;
+                    this.y += (dy / dist) * speed;
+                } else {
+                    this.x = this.targetX;
+                    this.y = this.targetY;
+                }
+
+                // Simulate tracking drift
+                this.trackerError = Math.max(0, this.trackerError - 0.3);
+                if (Math.random() < 0.02) {
+                    this.trackerError = Math.min(this.maxTrackerError, this.trackerError + 2);
+                }
+            }
+
+            draw() {
+                // Tracking accuracy halo
+                if (this.trackerError > 1) {
+                    const haloColor = this.trackerError < 5 ? '#90ee90' : '#ffdd00';
+                    ctx.fillStyle = haloColor;
+                    ctx.globalAlpha = 0.2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 10 + this.trackerError, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                }
+
+                // Drone
+                ctx.fillStyle = '#5eead4';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = '#a78bfa';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        let drones = [];
+        let isPlaying = false;
+        let currentTime = 0;
+        let currentPattern = 0;
+        const patterns = ['grid', 'circle', 'figure8', 'wave'];
+
+        function initDrones() {
+            drones = [];
+            const cols = 7;
+            const rows = 7;
+            const spacing = canvas.width / (cols + 1);
+            for (let i = 0; i < 49; i++) {
+                const x = ((i % cols) + 1) * spacing;
+                const y = (Math.floor(i / cols) + 1) * (canvas.height / (rows + 1));
+                drones.push(new CrazyflieDrone(i, x, y));
+            }
+        }
+
+        function generateTargets(pattern, time) {
+            const targets = [];
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            for (let i = 0; i < 49; i++) {
+                const col = i % 7;
+                const row = Math.floor(i / 7);
+
+                let x = centerX, y = centerY;
+
+                if (pattern === 'grid') {
+                    const spacing = 80;
+                    x = centerX - 240 + col * spacing;
+                    y = centerY - 240 + row * spacing;
+                } else if (pattern === 'circle') {
+                    const angle = (i / 49) * Math.PI * 2 + time * 0.02;
+                    const radius = 150;
+                    x = centerX + Math.cos(angle) * radius;
+                    y = centerY + Math.sin(angle) * radius;
+                } else if (pattern === 'figure8') {
+                    const angle = (i / 49) * Math.PI * 2;
+                    const t = (time * 0.03 + angle) % (Math.PI * 2);
+                    const r = 100;
+                    x = centerX + Math.sin(t) * r;
+                    y = centerY + Math.sin(t) * Math.cos(t) * r;
+                } else if (pattern === 'wave') {
+                    const waveY = Math.sin(time * 0.02 + i * 0.1) * 80;
+                    x = (i / 49) * canvas.width;
+                    y = centerY + waveY;
+                }
+
+                targets.push({ x, y });
+            }
+
+            return targets;
+        }
+
+        function playChoreography() {
+            isPlaying = true;
+        }
+
+        function pauseChoreography() {
+            isPlaying = false;
+        }
+
+        function resetChoreography() {
+            currentTime = 0;
+            isPlaying = false;
+            initDrones();
+        }
+
+        function nextPattern() {
+            currentPattern = (currentPattern + 1) % patterns.length;
+            currentTime = 0;
+        }
+
+        function animate() {
+            // Background
+            ctx.fillStyle = '#1a1c2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid
+            ctx.strokeStyle = 'rgba(167, 139, 250, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // Update positions
+            if (isPlaying) {
+                currentTime++;
+            }
+
+            const targets = generateTargets(patterns[currentPattern], currentTime);
+            for (let i = 0; i < drones.length; i++) {
+                drones[i].update(targets[i].x, targets[i].y);
+            }
+
+            // Draw trajectories (light lines)
+            ctx.strokeStyle = 'rgba(167, 139, 250, 0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < drones.length; i++) {
+                ctx.beginPath();
+                ctx.moveTo(drones[i].x, drones[i].y);
+                ctx.lineTo(targets[i].x, targets[i].y);
+                ctx.stroke();
+            }
+
+            // Draw drones
+            for (let drone of drones) {
+                drone.draw();
+            }
+
+            // Pattern label
+            ctx.fillStyle = '#5eead4';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Pattern: ${patterns[currentPattern].toUpperCase()}`, 10, 30);
+
+            requestAnimationFrame(animate);
+        }
+
+        initDrones();
+        animate();
+    </script>
+</body>
+</html>

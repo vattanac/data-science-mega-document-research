@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handling Missing Data - Interactive Guide</title>
+    <style>
+        :root {
+            --bg-primary: #0a0b14;
+            --bg-card: #12142a;
+            --border-color: #1e2045;
+            --text-primary: #c8cad8;
+            --text-dim: #6b6e8a;
+            --accent-primary: #a78bfa;
+            --accent-secondary: #5eead4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-primary);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+        }
+
+        .tags {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--accent-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            scroll-margin-top: 2rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-secondary);
+            border-bottom: 2px solid var(--accent-primary);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent-primary);
+        }
+
+        h4 {
+            font-size: 1.05rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent-primary);
+            padding: 1rem;
+            padding-left: 1.25rem;
+            background-color: rgba(167, 139, 250, 0.05);
+            border-radius: 0 4px 4px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout.warning {
+            border-left-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+
+        .math-block {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            color: var(--accent-secondary);
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: rgba(167, 139, 250, 0.1);
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        button {
+            background-color: var(--accent-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent-secondary);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        button.secondary:hover {
+            background-color: rgba(167, 139, 250, 0.1);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            max-width: 400px;
+            margin: 1rem 0;
+        }
+
+        select {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* Simulator styles */
+        .simulator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .simulator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .data-table {
+            overflow-x: auto;
+        }
+
+        .data-table table {
+            min-width: 100%;
+        }
+
+        .data-cell {
+            padding: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .data-cell:hover {
+            background-color: rgba(94, 234, 212, 0.1);
+        }
+
+        .data-cell.missing {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            font-style: italic;
+        }
+
+        .data-cell.imputed {
+            background-color: rgba(167, 139, 250, 0.15);
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .comparison-table {
+            margin-top: 1.5rem;
+        }
+
+        .chart-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .flowchart {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .flowchart-node {
+            background-color: rgba(167, 139, 250, 0.1);
+            border: 2px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .flowchart-arrow {
+            text-align: center;
+            color: var(--accent-secondary);
+            font-size: 1.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .decision-box {
+            background-color: rgba(94, 234, 212, 0.1);
+            border: 2px solid var(--accent-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pros, .cons {
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .pros {
+            background-color: rgba(34, 197, 94, 0.05);
+            border-left-color: #22c55e;
+        }
+
+        .cons {
+            background-color: rgba(239, 68, 68, 0.05);
+            border-left-color: #ef4444;
+        }
+
+        .pros h4, .cons h4 {
+            margin-top: 0;
+        }
+
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            margin-top: 4rem;
+            padding-bottom: 2rem;
+        }
+
+        footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .nav-menu a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-menu a:hover {
+            background-color: rgba(167, 139, 250, 0.1);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            margin: 0;
+        }
+
+        .slider-value {
+            min-width: 60px;
+            text-align: right;
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        .results-box {
+            background-color: rgba(94, 234, 212, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            color: var(--accent-secondary);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .missing-highlight {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Handling Missing Data</h1>
+            <p class="subtitle">A Comprehensive Guide to Understanding and Managing Missing Data in Data Science</p>
+            <div class="tags">
+                <span class="tag">DATA PROCESSING</span>
+                <span class="tag">DATA CLEANING</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#types">Types</a>
+                <a href="#why-matters">Why It Matters</a>
+                <a href="#deletion">Deletion</a>
+                <a href="#imputation">Imputation</a>
+                <a href="#advanced">Advanced</a>
+                <a href="#simulator">Simulator</a>
+                <a href="#visualizer">Visualizer</a>
+                <a href="#decision">Decision Guide</a>
+                <a href="#best-practices">Best Practices</a>
+            </div>
+        </header>
+
+        <!-- Section 1: Types of Missing Data -->
+        <section id="types">
+            <h2>1. Types of Missing Data</h2>
+
+            <div class="card">
+                <h3>Missing Completely At Random (MCAR)</h3>
+                <p>Missing data that has no relationship to any observed or unobserved variables. The probability of a value being missing is independent of both the variable itself and all other variables.</p>
+                <div class="callout">
+                    <strong>Example:</strong> A sensor randomly fails during measurement, regardless of the actual value or other conditions. This is the "best case scenario" for missing data handling.
+                </div>
+                <div class="math-block">
+                    P(missing | X) = P(missing)<br>
+                    The missingness is completely random and non-informative.
+                </div>
+                <p><strong>Implications:</strong> Any analysis method that ignores the missing data is valid, though power is reduced. Listwise or pairwise deletion is acceptable.</p>
+            </div>
+
+            <div class="card">
+                <h3>Missing At Random (MAR)</h3>
+                <p>Missing data depends on observed variables, but not on the unobserved values themselves. Given the observed data, the mechanism is random.</p>
+                <div class="callout">
+                    <strong>Example:</strong> Younger patients are less likely to report cholesterol levels (but this is captured by age in your data). The missingness depends on age (observed), not on cholesterol itself (unobserved).
+                </div>
+                <div class="math-block">
+                    P(missing | X, Y) = P(missing | X)<br>
+                    Missingness depends on observed data X, not on Y itself.
+                </div>
+                <p><strong>Implications:</strong> Deletion is problematic and introduces bias. Imputation methods like MICE (Multiple Imputation by Chained Equations) are appropriate. Multiple imputation is preferred.</p>
+            </div>
+
+            <div class="card">
+                <h3>Missing Not At Random (MNAR)</h3>
+                <p>Missing data depends on the unobserved values themselves. The probability of missingness is related to the missing value itself.</p>
+                <div class="callout warning">
+                    <strong>Example:</strong> People with very high or very low income are more likely to skip income questions. Income is missing because of the income itself.
+                </div>
+                <div class="math-block">
+                    P(missing | Y) ≠ P(missing)<br>
+                    Missingness depends directly on the unobserved value Y.
+                </div>
+                <p><strong>Implications:</strong> This is the most challenging scenario. Deletion introduces severe bias. Imputation requires careful assumptions or sensitivity analysis. Often requires domain knowledge or auxiliary information.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Why Missing Data Matters -->
+        <section id="why-matters">
+            <h2>2. Why Missing Data Matters</h2>
+
+            <div class="card">
+                <h3>Statistical Bias</h3>
+                <p>Depending on how you handle missing data, you can introduce systematic errors into your analysis:</p>
+                <ul>
+                    <li><strong>Selection Bias:</strong> If data is missing due to the values themselves (MNAR), ignoring missingness leads to biased estimates.</li>
+                    <li><strong>Underestimation of Variance:</strong> Listwise deletion reduces variance estimates because you're working with a subset of data.</li>
+                    <li><strong>False Associations:</strong> Simple deletion can create spurious correlations between variables.</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Reduced Statistical Power</h3>
+                <p>Missing data reduces the effective sample size, which decreases your ability to detect real effects:</p>
+                <div class="math-block">
+                    Effective Sample Size = N × (1 - percentage missing)<br>
+                    10% missing data → ~10% reduction in power
+                </div>
+                <ul>
+                    <li>Wider confidence intervals</li>
+                    <li>Higher p-values for hypothesis tests</li>
+                    <li>Inability to detect important effects</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Invalid Conclusions</h3>
+                <p>Poor handling of missing data can lead to fundamentally wrong conclusions:</p>
+                <ul>
+                    <li>Incorrect parameter estimates</li>
+                    <li>Unreliable statistical tests</li>
+                    <li>Misleading predictive models</li>
+                    <li>Inability to compare groups fairly (if missingness differs by group)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Key Takeaway</h3>
+                <div class="callout">
+                    How you handle missing data is <strong>not optional</strong>—it's a fundamental part of your analysis that directly affects the validity of your results. Transparency and careful consideration of the missingness mechanism is essential.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Strategy 1 - Deletion -->
+        <section id="deletion">
+            <h2>3. Strategy 1: Deletion</h2>
+
+            <div class="card">
+                <h3>Listwise Deletion (Complete Case Analysis)</h3>
+                <p>Remove any observation (row) that has missing data in any variable. Only analyze cases with complete data.</p>
+                <div class="math-block">
+                    Keep only observations where all variables are non-missing<br>
+                    Effective n = number of complete cases
+                </div>
+
+                <h4>Pros:</h4>
+                <ul>
+                    <li>Simple to implement (one line of code)</li>
+                    <li>No assumptions required</li>
+                    <li>Analysis is straightforward using standard methods</li>
+                </ul>
+
+                <h4>Cons:</h4>
+                <ul>
+                    <li>Severe sample size reduction (especially with many variables)</li>
+                    <li>Introduces bias if data is MAR or MNAR</li>
+                    <li>Wastes information from partially complete observations</li>
+                    <li>Assumption of MCAR is rarely justified</li>
+                </ul>
+
+                <div class="callout warning">
+                    If you have 10 variables and 5% missing in each, listwise deletion could remove ~41% of your data!
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Pairwise Deletion</h3>
+                <p>Use all available data for each analysis. For correlations/associations, use all pairs of observations where both variables are observed.</p>
+                <div class="math-block">
+                    For each pair of variables: use observations where both are non-missing<br>
+                    Sample size may vary by variable pair
+                </div>
+
+                <h4>Pros:</h4>
+                <ul>
+                    <li>Retains more data than listwise deletion</li>
+                    <li>Better statistical power</li>
+                    <li>Simple to implement</li>
+                </ul>
+
+                <h4>Cons:</h4>
+                <ul>
+                    <li>Different analyses use different sample sizes (confusing interpretation)</li>
+                    <li>Can produce non-positive definite correlation matrices</li>
+                    <li>Still biased if data is MAR or MNAR</li>
+                    <li>Standard errors may be inaccurate</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="callout warning">
+                    <strong>When to Use Deletion:</strong> Only when data is truly MCAR AND the amount of missing data is small (&lt;5%). Even then, consider imputation first.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Strategy 2 - Imputation -->
+        <section id="imputation">
+            <h2>4. Strategy 2: Imputation</h2>
+
+            <div class="card">
+                <h3>Mean Imputation</h3>
+                <p>Replace missing values with the mean of non-missing values for that variable.</p>
+                <div class="math-block">
+                    imputed_value = mean(non-missing values)<br>
+                    Example: Missing age = 42.5 (average of observed ages)
+                </div>
+
+                <h4>Pros:</h4>
+                <ul>
+                    <li>Preserves the mean of the variable</li>
+                    <li>Simple and fast</li>
+                    <li>No assumptions required</li>
+                </ul>
+
+                <h4>Cons:</h4>
+                <ul>
+                    <li><strong>Reduces variance</strong> - artificially concentrates values around the mean</li>
+                    <li>Underestimates standard errors and confidence intervals</li>
+                    <li>Weakens correlations with other variables</li>
+                    <li>Not suitable for categorical data</li>
+                </ul>
+
+                <div class="callout warning">
+                    Mean imputation is often <strong>not recommended</strong> except for exploratory analysis. It violates statistical assumptions.
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Median Imputation</h3>
+                <p>Replace missing values with the median of non-missing values. More robust to outliers than mean.</p>
+
+                <h4>Pros:</h4>
+                <ul>
+                    <li>Robust to outliers</li>
+                    <li>Preserves the median</li>
+                    <li>Better for skewed distributions</li>
+                </ul>
+
+                <h4>Cons:</h4>
+                <ul>
+                    <li>Still reduces variance like mean imputation</li>
+                    <li>Same statistical issues apply</li>
+                    <li>Not suitable for categorical data</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Mode Imputation</h3>
+                <p>Replace missing values with the most frequently occurring value (category). Useful for categorical variables.</p>
+
+                <h4>Pros:</h4>
+                <ul>
+                    <li>Appropriate for categorical data</li>
+                    <li>Preserves the mode</li>
+                    <li>Simple implementation</li>
+                </ul>
+
+                <h4>Cons:</h4>
+                <ul>
+                    <li>Reduces variance significantly</li>
+                    <li>Can amplify the most common category artificially</li>
+                    <li>Only preserves frequencies, not relationships</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Forward Fill & Backward Fill</h3>
+                <p>Primarily for time series data. Forward fill uses the previous observation; backward fill uses the next observation.</p>
+                <div class="math-block">
+                    Forward Fill: impute with last observed value<br>
+                    Backward Fill: impute with next observed value
+                </div>
+
+                <h4>Use Cases:</h4>
+                <ul>
+                    <li>Time series with continuous phenomena (temperature, stock prices)</li>
+                    <li>When values are expected to change slowly</li>
+                </ul>
+
+                <h4>Limitations:</h4>
+                <ul>
+                    <li>Only appropriate for ordered/sequential data</li>
+                    <li>Can introduce artifacts if gaps are large</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="callout">
+                    <strong>General Rule:</strong> Simple imputation methods (mean, median, mode) preserve the variable's distribution poorly and underestimate uncertainty. Use them only for preliminary exploration. For serious analysis, consider advanced methods like MICE or KNN.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Strategy 3 - Advanced Methods -->
+        <section id="advanced">
+            <h2>5. Strategy 3: Advanced Imputation Methods</h2>
+
+            <div class="card">
+                <h3>K-Nearest Neighbors (KNN) Imputation</h3>
+                <p>For each observation with missing data, find the K most similar observations (based on non-missing values) and impute using their average or weighted average.</p>
+                <div class="math-block">
+                    imputed_value = mean(values in K nearest neighbors)<br>
+                    Often K=5 or K=10; uses distance metric (Euclidean, Manhattan)
+                </div>
+
+                <h4>Pros:</h4>
+                <ul>
+                    <li>Considers relationships between variables</li>
+                    <li>Preserves data distribution better than simple methods</li>
+                    <li>Can handle both numerical and categorical data</li>
+                    <li>Relatively simple to understand and implement</li>
+                </ul>
+
+                <h4>Cons:</h4>
+                <ul>
+                    <li>Computationally expensive for large datasets</li>
+                    <li>Requires choosing K (often requires cross-validation)</li>
+                    <li>Still underestimates uncertainty</li>
+                    <li>Sensitive to outliers and scale of variables</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Regression Imputation</h3>
+                <p>Use other variables to predict missing values. Build a regression model from complete cases and predict missing values.</p>
+                <div class="math-block">
+                    Y_missing = β₀ + β₁X₁ + β₂X₂ + ... (fitted from complete cases)<br>
+                    Stochastic variant adds random error: Y_missing = predicted + ε
+                </div>
+
+                <h4>Pros:</h4>
+                <ul>
+                    <li>Uses information from other variables</li>
+                    <li>Deterministic version preserves variable mean</li>
+                    <li>Stochastic version better preserves variance</li>
+                    <li>Flexible (linear, logistic, tree-based models)</li>
+                </ul>
+
+                <h4>Cons:</h4>
+                <ul>
+                    <li>Assumes specific relationship between variables</li>
+                    <li>Can be biased if model is misspecified</li>
+                    <li>Deterministic version underestimates uncertainty</li>
+                    <li>More complex to implement correctly</li>
+                </ul>
+
+                <div class="callout">
+                    <strong>Tip:</strong> Always use the stochastic version (add residual noise) to avoid artificially reducing variance.
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multiple Imputation by Chained Equations (MICE)</h3>
+                <p>The gold standard for handling missing data. Iteratively impute missing values using conditional distributions, creating multiple complete datasets. Analyze each dataset separately and combine results.</p>
+                <div class="math-block">
+                    1. Initialize missing values (e.g., mean imputation)<br>
+                    2. For each variable with missing data:<br>
+                       &nbsp;&nbsp;Fit model predicting it from other variables<br>
+                       &nbsp;&nbsp;Impute missing values from predictive distribution<br>
+                    3. Repeat steps 2 for multiple iterations<br>
+                    4. Create m complete datasets (typically m=5-20)<br>
+                    5. Analyze each dataset, combine results using Rubin's rules
+                </div>
+
+                <h4>Pros:</h4>
+                <ul>
+                    <li>Preserves relationships between variables</li>
+                    <li>Properly quantifies uncertainty with multiple imputations</li>
+                    <li>Flexible: can use different models for different variables</li>
+                    <li>Valid under MAR assumption (not MCAR)</li>
+                    <li>Produces valid standard errors and confidence intervals</li>
+                    <li>Gold standard in statistical practice</li>
+                </ul>
+
+                <h4>Cons:</h4>
+                <ul>
+                    <li>More complex to implement and understand</li>
+                    <li>Computationally intensive</li>
+                    <li>Results depend on model specification</li>
+                    <li>Requires careful combination of results (Rubin's rules)</li>
+                </ul>
+
+                <div class="callout">
+                    <strong>When to Use:</strong> When data is MAR, when missing data is not minimal (&gt;5%), and when statistical inference is important. This is the preferred method in most modern applications.
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Comparison of Advanced Methods</h3>
+                <table>
+                    <tr>
+                        <th>Method</th>
+                        <th>Complexity</th>
+                        <th>Preserves Distribution</th>
+                        <th>Quantifies Uncertainty</th>
+                        <th>Speed</th>
+                    </tr>
+                    <tr>
+                        <td>KNN</td>
+                        <td>Medium</td>
+                        <td>Good</td>
+                        <td>Fair</td>
+                        <td>Slow</td>
+                    </tr>
+                    <tr>
+                        <td>Regression (Stochastic)</td>
+                        <td>Medium</td>
+                        <td>Good</td>
+                        <td>Good</td>
+                        <td>Fast</td>
+                    </tr>
+                    <tr>
+                        <td>MICE</td>
+                        <td>High</td>
+                        <td>Excellent</td>
+                        <td>Excellent</td>
+                        <td>Medium</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 6: Interactive Simulator -->
+        <section id="simulator">
+            <h2>6. Interactive: Missing Data Simulator</h2>
+            <p>Generate a sample dataset and experiment with different imputation strategies. Click cells to mark them as missing, then select an imputation method to see how it affects your data.</p>
+
+            <div class="card">
+                <div class="controls">
+                    <button onclick="generateNewData()">Generate New Dataset</button>
+                    <button class="secondary" onclick="resetData()">Reset All Missing</button>
+                </div>
+
+                <div class="simulator-container">
+                    <div>
+                        <h4>Original Dataset (Click to Mark Missing)</h4>
+                        <div class="data-table">
+                            <table id="simulatorTable">
+                                <thead id="tableHead"></thead>
+                                <tbody id="tableBody"></tbody>
+                            </table>
+                        </div>
+                        <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 0.5rem;">
+                            Click any cell to toggle missing status. Current missing: <span id="missingCount">0</span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4>Imputation Method</h4>
+                        <div class="control-group">
+                            <label>Select Strategy:</label>
+                            <select id="imputationMethod" onchange="updateImputation()">
+                                <option value="none">No Imputation (Show Missing)</option>
+                                <option value="mean">Mean Imputation</option>
+                                <option value="median">Median Imputation</option>
+                                <option value="knn">KNN Imputation (K=5)</option>
+                            </select>
+                        </div>
+
+                        <button onclick="applyImputation()" style="margin-top: 1rem;">Apply Imputation</button>
+
+                        <div id="imputationResults" style="margin-top: 1rem;"></div>
+                    </div>
+                </div>
+
+                <h4 style="margin-top: 2rem;">Comparison: Original vs. Imputed</h4>
+                <div class="results-box">
+                    <div id="comparisonStats"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Interactive Impact Visualizer -->
+        <section id="visualizer">
+            <h2>7. Interactive: Impact Visualizer</h2>
+            <p>See how missing data and different imputation methods affect your dataset's distribution and relationships.</p>
+
+            <div class="card">
+                <h4>Missing Data Percentage</h4>
+                <div class="slider-container">
+                    <input type="range" id="missingSlider" min="0" max="50" value="10" onchange="updateVisualization()">
+                    <span class="slider-value" id="missingPercent">10%</span>
+                </div>
+
+                <h4 style="margin-top: 1.5rem;">Imputation Method</h4>
+                <div class="control-group">
+                    <select id="vizMethod" onchange="updateVisualization()">
+                        <option value="complete">Complete Data (Baseline)</option>
+                        <option value="delete">Listwise Deletion</option>
+                        <option value="mean">Mean Imputation</option>
+                        <option value="median">Median Imputation</option>
+                        <option value="knn">KNN Imputation</option>
+                    </select>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="vizCanvas" width="600" height="400"></canvas>
+                </div>
+
+                <div class="results-box">
+                    <h4>Dataset Statistics</h4>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Sample Size</div>
+                            <div class="stat-value" id="vizN">—</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Mean (X)</div>
+                            <div class="stat-value" id="vizMeanX">—</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Mean (Y)</div>
+                            <div class="stat-value" id="vizMeanY">—</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Correlation</div>
+                            <div class="stat-value" id="vizCorr">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Decision Guide -->
+        <section id="decision">
+            <h2>8. Decision Guide: Choosing the Right Strategy</h2>
+
+            <div class="card">
+                <div class="flowchart">
+                    <div style="text-align: center; margin-bottom: 1rem;">
+                        <strong style="font-size: 1.1rem;">START: You have missing data</strong>
+                    </div>
+
+                    <div class="flowchart-arrow">↓</div>
+
+                    <div class="flowchart-node">
+                        Is the amount of missing data &lt; 5%?
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <div class="flowchart-arrow">No →</div>
+                            <div style="text-align: center; color: var(--accent-secondary); font-weight: 600;">Consider imputation</div>
+                        </div>
+                        <div>
+                            <div class="flowchart-arrow">Yes →</div>
+                            <div style="text-align: center; color: var(--text-dim);">Maybe deletion is OK</div>
+                        </div>
+                    </div>
+
+                    <div class="flowchart-arrow" style="margin-top: 1rem;">↓</div>
+
+                    <div class="flowchart-node">
+                        Is the data MCAR? (Missing Completely At Random)
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <div class="flowchart-arrow">Yes →</div>
+                            <div style="text-align: center;">Deletion is valid (but imputation is still better)</div>
+                        </div>
+                        <div>
+                            <div class="flowchart-arrow">No (MAR/MNAR) →</div>
+                            <div style="text-align: center;">Never delete, use imputation</div>
+                        </div>
+                    </div>
+
+                    <div class="flowchart-arrow" style="margin-top: 1rem;">↓</div>
+
+                    <div class="flowchart-node">
+                        Which imputation method?
+                    </div>
+
+                    <div class="decision-box" style="margin-top: 1rem;">
+                        <strong>Quick & Simple Analysis:</strong><br>
+                        Mean/Median/Mode (but results are biased)
+                    </div>
+
+                    <div class="decision-box">
+                        <strong>Medium Complexity:</strong><br>
+                        KNN or Regression Imputation (good balance)
+                    </div>
+
+                    <div class="decision-box">
+                        <strong>Production/Publication:</strong><br>
+                        MICE (Multiple Imputation) — proper uncertainty quantification
+                    </div>
+
+                    <div class="flowchart-arrow" style="margin-top: 1rem;">↓</div>
+
+                    <div class="flowchart-node" style="background-color: rgba(34, 197, 94, 0.1); border-color: #22c55e;">
+                        Impute data, run analysis, document your choices
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Quick Reference Table</h3>
+                <table>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Missing Mechanism</th>
+                        <th>Best Approach</th>
+                        <th>Avoid</th>
+                    </tr>
+                    <tr>
+                        <td>&lt;5% missing, exploratory analysis</td>
+                        <td>MCAR (assumed)</td>
+                        <td>Deletion or simple imputation</td>
+                        <td>Over-engineering</td>
+                    </tr>
+                    <tr>
+                        <td>5-30% missing, inference needed</td>
+                        <td>MAR (likely)</td>
+                        <td>MICE or KNN</td>
+                        <td>Deletion</td>
+                    </tr>
+                    <tr>
+                        <td>&gt;30% missing</td>
+                        <td>MAR or MNAR</td>
+                        <td>MICE + sensitivity analysis</td>
+                        <td>Simple methods, deletion</td>
+                    </tr>
+                    <tr>
+                        <td>Known MNAR pattern</td>
+                        <td>MNAR</td>
+                        <td>Domain-specific models, auxiliary data</td>
+                        <td>Assuming MAR</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 9: Best Practices -->
+        <section id="best-practices">
+            <h2>9. Best Practices</h2>
+
+            <div class="card">
+                <h3>1. Investigate Missing Patterns First</h3>
+                <p><strong>Always start with exploration, not deletion.</strong></p>
+                <ul>
+                    <li>Create a missing data visualization (heatmap showing which values are missing)</li>
+                    <li>Calculate the percentage of missing data per variable</li>
+                    <li>Look for patterns: Are certain variables always missing together?</li>
+                    <li>Check if missingness correlates with other variables</li>
+                    <li>This helps you determine if data is MCAR, MAR, or MNAR</li>
+                </ul>
+                <div class="callout">
+                    <strong>Tools:</strong> Use <code>df.isnull().sum()</code> in Python/pandas, or visualize with heatmaps to see patterns.
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>2. Never Just Delete</h3>
+                <p>Listwise deletion should be your last resort, not first choice.</p>
+                <ul>
+                    <li>Even small amounts of missing data can cause large losses: 10 variables with 5% missing each = ~40% data loss</li>
+                    <li>If you do delete, justify it: prove data is MCAR and loss is minimal</li>
+                    <li>Always compare results with/without deletion (sensitivity analysis)</li>
+                </ul>
+                <div class="callout warning">
+                    Deletion is only defensible when missing data is trivial (&lt;5%) AND you can justify MCAR.
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>3. Choose the Right Method for Your Situation</h3>
+                <ul>
+                    <li><strong>Simple imputation (mean/median):</strong> Use only for preliminary exploration, never for final analysis</li>
+                    <li><strong>Advanced imputation (MICE, KNN):</strong> Use for serious analysis where you need valid inference</li>
+                    <li><strong>Time series:</strong> Consider forward/backward fill for sequential data</li>
+                    <li><strong>Categorical data:</strong> Use mode or classification-based imputation, not mean</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>4. Document Your Decisions</h3>
+                <p>Transparency is critical. Document:</p>
+                <ul>
+                    <li>How much data was missing (by variable and overall)</li>
+                    <li>Whether you investigated the missing pattern (MCAR/MAR/MNAR assessment)</li>
+                    <li>Which imputation method you used and why</li>
+                    <li>Any parameters (e.g., K=5 for KNN, m=20 for MICE iterations)</li>
+                    <li>How results changed with different methods (sensitivity analysis)</li>
+                </ul>
+                <div class="callout">
+                    Include a table in your report showing "% missing by variable" and state your assumptions about the missing mechanism.
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>5. Validate Your Imputation</h3>
+                <ul>
+                    <li><strong>Sanity checks:</strong> Are imputed values realistic? Do they fall within expected ranges?</li>
+                    <li><strong>Distribution checks:</strong> After imputation, does the distribution still look reasonable?</li>
+                    <li><strong>Sensitivity analysis:</strong> Run your analysis with different imputation methods. Do conclusions change?</li>
+                    <li><strong>Multiple imputation:</strong> Use MICE to get uncertainty estimates (not just point estimates)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>6. Use Multiple Imputation for Inference</h3>
+                <p>For statistical tests, confidence intervals, or p-values, multiple imputation (MICE) is the standard:</p>
+                <ul>
+                    <li>Creates multiple complete datasets reflecting uncertainty about missing values</li>
+                    <li>Analyze each dataset and combine results using Rubin's rules</li>
+                    <li>Produces valid standard errors and confidence intervals</li>
+                    <li>Properly accounts for uncertainty due to missingness</li>
+                </ul>
+                <div class="callout">
+                    Simple imputation methods cannot produce valid standard errors for inference.
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>7. Consider Auxiliary Information</h3>
+                <ul>
+                    <li>Include all relevant variables in your imputation model, even if not needed for final analysis</li>
+                    <li>More variables = better imputation (under MAR assumption)</li>
+                    <li>For MNAR, use external/domain knowledge to validate assumptions</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Checklist Before Publishing/Presenting</h3>
+                <ul>
+                    <li>☐ Assessed missing mechanism (MCAR/MAR/MNAR)</li>
+                    <li>☐ Justified imputation method choice</li>
+                    <li>☐ Reported amount of missing data</li>
+                    <li>☐ Documented all parameters (K, iterations, models used)</li>
+                    <li>☐ Validated imputed values (sanity checks)</li>
+                    <li>☐ Conducted sensitivity analysis (different methods compared)</li>
+                    <li>☐ Used appropriate method for inference (MICE for p-values, CI)</li>
+                    <li>☐ Acknowledged limitations of missing data handling</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 Sim Vattanac · <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================
+        // Global State
+        // ============================================
+        let simulatorData = [];
+        let columnNames = ['Age', 'Income', 'Score', 'Experience'];
+        let missingMask = [];
+
+        // ============================================
+        // Utility Functions
+        // ============================================
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function randomBetween(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function mean(arr) {
+            return arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+        }
+
+        function median(arr) {
+            if (arr.length === 0) return 0;
+            const sorted = [...arr].sort((a, b) => a - b);
+            return sorted[Math.floor(sorted.length / 2)];
+        }
+
+        function stdDev(arr) {
+            if (arr.length < 2) return 0;
+            const m = mean(arr);
+            const variance = arr.reduce((sum, x) => sum + Math.pow(x - m, 2), 0) / (arr.length - 1);
+            return Math.sqrt(variance);
+        }
+
+        function euclideanDistance(row1, row2) {
+            let sum = 0;
+            for (let i = 0; i < row1.length; i++) {
+                if (row1[i] !== null && row2[i] !== null) {
+                    sum += Math.pow(row1[i] - row2[i], 2);
+                }
+            }
+            return Math.sqrt(sum);
+        }
+
+        function correlation(arrX, arrY) {
+            if (arrX.length < 2) return 0;
+            const n = arrX.length;
+            const meanX = mean(arrX);
+            const meanY = mean(arrY);
+            let numerator = 0, denom1 = 0, denom2 = 0;
+
+            for (let i = 0; i < n; i++) {
+                numerator += (arrX[i] - meanX) * (arrY[i] - meanY);
+                denom1 += Math.pow(arrX[i] - meanX, 2);
+                denom2 += Math.pow(arrY[i] - meanY, 2);
+            }
+
+            return numerator / Math.sqrt(denom1 * denom2);
+        }
+
+        // ============================================
+        // Simulator Functions
+        // ============================================
+        function generateNewData() {
+            simulatorData = [];
+            missingMask = [];
+
+            for (let i = 0; i < 10; i++) {
+                simulatorData.push([
+                    randomInt(22, 65),           // Age
+                    randomInt(30000, 150000),    // Income
+                    randomBetween(40, 100),      // Score
+                    randomInt(0, 30)             // Experience
+                ]);
+                missingMask.push([false, false, false, false]);
+            }
+
+            renderSimulatorTable();
+            document.getElementById('comparisonStats').innerHTML = '';
+        }
+
+        function renderSimulatorTable() {
+            const thead = document.getElementById('tableHead');
+            const tbody = document.getElementById('tableBody');
+            thead.innerHTML = '<tr>' + columnNames.map(name => `<th>${name}</th>`).join('') + '</tr>';
+
+            tbody.innerHTML = simulatorData.map((row, rowIdx) => {
+                return '<tr>' + row.map((val, colIdx) => {
+                    const isMissing = missingMask[rowIdx][colIdx];
+                    const cellContent = isMissing ? 'MISSING' : (typeof val === 'number' ? val.toFixed(val > 1000 ? 0 : 1) : val);
+                    const cellClass = isMissing ? 'data-cell missing' : 'data-cell';
+                    return `<td class="${cellClass}" onclick="toggleMissing(${rowIdx}, ${colIdx})">${cellContent}</td>`;
+                }).join('') + '</tr>';
+            }).join('');
+
+            updateMissingCount();
+        }
+
+        function toggleMissing(rowIdx, colIdx) {
+            missingMask[rowIdx][colIdx] = !missingMask[rowIdx][colIdx];
+            renderSimulatorTable();
+        }
+
+        function resetData() {
+            missingMask = simulatorData.map(row => [false, false, false, false]);
+            renderSimulatorTable();
+        }
+
+        function updateMissingCount() {
+            let count = 0;
+            missingMask.forEach(row => row.forEach(isMissing => { if (isMissing) count++; }));
+            document.getElementById('missingCount').textContent = count;
+        }
+
+        function applyImputation() {
+            const method = document.getElementById('imputationMethod').value;
+            if (method === 'none') {
+                document.getElementById('imputationResults').innerHTML = '<p style="color: var(--text-dim);">Select an imputation method to see results.</p>';
+                return;
+            }
+
+            let imputedData = JSON.parse(JSON.stringify(simulatorData));
+            let imputedInfo = [];
+
+            for (let colIdx = 0; colIdx < columnNames.length; colIdx++) {
+                const columnValues = [];
+                for (let rowIdx = 0; rowIdx < 10; rowIdx++) {
+                    if (!missingMask[rowIdx][colIdx]) {
+                        columnValues.push(imputedData[rowIdx][colIdx]);
+                    }
+                }
+
+                let imputeValue;
+                if (method === 'mean') {
+                    imputeValue = mean(columnValues);
+                } else if (method === 'median') {
+                    imputeValue = median(columnValues);
+                } else if (method === 'knn') {
+                    // KNN imputation
+                    imputeValue = knnImputeValue(colIdx, imputedData, columnValues);
+                }
+
+                for (let rowIdx = 0; rowIdx < 10; rowIdx++) {
+                    if (missingMask[rowIdx][colIdx]) {
+                        imputedData[rowIdx][colIdx] = imputeValue;
+                        imputedInfo.push(`Row ${rowIdx}, ${columnNames[colIdx]}: ${imputeValue.toFixed(2)}`);
+                    }
+                }
+            }
+
+            renderComparisonTable(imputedData);
+            displayComparisonStats(imputedData);
+        }
+
+        function knnImputeValue(colIdx, data, knownValues) {
+            const k = 5;
+            const distances = [];
+
+            for (let i = 0; i < data.length; i++) {
+                let hasValue = !missingMask[i][colIdx];
+                if (!hasValue) continue;
+
+                let dist = 0, count = 0;
+                for (let j = 0; j < data[i].length; j++) {
+                    if (j !== colIdx && data[i][j] !== null) {
+                        // Normalize by column
+                        const colValues = simulatorData.map((_, r) => simulatorData[r][j]).filter(v => v !== null);
+                        const colMin = Math.min(...colValues);
+                        const colMax = Math.max(...colValues);
+                        const range = colMax - colMin || 1;
+
+                        let compVal = data[i][j];
+                        dist += Math.pow((compVal - simulatorData[i][j]) / range, 2);
+                        count++;
+                    }
+                }
+
+                distances.push({ index: i, distance: Math.sqrt(dist / (count || 1)), value: data[i][colIdx] });
+            }
+
+            distances.sort((a, b) => a.distance - b.distance);
+            const neighbors = distances.slice(0, Math.min(k, distances.length));
+            return mean(neighbors.map(n => n.value));
+        }
+
+        function renderComparisonTable(imputedData) {
+            const resultsDiv = document.getElementById('imputationResults');
+            let html = '<h4 style="margin-top: 1rem;">Imputed Data</h4><div class="data-table"><table>';
+            html += '<thead><tr>' + columnNames.map(name => `<th>${name}</th>`).join('') + '</tr></thead><tbody>';
+
+            html += imputedData.map((row, rowIdx) => {
+                return '<tr>' + row.map((val, colIdx) => {
+                    const wasMissing = missingMask[rowIdx][colIdx];
+                    const cellClass = wasMissing ? 'data-cell imputed' : 'data-cell';
+                    return `<td class="${cellClass}">${typeof val === 'number' ? val.toFixed(val > 1000 ? 0 : 1) : val}</td>`;
+                }).join('') + '</tr>';
+            }).join('') + '</tbody></table></div>';
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function displayComparisonStats(imputedData) {
+            const statsDiv = document.getElementById('comparisonStats');
+            let html = '<table>';
+            html += '<tr><th>Metric</th><th>Original</th><th>After Imputation</th></tr>';
+
+            for (let colIdx = 0; colIdx < columnNames.length; colIdx++) {
+                const origValues = simulatorData.map((_, i) => simulatorData[i][colIdx]).filter((_, i) => !missingMask[i][colIdx]);
+                const imputedValues = imputedData.map((_, i) => imputedData[i][colIdx]);
+
+                const origMean = mean(origValues);
+                const imputedMean = mean(imputedValues);
+
+                html += `<tr><td>${columnNames[colIdx]} (Mean)</td><td>${origMean.toFixed(1)}</td><td>${imputedMean.toFixed(1)}</td></tr>`;
+            }
+
+            html += '</table>';
+            statsDiv.innerHTML = html;
+        }
+
+        // ============================================
+        // Visualizer Functions
+        // ============================================
+        let visualizerData = [];
+
+        function generateVisualizerData() {
+            visualizerData = [];
+            for (let i = 0; i < 100; i++) {
+                const x = randomBetween(0, 100);
+                const y = x * 0.8 + randomBetween(-15, 15);
+                visualizerData.push({ x, y, original: true });
+            }
+        }
+
+        function updateVisualization() {
+            const missingPercent = parseInt(document.getElementById('missingSlider').value);
+            document.getElementById('missingPercent').textContent = missingPercent + '%';
+
+            if (visualizerData.length === 0) {
+                generateVisualizerData();
+            }
+
+            const method = document.getElementById('vizMethod').value;
+            let dataToVisualize = JSON.parse(JSON.stringify(visualizerData));
+
+            // Add missing data
+            const numToRemove = Math.floor(dataToVisualize.length * missingPercent / 100);
+            const indices = new Set();
+            while (indices.size < numToRemove) {
+                indices.add(randomInt(0, dataToVisualize.length - 1));
+            }
+
+            const beforeMissing = dataToVisualize.map(d => ({ ...d }));
+            dataToVisualize = dataToVisualize.filter((_, i) => !indices.has(i));
+
+            if (method === 'delete') {
+                // Already filtered
+            } else if (method === 'mean') {
+                const meanX = mean(dataToVisualize.map(d => d.x));
+                const meanY = mean(dataToVisualize.map(d => d.y));
+                indices.forEach(i => {
+                    dataToVisualize.push({ x: meanX, y: meanY });
+                });
+            } else if (method === 'median') {
+                const medianX = median(dataToVisualize.map(d => d.x));
+                const medianY = median(dataToVisualize.map(d => d.y));
+                indices.forEach(i => {
+                    dataToVisualize.push({ x: medianX, y: medianY });
+                });
+            } else if (method === 'knn') {
+                indices.forEach(idx => {
+                    const missing = beforeMissing[idx];
+                    const distances = dataToVisualize.map((d, i) => ({
+                        ...d,
+                        distance: Math.sqrt(Math.pow(d.x - missing.x, 2) + Math.pow(d.y - missing.y, 2))
+                    }));
+                    distances.sort((a, b) => a.distance - b.distance);
+                    const neighbors = distances.slice(0, 5);
+                    const imputedX = mean(neighbors.map(n => n.x));
+                    const imputedY = mean(neighbors.map(n => n.y));
+                    dataToVisualize.push({ x: imputedX, y: imputedY });
+                });
+            }
+
+            drawVisualization(dataToVisualize);
+            updateVizStats(dataToVisualize);
+        }
+
+        function drawVisualization(data) {
+            const canvas = document.getElementById('vizCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 40;
+
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, width, height);
+
+            const xs = data.map(d => d.x);
+            const ys = data.map(d => d.y);
+            const minX = Math.min(...xs) - 5;
+            const maxX = Math.max(...xs) + 5;
+            const minY = Math.min(...ys) - 5;
+            const maxY = Math.max(...ys) + 5;
+
+            const scaleX = (width - 2 * padding) / (maxX - minX);
+            const scaleY = (height - 2 * padding) / (maxY - minY);
+
+            // Draw axes
+            ctx.strokeStyle = '#1e2045';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.stroke();
+
+            // Draw grid
+            ctx.strokeStyle = '#1e2045';
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.3;
+            for (let i = 0; i <= 10; i++) {
+                const x = padding + (i / 10) * (width - 2 * padding);
+                const y = height - padding - (i / 10) * (height - 2 * padding);
+
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, height - padding);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+
+            // Draw points
+            ctx.fillStyle = '#a78bfa';
+            data.forEach(d => {
+                const px = padding + (d.x - minX) * scaleX;
+                const py = height - padding - (d.y - minY) * scaleY;
+                ctx.beginPath();
+                ctx.arc(px, py, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+
+            // Add trend line
+            if (data.length > 1) {
+                const xs = data.map(d => d.x);
+                const ys = data.map(d => d.y);
+                const meanX = mean(xs);
+                const meanY = mean(ys);
+                const slope = correlation(xs, ys) * (stdDev(ys) / stdDev(xs));
+                const intercept = meanY - slope * meanX;
+
+                ctx.strokeStyle = '#5eead4';
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.6;
+                ctx.beginPath();
+                const x1 = minX;
+                const y1 = intercept + slope * x1;
+                const x2 = maxX;
+                const y2 = intercept + slope * x2;
+                ctx.moveTo(padding + (x1 - minX) * scaleX, height - padding - (y1 - minY) * scaleY);
+                ctx.lineTo(padding + (x2 - minX) * scaleX, height - padding - (y2 - minY) * scaleY);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
+
+            // Labels
+            ctx.fillStyle = '#6b6e8a';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('X Variable', width / 2, height - 5);
+            ctx.save();
+            ctx.translate(10, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Y Variable', 0, 0);
+            ctx.restore();
+        }
+
+        function updateVizStats(data) {
+            const xs = data.map(d => d.x);
+            const ys = data.map(d => d.y);
+
+            document.getElementById('vizN').textContent = data.length;
+            document.getElementById('vizMeanX').textContent = mean(xs).toFixed(1);
+            document.getElementById('vizMeanY').textContent = mean(ys).toFixed(1);
+            document.getElementById('vizCorr').textContent = correlation(xs, ys).toFixed(3);
+        }
+
+        // ============================================
+        // Initialize
+        // ============================================
+        window.addEventListener('DOMContentLoaded', () => {
+            generateNewData();
+            generateVisualizerData();
+            updateVisualization();
+        });
+    </script>
+</body>
+</html>

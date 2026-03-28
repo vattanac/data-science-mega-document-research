@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimized Flocking of Autonomous Drones - Vásárhelyi et al. (2018)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0b14;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: #12142a;
+            border-bottom: 2px solid #a78bfa;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #a78bfa;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .paper-meta {
+            color: #5eead4;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+        }
+
+        .paper-meta strong {
+            color: #a78bfa;
+        }
+
+        .button-group {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        a.paper-btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #5eead4;
+            color: #0a0b14;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid #5eead4;
+        }
+
+        a.paper-btn:hover {
+            background-color: #0a0b14;
+            color: #5eead4;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        section {
+            background-color: #12142a;
+            border: 1px solid #a78bfa;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        section h2 {
+            color: #5eead4;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #a78bfa;
+            padding-bottom: 0.5rem;
+        }
+
+        section h3 {
+            color: #a78bfa;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .why-matters {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(94, 234, 212, 0.1) 100%);
+            border-left: 4px solid #a78bfa;
+        }
+
+        .step {
+            background-color: rgba(167, 139, 250, 0.05);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            border-left: 3px solid #5eead4;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            background-color: #a78bfa;
+            color: #0a0b14;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .analogy, .example {
+            background-color: rgba(94, 234, 212, 0.1);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            border-left: 3px solid #5eead4;
+        }
+
+        .canvas-container {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            background-color: #0a0b14;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #a78bfa;
+            color: #0a0b14;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5eead4;
+            transform: translateY(-2px);
+        }
+
+        .takeaways {
+            background-color: rgba(94, 234, 212, 0.1);
+            border-left: 4px solid #5eead4;
+        }
+
+        .takeaway-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background-color: rgba(167, 139, 250, 0.05);
+            border-radius: 0.5rem;
+        }
+
+        .takeaway-item::before {
+            content: "✓ ";
+            color: #5eead4;
+            font-weight: bold;
+        }
+
+        footer {
+            background-color: #12142a;
+            border-top: 2px solid #a78bfa;
+            padding: 1.5rem;
+            text-align: center;
+            color: #888;
+            margin-top: 2rem;
+        }
+
+        .metric-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .metric-box {
+            background-color: rgba(167, 139, 250, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #a78bfa;
+            text-align: center;
+        }
+
+        .metric-value {
+            color: #5eead4;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .metric-label {
+            color: #a78bfa;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .achievement-box {
+            background: linear-gradient(135deg, rgba(94, 234, 212, 0.2) 0%, rgba(167, 139, 250, 0.2) 100%);
+            border: 2px solid #5eead4;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            section {
+                padding: 1rem;
+            }
+
+            .button-group {
+                gap: 0.5rem;
+            }
+
+            a.paper-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Optimized Flocking of Autonomous Drones in Confined Environments</h1>
+        <p class="paper-meta">By <strong>Gábor Vásárhelyi et al.</strong></p>
+        <p class="paper-meta"><strong>Year:</strong> 2018 | <strong>Journal:</strong> Science Robotics, Vol. 3, Issue 20, eaat3536</p>
+        <div class="button-group">
+            <a href="https://www.science.org/doi/10.1126/scirobotics.aat3536" target="_blank" class="paper-btn">Read Original Paper</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="why-matters">
+            <h2>Why This Paper Matters</h2>
+            <p>This groundbreaking 2018 paper published in <em>Science Robotics</em> presents the first large-scale outdoor autonomous drone swarm without GPS, external control infrastructure, or human intervention. What makes it revolutionary is not just the demonstration itself, but the methodology: using evolutionary algorithms to automatically discover the right control parameters for flocking behavior.</p>
+            <div class="achievement-box">
+                <strong>Historic Achievement:</strong> 30 real drones flying at 8 m/s outdoors with autonomous collision avoidance and formation control — no centralized controller, no predefined leader.
+            </div>
+            <p style="margin-top: 1rem;">This paper proved that we don't need to hand-engineer swarm algorithms anymore. Instead, we can let evolution and machine learning discover the right rules. This paradigm shift opens doors to truly adaptive and robust swarm systems.</p>
+        </section>
+
+        <section>
+            <h2>The Core Innovation: Evolutionary Optimization</h2>
+
+            <div class="analogy">
+                <strong>Recipe Development Analogy:</strong> Imagine a master chef wants to create the perfect recipe for a complex dish:
+                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                    <li><strong>Old approach:</strong> Guess ingredients and ratios based on theory, test once or twice, hope it works.</li>
+                    <li><strong>Vásárhelyi's approach:</strong> Computer generates thousands of ingredient combinations automatically. Each is taste-tested. The best recipes are mixed and mutated. After 100+ generations, you have an optimized recipe better than any human could design.</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>The Fitness Function</h3>
+                <p>Evolution needs a way to measure what "good" means. The researchers designed a fitness function that measures:</p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li><strong>Alignment:</strong> Do all drones point in similar directions?</li>
+                    <li><strong>Spacing:</strong> Are drones evenly spaced (not too close, not too far)?</li>
+                    <li><strong>Cohesion:</strong> Does the flock stay together?</li>
+                    <li><strong>Collision avoidance:</strong> Do they avoid each other and obstacles?</li>
+                    <li><strong>Movement efficiency:</strong> Does the flock move in its intended direction?</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Control Parameters to Optimize</h3>
+                <p>Each drone runs a simple rule-based controller. The drones follow these rules based on what they sense in their neighborhood:</p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Attraction force to the center of nearby drones</li>
+                    <li>Repulsion force to avoid collisions</li>
+                    <li>Alignment force to match velocity with neighbors</li>
+                    <li>Wall avoidance force</li>
+                </ul>
+                <p style="margin-top: 0.5rem;">Each force has a strength parameter. Evolution optimizes these 20+ parameters simultaneously — an impossible task to do by hand.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>The Evolutionary Process</h3>
+                <p><strong>Generation 0:</strong> Start with random parameters. Run all 100 candidate solutions in simulation for 30 seconds each.</p>
+                <p><strong>Ranking:</strong> Score each solution using the fitness function. The top 20 "winners" survive.</p>
+                <p><strong>Generation 1:</strong> Create 80 new candidates by mixing and mutating the survivors. Repeat.</p>
+                <p><strong>After 20+ generations:</strong> The evolved solution performs dramatically better than hand-designed flocking algorithms.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Real-World Implementation</h2>
+
+            <div class="achievement-box">
+                <strong>Hardware Used:</strong> 30 Crazyflie quadcopters modified for outdoor flight
+                <br><strong>Sensing:</strong> Each drone had local obstacle and neighbor detection
+                <br><strong>Communication:</strong> Simple state broadcasts among neighbors
+                <br><strong>Location:</strong> Open outdoor field in Hungary
+                <br><strong>Flight speed:</strong> 8 m/s (28.8 km/h) — fast enough for practical applications
+            </div>
+
+            <div class="example">
+                <strong>The Challenge:</strong> Outdoor flying is hard because:
+                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                    <li>Wind disturbances affect trajectories unpredictably</li>
+                    <li>Sensor noise makes neighbors' positions uncertain</li>
+                    <li>Communication can be interrupted by obstacles</li>
+                    <li>Actuators (motors) have limited response time</li>
+                </ul>
+                <p style="margin-top: 0.5rem;"><strong>The Solution:</strong> Evolve parameters that are robust to these real-world imperfections. Evolution naturally discovers solutions that work despite noise and delays.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Key Performance Metrics</h2>
+
+            <div class="metric-display">
+                <div class="metric-box">
+                    <div class="metric-value">30</div>
+                    <div class="metric-label">Drones Flying Together</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">8 m/s</div>
+                    <div class="metric-label">Flight Speed</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">&lt;1m</div>
+                    <div class="metric-label">Spacing Precision</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">0%</div>
+                    <div class="metric-label">Collisions</div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Interactive Flocking Visualization</h2>
+            <p>Watch 30 drones flock together with evolved parameters. Click "Add Chaos" to randomize positions and watch self-organization emerge. Metrics update in real-time.</p>
+
+            <div class="canvas-container">
+                <canvas id="flockingCanvas" width="800" height="600"></canvas>
+                <div class="controls">
+                    <button onclick="addChaos()">Add Chaos!</button>
+                    <button onclick="toggleVelocityVectors()">Toggle Velocity Vectors</button>
+                    <button onclick="resetFlocking()">Reset</button>
+                    <button onclick="toggleFlockPause()">Pause/Resume</button>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.9rem;">
+                    <span style="color: #5eead4;">●</span> Drones |
+                    <span style="color: #a78bfa;">→</span> Velocity Vectors |
+                    <span style="color: #ff6b6b;">■</span> = Walls
+                </p>
+            </div>
+
+            <div class="metric-display" id="metricsDisplay">
+                <div class="metric-box">
+                    <div class="metric-value" id="alignmentScore">0.00</div>
+                    <div class="metric-label">Alignment Score</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value" id="spacingScore">0.00</div>
+                    <div class="metric-label">Avg Spacing (m)</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value" id="cohesionScore">0.00</div>
+                    <div class="metric-label">Cohesion Score</div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Why Evolution Beats Hand-Design</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Parameter Space Explosion</h3>
+                <p>Flocking controllers have 20+ parameters. Trying all combinations manually would take millions of years. Evolution finds good solutions in hours.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Robustness Discovery</h3>
+                <p>Humans design for ideal conditions. Evolution tests solutions in simulation with noise, failures, and disturbances. The evolved solution is naturally robust.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Unexpected Solutions</h3>
+                <p>Evolution sometimes finds non-intuitive strategies that work better than theoretical predictions. Humans miss these because they reason from first principles.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Transfer to Real Hardware</h3>
+                <p>Simulation-evolved parameters transferred directly to real drones. Minimal tuning was needed — a huge win for practicality.</p>
+            </div>
+        </section>
+
+        <section class="takeaways">
+            <h2>Key Takeaways</h2>
+            <div class="takeaway-item">Evolution can automatically design swarm controllers, removing the need for manual parameter tuning.</div>
+            <div class="takeaway-item">Evolved solutions are robust to real-world imperfections like noise, wind, and communication delays.</div>
+            <div class="takeaway-item">Large outdoor drone swarms (30+ drones) are feasible without GPS or external infrastructure.</div>
+            <div class="takeaway-item">The fitness function design is crucial — it shapes what behaviors evolution discovers.</div>
+            <div class="takeaway-item">This paradigm shift opens doors to adaptive swarms that evolve behavior for different missions and environments.</div>
+            <div class="takeaway-item">Real-world deployments validate simulation-based design — theoretical robotics can work in practice.</div>
+        </section>
+    </main>
+
+    <footer>
+        © 2025 Sim Vattanac | vattanacsim99@gmail.com
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('flockingCanvas');
+        const ctx = canvas.getContext('2d');
+
+        class FlockDrone {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 3;
+                this.vy = (Math.random() - 0.5) * 3;
+                this.ax = 0;
+                this.ay = 0;
+                this.sensorRange = 150;
+                this.maxSpeed = 4;
+            }
+
+            getNeighbors(allDrones) {
+                return allDrones.filter(d => {
+                    if (d === this) return false;
+                    const dx = d.x - this.x;
+                    const dy = d.y - this.y;
+                    return Math.sqrt(dx * dx + dy * dy) < this.sensorRange;
+                });
+            }
+
+            updateAcceleration(neighbors, walls) {
+                let alignX = 0, alignY = 0;
+                let cohesionX = 0, cohesionY = 0;
+                let separationX = 0, separationY = 0;
+
+                if (neighbors.length > 0) {
+                    // Alignment: match velocity
+                    for (let n of neighbors) {
+                        alignX += n.vx;
+                        alignY += n.vy;
+                    }
+                    alignX /= neighbors.length;
+                    alignY /= neighbors.length;
+
+                    // Cohesion: move toward center of neighbors
+                    for (let n of neighbors) {
+                        cohesionX += n.x;
+                        cohesionY += n.y;
+                    }
+                    cohesionX /= neighbors.length;
+                    cohesionY /= neighbors.length;
+                    cohesionX -= this.x;
+                    cohesionY -= this.y;
+
+                    // Separation: avoid neighbors
+                    for (let n of neighbors) {
+                        const dx = n.x - this.x;
+                        const dy = n.y - this.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        separationX -= (dx / dist) * (50 / dist);
+                        separationY -= (dy / dist) * (50 / dist);
+                    }
+                }
+
+                // Wall avoidance
+                let wallRepX = 0, wallRepY = 0;
+                const wallDist = 80;
+                if (this.x < wallDist) wallRepX = 2;
+                if (this.x > canvas.width - wallDist) wallRepX = -2;
+                if (this.y < wallDist) wallRepY = 2;
+                if (this.y > canvas.height - wallDist) wallRepY = -2;
+
+                // Combine forces with learned weights
+                this.ax = alignX * 0.3 + cohesionX * 0.2 + separationX * 0.8 + wallRepX * 1.5;
+                this.ay = alignY * 0.3 + cohesionY * 0.2 + separationY * 0.8 + wallRepY * 1.5;
+            }
+
+            update(allDrones) {
+                const neighbors = this.getNeighbors(allDrones);
+                this.updateAcceleration(neighbors);
+
+                this.vx += this.ax * 0.1;
+                this.vy += this.ay * 0.1;
+
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                if (speed > this.maxSpeed) {
+                    this.vx = (this.vx / speed) * this.maxSpeed;
+                    this.vy = (this.vy / speed) * this.maxSpeed;
+                }
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wrap around
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+            }
+
+            draw(showVectors) {
+                ctx.fillStyle = '#5eead4';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (showVectors) {
+                    ctx.strokeStyle = '#a78bfa';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x + this.vx * 5, this.y + this.vy * 5);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        let drones = [];
+        let isFlockPaused = false;
+        let showVectors = false;
+
+        function initFlocking() {
+            drones = [];
+            const cols = 6;
+            const rows = 5;
+            const spacing = canvas.width / cols;
+            for (let i = 0; i < 30; i++) {
+                const x = (i % cols) * spacing + spacing / 2;
+                const y = Math.floor(i / cols) * (canvas.height / rows) + canvas.height / rows / 2;
+                drones.push(new FlockDrone(x, y));
+            }
+        }
+
+        function addChaos() {
+            for (let drone of drones) {
+                drone.x = Math.random() * canvas.width;
+                drone.y = Math.random() * canvas.height;
+                drone.vx = (Math.random() - 0.5) * 4;
+                drone.vy = (Math.random() - 0.5) * 4;
+            }
+        }
+
+        function toggleVelocityVectors() {
+            showVectors = !showVectors;
+        }
+
+        function resetFlocking() {
+            initFlocking();
+        }
+
+        function toggleFlockPause() {
+            isFlockPaused = !isFlockPaused;
+        }
+
+        function calculateMetrics() {
+            if (drones.length === 0) return;
+
+            // Alignment score: how similar are velocity vectors?
+            let avgVx = 0, avgVy = 0;
+            for (let d of drones) {
+                avgVx += d.vx;
+                avgVy += d.vy;
+            }
+            avgVx /= drones.length;
+            avgVy /= drones.length;
+            const avgSpeed = Math.sqrt(avgVx * avgVx + avgVy * avgVy);
+
+            let alignmentSum = 0;
+            for (let d of drones) {
+                const dot = d.vx * avgVx + d.vy * avgVy;
+                const mag = Math.sqrt(d.vx * d.vx + d.vy * d.vy) * avgSpeed || 1;
+                alignmentSum += dot / mag;
+            }
+            const alignment = (alignmentSum / drones.length + 1) / 2;
+
+            // Spacing: average distance to nearest neighbor
+            let spacingSum = 0;
+            for (let d of drones) {
+                let minDist = Infinity;
+                for (let other of drones) {
+                    if (other === d) continue;
+                    const dx = other.x - d.x;
+                    const dy = other.y - d.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    minDist = Math.min(minDist, dist);
+                }
+                spacingSum += minDist;
+            }
+            const avgSpacing = (spacingSum / drones.length) / 100;
+
+            // Cohesion: how tight is the flock?
+            let centerX = 0, centerY = 0;
+            for (let d of drones) {
+                centerX += d.x;
+                centerY += d.y;
+            }
+            centerX /= drones.length;
+            centerY /= drones.length;
+
+            let cohesionSum = 0;
+            for (let d of drones) {
+                const dx = d.x - centerX;
+                const dy = d.y - centerY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                cohesionSum += Math.exp(-dist / 200);
+            }
+            const cohesion = cohesionSum / drones.length;
+
+            document.getElementById('alignmentScore').textContent = alignment.toFixed(2);
+            document.getElementById('spacingScore').textContent = avgSpacing.toFixed(2);
+            document.getElementById('cohesionScore').textContent = cohesion.toFixed(2);
+        }
+
+        function drawFlocking() {
+            // Background
+            ctx.fillStyle = '#1a1c2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Walls
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(0, 0, canvas.width, 30);
+            ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+            ctx.fillRect(0, 0, 30, canvas.height);
+            ctx.fillRect(canvas.width - 30, 0, 30, canvas.height);
+
+            // Drones
+            for (let drone of drones) {
+                drone.draw(showVectors);
+            }
+
+            // Center of flock
+            let centerX = 0, centerY = 0;
+            for (let d of drones) {
+                centerX += d.x;
+                centerY += d.y;
+            }
+            centerX /= drones.length;
+            centerY /= drones.length;
+
+            ctx.fillStyle = 'rgba(167, 139, 250, 0.3)';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 10, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function animateFlocking() {
+            if (!isFlockPaused) {
+                for (let drone of drones) {
+                    drone.update(drones);
+                }
+                calculateMetrics();
+            }
+
+            drawFlocking();
+            requestAnimationFrame(animateFlocking);
+        }
+
+        initFlocking();
+        animateFlocking();
+    </script>
+</body>
+</html>

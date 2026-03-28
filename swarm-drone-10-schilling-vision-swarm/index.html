@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Vision-Based Cohesive Flight in Drone Swarms - Schilling et al. (2019)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0b14;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: #12142a;
+            border-bottom: 2px solid #a78bfa;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #a78bfa;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .paper-meta {
+            color: #5eead4;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+        }
+
+        .paper-meta strong {
+            color: #a78bfa;
+        }
+
+        .button-group {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        a.paper-btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #5eead4;
+            color: #0a0b14;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid #5eead4;
+        }
+
+        a.paper-btn:hover {
+            background-color: #0a0b14;
+            color: #5eead4;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        section {
+            background-color: #12142a;
+            border: 1px solid #a78bfa;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        section h2 {
+            color: #5eead4;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #a78bfa;
+            padding-bottom: 0.5rem;
+        }
+
+        section h3 {
+            color: #a78bfa;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .why-matters {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(94, 234, 212, 0.1) 100%);
+            border-left: 4px solid #a78bfa;
+        }
+
+        .step {
+            background-color: rgba(167, 139, 250, 0.05);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            border-left: 3px solid #5eead4;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            background-color: #a78bfa;
+            color: #0a0b14;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .analogy, .example {
+            background-color: rgba(94, 234, 212, 0.1);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            border-left: 3px solid #5eead4;
+        }
+
+        .canvas-container {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            background-color: #0a0b14;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #a78bfa;
+            color: #0a0b14;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5eead4;
+            transform: translateY(-2px);
+        }
+
+        .takeaways {
+            background-color: rgba(94, 234, 212, 0.1);
+            border-left: 4px solid #5eead4;
+        }
+
+        .takeaway-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background-color: rgba(167, 139, 250, 0.05);
+            border-radius: 0.5rem;
+        }
+
+        .takeaway-item::before {
+            content: "✓ ";
+            color: #5eead4;
+            font-weight: bold;
+        }
+
+        footer {
+            background-color: #12142a;
+            border-top: 2px solid #a78bfa;
+            padding: 1.5rem;
+            text-align: center;
+            color: #888;
+            margin-top: 2rem;
+        }
+
+        .innovation-box {
+            background: linear-gradient(135deg, rgba(94, 234, 212, 0.2) 0%, rgba(167, 139, 250, 0.2) 100%);
+            border: 2px solid #5eead4;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .state-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .state-green { background-color: #90ee90; }
+        .state-yellow { background-color: #ffdd00; }
+        .state-red { background-color: #ff6b6b; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #a78bfa;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background-color: rgba(167, 139, 250, 0.2);
+            color: #5eead4;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: rgba(167, 139, 250, 0.05);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            section {
+                padding: 1rem;
+            }
+
+            .button-group {
+                gap: 0.5rem;
+            }
+
+            a.paper-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Learning Vision-Based Cohesive Flight in Drone Swarms</h1>
+        <p class="paper-meta">By <strong>Fabian Schilling, Julien Lecoeur, Fabrizio Schiano, Dario Floreano</strong></p>
+        <p class="paper-meta"><strong>Year:</strong> 2019 | <strong>Platform:</strong> arXiv:1809.00543v4</p>
+        <div class="button-group">
+            <a href="https://arxiv.org/abs/1809.00543" target="_blank" class="paper-btn">Read Original Paper</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="why-matters">
+            <h2>Why This Paper Matters</h2>
+            <p>This 2019 paper tackles the ultimate challenge in swarm robotics: <strong>can a swarm fly cohesively using only what it sees?</strong> No position sharing, no GPS, no communication, no motion capture — just camera images.</p>
+            <div class="innovation-box">
+                <strong>The Innovation:</strong> Train a deep neural network using reinforcement learning to control swarm behavior based purely on visual input. Each drone sees other drones in its field of view and learns to maintain formation through trial and error.
+            </div>
+            <p style="margin-top: 1rem;">The significance is profound. This represents a paradigm shift from hand-designed rules to machine-learned behavior. The result is a swarm control system that could operate in GPS-denied environments, doesn't need communication infrastructure, and is robust to partial observations (occlusions, limited field of view).</p>
+        </section>
+
+        <section>
+            <h2>The Vision-Only Challenge</h2>
+
+            <div class="analogy">
+                <strong>Highway Driving Analogy:</strong> Imagine driving on a highway using only your eyes — no speedometer, no GPS, no radio:
+                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                    <li><strong>No Position Data:</strong> You don't know your lane number, your distance from the road, or your precise location. You only see what's in your windshield and mirrors.</li>
+                    <li><strong>No Communication:</strong> You can't use turn signals or radio. Other drivers can't tell you their speed. You infer their intentions from their relative motion.</li>
+                    <li><strong>Limited Field of View:</strong> Cars ahead are visible, but you can't see around corners. Cars far behind are invisible. You must react to what you can see.</li>
+                    <li><strong>Real-Time Control:</strong> You must make steering and speed decisions immediately based on visual input, with ~100ms latency.</li>
+                </ul>
+            </div>
+
+            <h3>Why This Is Hard</h3>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li><strong>Limited Information:</strong> Camera images don't directly tell you position, velocity, or relative bearing — you must infer these.</li>
+                <li><strong>Ambiguity:</strong> If you see another drone to your right and above, is it moving toward you or away? Is it a near drone moving slowly or a distant drone moving fast? Vision alone doesn't tell you.</li>
+                <li><strong>Partial Observability:</strong> You can't see drones behind you or outside your field of view. Yet you must avoid them.</li>
+                <li><strong>Real-Time Constraints:</strong> Processing camera images is computationally expensive. You must make decisions in 20-50ms.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Deep Reinforcement Learning Approach</h2>
+
+            <p>Instead of hand-designing control rules, the researchers used machine learning to automatically learn swarm behavior.</p>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Neural Network Architecture</h3>
+                <p>The drone's onboard computer runs a neural network that takes camera images as input and outputs motor commands (thrust, pitch, roll, yaw).</p>
+                <p style="margin-top: 0.5rem;"><strong>Key insight:</strong> The network doesn't need to explicitly detect other drones. It learns to respond to patterns in the visual input that correlate with cohesion and collision avoidance.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Reward Function Design</h3>
+                <p>The learning algorithm needs to know what "good" means. The reward function balances three competing objectives:</p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li><strong>Cohesion Reward:</strong> Positive reward for staying near other drones</li>
+                    <li><strong>Collision Avoidance Penalty:</strong> Large negative reward for collisions</li>
+                    <li><strong>Efficiency Reward:</strong> Small positive reward for stable flight (not wasting energy)</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Training in Simulation</h3>
+                <p>Training with real drones would be dangerous and expensive. Instead, the network is trained in a physics simulator with thousands of randomly initialized swarms. Each training episode runs for 5-10 seconds. The learning algorithm adjusts network weights to maximize cumulative reward.</p>
+                <p style="margin-top: 0.5rem;"><strong>Challenge:</strong> Simulation may not perfectly match reality. Solution: train with randomized physics parameters (varying wind, drag, mass) to make the learned policy robust.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Transfer to Real Hardware</h3>
+                <p>Once trained, the network is deployed to real drones. The policy automatically adapts to real-world physics because it was trained with diverse simulation parameters.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>What the Network Learns</h2>
+
+            <p>The neural network doesn't learn explicit rules like "maintain 1 meter spacing." Instead, it learns implicit behaviors that emerge from the reward signal:</p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Hand-Designed Rules</th>
+                        <th>Learned Behavior</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>IF distance < 0.5m THEN move away</td>
+                        <td>Network implicitly learns to increase distance when too close</td>
+                    </tr>
+                    <tr>
+                        <td>IF no neighbors THEN wander</td>
+                        <td>Network learns distinctive visual patterns for isolation</td>
+                    </tr>
+                    <tr>
+                        <td>IF neighbor moving left THEN follow</td>
+                        <td>Network learns motion cues in visual input</td>
+                    </tr>
+                    <tr>
+                        <td>Manual tuning for each environment</td>
+                        <td>Single policy works in diverse scenarios</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top: 1rem;">Emergent Strategies</h3>
+            <p>Researchers discovered that the learned policy exhibits surprising behaviors:</p>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li><strong>Predictive Avoidance:</strong> Drones don't wait for collision — they anticipate based on relative motion in their visual field.</li>
+                <li><strong>Information Seeking:</strong> When drones lose sight of swarm mates, they turn or move to regain visual contact.</li>
+                <li><strong>Graceful Degradation:</strong> If one drone fails, others continue flocking. The swarm is robust to partial failures.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Advantages and Limitations</h2>
+
+            <h3>Advantages</h3>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li><strong>No Communication:</strong> Drones don't need radios or position sharing.</li>
+                <li><strong>No GPS or Motion Capture:</strong> Works in GPS-denied and infrastructure-poor environments.</li>
+                <li><strong>Robust to Partial Information:</strong> Handles occlusions and limited field of view naturally.</li>
+                <li><strong>Single Unified Policy:</strong> One neural network controls all drones — no individual tuning needed.</li>
+                <li><strong>Adaptive:</strong> The learned policy generalizes to unseen scenarios during training.</li>
+            </ul>
+
+            <h3 style="margin-top: 1rem;">Limitations</h3>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li><strong>Difficult to Explain:</strong> Neural networks are "black boxes." It's hard to understand exactly how the policy makes decisions.</li>
+                <li><strong>Safety Certification:</strong> Deploying learned controllers in critical applications (search and rescue, nuclear facilities) is challenging because we can't formally verify safety.</li>
+                <li><strong>Computational Cost:</strong> Running neural networks requires more compute than simple control rules. Onboard computers must be powerful.</li>
+                <li><strong>Training Data Quality:</strong> The learned behavior is only as good as the simulation and training process. Simulation errors propagate to real deployments.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Interactive Vision-Based Swarm Simulator</h2>
+            <p>Watch 8 drones maintain cohesion using only vision. Each drone can see others in its field-of-view cone (displayed as a wedge). Drag one drone to see how others react through vision alone. Toggle vision cones to see the sensor input. Monitor each drone's state: green = cohesive, yellow = searching, red = too close.</p>
+
+            <div class="canvas-container">
+                <canvas id="visionCanvas" width="800" height="600"></canvas>
+                <div class="controls">
+                    <button onclick="toggleVisionCones2()">Toggle Vision Cones</button>
+                    <button onclick="resetVision()">Reset Swarm</button>
+                    <button onclick="addDisturbance()">Add Disturbance</button>
+                    <button onclick="toggleVisionPause()">Pause/Resume</button>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.9rem;">
+                    <span class="state-indicator state-green"></span><span style="color: #90ee90;">Cohesive</span> |
+                    <span class="state-indicator state-yellow"></span><span style="color: #ffdd00;">Searching</span> |
+                    <span class="state-indicator state-red"></span><span style="color: #ff6b6b;">Collision Risk</span> |
+                    <span style="color: #a78bfa;">◺</span> Vision Cone
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Future Applications</h2>
+
+            <h3>GPS-Denied Environments</h3>
+            <p>Underground mining, indoor warehouses, and urban canyons (where GPS is blocked by buildings) become accessible. A swarm of drones can autonomously explore and map these spaces.</p>
+
+            <h3>Space Exploration</h3>
+            <p>Future Mars rovers or asteroid exploration could use vision-based drone swarms. These environments have extreme communication latency (3-20 minutes each way), making real-time teleoperation impossible. Fully autonomous swarms become necessary.</p>
+
+            <h3>Emergency Response</h3>
+            <p>Disaster zones (earthquakes, fires, floods) destroy infrastructure including GPS repeaters and communication networks. A pre-deployed autonomous swarm could operate without any external support.</p>
+
+            <h3>Collaborative Aerial Cinematography</h3>
+            <p>Instead of human drone pilots orchestrating complex multi-drone shots (expensive, requires communication), learned swarms could perform choreographed cinematography automatically.</p>
+        </section>
+
+        <section class="takeaways">
+            <h2>Key Takeaways</h2>
+            <div class="takeaway-item">Deep reinforcement learning enables swarm control policies learned purely from visual input, without hand-designed rules.</div>
+            <div class="takeaway-item">Vision-only control requires no communication, GPS, or external infrastructure — truly autonomous operation becomes possible.</div>
+            <div class="takeaway-item">Learned policies exhibit emergent behaviors not explicitly programmed: predictive avoidance, information seeking, and graceful degradation.</div>
+            <div class="takeaway-item">Training in simulation with randomized physics parameters makes policies robust to sim-to-real transfer.</div>
+            <div class="takeaway-item">Neural network control trades explainability for generality and robustness — a worthwhile trade for many applications.</div>
+            <div class="takeaway-item">This work represents the frontier where machine learning meets swarm robotics, opening new possibilities for autonomous systems.</div>
+        </section>
+    </main>
+
+    <footer>
+        © 2025 Sim Vattanac | vattanacsim99@gmail.com
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('visionCanvas');
+        const ctx = canvas.getContext('2d');
+
+        class VisionDrone {
+            constructor(x, y, id) {
+                this.x = x;
+                this.y = y;
+                this.id = id;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.heading = Math.atan2(this.vy, this.vx);
+                this.visionRange = 120;
+                this.visionAngle = 100 * Math.PI / 180;
+                this.state = 'cohesive'; // cohesive, searching, collision
+                this.stateTimer = 0;
+                this.isDragging = false;
+            }
+
+            getVisibleDrones(allDrones) {
+                const visible = [];
+                for (let other of allDrones) {
+                    if (other.id === this.id) continue;
+                    const dx = other.x - this.x;
+                    const dy = other.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist > this.visionRange) continue;
+
+                    const angle = Math.atan2(dy, dx);
+                    const angleDiff = angle - this.heading;
+                    const normalizedDiff = Math.abs(((angleDiff + Math.PI) % (2 * Math.PI)) - Math.PI);
+                    if (normalizedDiff < this.visionAngle / 2) {
+                        visible.push({ drone: other, angle, dist });
+                    }
+                }
+                return visible;
+            }
+
+            update(allDrones) {
+                if (this.isDragging) return;
+
+                const visible = this.getVisibleDrones(allDrones);
+
+                // Update state
+                if (visible.length === 0) {
+                    this.state = 'searching';
+                } else {
+                    let minDist = Infinity;
+                    let cohesionX = 0, cohesionY = 0;
+                    for (let v of visible) {
+                        minDist = Math.min(minDist, v.dist);
+                        cohesionX += v.drone.x;
+                        cohesionY += v.drone.y;
+                    }
+
+                    if (minDist < 40) {
+                        this.state = 'collision';
+                    } else {
+                        this.state = 'cohesive';
+                    }
+
+                    // Learned behavior simulation: move toward center of visible drones
+                    cohesionX /= visible.length;
+                    cohesionY /= visible.length;
+
+                    const dx = cohesionX - this.x;
+                    const dy = cohesionY - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    // Cohesion force
+                    if (dist > 5) {
+                        let cohesionForce = 0.15;
+                        this.vx += (dx / dist) * cohesionForce;
+                        this.vy += (dy / dist) * cohesionForce;
+                    }
+
+                    // Repulsion from close drones
+                    for (let v of visible) {
+                        const rx = v.drone.x - this.x;
+                        const ry = v.drone.y - this.y;
+                        const rdist = Math.sqrt(rx * rx + ry * ry);
+                        if (rdist < 50) {
+                            const repulsion = 0.3 * (50 - rdist) / 50;
+                            this.vx -= (rx / rdist) * repulsion;
+                            this.vy -= (ry / rdist) * repulsion;
+                        }
+                    }
+                }
+
+                // When searching, turn to find others
+                if (this.state === 'searching') {
+                    this.heading += 0.05;
+                }
+
+                // Velocity damping
+                this.vx *= 0.95;
+                this.vy *= 0.95;
+
+                // Max speed limit
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                const maxSpeed = 2;
+                if (speed > maxSpeed) {
+                    this.vx = (this.vx / speed) * maxSpeed;
+                    this.vy = (this.vy / speed) * maxSpeed;
+                }
+
+                this.heading = Math.atan2(this.vy, this.vx);
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wrap around
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+            }
+
+            draw(showCones) {
+                // Vision cone
+                if (showCones) {
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.15)';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    const startAngle = this.heading - this.visionAngle / 2;
+                    const endAngle = this.heading + this.visionAngle / 2;
+                    ctx.arc(this.x, this.y, this.visionRange, startAngle, endAngle);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // State indicator
+                let stateColor = '#90ee90';
+                if (this.state === 'searching') stateColor = '#ffdd00';
+                if (this.state === 'collision') stateColor = '#ff6b6b';
+
+                ctx.fillStyle = stateColor;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Heading indicator
+                ctx.strokeStyle = '#a78bfa';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + Math.cos(this.heading) * 12, this.y + Math.sin(this.heading) * 12);
+                ctx.stroke();
+            }
+        }
+
+        let drones = [];
+        let showVisionCones = false;
+        let isVisionPaused = false;
+        let draggedDrone = null;
+
+        function initVision() {
+            drones = [];
+            const spacing = canvas.height / 3;
+            for (let i = 0; i < 8; i++) {
+                const x = (canvas.width / 4) + (i % 4) * (canvas.width / 4) + Math.random() * 20 - 10;
+                const y = canvas.height / 3 + Math.floor(i / 4) * spacing + Math.random() * 20 - 10;
+                drones.push(new VisionDrone(x, y, i));
+            }
+        }
+
+        function toggleVisionCones2() {
+            showVisionCones = !showVisionCones;
+        }
+
+        function resetVision() {
+            initVision();
+        }
+
+        function addDisturbance() {
+            for (let drone of drones) {
+                drone.vx += (Math.random() - 0.5) * 4;
+                drone.vy += (Math.random() - 0.5) * 4;
+            }
+        }
+
+        function toggleVisionPause() {
+            isVisionPaused = !isVisionPaused;
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            for (let drone of drones) {
+                const dx = drone.x - mouseX;
+                const dy = drone.y - mouseY;
+                if (Math.sqrt(dx * dx + dy * dy) < 15) {
+                    draggedDrone = drone;
+                    drone.isDragging = true;
+                    break;
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (draggedDrone) {
+                const rect = canvas.getBoundingClientRect();
+                draggedDrone.x = e.clientX - rect.left;
+                draggedDrone.y = e.clientY - rect.top;
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            if (draggedDrone) {
+                draggedDrone.isDragging = false;
+                draggedDrone = null;
+            }
+        });
+
+        function animateVision() {
+            // Background
+            ctx.fillStyle = '#1a1c2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid
+            ctx.strokeStyle = 'rgba(167, 139, 250, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // Update drones
+            if (!isVisionPaused) {
+                for (let drone of drones) {
+                    drone.update(drones);
+                }
+            }
+
+            // Draw drones
+            for (let drone of drones) {
+                drone.draw(showVisionCones);
+            }
+
+            requestAnimationFrame(animateVision);
+        }
+
+        initVision();
+        animateVision();
+    </script>
+</body>
+</html>

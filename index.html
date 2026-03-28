@@ -120,6 +120,120 @@
       pointer-events: none;
     }
 
+    /* Category Dropdown */
+    .category-filter {
+      padding: 6px 16px 2px;
+      position: relative;
+    }
+    .cat-dropdown-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: .78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      user-select: none;
+    }
+    .cat-dropdown-trigger:hover { border-color: var(--accent); background: var(--bg-hover); }
+    .cat-dropdown-trigger.open { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(167,139,250,.12); }
+    .cat-dropdown-trigger .cat-icon { font-size: .85rem; flex-shrink: 0; }
+    .cat-dropdown-trigger .cat-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cat-dropdown-trigger .cat-count {
+      font-size: .65rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .cat-dropdown-trigger .cat-arrow {
+      font-size: .55rem;
+      color: var(--text-dim);
+      transition: transform .25s cubic-bezier(.4,0,.2,1);
+      flex-shrink: 0;
+    }
+    .cat-dropdown-trigger.open .cat-arrow { transform: rotate(180deg); }
+
+    .cat-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 16px;
+      right: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px) scale(.98);
+      transition: all .2s cubic-bezier(.4,0,.2,1);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 12px 40px rgba(0,0,0,.35), 0 0 0 1px rgba(167,139,250,.06);
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .cat-dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+    .cat-dropdown-menu::-webkit-scrollbar { width: 4px; }
+    .cat-dropdown-menu::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .cat-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .78rem;
+      color: var(--text-dim);
+      transition: all .15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .cat-option:hover { background: var(--bg-hover); color: var(--text); }
+    .cat-option.selected { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+    .cat-option .opt-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--border);
+      transition: all .2s;
+    }
+    .cat-option.selected .opt-dot { background: var(--accent); box-shadow: 0 0 6px rgba(167,139,250,.5); }
+    .cat-option .opt-label { flex: 1; }
+    .cat-option .opt-count {
+      font-size: .65rem;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    /* Divider inside dropdown */
+    .cat-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 8px;
+      opacity: .5;
+    }
+
+    /* Light theme dropdown overrides */
+    [data-theme="light"] .cat-dropdown-menu {
+      box-shadow: 0 12px 40px rgba(0,0,0,.12), 0 0 0 1px rgba(124,92,191,.08);
+    }
+
     /* Tree */
     .tree-container {
       flex: 1;
@@ -398,6 +512,7 @@
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="Search files..." oninput="filterTree(this.value)" />
   </div>
+  <div class="category-filter" id="categoryFilter"></div>
   <div class="tree-container" id="treeContainer"></div>
   <div class="stats-bar" id="statsBar"></div>
   <div class="sidebar-footer">
@@ -435,6 +550,7 @@
 let manifest = null;
 let currentFile = null;
 let fileCount = { html: 0, docx: 0, folders: 0 };
+let activeCategory = 'All';
 
 /* ═══════════════════════════════════════════════════════════
    LOAD MANIFEST
@@ -444,6 +560,7 @@ async function loadManifest() {
     const res = await fetch('./manifest.json?t=' + Date.now());
     manifest = await res.json();
     fileCount = { html: 0, docx: 0, folders: 0 };
+    renderCategoryFilter(manifest.categories || []);
     renderTree(manifest.root);
     renderStats();
   } catch (err) {
@@ -473,6 +590,7 @@ function createNode(node) {
     const wrapper = document.createElement('div');
     wrapper.className = 'tree-folder';
     wrapper.dataset.name = node.name.toLowerCase();
+    if (node.category) wrapper.dataset.category = node.category;
 
     const item = document.createElement('div');
     item.className = 'tree-item';
@@ -613,19 +731,30 @@ function filterTree(query) {
   const folders = document.querySelectorAll('.tree-folder');
   const files = document.querySelectorAll('.tree-file');
 
+  // First apply category filter
+  folders.forEach(f => {
+    if (activeCategory === 'All') {
+      f.style.display = '';
+    } else {
+      f.style.display = f.dataset.category === activeCategory ? '' : 'none';
+    }
+  });
+
   if (!q) {
-    folders.forEach(f => f.style.display = '');
     files.forEach(f => f.style.display = '');
+    updateVisibleStats();
     return;
   }
 
-  // First show/hide files
+  // Then apply text search within visible folders
   files.forEach(f => {
     f.style.display = f.dataset.name.includes(q) ? '' : 'none';
   });
 
-  // Then show folders that have at least one visible child
+  // Hide folders that have no visible children (and don't match the query)
   folders.forEach(folder => {
+    // Skip already hidden by category
+    if (folder.style.display === 'none') return;
     const visibleChildren = folder.querySelectorAll('.tree-file:not([style*="display: none"])');
     folder.style.display = visibleChildren.length > 0 || folder.dataset.name.includes(q) ? '' : 'none';
     // Auto-expand if searching
@@ -636,6 +765,180 @@ function filterTree(query) {
       if (chev) chev.classList.add('open');
     }
   });
+
+  updateVisibleStats();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CATEGORY DROPDOWN
+   ═══════════════════════════════════════════════════════════ */
+const CAT_ICONS = {
+  'All':                    '📋',
+  'Statistics & Probability': '📊',
+  'Linear Algebra':         '🔢',
+  'Machine Learning':       '🤖',
+  'Deep Learning':          '🧠',
+  'Data Processing':        '⚙️',
+  'Drone Research':         '🛩️',
+  'Swarm Drone Research':   '🐝',
+};
+
+function countFoldersInCategory(cat) {
+  if (!manifest) return 0;
+  let count = 0;
+  (function walk(node) {
+    if (node.type === 'folder' && node.category === cat) count++;
+    (node.children || []).forEach(walk);
+  })(manifest.root);
+  return count;
+}
+
+function renderCategoryFilter(categories) {
+  const container = document.getElementById('categoryFilter');
+  container.innerHTML = '';
+  if (!categories || categories.length === 0) return;
+
+  // Trigger button
+  const trigger = document.createElement('div');
+  trigger.className = 'cat-dropdown-trigger';
+  trigger.id = 'catTrigger';
+  trigger.innerHTML = `
+    <span class="cat-icon">${CAT_ICONS['All']}</span>
+    <span class="cat-label">All Categories</span>
+    <span class="cat-count" id="catCount">${fileCount.folders}</span>
+    <span class="cat-arrow">▼</span>
+  `;
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown();
+  });
+  container.appendChild(trigger);
+
+  // Dropdown menu
+  const menu = document.createElement('div');
+  menu.className = 'cat-dropdown-menu';
+  menu.id = 'catMenu';
+
+  // "All" option
+  const allOpt = createCatOption('All', 'All Categories', fileCount.folders, true);
+  menu.appendChild(allOpt);
+
+  // Divider
+  const divider = document.createElement('div');
+  divider.className = 'cat-divider';
+  menu.appendChild(divider);
+
+  // Category options
+  categories.forEach(cat => {
+    const count = countFoldersInCategory(cat);
+    menu.appendChild(createCatOption(cat, cat, count, false));
+  });
+
+  container.appendChild(menu);
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) closeDropdown();
+  });
+}
+
+function createCatOption(value, label, count, isSelected) {
+  const opt = document.createElement('button');
+  opt.className = 'cat-option' + (isSelected ? ' selected' : '');
+  opt.dataset.value = value;
+  opt.innerHTML = `
+    <span class="opt-dot"></span>
+    <span class="opt-label">${label}</span>
+    <span class="opt-count">${count}</span>
+  `;
+  opt.addEventListener('click', (e) => {
+    e.stopPropagation();
+    filterByCategory(value);
+    closeDropdown();
+  });
+  return opt;
+}
+
+function toggleDropdown() {
+  const trigger = document.getElementById('catTrigger');
+  const menu = document.getElementById('catMenu');
+  const isOpen = menu.classList.contains('show');
+  if (isOpen) {
+    closeDropdown();
+  } else {
+    trigger.classList.add('open');
+    menu.classList.add('show');
+  }
+}
+
+function closeDropdown() {
+  const trigger = document.getElementById('catTrigger');
+  const menu = document.getElementById('catMenu');
+  if (trigger) trigger.classList.remove('open');
+  if (menu) menu.classList.remove('show');
+}
+
+function filterByCategory(category) {
+  activeCategory = category;
+
+  // Update trigger label
+  const trigger = document.getElementById('catTrigger');
+  if (trigger) {
+    const icon = CAT_ICONS[category] || '📂';
+    const label = category === 'All' ? 'All Categories' : category;
+    trigger.querySelector('.cat-icon').textContent = icon;
+    trigger.querySelector('.cat-label').textContent = label;
+  }
+
+  // Update selected option
+  document.querySelectorAll('.cat-option').forEach(opt => {
+    opt.classList.toggle('selected', opt.dataset.value === category);
+  });
+
+  // Apply folder visibility
+  const folders = document.querySelectorAll('.tree-folder');
+  if (category === 'All') {
+    folders.forEach(f => f.style.display = '');
+  } else {
+    folders.forEach(f => {
+      f.style.display = f.dataset.category === category ? '' : 'none';
+    });
+  }
+
+  // Re-apply text search on top of category filter
+  const q = document.getElementById('searchInput').value;
+  if (q) filterTree(q);
+
+  // Update stats for visible items
+  updateVisibleStats();
+
+  // Update count badge on trigger
+  const countEl = document.getElementById('catCount');
+  if (countEl) {
+    let visibleFolders = 0;
+    document.querySelectorAll('.tree-folder').forEach(f => {
+      if (f.style.display !== 'none') visibleFolders++;
+    });
+    countEl.textContent = visibleFolders;
+  }
+}
+
+function updateVisibleStats() {
+  let html = 0, docx = 0, folders = 0;
+  document.querySelectorAll('.tree-folder').forEach(f => {
+    if (f.style.display === 'none') return;
+    folders++;
+  });
+  document.querySelectorAll('.tree-file').forEach(f => {
+    if (f.style.display === 'none' || f.closest('.tree-folder[style*="display: none"]')) return;
+    if (f.dataset.ext === 'html') html++;
+    else if (f.dataset.ext === 'docx') docx++;
+  });
+  document.getElementById('statsBar').innerHTML = `
+    <span>📁 ${folders} folders</span>
+    <span>🌐 ${html} HTML</span>
+    <span>📄 ${docx} DOCX</span>
+  `;
 }
 
 /* ═══════════════════════════════════════════════════════════

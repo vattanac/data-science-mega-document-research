@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activation Functions in Neural Networks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0b14;
+            --card: #12142a;
+            --border: #1e2045;
+            --text: #c8cad8;
+            --dim: #6b6e8a;
+            --accent: #a78bfa;
+            --accent2: #5eead4;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            letter-spacing: 0.3px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--card) 0%, rgba(18, 20, 42, 0.5) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent2);
+        }
+
+        header p {
+            color: var(--dim);
+            font-size: 1.1rem;
+        }
+
+        .tags {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(167, 139, 250, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            scroll-margin-top: 80px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent2);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin: 1.5rem 0 0.8rem 0;
+            color: var(--accent);
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent);
+            background: rgba(167, 139, 250, 0.05);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .callout.warning {
+            border-left-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .callout strong {
+            color: var(--accent);
+        }
+
+        .math-block {
+            background: rgba(94, 234, 212, 0.05);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            color: var(--accent2);
+        }
+
+        .formula {
+            display: inline-block;
+            font-family: 'Courier New', monospace;
+            background: rgba(94, 234, 212, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            color: var(--accent2);
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .pros, .cons {
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .pros {
+            background: rgba(76, 175, 80, 0.05);
+            border-left-color: #4CAF50;
+        }
+
+        .cons {
+            background: rgba(255, 107, 107, 0.05);
+            border-left-color: #ff6b6b;
+        }
+
+        .pros h4, .cons h4 {
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .pros ul, .cons ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .pros li:before, .cons li:before {
+            content: "• ";
+            color: var(--accent);
+            margin-right: 0.5rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-table thead {
+            background: rgba(94, 234, 212, 0.1);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .comparison-table th {
+            padding: 1rem;
+            text-align: left;
+            color: var(--accent2);
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tbody tr:hover {
+            background: rgba(167, 139, 250, 0.05);
+        }
+
+        .canvas-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            margin: 1rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .control-group label {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .quiz-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .question {
+            margin-bottom: 1.5rem;
+        }
+
+        .question h4 {
+            color: var(--accent);
+            margin-bottom: 0.8rem;
+        }
+
+        .question label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+
+        .question input[type="radio"] {
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+
+        .recommendation {
+            background: rgba(94, 234, 212, 0.1);
+            border: 2px solid var(--accent2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .recommendation.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .recommendation h3 {
+            color: var(--accent2);
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation p {
+            line-height: 1.8;
+            margin: 0.5rem 0;
+        }
+
+        .recommendation .reason {
+            background: rgba(167, 139, 250, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        button.btn {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        button.btn:hover {
+            background: var(--accent2);
+            transform: translateY(-2px);
+        }
+
+        button.btn:active {
+            transform: translateY(0);
+        }
+
+        .info-box {
+            background: rgba(94, 234, 212, 0.05);
+            border: 1px solid rgba(94, 234, 212, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .derivative-info {
+            font-size: 0.9rem;
+            color: var(--dim);
+            margin-top: 0.5rem;
+        }
+
+        .tooltip {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dotted var(--accent);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--dim);
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.6rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Activation Functions</h1>
+        <p>Deep Learning's Hidden Engine</p>
+        <div class="tags">
+            <span class="tag">DEEP LEARNING</span>
+            <span class="tag">NEURAL NETWORKS</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Section 1: Why Activation Functions? -->
+        <section id="why">
+            <h2>Why Activation Functions?</h2>
+
+            <div class="card">
+                <h3>The Problem: Linear → Linear</h3>
+                <p>Without activation functions, neural networks are just a series of matrix multiplications:</p>
+                <div class="math-block">
+                    y = W₃(W₂(W₁x + b₁) + b₂) + b₃
+                </div>
+                <p>This simplifies to a single linear transformation:</p>
+                <div class="math-block">
+                    y = Wx + b
+                </div>
+                <div class="callout warning">
+                    <strong>Problem:</strong> No matter how many layers you stack, linear functions composed are still linear. This means your neural network can only learn linear relationships—exactly what logistic regression already does!
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>The Solution: Non-Linearity</h3>
+                <p>Activation functions introduce non-linearity, allowing networks to learn complex, curved decision boundaries and capture intricate patterns in data.</p>
+                <div class="math-block">
+                    h₁ = σ(W₁x + b₁)
+                    h₂ = σ(W₂h₁ + b₂)
+                    y = σ(W₃h₂ + b₃)
+                </div>
+                <p>Where σ is a non-linear activation function. Now the network has the <strong>expressiveness</strong> to learn any function.</p>
+                <div class="callout">
+                    <strong>Key Insight:</strong> Activation functions are the bridge between linear algebra (what computers do fast) and non-linear learning (what we need for intelligence).
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Sigmoid -->
+        <section id="sigmoid">
+            <h2>Sigmoid</h2>
+
+            <div class="card">
+                <h3>Formula</h3>
+                <div class="math-block">
+                    σ(x) = 1 / (1 + e^(-x))
+                </div>
+                <p>Maps any input to a value between 0 and 1. Historically the most popular.</p>
+
+                <h3>Properties</h3>
+                <div class="info-box">
+                    <p><strong>Range:</strong> (0, 1)</p>
+                    <p><strong>Derivative:</strong> σ'(x) = σ(x)(1 - σ(x))</p>
+                    <p class="derivative-info">Maximum derivative: 0.25 (at x=0)</p>
+                </div>
+
+                <h3>Visualization</h3>
+                <canvas id="sigmoidCanvas" width="600" height="300" style="width: 100%; max-width: 600px; margin: 0 auto;"></canvas>
+
+                <h3>Characteristics</h3>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Pros</h4>
+                        <ul>
+                            <li>Smooth gradient everywhere</li>
+                            <li>Historically proven</li>
+                            <li>Perfect for binary classification</li>
+                            <li>Interpretable as probability</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Cons</h4>
+                        <ul>
+                            <li>Vanishing gradient problem</li>
+                            <li>Not zero-centered (slow convergence)</li>
+                            <li>Computationally expensive (exp)</li>
+                            <li>Gradient nearly zero at extremes</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>The Vanishing Gradient Problem</h3>
+                <div class="callout warning">
+                    <strong>Issue:</strong> When sigmoid outputs approach 0 or 1, the gradient becomes nearly zero. In deep networks, gradients multiply through layers using backpropagation, so small gradients compound—by the time you reach early layers, the gradient is infinitesimally small and training slows to a halt.
+                </div>
+                <div class="info-box">
+                    <p>This is why sigmoid largely disappeared from hidden layers in modern deep networks, though it's still used in output layers for binary classification.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Tanh -->
+        <section id="tanh">
+            <h2>Tanh (Hyperbolic Tangent)</h2>
+
+            <div class="card">
+                <h3>Formula</h3>
+                <div class="math-block">
+                    tanh(x) = (e^x - e^(-x)) / (e^x + e^(-x))
+                </div>
+                <p>Or more conveniently: tanh(x) = 2σ(2x) - 1</p>
+
+                <h3>Properties</h3>
+                <div class="info-box">
+                    <p><strong>Range:</strong> (-1, 1)</p>
+                    <p><strong>Derivative:</strong> tanh'(x) = 1 - tanh²(x)</p>
+                    <p class="derivative-info">Maximum derivative: 1 (at x=0, vs sigmoid's 0.25)</p>
+                </div>
+
+                <h3>Visualization</h3>
+                <canvas id="tanhCanvas" width="600" height="300" style="width: 100%; max-width: 600px; margin: 0 auto;"></canvas>
+
+                <h3>Key Advantage: Zero-Centered</h3>
+                <div class="callout">
+                    <strong>Better Gradient Flow:</strong> Tanh is zero-centered, meaning on average its outputs are near 0. This reduces zig-zagging during gradient descent and leads to faster convergence compared to sigmoid.
+                </div>
+
+                <h3>Characteristics</h3>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Pros</h4>
+                        <ul>
+                            <li>Zero-centered output</li>
+                            <li>Stronger gradients than sigmoid</li>
+                            <li>Better for hidden layers</li>
+                            <li>Smooth differentiation</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Cons</h4>
+                        <ul>
+                            <li>Still suffers vanishing gradient</li>
+                            <li>Computationally expensive</li>
+                            <li>Less commonly used now</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <p>Tanh addresses sigmoid's symmetry problem but still faces vanishing gradients. In modern architectures (2010s onwards), it's been largely superseded by ReLU and variants.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: ReLU -->
+        <section id="relu">
+            <h2>ReLU (Rectified Linear Unit)</h2>
+
+            <div class="card">
+                <h3>Formula</h3>
+                <div class="math-block">
+                    ReLU(x) = max(0, x)
+                </div>
+                <p>The simplest non-linearity: if x > 0, output x; otherwise output 0.</p>
+
+                <h3>Properties</h3>
+                <div class="info-box">
+                    <p><strong>Range:</strong> [0, ∞)</p>
+                    <p><strong>Derivative:</strong> 1 if x > 0, else 0</p>
+                    <p class="derivative-info">Crucially, no vanishing gradient (gradient is constant 1 for positive inputs)</p>
+                </div>
+
+                <h3>Visualization</h3>
+                <canvas id="reluCanvas" width="600" height="300" style="width: 100%; max-width: 600px; margin: 0 auto;"></canvas>
+
+                <h3>Why ReLU Revolutionized Deep Learning</h3>
+                <div class="callout">
+                    <strong>Game-Changer:</strong> ReLU's constant gradient for positive values solved the vanishing gradient problem, enabling training of very deep networks (100+ layers). This was pivotal for modern deep learning.
+                </div>
+
+                <h3>Characteristics</h3>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Pros</h4>
+                        <ul>
+                            <li>No vanishing gradient</li>
+                            <li>Computationally very cheap</li>
+                            <li>Encourages sparse activations</li>
+                            <li>Empirically works well</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Cons</h4>
+                        <ul>
+                            <li>Dying ReLU problem</li>
+                            <li>Not differentiable at 0</li>
+                            <li>Unbounded activations</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>The Dying ReLU Problem</h3>
+                <div class="callout warning">
+                    <strong>Critical Issue:</strong> If a neuron's output becomes negative during training, the gradient becomes 0 and stays 0 forever—the neuron is "dead" and will never activate again. Once a large portion of neurons die, the network effectively loses capacity.
+                </div>
+                <div class="info-box">
+                    <p><strong>Cause:</strong> Bad initialization or high learning rates can push weights such that all inputs to a neuron are negative. Subsequent gradient updates can't fix this because the gradient is zero.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Leaky ReLU & ELU -->
+        <section id="leaky-elu">
+            <h2>Leaky ReLU & ELU</h2>
+
+            <div class="card">
+                <h3>Leaky ReLU</h3>
+                <div class="math-block">
+                    LeakyReLU(x) = x if x > 0, else αx  (typically α = 0.01)
+                </div>
+                <p>Allows a small negative slope instead of a hard zero.</p>
+
+                <h3>Properties</h3>
+                <div class="info-box">
+                    <p><strong>Range:</strong> (-∞, ∞)</p>
+                    <p><strong>Derivative:</strong> 1 if x > 0, else α</p>
+                    <p class="derivative-info">Gradient is never exactly zero, preventing dead neurons</p>
+                </div>
+
+                <h3>Visualization</h3>
+                <canvas id="leakyCanvas" width="600" height="300" style="width: 100%; max-width: 600px; margin: 0 auto;"></canvas>
+
+                <p style="margin-top: 1rem;"><strong>Advantage:</strong> Solves the dying ReLU problem by maintaining gradient flow even for negative inputs. Dead neurons can still learn and recover.</p>
+            </div>
+
+            <div class="card">
+                <h3>ELU (Exponential Linear Unit)</h3>
+                <div class="math-block">
+                    ELU(x) = x if x > 0, else α(e^x - 1)  (typically α = 1.0)
+                </div>
+                <p>Smoother version of Leaky ReLU with exponential behavior for negative inputs.</p>
+
+                <h3>Properties</h3>
+                <div class="info-box">
+                    <p><strong>Range:</strong> (-α, ∞)</p>
+                    <p><strong>Derivative:</strong> 1 if x > 0, else αe^x</p>
+                    <p class="derivative-info">Smoother and closer to zero-centered</p>
+                </div>
+
+                <h3>Visualization</h3>
+                <canvas id="eluCanvas" width="600" height="300" style="width: 100%; max-width: 600px; margin: 0 auto;"></canvas>
+
+                <p style="margin-top: 1rem;"><strong>Advantage:</strong> Combines the benefits of ReLU (fast for positive) with smoother gradients. Outputs closer to zero-mean, aiding convergence.</p>
+
+                <h3>Comparison: ReLU vs Leaky vs ELU</h3>
+                <div class="info-box">
+                    <p><strong>ReLU:</strong> Fast and simple, but dies. Use when you have careful initialization and regularization.</p>
+                    <p><strong>Leaky ReLU:</strong> Practical improvement over ReLU, low computational overhead. Good default choice.</p>
+                    <p><strong>ELU:</strong> Smoother gradient, better convergence. Slightly more expensive due to exponential. Great for harder problems.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Softmax -->
+        <section id="softmax">
+            <h2>Softmax</h2>
+
+            <div class="card">
+                <h3>Formula</h3>
+                <div class="math-block">
+                    softmax(z)ᵢ = e^(zᵢ) / Σⱼ e^(zⱼ)
+                </div>
+                <p>Converts a vector of logits into a probability distribution over classes.</p>
+
+                <h3>Key Properties</h3>
+                <div class="info-box">
+                    <p><strong>Range:</strong> (0, 1) for each output, sum = 1</p>
+                    <p><strong>Use Case:</strong> Multi-class classification (output layer)</p>
+                    <p><strong>Interpretation:</strong> Each output is the probability of that class</p>
+                </div>
+
+                <h3>Example</h3>
+                <div class="math-block">
+                    Input: [2.0, 1.0, 0.1]
+                    e^2.0 ≈ 7.39
+                    e^1.0 ≈ 2.72
+                    e^0.1 ≈ 1.11
+                    Sum ≈ 11.22
+
+                    Output: [7.39/11.22, 2.72/11.22, 1.11/11.22]
+                           ≈ [0.659, 0.242, 0.099]
+                </div>
+
+                <h3>Important Details</h3>
+                <div class="callout">
+                    <strong>Numerically Stable Implementation:</strong> For numerical stability, subtract the max value from inputs before computing softmax:
+                    <div class="math-block">
+                        softmax(z)ᵢ = e^(zᵢ - max(z)) / Σⱼ e^(zⱼ - max(z))
+                    </div>
+                    This prevents overflow since e^large becomes infinity.
+                </div>
+
+                <h3>Characteristics</h3>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Pros</h4>
+                        <ul>
+                            <li>Outputs valid probability distribution</li>
+                            <li>Clear probabilistic interpretation</li>
+                            <li>Differentiable everywhere</li>
+                            <li>Works with cross-entropy loss</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Cons</h4>
+                        <ul>
+                            <li>Only for output layer (multi-class)</li>
+                            <li>Can have softmax mismatch with other losses</li>
+                            <li>Slightly expensive (exp for all classes)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>In Practice</h3>
+                <div class="info-box">
+                    <p>Softmax is typically paired with <strong>cross-entropy loss</strong> for multi-class classification. Most frameworks (PyTorch, TensorFlow) provide numerically stable combined implementations.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Interactive Function Comparison -->
+        <section id="comparison">
+            <h2>Interactive: Function Comparison</h2>
+
+            <div class="card">
+                <p>Toggle functions on/off to compare activation functions and their derivatives on the same plot. Hover over the graph to see exact values.</p>
+
+                <h3>Controls</h3>
+                <div class="controls">
+                    <div class="control-group">
+                        <input type="checkbox" id="check-sigmoid" checked>
+                        <label for="check-sigmoid">Sigmoid</label>
+                    </div>
+                    <div class="control-group">
+                        <input type="checkbox" id="check-tanh" checked>
+                        <label for="check-tanh">Tanh</label>
+                    </div>
+                    <div class="control-group">
+                        <input type="checkbox" id="check-relu" checked>
+                        <label for="check-relu">ReLU</label>
+                    </div>
+                    <div class="control-group">
+                        <input type="checkbox" id="check-leaky" checked>
+                        <label for="check-leaky">Leaky ReLU</label>
+                    </div>
+                    <div class="control-group">
+                        <input type="checkbox" id="check-elu" checked>
+                        <label for="check-elu">ELU</label>
+                    </div>
+                </div>
+
+                <h3>Activation Functions</h3>
+                <div class="canvas-container">
+                    <canvas id="comparisonCanvas" width="800" height="400"></canvas>
+                </div>
+
+                <div style="text-align: center; color: var(--dim); font-size: 0.9rem; margin-top: 1rem;">
+                    Hover over the graph to see exact values at each point
+                </div>
+
+                <h3>Derivatives (Rate of Change)</h3>
+                <div class="canvas-container">
+                    <canvas id="derivativeCanvas" width="800" height="400"></canvas>
+                </div>
+
+                <div style="text-align: center; color: var(--dim); font-size: 0.9rem; margin-top: 1rem;">
+                    Steeper slopes = stronger gradients for training. Flat lines = weak learning signal.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Quiz -->
+        <section id="quiz">
+            <h2>Interactive: Pick the Right Activation</h2>
+
+            <div class="quiz-section">
+                <p style="margin-bottom: 2rem; color: var(--dim);">Answer these questions to get a personalized activation function recommendation.</p>
+
+                <div class="question">
+                    <h4>1. What type of task are you solving?</h4>
+                    <label>
+                        <input type="radio" name="task" value="binary">
+                        Binary classification (2 classes)
+                    </label>
+                    <label>
+                        <input type="radio" name="task" value="multiclass">
+                        Multi-class classification (3+ classes)
+                    </label>
+                    <label>
+                        <input type="radio" name="task" value="regression">
+                        Regression (continuous output)
+                    </label>
+                    <label>
+                        <input type="radio" name="task" value="hidden">
+                        Building a deep hidden layer
+                    </label>
+                </div>
+
+                <div class="question">
+                    <h4>2. How deep is your network?</h4>
+                    <label>
+                        <input type="radio" name="depth" value="shallow">
+                        Shallow (2-3 layers)
+                    </label>
+                    <label>
+                        <input type="radio" name="depth" value="medium">
+                        Medium (4-10 layers)
+                    </label>
+                    <label>
+                        <input type="radio" name="depth" value="deep">
+                        Very deep (20+ layers)
+                    </label>
+                </div>
+
+                <div class="question">
+                    <h4>3. What's your main concern?</h4>
+                    <label>
+                        <input type="radio" name="concern" value="speed">
+                        Speed and computational efficiency
+                    </label>
+                    <label>
+                        <input type="radio" name="concern" value="convergence">
+                        Fast convergence and training stability
+                    </label>
+                    <label>
+                        <input type="radio" name="concern" value="accuracy">
+                        Maximum accuracy
+                    </label>
+                </div>
+
+                <div class="question">
+                    <h4>4. Are you experiencing dead neurons or vanishing gradients?</h4>
+                    <label>
+                        <input type="radio" name="problem" value="none">
+                        No issues
+                    </label>
+                    <label>
+                        <input type="radio" name="problem" value="dead">
+                        Yes, dying ReLU (neurons stuck at 0)
+                    </label>
+                    <label>
+                        <input type="radio" name="problem" value="vanishing">
+                        Yes, vanishing gradients
+                    </label>
+                </div>
+
+                <button class="btn" onclick="getRecommendation()">Get Recommendation</button>
+
+                <div id="recommendation" class="recommendation">
+                    <h3 id="rec-name"></h3>
+                    <p id="rec-desc"></p>
+                    <div class="reason" id="rec-reason"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Comparison Table -->
+        <section id="table">
+            <h2>Activation Functions at a Glance</h2>
+
+            <div class="card">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>Formula</th>
+                            <th>Range</th>
+                            <th>Derivative</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Sigmoid</strong></td>
+                            <td><span class="formula">1 / (1 + e^(-x))</span></td>
+                            <td>(0, 1)</td>
+                            <td>σ(x)(1-σ(x))</td>
+                            <td>Binary classification output layer only</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tanh</strong></td>
+                            <td><span class="formula">2σ(2x) - 1</span></td>
+                            <td>(-1, 1)</td>
+                            <td>1 - tanh²(x)</td>
+                            <td>Older networks; zero-centered preference</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ReLU</strong></td>
+                            <td><span class="formula">max(0, x)</span></td>
+                            <td>[0, ∞)</td>
+                            <td>1 if x>0, else 0</td>
+                            <td>Default for hidden layers; CNNs, most architectures</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Leaky ReLU</strong></td>
+                            <td><span class="formula">x if x>0 else 0.01x</span></td>
+                            <td>(-∞, ∞)</td>
+                            <td>1 if x>0, else α</td>
+                            <td>When ReLU dying; slightly better convergence</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ELU</strong></td>
+                            <td><span class="formula">x if x>0 else α(e^x-1)</span></td>
+                            <td>(-α, ∞)</td>
+                            <td>1 if x>0, else αe^x</td>
+                            <td>Need smoother gradients; harder problems</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Softmax</strong></td>
+                            <td><span class="formula">e^(z_i) / Σe^(z_j)</span></td>
+                            <td>(0, 1), sum=1</td>
+                            <td>softmax(z_i)(δ_ij - softmax(z_j))</td>
+                            <td>Multi-class classification output layer</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <section id="summary">
+            <h2>Key Takeaways</h2>
+
+            <div class="card">
+                <div class="callout">
+                    <strong>1. Non-linearity is Everything:</strong> Without activation functions, your entire network collapses to linear regression. Activation functions give neural networks their power.
+                </div>
+
+                <div class="callout">
+                    <strong>2. Modern Default: ReLU & Variants:</strong> For hidden layers, use ReLU (or Leaky ReLU/ELU if having dead neuron issues). It's fast, effective, and proven at scale.
+                </div>
+
+                <div class="callout">
+                    <strong>3. Choose Output Based on Task:</strong>
+                    <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                        <li>Binary classification → Sigmoid</li>
+                        <li>Multi-class → Softmax</li>
+                        <li>Regression → Linear (no activation)</li>
+                    </ul>
+                </div>
+
+                <div class="callout">
+                    <strong>4. Avoid Sigmoid/Tanh for Hidden Layers:</strong> Vanishing gradients make training deep networks painful. They're historical relics in hidden layers.
+                </div>
+
+                <div class="callout">
+                    <strong>5. Dying ReLU is Real:</strong> If training stalls, check if neurons are dying. Leaky ReLU or ELU are cheap fixes.
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        © 2025 Sim Vattanac · <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a>
+    </footer>
+
+    <script>
+        // Activation Functions
+        const activations = {
+            sigmoid: x => 1 / (1 + Math.exp(-x)),
+            sigmoidDerivative: x => {
+                const s = 1 / (1 + Math.exp(-x));
+                return s * (1 - s);
+            },
+            tanh: x => Math.tanh(x),
+            tanhDerivative: x => {
+                const t = Math.tanh(x);
+                return 1 - t * t;
+            },
+            relu: x => Math.max(0, x),
+            reluDerivative: x => x > 0 ? 1 : 0,
+            leaky: x => x > 0 ? x : 0.01 * x,
+            leakyDerivative: x => x > 0 ? 1 : 0.01,
+            elu: x => x > 0 ? x : (Math.exp(x) - 1),
+            eluDerivative: x => x > 0 ? 1 : Math.exp(x)
+        };
+
+        // Utility function to draw a graph
+        function drawGraph(canvas, activationFunc, derivativeFunc, title, color, showDerivative = false) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 40;
+            const graphWidth = width - 2 * padding;
+            const graphHeight = height - 2 * padding;
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw axes
+            ctx.strokeStyle = '#6b6e8a';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.stroke();
+
+            // Grid lines
+            ctx.strokeStyle = 'rgba(107, 110, 138, 0.2)';
+            ctx.lineWidth = 1;
+            for (let i = -5; i <= 5; i++) {
+                const x = padding + ((i + 5) / 10) * graphWidth;
+                const y = height - padding - ((i + 5) / 10) * graphHeight;
+                ctx.beginPath();
+                ctx.moveTo(x, height - padding);
+                ctx.lineTo(x, padding);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+
+            // Labels
+            ctx.fillStyle = '#6b6e8a';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            for (let i = -5; i <= 5; i += 2) {
+                const x = padding + ((i + 5) / 10) * graphWidth;
+                ctx.fillText(i, x, height - padding + 20);
+            }
+            ctx.textAlign = 'right';
+            for (let i = -2; i <= 2; i++) {
+                const y = height - padding - ((i + 2) / 4) * graphHeight;
+                ctx.fillText(i, padding - 10, y + 4);
+            }
+
+            // Plot function
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+
+            for (let px = 0; px < graphWidth; px++) {
+                const xVal = (px / graphWidth) * 10 - 5;
+                const yVal = showDerivative ? derivativeFunc(xVal) : activationFunc(xVal);
+                const py = height - padding - (((yVal + (showDerivative ? 2 : 2)) / 4) * graphHeight);
+
+                if (px === 0) {
+                    ctx.moveTo(padding + px, py);
+                } else {
+                    ctx.lineTo(padding + px, py);
+                }
+            }
+            ctx.stroke();
+
+            // Title
+            ctx.fillStyle = '#c8cad8';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(title, padding, 25);
+        }
+
+        // Draw individual function graphs
+        drawGraph(document.getElementById('sigmoidCanvas'), activations.sigmoid, activations.sigmoidDerivative, 'Sigmoid', '#a78bfa');
+        drawGraph(document.getElementById('tanhCanvas'), activations.tanh, activations.tanhDerivative, 'Tanh', '#5eead4');
+        drawGraph(document.getElementById('reluCanvas'), activations.relu, activations.reluDerivative, 'ReLU', '#4CAF50');
+        drawGraph(document.getElementById('leakyCanvas'), activations.leaky, activations.leakyDerivative, 'Leaky ReLU', '#FFA726');
+        drawGraph(document.getElementById('eluCanvas'), activations.elu, activations.eluDerivative, 'ELU', '#EC407A');
+
+        // Comparison Canvas
+        const comparisonCanvas = document.getElementById('comparisonCanvas');
+        const derivativeCanvas = document.getElementById('derivativeCanvas');
+
+        const colors = {
+            sigmoid: '#a78bfa',
+            tanh: '#5eead4',
+            relu: '#4CAF50',
+            leaky: '#FFA726',
+            elu: '#EC407A'
+        };
+
+        function drawComparisonGraphs() {
+            const width = comparisonCanvas.width;
+            const height = comparisonCanvas.height;
+            const padding = 40;
+            const graphWidth = width - 2 * padding;
+            const graphHeight = height - 2 * padding;
+
+            // Clear and draw background
+            const ctx = comparisonCanvas.getContext('2d');
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw axes
+            ctx.strokeStyle = '#6b6e8a';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.stroke();
+
+            // Grid
+            ctx.strokeStyle = 'rgba(107, 110, 138, 0.2)';
+            for (let i = -5; i <= 5; i++) {
+                const x = padding + ((i + 5) / 10) * graphWidth;
+                const y = height - padding - ((i + 5) / 10) * graphHeight;
+                ctx.beginPath();
+                ctx.moveTo(x, height - padding);
+                ctx.lineTo(x, padding);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+
+            // Labels
+            ctx.fillStyle = '#6b6e8a';
+            ctx.font = '11px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            for (let i = -5; i <= 5; i += 2) {
+                const x = padding + ((i + 5) / 10) * graphWidth;
+                ctx.fillText(i, x, height - padding + 18);
+            }
+            ctx.textAlign = 'right';
+            for (let i = -2; i <= 2; i++) {
+                const y = height - padding - ((i + 2) / 4) * graphHeight;
+                ctx.fillText(i, padding - 8, y + 4);
+            }
+
+            // Plot functions
+            const checked = {
+                sigmoid: document.getElementById('check-sigmoid').checked,
+                tanh: document.getElementById('check-tanh').checked,
+                relu: document.getElementById('check-relu').checked,
+                leaky: document.getElementById('check-leaky').checked,
+                elu: document.getElementById('check-elu').checked
+            };
+
+            const funcs = [
+                { name: 'sigmoid', func: activations.sigmoid, checked: checked.sigmoid },
+                { name: 'tanh', func: activations.tanh, checked: checked.tanh },
+                { name: 'relu', func: activations.relu, checked: checked.relu },
+                { name: 'leaky', func: activations.leaky, checked: checked.leaky },
+                { name: 'elu', func: activations.elu, checked: checked.elu }
+            ];
+
+            funcs.forEach(({ name, func, checked: isChecked }) => {
+                if (isChecked) {
+                    ctx.strokeStyle = colors[name];
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+
+                    for (let px = 0; px < graphWidth; px++) {
+                        const xVal = (px / graphWidth) * 10 - 5;
+                        const yVal = func(xVal);
+                        const py = height - padding - (((yVal + 2) / 4) * graphHeight);
+
+                        if (px === 0) {
+                            ctx.moveTo(padding + px, py);
+                        } else {
+                            ctx.lineTo(padding + px, py);
+                        }
+                    }
+                    ctx.stroke();
+                }
+            });
+
+            // Title and legend
+            ctx.fillStyle = '#c8cad8';
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('Activation Functions Comparison', padding, 25);
+
+            // Draw derivative comparison
+            const dctx = derivativeCanvas.getContext('2d');
+            dctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            dctx.fillRect(0, 0, width, height);
+
+            // Draw axes
+            dctx.strokeStyle = '#6b6e8a';
+            dctx.lineWidth = 1;
+            dctx.beginPath();
+            dctx.moveTo(padding, height - padding);
+            dctx.lineTo(width - padding, height - padding);
+            dctx.moveTo(padding, padding);
+            dctx.lineTo(padding, height - padding);
+            dctx.stroke();
+
+            // Grid
+            dctx.strokeStyle = 'rgba(107, 110, 138, 0.2)';
+            for (let i = -5; i <= 5; i++) {
+                const x = padding + ((i + 5) / 10) * graphWidth;
+                const y = height - padding - ((i + 5) / 10) * graphHeight;
+                dctx.beginPath();
+                dctx.moveTo(x, height - padding);
+                dctx.lineTo(x, padding);
+                dctx.stroke();
+                dctx.beginPath();
+                dctx.moveTo(padding, y);
+                dctx.lineTo(width - padding, y);
+                dctx.stroke();
+            }
+
+            // Labels
+            dctx.fillStyle = '#6b6e8a';
+            dctx.font = '11px Inter, sans-serif';
+            dctx.textAlign = 'center';
+            for (let i = -5; i <= 5; i += 2) {
+                const x = padding + ((i + 5) / 10) * graphWidth;
+                dctx.fillText(i, x, height - padding + 18);
+            }
+            dctx.textAlign = 'right';
+            for (let i = 0; i <= 1; i += 0.25) {
+                const y = height - padding - (i * graphHeight);
+                dctx.fillText(i.toFixed(2), padding - 8, y + 4);
+            }
+
+            // Plot derivatives
+            const derivs = [
+                { name: 'sigmoid', deriv: activations.sigmoidDerivative, checked: checked.sigmoid },
+                { name: 'tanh', deriv: activations.tanhDerivative, checked: checked.tanh },
+                { name: 'relu', deriv: activations.reluDerivative, checked: checked.relu },
+                { name: 'leaky', deriv: activations.leakyDerivative, checked: checked.leaky },
+                { name: 'elu', deriv: activations.eluDerivative, checked: checked.elu }
+            ];
+
+            derivs.forEach(({ name, deriv, checked: isChecked }) => {
+                if (isChecked) {
+                    dctx.strokeStyle = colors[name];
+                    dctx.lineWidth = 2;
+                    dctx.beginPath();
+
+                    for (let px = 0; px < graphWidth; px++) {
+                        const xVal = (px / graphWidth) * 10 - 5;
+                        const dVal = Math.min(1, Math.max(0, deriv(xVal)));
+                        const py = height - padding - (dVal * graphHeight);
+
+                        if (px === 0) {
+                            dctx.moveTo(padding + px, py);
+                        } else {
+                            dctx.lineTo(padding + px, py);
+                        }
+                    }
+                    dctx.stroke();
+                }
+            });
+
+            dctx.fillStyle = '#c8cad8';
+            dctx.font = 'bold 14px Inter, sans-serif';
+            dctx.textAlign = 'left';
+            dctx.fillText('Derivatives (Gradient Strength)', padding, 25);
+        }
+
+        // Event listeners for comparison checkboxes
+        ['sigmoid', 'tanh', 'relu', 'leaky', 'elu'].forEach(name => {
+            document.getElementById(`check-${name}`).addEventListener('change', drawComparisonGraphs);
+        });
+
+        // Initial draw
+        drawComparisonGraphs();
+
+        // Quiz recommendation
+        function getRecommendation() {
+            const task = document.querySelector('input[name="task"]:checked')?.value;
+            const depth = document.querySelector('input[name="depth"]:checked')?.value;
+            const concern = document.querySelector('input[name="concern"]:checked')?.value;
+            const problem = document.querySelector('input[name="problem"]:checked')?.value;
+
+            if (!task || !depth || !concern || !problem) {
+                alert('Please answer all questions');
+                return;
+            }
+
+            let recommendation = {};
+
+            if (task === 'binary') {
+                recommendation = {
+                    name: 'Sigmoid (Output Layer)',
+                    desc: 'Sigmoid is the standard choice for binary classification output layers.',
+                    reason: 'It outputs values between 0 and 1, perfect for a single probability.'
+                };
+            } else if (task === 'multiclass') {
+                recommendation = {
+                    name: 'Softmax (Output Layer)',
+                    desc: 'Use Softmax for the output layer and ReLU for hidden layers.',
+                    reason: 'Softmax produces a probability distribution over all classes.'
+                };
+            } else if (task === 'regression') {
+                recommendation = {
+                    name: 'ReLU for Hidden + Linear Output',
+                    desc: 'Use ReLU (or Leaky ReLU) for hidden layers, no activation for output.',
+                    reason: 'Regression needs unbounded outputs. ReLU for hidden layer non-linearity.'
+                };
+            } else if (task === 'hidden') {
+                if (problem === 'dead') {
+                    recommendation = {
+                        name: 'Leaky ReLU or ELU',
+                        desc: 'Leaky ReLU allows small negative gradients, preventing dead neurons.',
+                        reason: 'Your network is experiencing dying ReLU. Leaky ReLU (α=0.01) is a quick fix. ELU is smoother but slightly slower.'
+                    };
+                } else if (problem === 'vanishing') {
+                    recommendation = {
+                        name: 'ReLU or Leaky ReLU',
+                        desc: 'Avoid Sigmoid/Tanh entirely. Use ReLU for fast gradient flow.',
+                        reason: 'ReLU has constant gradient for positive inputs, solving vanishing gradient issues.'
+                    };
+                } else if (concern === 'speed') {
+                    recommendation = {
+                        name: 'ReLU',
+                        desc: 'ReLU is the fastest activation function—just max(0, x).',
+                        reason: 'No exponentials or complex operations. Unbeatable speed and works well empirically.'
+                    };
+                } else if (concern === 'convergence') {
+                    if (depth === 'deep') {
+                        recommendation = {
+                            name: 'ReLU with careful initialization',
+                            desc: 'ReLU converges faster than sigmoid/tanh, especially in deep networks.',
+                            reason: 'Constant gradient for positive inputs prevents vanishing gradients in deep architectures.'
+                        };
+                    } else {
+                        recommendation = {
+                            name: 'ELU',
+                            desc: 'ELU provides smoother gradients and faster convergence.',
+                            reason: 'Smoother near zero, closer to zero-mean outputs reduce zig-zagging in gradient descent.'
+                        };
+                    }
+                } else if (concern === 'accuracy') {
+                    if (depth === 'deep') {
+                        recommendation = {
+                            name: 'ReLU (proven at scale)',
+                            desc: 'ReLU is the standard in modern deep learning because it works.',
+                            reason: 'Empirically outperforms others in large-scale experiments. Billions of parameters use ReLU.'
+                        };
+                    } else {
+                        recommendation = {
+                            name: 'ELU or Leaky ReLU',
+                            desc: 'Smoother alternatives often squeeze out better accuracy.',
+                            reason: 'Better gradient properties can lead to slightly better final performance on smaller networks.'
+                        };
+                    }
+                }
+            }
+
+            if (recommendation.name) {
+                document.getElementById('rec-name').textContent = recommendation.name;
+                document.getElementById('rec-desc').textContent = recommendation.desc;
+                document.getElementById('rec-reason').innerHTML = `<strong>Why:</strong> ${recommendation.reason}`;
+                document.getElementById('recommendation').classList.add('show');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swarm of Micro Flying Robots in the Wild - Zhou et al. (2022)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0b14;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: #12142a;
+            border-bottom: 2px solid #a78bfa;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #a78bfa;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .paper-meta {
+            color: #5eead4;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+        }
+
+        .paper-meta strong {
+            color: #a78bfa;
+        }
+
+        .button-group {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        a.paper-btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #5eead4;
+            color: #0a0b14;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid #5eead4;
+        }
+
+        a.paper-btn:hover {
+            background-color: #0a0b14;
+            color: #5eead4;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        section {
+            background-color: #12142a;
+            border: 1px solid #a78bfa;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        section h2 {
+            color: #5eead4;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #a78bfa;
+            padding-bottom: 0.5rem;
+        }
+
+        section h3 {
+            color: #a78bfa;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .why-matters {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(94, 234, 212, 0.1) 100%);
+            border-left: 4px solid #a78bfa;
+        }
+
+        .step {
+            background-color: rgba(167, 139, 250, 0.05);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            border-left: 3px solid #5eead4;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            background-color: #a78bfa;
+            color: #0a0b14;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .analogy, .example {
+            background-color: rgba(94, 234, 212, 0.1);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            border-left: 3px solid #5eead4;
+        }
+
+        .canvas-container {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            background-color: #0a0b14;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #a78bfa;
+            color: #0a0b14;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5eead4;
+            transform: translateY(-2px);
+        }
+
+        .takeaways {
+            background-color: rgba(94, 234, 212, 0.1);
+            border-left: 4px solid #5eead4;
+        }
+
+        .takeaway-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background-color: rgba(167, 139, 250, 0.05);
+            border-radius: 0.5rem;
+        }
+
+        .takeaway-item::before {
+            content: "✓ ";
+            color: #5eead4;
+            font-weight: bold;
+        }
+
+        footer {
+            background-color: #12142a;
+            border-top: 2px solid #a78bfa;
+            padding: 1.5rem;
+            text-align: center;
+            color: #888;
+            margin-top: 2rem;
+        }
+
+        .challenge-box {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 179, 71, 0.2) 100%);
+            border: 2px solid #ff6b6b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .solution-box {
+            background: linear-gradient(135deg, rgba(94, 234, 212, 0.2) 0%, rgba(167, 139, 250, 0.2) 100%);
+            border: 2px solid #5eead4;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .feature-box {
+            background-color: rgba(167, 139, 250, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #a78bfa;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-text {
+            color: #a78bfa;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            section {
+                padding: 1rem;
+            }
+
+            .button-group {
+                gap: 0.5rem;
+            }
+
+            a.paper-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Swarm of Micro Flying Robots in the Wild</h1>
+        <p class="paper-meta">By <strong>Xin Zhou et al.</strong></p>
+        <p class="paper-meta"><strong>Year:</strong> 2022 | <strong>Journal:</strong> Science Robotics, Vol. 7, eabm5954</p>
+        <div class="button-group">
+            <a href="https://www.science.org/doi/10.1126/scirobotics.abm5954" target="_blank" class="paper-btn">Read Original Paper</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="why-matters">
+            <h2>Why This Paper Matters</h2>
+            <p>This groundbreaking 2022 paper answers a fundamental question: <strong>Can a swarm of drones navigate dense, GPS-denied environments using only onboard sensors?</strong></p>
+            <div class="solution-box">
+                <strong>The Achievement:</strong> 10 micro drones successfully navigated through dense bamboo forests, complex vegetation, and cluttered indoor spaces without any external infrastructure (no GPS, no motion capture, no external map).
+            </div>
+            <p style="margin-top: 1rem;">The significance goes beyond the demonstration. The paper presents <strong>spatial-temporal trajectory optimization</strong> — a technique that lets drones jointly optimize their paths while avoiding each other and obstacles in real-time. This is the first time a swarm operated successfully in truly unstructured outdoor environments without external localization.</p>
+        </section>
+
+        <section>
+            <h2>The Core Challenge: Operating in the Wild</h2>
+
+            <div class="challenge-box">
+                <h3 style="margin-bottom: 0.5rem;">GPS-Denied Environments</h3>
+                <p>Dense forests block GPS signals. Motion capture systems require external infrastructure. The drones must be completely self-sufficient using only onboard sensors.</p>
+            </div>
+
+            <div class="challenge-box">
+                <h3 style="margin-bottom: 0.5rem;">Dense Obstacles</h3>
+                <p>Bamboo forests have trees as close as 20cm apart. Traditional path planners (which compute one path at a time) fail because there's no path that avoids collision with all obstacles simultaneously.</p>
+            </div>
+
+            <div class="challenge-box">
+                <h3 style="margin-bottom: 0.5rem;">Real-Time Constraints</h3>
+                <p>Drones can't spend 10 seconds computing paths — by then they might have crashed. Planning must happen at 10+ Hz with limited onboard compute.</p>
+            </div>
+
+            <div class="analogy">
+                <strong>Blindfolded Hikers Analogy:</strong> Imagine 10 blindfolded hikers navigating a dense forest to reach a campfire:
+                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                    <li><strong>Touch:</strong> Each hiker feels for trees ahead with a cane (obstacle sensing).</li>
+                    <li><strong>Sound:</strong> Hikers listen for companions to avoid bumping (relative position sensing).</li>
+                    <li><strong>Coordination:</strong> They don't have a global map or coordinator. Each person independently computes a path that avoids trees and other hikers, heading toward the campfire.</li>
+                    <li><strong>Adaptation:</strong> If a hiker encounters a new tree, they replan their path in real-time.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>Spatial-Temporal Trajectory Optimization</h2>
+
+            <p>The key innovation is a new approach to collective motion planning. Instead of traditional methods that plan one robot at a time, this approach plans all robots simultaneously, deforming their trajectories to avoid collisions.</p>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Initial Trajectory</h3>
+                <p>Each drone has a desired path to its goal (e.g., "fly forward 10 meters"). In a crowded swarm, multiple drones might follow paths that cross.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Deformation</h3>
+                <p>The algorithm detects potential collisions (with obstacles or other drones). It nudges each drone's trajectory sideways, up, or down to avoid collision. This is like squeezing past someone in a narrow hallway — you shift your position slightly.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Real-Time Replanning</h3>
+                <p>As the drone encounters new obstacles (detected by onboard cameras), it reoptimizes its trajectory. The optimization is fast because it only deforms existing paths, not computing new ones from scratch.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Distributed Execution</h3>
+                <p>Each drone makes these optimization decisions independently. Nearby drones exchange relative position data to coordinate. This is fully decentralized — no central planner.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Onboard Sensor Suite</h2>
+
+            <div class="feature-grid">
+                <div class="feature-box">
+                    <div class="feature-icon">📷</div>
+                    <div class="feature-text">Stereo Camera</div>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-icon">📡</div>
+                    <div class="feature-text">Inter-Drone Link</div>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">IMU & Odometry</div>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-text">Ranging Sensor</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 1rem;">What Each Sensor Does</h3>
+
+            <div class="step">
+                <h3>Stereo Camera + Obstacle Detection</h3>
+                <p>Two cameras build a 3D point cloud of surroundings. Computer vision detects obstacles (trees, rocks, buildings). Field of view is limited (~110°), so the drone can only "see" what's in front.</p>
+            </div>
+
+            <div class="step">
+                <h3>Relative Position Sensing</h3>
+                <p>Using UWB (Ultra-Wideband) or similar technology, drones measure distance and bearing to nearby swarm members. No absolute position, just relative positions. Think of how bats echolocate — they don't know their position, just where other bats are.</p>
+            </div>
+
+            <div class="step">
+                <h3>Inertial Measurement Unit (IMU)</h3>
+                <p>Accelerometers and gyroscopes provide motion estimates. Combining IMU with camera-based visual odometry, the drone estimates its own velocity and orientation.</p>
+            </div>
+
+            <div class="step">
+                <h3>Local Mapping</h3>
+                <p>As the drone flies, it builds a local 3D map of obstacles around it. This map helps with planning and replanning trajectories.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Real-World Experiments</h2>
+
+            <h3>Bamboo Forest Navigation</h3>
+            <p>The researchers tested the swarm in a dense bamboo forest where:</p>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li>Trees are as close as 20cm apart</li>
+                <li>No GPS signal</li>
+                <li>High wind gusts (up to 5 m/s)</li>
+                <li>Visual clutter (camouflage-like patterns)</li>
+            </ul>
+            <p style="margin-top: 0.5rem;"><strong>Result:</strong> 10 micro drones flew through the forest, maintaining formation, for 5+ minutes.</p>
+
+            <h3 style="margin-top: 1rem;">Application: Forest Fire Detection</h3>
+            <p>A swarm of drones can be deployed after a wildfire warning. They navigate through burned forest to detect hotspots, estimate fire spread, and guide firefighting efforts. This is impossible with traditional drones (which need GPS) or human scout teams (too slow and dangerous).</p>
+
+            <h3 style="margin-top: 1rem;">Application: Wildlife Monitoring</h3>
+            <p>Deployed in protected wildlife reserves to monitor endangered species without disturbing them. The swarm can autonomously explore dense jungle, collect imagery, and return data without needing external infrastructure.</p>
+        </section>
+
+        <section>
+            <h2>Interactive Forest Navigation Simulator</h2>
+            <p>Watch 10 drones navigate through a randomly generated forest of trees. Each drone sees only what's in its forward cone. Click to add trees and watch the drones replan their paths in real-time to avoid collisions with obstacles and each other.</p>
+
+            <div class="canvas-container">
+                <canvas id="forestCanvas" width="800" height="600"></canvas>
+                <div class="controls">
+                    <button onclick="addTrees()">Add Trees (+3)</button>
+                    <button onclick="toggleSensorCones()">Toggle Sensor Cones</button>
+                    <button onclick="resetForest()">Reset</button>
+                    <button onclick="toggleForestPause()">Pause/Resume</button>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.9rem;">
+                    <span style="color: #5eead4;">●</span> Drone |
+                    <span style="color: #a78bfa;">◺</span> Vision Cone |
+                    <span style="color: #8b6f47;">●</span> Tree |
+                    <span style="color: #90ee90;">─</span> Planned Path
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Why This Is Revolutionary</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>No External Infrastructure</h3>
+                <p>Unlike Crazyswarm (which needs motion capture) or most drones (which need GPS), this swarm is truly autonomous. Deploy them anywhere.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Collaborative Planning</h3>
+                <p>By optimizing all trajectories together, the algorithm finds paths that work for the entire swarm, not just individual drones. This is fundamentally different from traditional approaches.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Real-Time Adaptation</h3>
+                <p>The swarm doesn't pre-compute everything. It adapts as new obstacles appear. This makes it robust to dynamic environments.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Decentralized Execution</h3>
+                <p>Each drone makes decisions independently using local information. This scales to arbitrary swarm sizes without communication bottlenecks.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Practical Applications</h3>
+                <p>Disaster response, environmental monitoring, and exploration become possible in previously inaccessible environments.</p>
+            </div>
+        </section>
+
+        <section class="takeaways">
+            <h2>Key Takeaways</h2>
+            <div class="takeaway-item">Spatial-temporal trajectory optimization enables swarms to handle dense obstacles by deforming paths in real-time.</div>
+            <div class="takeaway-item">Onboard sensors (cameras, IMU, ranging) are sufficient for forest navigation without external infrastructure.</div>
+            <div class="takeaway-item">Decentralized planning scales to arbitrary swarm sizes because drones coordinate locally without a central planner.</div>
+            <div class="takeaway-item">The swarm is robust to sensor noise, communication delays, and dynamic obstacles because it replans continuously.</div>
+            <div class="takeaway-item">Real-world applications in disaster response and environmental monitoring become feasible for the first time.</div>
+            <div class="takeaway-item">This work bridges the gap between research platforms (like Crazyswarm) and truly autonomous systems operating in unstructured environments.</div>
+        </section>
+    </main>
+
+    <footer>
+        © 2025 Sim Vattanac | vattanacsim99@gmail.com
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('forestCanvas');
+        const ctx = canvas.getContext('2d');
+
+        class MicroDrone {
+            constructor(x, y, id) {
+                this.x = x;
+                this.y = y;
+                this.id = id;
+                this.goalX = canvas.width - 50;
+                this.goalY = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.visionRange = 100;
+                this.visionAngle = 110 * Math.PI / 180;
+                this.heading = 0;
+                this.pathPoints = [];
+            }
+
+            updateHeading() {
+                const dx = this.goalX - this.x;
+                const dy = this.goalY - this.y;
+                this.heading = Math.atan2(dy, dx);
+            }
+
+            canSeePoint(px, py) {
+                const dx = px - this.x;
+                const dy = py - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist > this.visionRange) return false;
+
+                const angle = Math.atan2(dy, dx);
+                const angleDiff = Math.abs(angle - this.heading);
+                return angleDiff < this.visionAngle / 2;
+            }
+
+            update(obstacles, allDrones) {
+                this.updateHeading();
+
+                // Obstacle detection
+                let detectedObstacles = [];
+                for (let obs of obstacles) {
+                    if (this.canSeePoint(obs.x, obs.y)) {
+                        detectedObstacles.push(obs);
+                    }
+                }
+
+                // Path planning
+                let targetX = this.goalX;
+                let targetY = this.goalY;
+
+                // Avoid obstacles
+                for (let obs of detectedObstacles) {
+                    const dx = obs.x - this.x;
+                    const dy = obs.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < obs.r + 40) {
+                        // Repel away from obstacle
+                        const repelStrength = 2;
+                        targetX -= (dx / dist) * repelStrength;
+                        targetY -= (dy / dist) * repelStrength;
+                    }
+                }
+
+                // Avoid other drones
+                for (let other of allDrones) {
+                    if (other.id === this.id) continue;
+                    const dx = other.x - this.x;
+                    const dy = other.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 50) {
+                        const repelStrength = 1.5;
+                        targetX -= (dx / dist) * repelStrength;
+                        targetY -= (dy / dist) * repelStrength;
+                    }
+                }
+
+                // Move toward target
+                const dx = targetX - this.x;
+                const dy = targetY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const speed = 1.5;
+
+                if (dist > 1) {
+                    this.vx = (dx / dist) * speed;
+                    this.vy = (dy / dist) * speed;
+                    this.x += this.vx;
+                    this.y += this.vy;
+                }
+
+                // Wrap around
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+            }
+
+            draw(showCones) {
+                // Draw vision cone if enabled
+                if (showCones) {
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.15)';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    const startAngle = this.heading - this.visionAngle / 2;
+                    const endAngle = this.heading + this.visionAngle / 2;
+                    ctx.arc(this.x, this.y, this.visionRange, startAngle, endAngle);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // Draw drone
+                ctx.fillStyle = '#5eead4';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Direction indicator
+                ctx.strokeStyle = '#a78bfa';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + Math.cos(this.heading) * 10, this.y + Math.sin(this.heading) * 10);
+                ctx.stroke();
+            }
+        }
+
+        let drones = [];
+        let obstacles = [];
+        let showSensorCones = false;
+        let isForestPaused = false;
+
+        function initForest() {
+            drones = [];
+            const spacing = canvas.height / 11;
+            for (let i = 0; i < 10; i++) {
+                drones.push(new MicroDrone(20, (i + 1) * spacing, i));
+            }
+
+            obstacles = [];
+            // Generate random obstacles
+            for (let i = 0; i < 15; i++) {
+                obstacles.push({
+                    x: Math.random() * canvas.width * 0.8 + 50,
+                    y: Math.random() * canvas.height,
+                    r: 12 + Math.random() * 8
+                });
+            }
+        }
+
+        function addTrees() {
+            for (let i = 0; i < 3; i++) {
+                obstacles.push({
+                    x: Math.random() * canvas.width * 0.8 + 50,
+                    y: Math.random() * canvas.height,
+                    r: 12 + Math.random() * 8
+                });
+            }
+        }
+
+        function toggleSensorCones() {
+            showSensorCones = !showSensorCones;
+        }
+
+        function resetForest() {
+            initForest();
+        }
+
+        function toggleForestPause() {
+            isForestPaused = !isForestPaused;
+        }
+
+        function animateForest() {
+            // Background
+            ctx.fillStyle = '#1a1c2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid
+            ctx.strokeStyle = 'rgba(167, 139, 250, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // Update drones
+            if (!isForestPaused) {
+                for (let drone of drones) {
+                    drone.update(obstacles, drones);
+                }
+            }
+
+            // Draw obstacles (trees)
+            ctx.fillStyle = '#8b6f47';
+            for (let obs of obstacles) {
+                ctx.beginPath();
+                ctx.arc(obs.x, obs.y, obs.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw drones
+            for (let drone of drones) {
+                drone.draw(showSensorCones);
+            }
+
+            // Draw goal
+            ctx.fillStyle = '#ffd700';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🎯', canvas.width - 30, canvas.height / 2);
+
+            requestAnimationFrame(animateForest);
+        }
+
+        initForest();
+        animateForest();
+    </script>
+</body>
+</html>

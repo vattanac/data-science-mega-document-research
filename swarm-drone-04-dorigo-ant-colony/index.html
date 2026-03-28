@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ant Colony Optimization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0b14;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdance, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #a78bfa;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #a78bfa;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .paper-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .meta-item {
+            background-color: #12142a;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #5eead4;
+        }
+
+        .meta-label {
+            color: #5eead4;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .meta-value {
+            color: #e0e0e0;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #a78bfa;
+            color: #0a0b14;
+        }
+
+        .btn-primary:hover {
+            background-color: #c9a3ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(167, 139, 250, 0.4);
+        }
+
+        .section {
+            background-color: #12142a;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 4px solid #5eead4;
+        }
+
+        .section h2 {
+            color: #a78bfa;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .section h3 {
+            color: #5eead4;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        canvas {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #5eead4;
+            border-radius: 8px;
+            background: #0a0b14;
+            margin: 20px 0;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .control-group {
+            background-color: #0a0b14;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #5eead4;
+        }
+
+        .control-group label {
+            display: block;
+            color: #5eead4;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #a78bfa;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #5eead4;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(94, 234, 212, 0.4);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #5eead4;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(94, 234, 212, 0.4);
+        }
+
+        .value-display {
+            color: #a78bfa;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .button-control {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-control {
+            padding: 10px 20px;
+            background-color: #5eead4;
+            color: #0a0b14;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        .btn-control:hover {
+            background-color: #a78bfa;
+            transform: translateY(-2px);
+        }
+
+        .explanation {
+            background-color: #0a0b14;
+            border-left: 4px solid #a78bfa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .explanation strong {
+            color: #5eead4;
+        }
+
+        .takeaway-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .takeaway-list li {
+            background-color: #0a0b14;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #a78bfa;
+            border-radius: 4px;
+        }
+
+        .takeaway-list li:before {
+            content: "✓ ";
+            color: #5eead4;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .info-box {
+            background-color: #0a0b14;
+            border: 1px solid #5eead4;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 2px solid #a78bfa;
+            margin-top: 40px;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .section {
+                padding: 15px;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐜 Ant Colony Optimization</h1>
+            <p>Inspired by the foraging behavior of real ants</p>
+
+            <div class="paper-meta">
+                <div class="meta-item">
+                    <div class="meta-label">AUTHORS</div>
+                    <div class="meta-value">Marco Dorigo, Mauro Birattari, Thomas Stützle</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">YEAR</div>
+                    <div class="meta-value">2006</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">JOURNAL</div>
+                    <div class="meta-value">IEEE Computational Intelligence Magazine, Vol. 1</div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <a href="https://ieeexplore.ieee.org/document/4129846" target="_blank" class="btn btn-primary">Read Original Paper</a>
+            </div>
+        </header>
+
+        <div class="section">
+            <h2>Why This Paper Matters</h2>
+            <p>Dorigo's Ant Colony Optimization is inspired by real ants finding food sources. Without GPS or central planning, a single ant randomly wanders, but when it finds food, it returns leaving a pheromone trail. Other ants follow trails with higher pheromone concentration. Over time, the shortest paths accumulate more pheromone while longer paths evaporate, and the colony converges on optimal routes. This simple mechanism solved the Traveling Salesman Problem and inspired solutions for network routing, vehicle routing, and logistics optimization.</p>
+        </div>
+
+        <div class="section">
+            <h2>The Pheromone Trail Mechanism</h2>
+
+            <h3>How Real Ants Work</h3>
+            <div class="explanation">
+                <strong>Step 1 - Exploration:</strong> Ants wander semi-randomly, exploring different paths from the nest to a food source.
+                <p style="margin-top: 10px;"><strong>Step 2 - Trail Marking:</strong> When an ant finds food and returns, it deposits pheromone (chemical marker) along the path.
+                <p style="margin-top: 10px;"><strong>Step 3 - Attraction:</strong> Other ants detect pheromone and are more likely to follow high-concentration trails.
+                <p style="margin-top: 10px;"><strong>Step 4 - Reinforcement:</strong> Shorter paths are traversed faster and by more ants, accumulating pheromone faster.
+                <p style="margin-top: 10px;"><strong>Step 5 - Evaporation:</strong> Pheromone evaporates over time. Unused paths fade, preventing the colony from getting stuck in old routes.
+            </div>
+
+            <div class="info-box">
+                <strong>The Result:</strong> Without any central coordinator, the colony collectively discovers the shortest path to food. Individual ants follow simple rules, but the collective behavior is remarkably intelligent.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>The ACO Algorithm</h2>
+
+            <h3>Phase 1: Construction</h3>
+            <div class="explanation">
+                <strong>What happens:</strong> Each ant builds a solution incrementally. At each step, the ant chooses the next city probabilistically based on pheromone intensity and distance.
+                <p style="margin-top: 10px;">Probability ∝ (Pheromone)^α × (1/Distance)^β</p>
+                <p style="margin-top: 10px;"><strong>Where:</strong> α controls how much ants follow pheromone trails (social behavior), and β controls how much they prefer nearby cities (distance heuristic).</p>
+            </div>
+
+            <h3>Phase 2: Pheromone Update</h3>
+            <div class="explanation">
+                <strong>What happens:</strong> After all ants complete their tours, pheromone is updated.
+                <p style="margin-top: 10px;"><strong>Evaporation:</strong> All pheromone decreases by a factor ρ (evaporation rate). This allows the algorithm to "forget" bad solutions.
+                <p style="margin-top: 10px;"><strong>Deposition:</strong> Ants deposit pheromone proportional to solution quality. Better solutions get more pheromone.
+            </div>
+
+            <div class="explanation" style="background-color: #1a1c3a; border-left-color: #5eead4;">
+                <strong>The Analogy:</strong> Imagine a city with many possible routes to work. Initially, people explore different paths. But as people discover and use a shortcut, the path becomes more worn and attractive (high pheromone). Other people see the worn path and use it too, wearing it further. Meanwhile, longer routes get less use and fade away. Within weeks, everyone is using the optimal shortcut—without a central traffic planner.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Real-World Applications</h2>
+
+            <h3>Network Routing</h3>
+            <p>Internet routers use ACO-like algorithms to dynamically route packets. Pheromone represents path quality; fast routes accumulate more pheromone and attract more traffic.</p>
+
+            <h3>Drone Delivery Path Planning</h3>
+            <p>Delivery drones can use ACO to find optimal routes visiting multiple destination nodes while minimizing flight time and battery consumption.</p>
+
+            <h3>Vehicle Routing Problem (VRP)</h3>
+            <p>Logistics companies optimize truck routes visiting hundreds of delivery points. ACO outperforms older algorithms and adapts to changing traffic and demand.</p>
+
+            <h3>Manufacturing & Job Scheduling</h3>
+            <p>Factories use ACO to schedule jobs on machines, minimizing production time and resource conflicts. The "pheromone" represents job scheduling desirability.</p>
+
+            <h3>Telecommunications Network Design</h3>
+            <p>Network designers use ACO to lay out cables and base stations, finding configurations that minimize cost while ensuring coverage.</p>
+        </div>
+
+        <div class="section">
+            <h2>Interactive Visualization</h2>
+            <p>Watch ants find optimal paths between cities. Lines show pheromone trails—brighter lines have more pheromone. Watch how the shortest path emerges as iterations progress. Adjust parameters to see how they affect convergence.</p>
+
+            <canvas id="acoCanvas" width="1000" height="600"></canvas>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="alphaSlider">Pheromone Importance (α)</label>
+                    <input type="range" id="alphaSlider" min="0" max="3" step="0.1" value="1">
+                    <div class="value-display" id="alphaValue">1.0</div>
+                </div>
+                <div class="control-group">
+                    <label for="betaSlider">Distance Importance (β)</label>
+                    <input type="range" id="betaSlider" min="0" max="3" step="0.1" value="2">
+                    <div class="value-display" id="betaValue">2.0</div>
+                </div>
+                <div class="control-group">
+                    <label for="evaporationSlider">Evaporation Rate (ρ)</label>
+                    <input type="range" id="evaporationSlider" min="0.1" max="0.9" step="0.05" value="0.3">
+                    <div class="value-display" id="evaporationValue">0.3</div>
+                </div>
+                <div class="control-group">
+                    <div class="button-control">
+                        <button class="btn-control" id="resetBtn">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Key Takeaways</h2>
+            <ul class="takeaway-list">
+                <li>ACO is inspired by real ant foraging behavior and pheromone trails</li>
+                <li>Simple individual rules (follow pheromone, deposit pheromone, evaporation) create collective intelligence</li>
+                <li>Pheromone represents desirable solution paths; evaporation prevents stagnation</li>
+                <li>Two parameters control behavior: α (pheromone influence) and β (distance heuristic)</li>
+                <li>Excellent for combinatorial optimization problems like traveling salesman and vehicle routing</li>
+                <li>Naturally explores the solution space while exploiting promising paths</li>
+                <li>Adaptable to dynamic problems—pheromone updates allow quick response to changes</li>
+                <li>Parallelizes well—ants can run independently on different processors</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        © 2025 Sim Vattanac | vattanacsim99@gmail.com
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('acoCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // City class
+        class City {
+            constructor(x, y, index) {
+                this.x = x;
+                this.y = y;
+                this.index = index;
+            }
+
+            display() {
+                ctx.fillStyle = '#a78bfa';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#0a0b14';
+                ctx.font = 'bold 10px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.index, this.x, this.y);
+            }
+
+            distanceTo(other) {
+                return Math.hypot(this.x - other.x, this.y - other.y);
+            }
+        }
+
+        // Ant class
+        class Ant {
+            constructor(startCity) {
+                this.path = [startCity];
+                this.unvisited = new Set();
+                this.distance = 0;
+            }
+
+            addCity(city) {
+                const lastCity = this.path[this.path.length - 1];
+                this.distance += lastCity.distanceTo(city);
+                this.path.push(city);
+                this.unvisited.delete(city);
+            }
+
+            completePath(cities) {
+                if (this.path.length < cities.length) {
+                    for (let city of cities) {
+                        if (city !== this.path[0] && !this.path.includes(city)) {
+                            this.addCity(city);
+                        }
+                    }
+                }
+                // Return to start
+                const lastCity = this.path[this.path.length - 1];
+                this.distance += lastCity.distanceTo(this.path[0]);
+            }
+        }
+
+        // Initialize
+        const cities = [];
+        const numCities = 10;
+        for (let i = 0; i < numCities; i++) {
+            const angle = (i / numCities) * Math.PI * 2;
+            const radius = Math.min(canvas.width, canvas.height) * 0.3;
+            const x = canvas.width / 2 + radius * Math.cos(angle);
+            const y = canvas.height / 2 + radius * Math.sin(angle);
+            cities.push(new City(x, y, i));
+        }
+
+        // Pheromone matrix
+        let pheromone = Array(numCities).fill(null).map(() => Array(numCities).fill(1));
+
+        let params = { alpha: 1, beta: 2, evaporation: 0.3 };
+        let iteration = 0;
+        let bestDistance = Infinity;
+        let bestPath = [];
+
+        // Control elements
+        document.getElementById('alphaSlider').addEventListener('input', (e) => {
+            params.alpha = parseFloat(e.target.value);
+            document.getElementById('alphaValue').textContent = params.alpha.toFixed(1);
+        });
+
+        document.getElementById('betaSlider').addEventListener('input', (e) => {
+            params.beta = parseFloat(e.target.value);
+            document.getElementById('betaValue').textContent = params.beta.toFixed(1);
+        });
+
+        document.getElementById('evaporationSlider').addEventListener('input', (e) => {
+            params.evaporation = parseFloat(e.target.value);
+            document.getElementById('evaporationValue').textContent = params.evaporation.toFixed(2);
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            pheromone = Array(numCities).fill(null).map(() => Array(numCities).fill(1));
+            iteration = 0;
+            bestDistance = Infinity;
+            bestPath = [];
+        });
+
+        function selectNextCity(ant, unvisited, alpha, beta) {
+            const current = ant.path[ant.path.length - 1];
+            let probabilities = [];
+            let sum = 0;
+
+            for (let city of unvisited) {
+                const phero = Math.pow(pheromone[current.index][city.index], alpha);
+                const dist = current.distanceTo(city);
+                const heuristic = Math.pow(1 / (dist + 0.1), beta);
+                const prob = phero * heuristic;
+                probabilities.push({ city, prob });
+                sum += prob;
+            }
+
+            // Roulette wheel selection
+            let rand = Math.random() * sum;
+            for (let { city, prob } of probabilities) {
+                rand -= prob;
+                if (rand <= 0) return city;
+            }
+
+            return probabilities[probabilities.length - 1].city;
+        }
+
+        function constructAntSolutions(numAnts, alpha, beta) {
+            const ants = [];
+            for (let i = 0; i < numAnts; i++) {
+                const ant = new Ant(cities[0]);
+                const unvisited = new Set(cities.slice(1));
+
+                while (unvisited.size > 0) {
+                    const nextCity = selectNextCity(ant, unvisited, alpha, beta);
+                    ant.addCity(nextCity);
+                }
+
+                ant.completePath(cities);
+                ants.push(ant);
+
+                if (ant.distance < bestDistance) {
+                    bestDistance = ant.distance;
+                    bestPath = [...ant.path];
+                }
+            }
+            return ants;
+        }
+
+        function updatePheromone(ants, evaporation) {
+            // Evaporation
+            for (let i = 0; i < numCities; i++) {
+                for (let j = 0; j < numCities; j++) {
+                    pheromone[i][j] *= (1 - evaporation);
+                }
+            }
+
+            // Deposition
+            for (let ant of ants) {
+                const deposit = 1 / ant.distance;
+                for (let k = 0; k < ant.path.length - 1; k++) {
+                    const i = ant.path[k].index;
+                    const j = ant.path[k + 1].index;
+                    pheromone[i][j] += deposit;
+                    pheromone[j][i] += deposit;
+                }
+            }
+        }
+
+        function animate() {
+            // Clear canvas
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw pheromone trails
+            for (let i = 0; i < numCities; i++) {
+                for (let j = i + 1; j < numCities; j++) {
+                    const intensity = Math.min(1, pheromone[i][j] / 10);
+                    const alpha = intensity * 0.8;
+                    ctx.strokeStyle = `rgba(94, 234, 212, ${alpha})`;
+                    ctx.lineWidth = intensity * 4 + 1;
+                    ctx.beginPath();
+                    ctx.moveTo(cities[i].x, cities[i].y);
+                    ctx.lineTo(cities[j].x, cities[j].y);
+                    ctx.stroke();
+                }
+            }
+
+            // Draw best path so far
+            if (bestPath.length > 0) {
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(bestPath[0].x, bestPath[0].y);
+                for (let i = 1; i < bestPath.length; i++) {
+                    ctx.lineTo(bestPath[i].x, bestPath[i].y);
+                }
+                ctx.stroke();
+            }
+
+            // Draw cities
+            for (let city of cities) {
+                city.display();
+            }
+
+            // ACO iteration
+            if (iteration % 3 === 0) {
+                const ants = constructAntSolutions(10, params.alpha, params.beta);
+                updatePheromone(ants, params.evaporation);
+            }
+            iteration++;
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

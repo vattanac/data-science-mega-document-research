@@ -53,6 +53,54 @@ EXTERNAL_URLS = {
     "gradient-descent-react": "https://gradient-descent-saas.netlify.app",
 }
 
+# Category mapping for each project folder
+# Used by the explorer UI for filtering by topic
+FOLDER_CATEGORIES = {
+    # Statistics & Probability
+    "expected-value-vs-mean":           "Statistics & Probability",
+    "variance-and-standard-deviation":  "Statistics & Probability",
+    "normal-distribution-and-clt":      "Statistics & Probability",
+    "hypothesis-testing":               "Statistics & Probability",
+    "bayes-theorem":                    "Statistics & Probability",
+    "correlation-vs-causation":         "Statistics & Probability",
+    "why_start_with_iris":              "Statistics & Probability",
+    "kdd_process":                      "Statistics & Probability",
+    # Linear Algebra
+    "matrix-transformations":                       "Linear Algebra",
+    "dot-product-and-cosine-similarity":            "Linear Algebra",
+    "singular-value-decomposition(svd)":            "Linear Algebra",
+    "eckart-young-the-closest-rank-k-matrix-to-A":  "Linear Algebra",
+    # Machine Learning
+    "k-means-clustering":               "Machine Learning",
+    "decision-trees-and-random-forest":  "Machine Learning",
+    "bias-variance-tradeoff":            "Machine Learning",
+    "confusion-matrix-and-metrics":      "Machine Learning",
+    "cross-validation":                  "Machine Learning",
+    "Regression-Models-Explained":       "Machine Learning",
+    "gradient-descent-saas":             "Machine Learning",
+    "gradient-descent-react":            "Machine Learning",
+    # Deep Learning
+    "neural-network-backpropagation":    "Deep Learning",
+    "activation-functions":              "Deep Learning",
+    "loss-functions":                    "Deep Learning",
+    # Data Processing
+    "feature-scaling":                   "Data Processing",
+    "handling-missing-data":             "Data Processing",
+    # Drone Research
+    "drone-top20-research-topic":        "Drone Research",
+    # Swarm Drone Research
+    "swarm-drone-01-reynolds-boids":            "Swarm Drone Research",
+    "swarm-drone-02-olfati-saber-flocking":     "Swarm Drone Research",
+    "swarm-drone-03-kennedy-pso":               "Swarm Drone Research",
+    "swarm-drone-04-dorigo-ant-colony":         "Swarm Drone Research",
+    "swarm-drone-05-brambilla-swarm-robotics":  "Swarm Drone Research",
+    "swarm-drone-06-chung-aerial-swarm-survey": "Swarm Drone Research",
+    "swarm-drone-07-vasarhelyi-optimized-flocking": "Swarm Drone Research",
+    "swarm-drone-08-preiss-crazyswarm":         "Swarm Drone Research",
+    "swarm-drone-09-zhou-micro-flying-robots":  "Swarm Drone Research",
+    "swarm-drone-10-schilling-vision-swarm":    "Swarm Drone Research",
+}
+
 
 def build_tree(root_path: Path) -> dict:
     """
@@ -75,6 +123,10 @@ def build_tree(root_path: Path) -> dict:
         "type": "folder",
         "children": [],
     }
+
+    # Attach category if this folder is in the mapping
+    if root_path.name in FOLDER_CATEGORIES:
+        node["category"] = FOLDER_CATEGORIES[root_path.name]
 
     try:
         entries = sorted(root_path.iterdir(), key=lambda e: (not e.is_dir(), e.name.lower()))
@@ -128,9 +180,18 @@ def main():
     print(f"📂 Scanning: {REPO_ROOT}")
     tree = build_tree(REPO_ROOT)
 
+    # Collect unique categories in display order
+    category_order = []
+    seen = set()
+    for cat in FOLDER_CATEGORIES.values():
+        if cat not in seen:
+            category_order.append(cat)
+            seen.add(cat)
+
     # Add metadata
     manifest = {
         "generated": True,
+        "categories": category_order,
         "root": tree,
     }
 

@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feature Scaling: Normalization vs Standardization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            background: #0a0b14;
+            color: #c8cad8;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #1e2045;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #a78bfa 0%, #5eead4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #6b6e8a;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .tags {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            color: #a78bfa;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 80px;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #5eead4;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #1e2045;
+        }
+
+        h3 {
+            font-size: 1.3em;
+            margin-bottom: 16px;
+            color: #a78bfa;
+            margin-top: 24px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: #c8cad8;
+            line-height: 1.7;
+        }
+
+        /* Cards */
+        .card {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #5eead4;
+            margin-bottom: 12px;
+        }
+
+        /* Callout */
+        .callout {
+            background: #12142a;
+            border-left: 4px solid #a78bfa;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+
+        .callout strong {
+            color: #a78bfa;
+        }
+
+        /* Math blocks */
+        .math-block {
+            background: #0f1018;
+            border: 1px solid #1e2045;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            color: #5eead4;
+            text-align: center;
+        }
+
+        /* Lists */
+        ul {
+            margin-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        strong {
+            color: #5eead4;
+        }
+
+        /* Interactive sections */
+        .interactive-section {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0f1018;
+            border: 1px solid #1e2045;
+            color: #c8cad8;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1em;
+            margin-bottom: 12px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #a78bfa 0%, #5eead4 100%);
+            color: #0a0b14;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1em;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(167, 139, 250, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Canvas containers */
+        .canvas-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .canvas-item {
+            flex: 1;
+            min-width: 300px;
+            background: #0f1018;
+            border: 1px solid #1e2045;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .canvas-item h4 {
+            color: #5eead4;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            border-radius: 6px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+            font-size: 0.9em;
+        }
+
+        .stat-item {
+            background: #12142a;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border-left: 3px solid #a78bfa;
+        }
+
+        .stat-label {
+            color: #6b6e8a;
+            font-size: 0.85em;
+        }
+
+        .stat-value {
+            color: #5eead4;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #0f1018;
+            color: #a78bfa;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid #1e2045;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1e2045;
+            color: #c8cad8;
+        }
+
+        tr:hover {
+            background: #16182e;
+        }
+
+        .emphasis {
+            color: #5eead4;
+            font-weight: 600;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #c8cad8;
+            cursor: pointer;
+        }
+
+        .checkbox {
+            cursor: pointer;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid #1e2045;
+            color: #6b6e8a;
+            margin-top: 80px;
+        }
+
+        footer a {
+            color: #a78bfa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        section {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        section:nth-child(1) { animation-delay: 0.1s; }
+        section:nth-child(2) { animation-delay: 0.2s; }
+        section:nth-child(3) { animation-delay: 0.3s; }
+        section:nth-child(4) { animation-delay: 0.4s; }
+        section:nth-child(5) { animation-delay: 0.5s; }
+        section:nth-child(6) { animation-delay: 0.6s; }
+        section:nth-child(7) { animation-delay: 0.7s; }
+        section:nth-child(8) { animation-delay: 0.8s; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            .container {
+                padding: 20px 16px;
+            }
+
+            .canvas-container {
+                flex-direction: column;
+            }
+
+            .canvas-item {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Feature Scaling</h1>
+            <p class="subtitle">Normalization vs Standardization</p>
+            <div class="tags">
+                <span class="tag">DATA PROCESSING</span>
+                <span class="tag">PREPROCESSING</span>
+            </div>
+        </header>
+
+        <!-- Section 1: Why Feature Scaling? -->
+        <section id="why-scaling">
+            <h2>Why Feature Scaling?</h2>
+
+            <div class="card">
+                <div class="card-title">The Core Problem</div>
+                <p>
+                    Machine learning algorithms often assume features are on a similar scale. Without feature scaling,
+                    algorithms can behave unexpectedly, converge slowly, or fail entirely. Here are the main reasons
+                    why feature scaling matters:
+                </p>
+            </div>
+
+            <h3>Gradient Descent Convergence</h3>
+            <p>
+                When features have different scales, the loss surface becomes elongated (elliptical contours).
+                Gradient descent takes small steps and zigzags instead of converging directly to the minimum.
+                Scaling features produces circular contours, allowing gradient descent to converge efficiently
+                and in fewer iterations.
+            </p>
+
+            <h3>Distance-Based Algorithms</h3>
+            <p>
+                Algorithms like K-Nearest Neighbors (KNN), K-Means, and SVM rely on distance metrics
+                (Euclidean distance, Manhattan distance, etc.). Features with larger scales dominate the distance
+                calculation, making smaller-scale features irrelevant. Scaling ensures all features contribute
+                equally to distance computations.
+            </p>
+
+            <h3>Feature Dominance</h3>
+            <p>
+                Without scaling, a feature with values ranging from 1,000 to 10,000 will dominate over a feature
+                with values ranging from 0 to 1. This biases the model toward the larger-scaled feature,
+                regardless of its actual predictive power.
+            </p>
+
+            <div class="callout">
+                <strong>Key Insight:</strong> Feature scaling doesn't change the underlying relationships in your
+                data—it just ensures all features are treated fairly by your algorithm.
+            </div>
+        </section>
+
+        <!-- Section 2: Min-Max Normalization -->
+        <section id="normalization">
+            <h2>Min-Max Normalization</h2>
+
+            <div class="card">
+                <div class="card-title">Also called: Feature Scaling or Rescaling</div>
+                <p>
+                    Min-Max normalization scales features to a fixed range, typically [0, 1]. This is the most
+                    intuitive scaling method and is widely used in practice.
+                </p>
+            </div>
+
+            <h3>Formula</h3>
+            <div class="math-block">
+                x_scaled = (x - min) / (max - min)
+            </div>
+
+            <h3>Example</h3>
+            <p>
+                Dataset: [10, 20, 30, 40, 50]
+            </p>
+            <ul>
+                <li>min = 10, max = 50</li>
+                <li>10 → (10-10)/(50-10) = 0/40 = 0.0</li>
+                <li>20 → (20-10)/(50-10) = 10/40 = 0.25</li>
+                <li>30 → (30-10)/(50-10) = 20/40 = 0.5</li>
+                <li>40 → (40-10)/(50-10) = 30/40 = 0.75</li>
+                <li>50 → (50-10)/(50-10) = 40/40 = 1.0</li>
+            </ul>
+
+            <h3>Advantages</h3>
+            <ul>
+                <li><strong>Intuitive:</strong> All values fall in [0, 1], easy to interpret.</li>
+                <li><strong>Preserves relationships:</strong> Relative distances between points are preserved.</li>
+                <li><strong>Works for bounded data:</strong> Great when you know min/max values.</li>
+                <li><strong>Fast:</strong> Simple linear transformation.</li>
+            </ul>
+
+            <h3>Disadvantages</h3>
+            <ul>
+                <li><strong>Sensitive to outliers:</strong> A single outlier can compress most data into a small range.</li>
+                <li><strong>Requires min/max:</strong> Must recompute on new data; can cause extrapolation beyond [0,1].</li>
+                <li><strong>Assumes bounded data:</strong> Not ideal for unbounded distributions.</li>
+            </ul>
+
+            <div class="callout">
+                <strong>Use case:</strong> Neural networks, image processing (pixel values), and when you need
+                values in a specific bounded range.
+            </div>
+        </section>
+
+        <!-- Section 3: Standardization / Z-Score -->
+        <section id="standardization">
+            <h2>Standardization (Z-Score Normalization)</h2>
+
+            <div class="card">
+                <div class="card-title">Also called: Standardization or Z-score normalization</div>
+                <p>
+                    Standardization transforms features to have mean = 0 and standard deviation = 1.
+                    This is the most common scaling method in machine learning and statistics.
+                </p>
+            </div>
+
+            <h3>Formula</h3>
+            <div class="math-block">
+                x_scaled = (x - μ) / σ
+            </div>
+            <p style="text-align: center; color: #6b6e8a;">where μ is the mean and σ is the standard deviation</p>
+
+            <h3>Example</h3>
+            <p>
+                Dataset: [10, 20, 30, 40, 50]
+            </p>
+            <ul>
+                <li>μ (mean) = 30, σ (std) ≈ 14.14</li>
+                <li>10 → (10-30)/14.14 ≈ -1.41</li>
+                <li>20 → (20-30)/14.14 ≈ -0.71</li>
+                <li>30 → (30-30)/14.14 = 0.0</li>
+                <li>40 → (40-30)/14.14 ≈ 0.71</li>
+                <li>50 → (50-30)/14.14 ≈ 1.41</li>
+            </ul>
+
+            <h3>Advantages</h3>
+            <ul>
+                <li><strong>Works well with linear models:</strong> Recommended for linear regression, logistic regression, and SVM.</li>
+                <li><strong>Works for unbounded data:</strong> No assumptions about min/max; handles infinite ranges.</li>
+                <li><strong>Statistically sound:</strong> Follows normal distribution assumptions in many algorithms.</li>
+                <li><strong>Less sensitive to outliers:</strong> Better than min-max when outliers are present (though still affected).</li>
+            </ul>
+
+            <h3>Disadvantages</h3>
+            <ul>
+                <li><strong>Less intuitive:</strong> Values can be negative and > 1; harder to interpret directly.</li>
+                <li><strong>Slightly sensitive to outliers:</strong> Outliers affect both mean and standard deviation.</li>
+                <li><strong>Assumes normal distribution:</strong> Best for normally distributed features.</li>
+            </ul>
+
+            <div class="callout">
+                <strong>Use case:</strong> Linear models (regression, logistic), distance-based algorithms (KNN, K-Means,
+                SVM), and whenever you expect roughly normally distributed data.
+            </div>
+        </section>
+
+        <!-- Section 4: Interactive Visualizer -->
+        <section id="visualizer">
+            <h2>Interactive: Before & After Visualizer</h2>
+
+            <div class="interactive-section">
+                <p>Enter a comma-separated list of numbers to see the original, normalized, and standardized distributions:</p>
+
+                <div class="input-group">
+                    <label for="dataInput">Enter dataset (comma-separated):</label>
+                    <input
+                        type="text"
+                        id="dataInput"
+                        placeholder="e.g., 10, 25, 30, 50, 100, 150"
+                        value="10, 25, 30, 50, 100, 150"
+                    >
+                    <button onclick="visualizeData()">Visualize</button>
+                </div>
+
+                <div class="canvas-container">
+                    <div class="canvas-item">
+                        <h4>Original Data</h4>
+                        <canvas id="originalCanvas" width="300" height="250"></canvas>
+                        <div class="stats" id="originalStats"></div>
+                    </div>
+                    <div class="canvas-item">
+                        <h4>Min-Max Normalized [0, 1]</h4>
+                        <canvas id="normalizedCanvas" width="300" height="250"></canvas>
+                        <div class="stats" id="normalizedStats"></div>
+                    </div>
+                    <div class="canvas-item">
+                        <h4>Standardized (Z-Score)</h4>
+                        <canvas id="standardizedCanvas" width="300" height="250"></canvas>
+                        <div class="stats" id="standardizedStats"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Gradient Descent Effect -->
+        <section id="gradient-descent">
+            <h2>Interactive: Effect on Gradient Descent</h2>
+
+            <div class="interactive-section">
+                <p>
+                    This visualization shows how feature scaling affects gradient descent convergence.
+                    The left shows unscaled features (elongated ellipses = slow convergence),
+                    and the right shows scaled features (circular = fast convergence).
+                </p>
+
+                <div class="controls">
+                    <button onclick="animateGradientDescent()">Animate Gradient Descent</button>
+                    <button onclick="resetGradientDescent()">Reset</button>
+                </div>
+
+                <div class="canvas-container" style="margin-top: 24px;">
+                    <div class="canvas-item">
+                        <h4>Unscaled Features</h4>
+                        <canvas id="unscaledCanvas" width="350" height="350"></canvas>
+                    </div>
+                    <div class="canvas-item">
+                        <h4>Scaled Features</h4>
+                        <canvas id="scaledCanvas" width="350" height="350"></canvas>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 16px; background: #0f1018; border-radius: 8px; border-left: 4px solid #5eead4;">
+                    <p>
+                        <span style="color: #5eead4;">Blue path:</span> Gradient descent trajectory
+                    </p>
+                    <p>
+                        <span style="color: #f97316;">Red dot:</span> Optimal solution (minimum)
+                    </p>
+                    <p>
+                        Notice how the unscaled path zigzags (many iterations) while the scaled path converges directly.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Robust Scaling -->
+        <section id="robust-scaling">
+            <h2>Robust Scaling</h2>
+
+            <div class="card">
+                <div class="card-title">For outlier-heavy datasets</div>
+                <p>
+                    When your data contains significant outliers, both min-max and standardization can be distorted.
+                    Robust scaling uses the median and interquartile range (IQR), which are robust to outliers.
+                </p>
+            </div>
+
+            <h3>Formula</h3>
+            <div class="math-block">
+                x_scaled = (x - median) / IQR
+            </div>
+            <p style="text-align: center; color: #6b6e8a;">where IQR = Q3 - Q1</p>
+
+            <h3>How It Works</h3>
+            <ul>
+                <li>
+                    <strong>Median:</strong> Middle value of the dataset (50th percentile). Much less affected
+                    by outliers than the mean.
+                </li>
+                <li>
+                    <strong>IQR:</strong> Range between 25th percentile (Q1) and 75th percentile (Q3).
+                    Contains the middle 50% of data; ignores extreme values.
+                </li>
+            </ul>
+
+            <h3>When to Use</h3>
+            <ul>
+                <li>Dataset contains known outliers</li>
+                <li>You want a more conservative scaling method</li>
+                <li>Distribution is skewed or non-normal</li>
+                <li>Using algorithms sensitive to scale but robust to outliers (e.g., tree-based models with outliers)</li>
+            </ul>
+
+            <div class="callout">
+                <strong>Caveat:</strong> Robust scaling doesn't eliminate outliers—it just scales them more reasonably.
+                Consider outlier removal or treatment as a separate preprocessing step if needed.
+            </div>
+        </section>
+
+        <!-- Section 7: When NOT to Scale -->
+        <section id="when-not-scale">
+            <h2>When NOT to Scale</h2>
+
+            <p>
+                Feature scaling is beneficial for most algorithms, but some models are completely invariant to feature scaling:
+            </p>
+
+            <h3>Decision Trees & Random Forests</h3>
+            <p>
+                Decision trees split on feature values, not distances. A feature with values [0, 1] vs [0, 1000]
+                will produce the same splits and tree structure. Scaling has no effect on tree-based models.
+            </p>
+
+            <h3>Gradient Boosting Models</h3>
+            <p>
+                XGBoost, LightGBM, and CatBoost are tree-based and scale-invariant. They find optimal splits
+                regardless of feature scale.
+            </p>
+
+            <h3>Rule-Based Models</h3>
+            <p>
+                Models that work with categorical rules or thresholds (rule-based systems, neural networks for
+                classification on unscaled data) may not benefit from scaling.
+            </p>
+
+            <h3>When You Might Still Scale Tree Models</h3>
+            <ul>
+                <li>For consistency across your preprocessing pipeline</li>
+                <li>If using hyperparameter tuning that assumes scaled features</li>
+                <li>When combining tree models with distance-based models in an ensemble</li>
+            </ul>
+
+            <div class="callout">
+                <strong>Rule of thumb:</strong> If your algorithm uses distances, gradients, or assumes normally
+                distributed features → scale. If it uses thresholds or splits → optional.
+            </div>
+        </section>
+
+        <!-- Section 8: Quick Reference Table -->
+        <section id="reference-table">
+            <h2>Quick Reference Table</h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Formula</th>
+                            <th>Output Range</th>
+                            <th>Best For</th>
+                            <th>Sensitive to Outliers?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="emphasis">Min-Max<br>Normalization</td>
+                            <td>(x - min) / (max - min)</td>
+                            <td>[0, 1]</td>
+                            <td>Neural networks, bounded features, image data</td>
+                            <td>Yes ❌</td>
+                        </tr>
+                        <tr>
+                            <td class="emphasis">Standardization<br>(Z-Score)</td>
+                            <td>(x - μ) / σ</td>
+                            <td>(-∞, +∞)</td>
+                            <td>Linear models, SVM, K-Means, KNN, normally distributed data</td>
+                            <td>Somewhat ⚠️</td>
+                        </tr>
+                        <tr>
+                            <td class="emphasis">Robust<br>Scaling</td>
+                            <td>(x - median) / IQR</td>
+                            <td>(-∞, +∞)</td>
+                            <td>Outlier-heavy data, skewed distributions</td>
+                            <td>No ✓</td>
+                        </tr>
+                        <tr>
+                            <td class="emphasis">No Scaling</td>
+                            <td>x (unchanged)</td>
+                            <td>Original</td>
+                            <td>Decision trees, random forests, gradient boosting (XGBoost, LightGBM)</td>
+                            <td>N/A</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout" style="margin-top: 30px;">
+                <strong>Quick Decision Guide:</strong>
+                <ul style="margin-top: 12px; margin-left: 0;">
+                    <li>🔹 Linear/Distance-based (SVM, KNN, K-Means, Linear Regression) → Use <strong>Standardization</strong></li>
+                    <li>🔹 Neural Networks → Use <strong>Min-Max Normalization</strong></li>
+                    <li>🔹 Data with outliers → Use <strong>Robust Scaling</strong></li>
+                    <li>🔹 Tree-based (Decision Trees, Random Forest, XGBoost) → <strong>Skip scaling</strong></li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        © 2025 <a href="mailto:vattanacsim99@gmail.com">Sim Vattanac</a> ·
+        <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a>
+    </footer>
+
+    <script>
+        // Color scheme
+        const colors = {
+            accent: '#a78bfa',
+            accent2: '#5eead4',
+            dim: '#6b6e8a',
+            grid: '#1e2045',
+            bg: '#0f1018'
+        };
+
+        // ==================== Section 4: Visualizer ====================
+        function visualizeData() {
+            const input = document.getElementById('dataInput').value;
+            const data = input.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+
+            if (data.length === 0) {
+                alert('Please enter valid numbers');
+                return;
+            }
+
+            // Calculate statistics
+            const min = Math.min(...data);
+            const max = Math.max(...data);
+            const mean = data.reduce((a, b) => a + b, 0) / data.length;
+            const std = Math.sqrt(data.reduce((a, b) => a + (b - mean) ** 2, 0) / data.length);
+
+            // Normalize (min-max)
+            const normalized = data.map(x => (x - min) / (max - min));
+
+            // Standardize (z-score)
+            const standardized = data.map(x => (x - mean) / std);
+
+            // Draw histograms
+            drawHistogram('originalCanvas', data, min, max);
+            drawHistogram('normalizedCanvas', normalized, Math.min(...normalized), Math.max(...normalized));
+            drawHistogram('standardizedCanvas', standardized, Math.min(...standardized), Math.max(...standardized));
+
+            // Display stats
+            displayStats('originalStats', data, min, max, mean, std);
+            displayStats('normalizedStats', normalized, Math.min(...normalized), Math.max(...normalized),
+                        normalized.reduce((a, b) => a + b, 0) / normalized.length,
+                        Math.sqrt(normalized.reduce((a, b) => a + ((b - normalized.reduce((c, d) => c + d, 0) / normalized.length) ** 2), 0) / normalized.length));
+            displayStats('standardizedStats', standardized, Math.min(...standardized), Math.max(...standardized),
+                        0, 1);
+        }
+
+        function drawHistogram(canvasId, data, minVal, maxVal, title = '') {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // Clear canvas
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw border
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, 0, width, height);
+
+            const margin = 40;
+            const chartWidth = width - 2 * margin;
+            const chartHeight = height - 2 * margin;
+
+            // Create bins
+            const numBins = Math.min(10, Math.ceil(Math.sqrt(data.length)));
+            const bins = Array(numBins).fill(0);
+            const binWidth = (maxVal - minVal) / numBins || 1;
+
+            data.forEach(val => {
+                const binIndex = Math.min(Math.floor((val - minVal) / binWidth), numBins - 1);
+                bins[binIndex]++;
+            });
+
+            const maxCount = Math.max(...bins);
+
+            // Draw bars
+            ctx.fillStyle = colors.accent;
+            bins.forEach((count, i) => {
+                const barWidth = chartWidth / numBins - 2;
+                const barHeight = (count / maxCount) * chartHeight;
+                const x = margin + (i * chartWidth / numBins) + 1;
+                const y = height - margin - barHeight;
+                ctx.fillRect(x, y, barWidth, barHeight);
+            });
+
+            // Draw axes
+            ctx.strokeStyle = colors.dim;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin, height - margin);
+            ctx.lineTo(width - margin, height - margin);
+            ctx.stroke();
+
+            // Draw tick marks and labels
+            ctx.fillStyle = colors.dim;
+            ctx.font = '12px Inter';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 2; i++) {
+                const x = margin + (i * chartWidth / 2);
+                const value = minVal + (i * (maxVal - minVal) / 2);
+                ctx.fillText(value.toFixed(2), x, height - margin + 20);
+            }
+        }
+
+        function displayStats(elementId, data, min, max, mean, std) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-label">Min</div>
+                    <div class="stat-value">${min.toFixed(4)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Max</div>
+                    <div class="stat-value">${max.toFixed(4)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Mean</div>
+                    <div class="stat-value">${mean.toFixed(4)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Std Dev</div>
+                    <div class="stat-value">${std.toFixed(4)}</div>
+                </div>
+            `;
+        }
+
+        // ==================== Section 5: Gradient Descent ====================
+        let gdState = {
+            unscaled: { path: [] },
+            scaled: { path: [] }
+        };
+
+        function resetGradientDescent() {
+            gdState = {
+                unscaled: { path: [] },
+                scaled: { path: [] }
+            };
+            drawGradientDescentViz();
+        }
+
+        function animateGradientDescent() {
+            resetGradientDescent();
+
+            // Unscaled: elongated ellipse (high eccentricity)
+            const unscaledA = 4;  // major axis
+            const unscaledB = 0.5; // minor axis
+            const unscaledLR = 0.05;
+
+            // Scaled: circular (low eccentricity)
+            const scaledA = 1.5;
+            const scaledB = 1.5;
+            const scaledLR = 0.1;
+
+            let unscaledX = 0;
+            let unscaledY = 0;
+            let scaledX = 0;
+            let scaledY = 0;
+
+            const steps = 50;
+
+            for (let i = 0; i < steps; i++) {
+                // Gradient of quadratic form
+                const unscaledGradX = 2 * unscaledA * unscaledX;
+                const unscaledGradY = 2 * unscaledB * unscaledY;
+                const scaledGradX = 2 * scaledA * scaledX;
+                const scaledGradY = 2 * scaledB * scaledY;
+
+                // Update (gradient descent step)
+                unscaledX -= unscaledLR * unscaledGradX;
+                unscaledY -= unscaledLR * unscaledGradY;
+                scaledX -= scaledLR * scaledGradX;
+                scaledY -= scaledLR * scaledGradY;
+
+                gdState.unscaled.path.push({ x: unscaledX, y: unscaledY });
+                gdState.scaled.path.push({ x: scaledX, y: scaledY });
+            }
+
+            drawGradientDescentViz();
+        }
+
+        function drawGradientDescentViz() {
+            drawGDCanvas('unscaledCanvas', gdState.unscaled, true);
+            drawGDCanvas('scaledCanvas', gdState.scaled, false);
+        }
+
+        function drawGDCanvas(canvasId, state, isUnscaled) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            const centerX = w / 2;
+            const centerY = h / 2;
+
+            // Clear
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, w, h);
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, 0, w, h);
+
+            const scale = 40;
+
+            // Draw contours (ellipse or circle)
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 1;
+            if (isUnscaled) {
+                // Elongated ellipses
+                for (let r = 1; r <= 3; r += 1) {
+                    ctx.beginPath();
+                    ctx.ellipse(centerX, centerY, r * 4 * scale, r * 0.5 * scale, 0, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+            } else {
+                // Circular contours
+                for (let r = 1; r <= 3; r += 1) {
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, r * scale, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+            }
+
+            // Draw gradient descent path
+            if (state.path.length > 0) {
+                ctx.strokeStyle = colors.accent2;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                state.path.forEach(point => {
+                    ctx.lineTo(centerX + point.x * scale, centerY + point.y * scale);
+                });
+                ctx.stroke();
+            }
+
+            // Draw optimal point
+            ctx.fillStyle = '#f97316';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Draw starting point
+            if (state.path.length > 0) {
+                ctx.fillStyle = colors.accent;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            visualizeData();
+            drawGradientDescentViz();
+        });
+    </script>
+</body>
+</html>

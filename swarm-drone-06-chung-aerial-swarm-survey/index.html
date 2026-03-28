@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Survey on Aerial Swarm Robotics - Chung et al. (2018)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0b14;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: #12142a;
+            border-bottom: 2px solid #a78bfa;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            color: #a78bfa;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .paper-meta {
+            color: #5eead4;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+        }
+
+        .paper-meta strong {
+            color: #a78bfa;
+        }
+
+        .button-group {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        a.paper-btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #5eead4;
+            color: #0a0b14;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid #5eead4;
+        }
+
+        a.paper-btn:hover {
+            background-color: #0a0b14;
+            color: #5eead4;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        section {
+            background-color: #12142a;
+            border: 1px solid #a78bfa;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        section h2 {
+            color: #5eead4;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #a78bfa;
+            padding-bottom: 0.5rem;
+        }
+
+        section h3 {
+            color: #a78bfa;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .why-matters {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(94, 234, 212, 0.1) 100%);
+            border-left: 4px solid #a78bfa;
+        }
+
+        .step {
+            background-color: rgba(167, 139, 250, 0.05);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            border-left: 3px solid #5eead4;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            background-color: #a78bfa;
+            color: #0a0b14;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .analogy, .example {
+            background-color: rgba(94, 234, 212, 0.1);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            border-left: 3px solid #5eead4;
+        }
+
+        .canvas-container {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            background-color: #0a0b14;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #a78bfa;
+            color: #0a0b14;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5eead4;
+            transform: translateY(-2px);
+        }
+
+        .takeaways {
+            background-color: rgba(94, 234, 212, 0.1);
+            border-left: 4px solid #5eead4;
+        }
+
+        .takeaway-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background-color: rgba(167, 139, 250, 0.05);
+            border-radius: 0.5rem;
+        }
+
+        .takeaway-item::before {
+            content: "✓ ";
+            color: #5eead4;
+            font-weight: bold;
+        }
+
+        footer {
+            background-color: #12142a;
+            border-top: 2px solid #a78bfa;
+            padding: 1.5rem;
+            text-align: center;
+            color: #888;
+            margin-top: 2rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat-box {
+            background-color: rgba(167, 139, 250, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #a78bfa;
+            text-align: center;
+        }
+
+        .stat-value {
+            color: #5eead4;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #a78bfa;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            section {
+                padding: 1rem;
+            }
+
+            .button-group {
+                gap: 0.5rem;
+            }
+
+            a.paper-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>A Survey on Aerial Swarm Robotics</h1>
+        <p class="paper-meta">By <strong>Soon-Jo Chung, Aditya A. Paranjape, Philip Dames, Shaojie Shen, Vijay Kumar</strong></p>
+        <p class="paper-meta"><strong>Year:</strong> 2018 | <strong>Journal:</strong> IEEE Transactions on Robotics, Vol. 34, No. 4, pp. 837-855</p>
+        <div class="button-group">
+            <a href="https://ieeexplore.ieee.org/document/8424838" target="_blank" class="paper-btn">Read Original Paper</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="why-matters">
+            <h2>Why This Paper Matters</h2>
+            <p>This comprehensive survey synthesizes decades of research in aerial swarm robotics into five essential domains. It provides both researchers and practitioners with a structured understanding of the challenges and solutions in coordinating multiple flying robots. The paper bridges theory (distributed algorithms) with practice (real-world implementations), making it the definitive reference for anyone working in swarm robotics.</p>
+            <p style="margin-top: 1rem;">The significance extends beyond robotics: swarm principles influence how we design autonomous systems, coordinate emergency response, monitor environmental changes, and even understand biological collective behavior. Understanding these five pillars is crucial for advancing autonomous systems in the 21st century.</p>
+        </section>
+
+        <section>
+            <h2>The Five Key Areas Surveyed</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Trajectory Generation</h3>
+                <p>Creating smooth, collision-free paths for multiple robots operating simultaneously in the same space.</p>
+                <div class="example">
+                    <strong>Example:</strong> When 10 delivery drones need to visit different neighborhoods, we can't just give each drone its shortest path — they'd collide at intersections. Trajectory generation creates coordinated paths that respect timing: some drones wait, some take longer routes, ensuring no two drones ever occupy the same space.
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Task Allocation</h3>
+                <p>Distributing mission objectives among swarm members intelligently based on capabilities and position.</p>
+                <div class="example">
+                    <strong>Example:</strong> A search-and-rescue swarm with 20 drones discovers a 5-area disaster zone. The system must decide: which drone searches which area? A fast drone near Forest A should search there; the slow drone with thermal imaging should cover the building rubble. Task allocation solves this in real-time as conditions change.
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Adversarial Control</h3>
+                <p>Managing swarm behavior under attacks, jamming, sensor failures, and communication disruptions.</p>
+                <div class="example">
+                    <strong>Example:</strong> Military ISR (Intelligence, Surveillance, Reconnaissance) drones must maintain formation even when adversaries jam communications or GPS. The swarm must continue the mission using only local information and predetermined strategies, like a flock of birds that still maintains shape even when some members can't see the leader.
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Distributed Sensing</h3>
+                <p>Collecting environmental information using the swarm as a distributed sensor network.</p>
+                <div class="example">
+                    <strong>Example:</strong> Measuring atmospheric pollution across a city requires many sensors. Rather than installing expensive ground stations, a swarm of 30 drones can cooperatively map pollution concentration. Each drone measures locally, shares data with neighbors, and collectively builds a 3D pollution map.
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h3>Mapping</h3>
+                <p>Collaboratively creating maps of unknown environments using collective sensor data.</p>
+                <div class="example">
+                    <strong>Example:</strong> After a tsunami, drones can't rely on pre-existing maps. A swarm of 15 drones explores the coast, each recording terrain, debris, and water levels. Working together, they create a unified map showing safe landing zones for rescue helicopters and identifying stranded people.
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Architecture: Centralized vs. Decentralized</h2>
+
+            <div class="analogy">
+                <strong>Festival Analogy:</strong> Imagine organizing a large music festival with thousands of attendees:
+            </div>
+
+            <h3 style="margin-top: 1rem;">Centralized Approach</h3>
+            <p>One control tower tells every attendee where to go, when to move, which stage to watch. <strong>Pros:</strong> Globally optimal decisions. <strong>Cons:</strong> Single point of failure; communication bottleneck; doesn't scale well (try giving 1000 people real-time instructions!).</p>
+
+            <h3>Decentralized Approach</h3>
+            <p>Each attendee follows simple local rules (stay close to friends, move toward stages you like, avoid crowds). <strong>Pros:</strong> Resilient, scalable, robust to failures. <strong>Cons:</strong> May not be globally optimal; emergent behavior can be unpredictable.</p>
+
+            <p style="margin-top: 1rem;">Modern swarm robotics typically uses <strong>hierarchical approaches</strong>: global objectives set centrally, but local coordination is decentralized. This gives you the best of both worlds.</p>
+        </section>
+
+        <section>
+            <h2>Communication Challenges</h2>
+            <p>The survey identifies three critical communication constraints that make swarm robotics difficult:</p>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-value">Limited</div>
+                    <div class="stat-label">Bandwidth</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">Variable</div>
+                    <div class="stat-label">Latency</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">Real</div>
+                    <div class="stat-label">Packet Loss</div>
+                </div>
+            </div>
+
+            <h3>Bandwidth:</h3>
+            <p>A single drone's camera transmits ~100 Mbps. A swarm of 50 drones can't send all video streams to a central station (5 Gbps!). Solution: compress, summarize, send only relevant data.</p>
+
+            <h3>Latency:</h3>
+            <p>Radio communication has delays. Controllers must account for this — a command sent to a drone takes 50ms to arrive; by then the drone has moved. Solution: predict ahead and send "move to X in 100ms" rather than "go now."</p>
+
+            <h3>Packet Loss:</h3>
+            <p>In outdoor environments, some messages fail to reach drones. Solution: design algorithms that work even with partial information, use redundancy, retransmit critical commands.</p>
+        </section>
+
+        <section>
+            <h2>Interactive Distributed Mapping Visualization</h2>
+            <p>Below, watch as 15 drones explore an unknown terrain, revealing hidden obstacles and mapping the environment. Each drone communicates with nearby neighbors (shown as lines).</p>
+
+            <div class="canvas-container">
+                <canvas id="swarmCanvas" width="800" height="600"></canvas>
+                <div class="controls">
+                    <button onclick="resetVisualization()">Reset</button>
+                    <button onclick="addObstacle()">Add Obstacle (+)</button>
+                    <button onclick="addTarget()">Add Target</button>
+                    <button onclick="togglePause()">Pause/Resume</button>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.9rem;">
+                    <span style="color: #5eead4;">●</span> Drones |
+                    <span style="color: #888;">Gray Areas</span> = Unexplored |
+                    <span style="color: #a78bfa;">Lines</span> = Communication |
+                    <span style="color: #ff6b6b;">■</span> = Obstacles |
+                    <span style="color: #ffd700;">★</span> = Target
+                </p>
+            </div>
+        </section>
+
+        <section class="takeaways">
+            <h2>Key Takeaways</h2>
+            <div class="takeaway-item">The five pillars (trajectory, task allocation, adversarial control, sensing, mapping) are deeply interconnected. Solving one often requires advances in others.</div>
+            <div class="takeaway-item">Centralized control is optimal but fragile; decentralized control is robust but suboptimal. Real systems use hybrid hierarchies.</div>
+            <div class="takeaway-item">Communication limitations are fundamental constraints, not just engineering challenges. Algorithms must be designed with realistic communication models.</div>
+            <div class="takeaway-item">Swarm robotics has immediate real-world applications: disaster response, environmental monitoring, precision agriculture, and infrastructure inspection.</div>
+            <div class="takeaway-item">The field requires interdisciplinary expertise: control theory, distributed algorithms, communications, computer vision, and robotics hardware design.</div>
+        </section>
+    </main>
+
+    <footer>
+        © 2025 Sim Vattanac | vattanacsim99@gmail.com
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('swarmCanvas');
+        const ctx = canvas.getContext('2d');
+
+        class Drone {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.explored = false;
+                this.communicationRange = 150;
+            }
+
+            update(obstacles) {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wrap around
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+
+                // Avoid obstacles
+                for (let obs of obstacles) {
+                    const dx = this.x - obs.x;
+                    const dy = this.y - obs.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < obs.r + 30) {
+                        this.vx = (Math.random() - 0.5) * 2;
+                        this.vy = (Math.random() - 0.5) * 2;
+                    }
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = '#5eead4';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#a78bfa';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        let drones = [];
+        let obstacles = [];
+        let targets = [];
+        let isPaused = false;
+
+        function initVisualization() {
+            drones = [];
+            for (let i = 0; i < 15; i++) {
+                drones.push(new Drone(Math.random() * canvas.width, Math.random() * canvas.height));
+            }
+            obstacles = [];
+            targets = [];
+        }
+
+        function addObstacle() {
+            obstacles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: 20 + Math.random() * 20
+            });
+        }
+
+        function addTarget() {
+            targets.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height
+            });
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+        }
+
+        function resetVisualization() {
+            initVisualization();
+        }
+
+        function drawExplorationMap() {
+            ctx.fillStyle = '#1a1c2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = 'rgba(167, 139, 250, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // Draw targets
+            for (let target of targets) {
+                ctx.fillStyle = '#ffd700';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('★', target.x, target.y);
+            }
+
+            // Draw obstacles
+            for (let obs of obstacles) {
+                ctx.fillStyle = '#ff6b6b';
+                ctx.beginPath();
+                ctx.arc(obs.x, obs.y, obs.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw communication links
+            ctx.strokeStyle = 'rgba(167, 139, 250, 0.3)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < drones.length; i++) {
+                for (let j = i + 1; j < drones.length; j++) {
+                    const dx = drones[i].x - drones[j].x;
+                    const dy = drones[i].y - drones[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < drones[i].communicationRange) {
+                        ctx.beginPath();
+                        ctx.moveTo(drones[i].x, drones[i].y);
+                        ctx.lineTo(drones[j].x, drones[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw drones
+            for (let drone of drones) {
+                drone.draw();
+            }
+        }
+
+        function animate() {
+            if (!isPaused) {
+                for (let drone of drones) {
+                    drone.update(obstacles);
+                }
+            }
+
+            drawExplorationMap();
+            requestAnimationFrame(animate);
+        }
+
+        initVisualization();
+        animate();
+    </script>
+</body>
+</html>

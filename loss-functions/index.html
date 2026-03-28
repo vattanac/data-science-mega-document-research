@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loss Functions in Machine Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0b14;
+            --bg-secondary: #12142a;
+            --border: #1e2045;
+            --text-primary: #c8cad8;
+            --text-dim: #6b6e8a;
+            --accent: #a78bfa;
+            --accent2: #5eead4;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(167, 139, 250, 0.05) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: var(--border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--accent2);
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            color: var(--accent2);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(167, 139, 250, 0.1);
+        }
+
+        .callout {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent2);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent2);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .callout.warning {
+            border-left-color: #f97316;
+        }
+
+        .math-block {
+            background: rgba(167, 139, 250, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            border-left: 4px solid var(--accent);
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .pros, .cons {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .pros {
+            background: rgba(94, 234, 212, 0.05);
+            border-left: 4px solid var(--accent2);
+        }
+
+        .cons {
+            background: rgba(249, 115, 22, 0.05);
+            border-left: 4px solid #f97316;
+        }
+
+        .pros h4, .cons h4 {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .pros h4 {
+            color: var(--accent2);
+        }
+
+        .cons h4 {
+            color: #f97316;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: var(--border);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: rgba(167, 139, 250, 0.02);
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(167, 139, 250, 0.08);
+        }
+
+        canvas {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(18, 20, 42, 0.5);
+        }
+
+        .canvas-container {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .slider-group {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .slider-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--accent2);
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--accent2);
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: var(--accent2);
+            transform: scale(1.2);
+        }
+
+        .slider-value {
+            display: inline-block;
+            margin-left: 1rem;
+            color: var(--accent2);
+            font-weight: 600;
+        }
+
+        .loss-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .loss-metric {
+            background: rgba(167, 139, 250, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .loss-metric-name {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .loss-metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent2);
+            font-family: 'Courier New', monospace;
+        }
+
+        .decision-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .decision-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .decision-card h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-size: 1.05rem;
+        }
+
+        .decision-card p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        footer {
+            background: var(--border);
+            border-top: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            margin-top: 3rem;
+        }
+
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        a {
+            color: var(--accent2);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .loss-display {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Loss Functions in Machine Learning</h1>
+        <p>A comprehensive guide to measuring and minimizing prediction errors</p>
+        <div class="tags">
+            <span class="tag">MACHINE LEARNING</span>
+            <span class="tag">OPTIMIZATION</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- Section 1: What Is a Loss Function? -->
+        <section id="introduction">
+            <h2>What Is a Loss Function?</h2>
+
+            <div class="callout">
+                <strong>Definition:</strong> A loss function measures how far a model's predictions are from the actual values. It quantifies the error in a single number, guiding the model to improve.
+            </div>
+
+            <div class="card">
+                <h3>The Core Concept</h3>
+                <p>Machine learning models learn by minimizing a loss function. During training:</p>
+                <ol>
+                    <li><strong>Forward Pass:</strong> Model makes predictions</li>
+                    <li><strong>Loss Calculation:</strong> Loss function computes error</li>
+                    <li><strong>Backward Pass:</strong> Gradients flow to update weights</li>
+                    <li><strong>Iteration:</strong> Process repeats until convergence</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h3>Cost vs. Loss</h3>
+                <p>These terms are often used interchangeably, but there's a subtle difference:</p>
+                <ul>
+                    <li><strong>Loss:</strong> Error for a single sample</li>
+                    <li><strong>Cost:</strong> Average loss across all training samples (entire batch or epoch)</li>
+                </ul>
+                <div class="math-block">
+                    Cost = (1/n) × Σ Loss(y_i, ŷ_i)
+                    <br><br>
+                    where n = number of samples
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Why Minimization Matters</h3>
+                <p>The goal of optimization is to find weights that minimize the loss function. This is typically done using gradient descent, which follows the negative gradient (steepest descent direction) to reach a local or global minimum.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Regression Losses -->
+        <section id="regression">
+            <h2>Regression Losses</h2>
+            <p>Used when predicting continuous values (e.g., house prices, temperature).</p>
+
+            <!-- MSE -->
+            <div class="card">
+                <h3>Mean Squared Error (MSE)</h3>
+                <p>The most common loss function for regression. Squares the errors before averaging, heavily penalizing large mistakes.</p>
+
+                <div class="math-block">
+                    MSE = (1/n) × Σ (y_i - ŷ_i)²
+                    <br><br>
+                    where y = actual value, ŷ = predicted value
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✓ Pros</h4>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Differentiable everywhere</li>
+                            <li>Computationally efficient</li>
+                            <li>Penalizes outliers heavily</li>
+                            <li>Has unique minimum</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>✗ Cons</h4>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Sensitive to outliers</li>
+                            <li>Hard to interpret (squared units)</li>
+                            <li>Not robust to noise</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p><strong>When to use:</strong> Clean datasets without outliers. Best for Gaussian-distributed errors.</p>
+            </div>
+
+            <!-- MAE -->
+            <div class="card">
+                <h3>Mean Absolute Error (MAE)</h3>
+                <p>Takes the absolute value of errors, treating all deviations equally on a linear scale.</p>
+
+                <div class="math-block">
+                    MAE = (1/n) × Σ |y_i - ŷ_i|
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✓ Pros</h4>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Robust to outliers</li>
+                            <li>Easy to interpret (same units)</li>
+                            <li>More stable training</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>✗ Cons</h4>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Not differentiable at zero</li>
+                            <li>Slower convergence</li>
+                            <li>Multiple local minima</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p><strong>When to use:</strong> Data with outliers, or when you need the metric in original units.</p>
+            </div>
+
+            <!-- Huber Loss -->
+            <div class="card">
+                <h3>Huber Loss</h3>
+                <p>A hybrid that combines MSE and MAE, being quadratic for small errors and linear for large ones. Controlled by a delta (δ) parameter.</p>
+
+                <div class="math-block">
+                    Huber(y, ŷ) = {
+                    <br>&nbsp;&nbsp;½(y - ŷ)² &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if |y - ŷ| ≤ δ
+                    <br>&nbsp;&nbsp;δ(|y - ŷ| - ½δ) &nbsp; if |y - ŷ| > δ
+                    <br>}
+                    <br><br>
+                    Lower δ → closer to MAE (robust)
+                    <br>Higher δ → closer to MSE (sensitive)
+                </div>
+
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✓ Pros</h4>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Combines MSE & MAE benefits</li>
+                            <li>Robust to outliers</li>
+                            <li>Smooth gradient</li>
+                            <li>Tunable sensitivity</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>✗ Cons</h4>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Requires tuning δ parameter</li>
+                            <li>Slightly more complex</li>
+                            <li>Less commonly used</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p><strong>When to use:</strong> Real-world data with occasional outliers. Best balance between robustness and convergence speed.</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Classification Losses -->
+        <section id="classification">
+            <h2>Classification Losses</h2>
+            <p>Used when predicting discrete classes (e.g., cat vs. dog, spam vs. not spam).</p>
+
+            <!-- Binary Cross-Entropy -->
+            <div class="card">
+                <h3>Binary Cross-Entropy (Log Loss)</h3>
+                <p>Standard for binary classification. Measures divergence between predicted probability and true label.</p>
+
+                <div class="math-block">
+                    BCE = -(1/n) × Σ [y_i × log(ŷ_i) + (1 - y_i) × log(1 - ŷ_i)]
+                    <br><br>
+                    where y ∈ {0, 1}, ŷ ∈ (0, 1) = predicted probability
+                </div>
+
+                <div class="callout">
+                    <strong>Key insight:</strong> BCE heavily penalizes confident wrong predictions. If y=1 but ŷ=0.1, loss is high. If y=1 and ŷ=0.9, loss is low.
+                </div>
+
+                <p><strong>When to use:</strong> Binary classification problems. Always use with sigmoid activation in output layer.</p>
+            </div>
+
+            <!-- Categorical Cross-Entropy -->
+            <div class="card">
+                <h3>Categorical Cross-Entropy</h3>
+                <p>Extension of binary cross-entropy for multi-class classification. Also called softmax loss.</p>
+
+                <div class="math-block">
+                    CCE = -(1/n) × Σ Σ y_ij × log(ŷ_ij)
+                    <br><br>
+                    where i = sample, j = class
+                    <br>y_ij ∈ one-hot encoding, ŷ_ij ∈ softmax probabilities
+                </div>
+
+                <div class="callout">
+                    <strong>Implementation note:</strong> In practice, use "categorical_crossentropy" with softmax or "sparse_categorical_crossentropy" with integer labels.
+                </div>
+
+                <p><strong>When to use:</strong> Multi-class classification (exactly one class per sample). Always use with softmax activation.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Interactive Loss Visualizer -->
+        <section id="visualizer">
+            <h2>Interactive: Loss Function Visualizer</h2>
+            <p>Adjust the predicted value and watch how different loss functions respond. This shows which losses penalize outliers more.</p>
+
+            <div class="slider-group">
+                <label for="predSlider">
+                    Predicted Value: <span class="slider-value" id="predValue">5.0</span>
+                </label>
+                <input type="range" id="predSlider" min="0" max="10" step="0.1" value="5.0">
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="lossCanvas" width="700" height="400"></canvas>
+            </div>
+
+            <div class="loss-display">
+                <div class="loss-metric">
+                    <div class="loss-metric-name">MSE Loss</div>
+                    <div class="loss-metric-value" id="mseLoss">0.00</div>
+                </div>
+                <div class="loss-metric">
+                    <div class="loss-metric-name">MAE Loss</div>
+                    <div class="loss-metric-value" id="maeLoss">0.00</div>
+                </div>
+                <div class="loss-metric">
+                    <div class="loss-metric-name">Huber Loss (δ=1)</div>
+                    <div class="loss-metric-value" id="huberLoss">0.00</div>
+                </div>
+            </div>
+
+            <div class="callout">
+                <strong>Observation:</strong> Notice how MSE (quadratic) curves up sharply for outliers, while MAE increases linearly. Huber provides a smooth middle ground.
+            </div>
+        </section>
+
+        <!-- Section 5: Loss Landscape & Gradient Descent -->
+        <section id="landscape">
+            <h2>Interactive: Loss Landscape & Gradient Descent</h2>
+            <p>Visualization of how loss changes across two weight parameters. The contour lines show loss values, and the path shows gradient descent iterations.</p>
+
+            <div class="slider-group">
+                <label for="landmarkSlider">
+                    Learning Progress: <span class="slider-value" id="landmarkValue">0%</span>
+                </label>
+                <input type="range" id="landmarkSlider" min="0" max="100" step="5" value="0">
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="landscapeCanvas" width="700" height="600"></canvas>
+            </div>
+
+            <div class="callout warning">
+                <strong>Gradient Descent Path:</strong> Red dots represent the model's weight updates. The path moves toward lower loss (darker regions) by following the negative gradient direction. Each step is determined by the learning rate.
+            </div>
+        </section>
+
+        <!-- Section 6: Choosing the Right Loss -->
+        <section id="choosing">
+            <h2>Choosing the Right Loss Function</h2>
+            <p>A decision guide based on your task type and data characteristics.</p>
+
+            <div class="decision-grid">
+                <div class="decision-card">
+                    <h4>Regression with Clean Data</h4>
+                    <p><strong>Use: MSE</strong> — Simple, efficient, and works well when errors are normally distributed.</p>
+                </div>
+                <div class="decision-card">
+                    <h4>Regression with Outliers</h4>
+                    <p><strong>Use: MAE or Huber</strong> — Robust to extreme values. Huber if you want to keep some MSE benefits.</p>
+                </div>
+                <div class="decision-card">
+                    <h4>Binary Classification</h4>
+                    <p><strong>Use: Binary Cross-Entropy</strong> — Standard choice. Requires sigmoid output activation.</p>
+                </div>
+                <div class="decision-card">
+                    <h4>Multi-class Classification</h4>
+                    <p><strong>Use: Categorical Cross-Entropy</strong> — Industry standard. Requires softmax output activation.</p>
+                </div>
+                <div class="decision-card">
+                    <h4>Imbalanced Classification</h4>
+                    <p><strong>Use: Weighted Cross-Entropy or Focal Loss</strong> — Penalize minority class misclassifications more.</p>
+                </div>
+                <div class="decision-card">
+                    <h4>Ranking/Similarity</h4>
+                    <p><strong>Use: Triplet Loss or Contrastive Loss</strong> — Optimize relative distances between samples.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Custom Loss Functions -->
+        <section id="custom">
+            <h2>Custom Loss Functions</h2>
+
+            <div class="card">
+                <h3>When to Create a Custom Loss</h3>
+                <p>Standard losses don't fit every problem. Consider custom losses when:</p>
+                <ul>
+                    <li><strong>Domain-specific metrics matter:</strong> E.g., in medical imaging, false negatives might be worse than false positives</li>
+                    <li><strong>Multi-objective optimization:</strong> Combine multiple objectives (e.g., accuracy + model size)</li>
+                    <li><strong>Asymmetric costs:</strong> Different penalties for different types of errors</li>
+                    <li><strong>Regularization needs:</strong> Penalize complexity or encourage certain properties</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Example: Weighted Loss</h3>
+                <div class="math-block">
+                    Custom Loss = w₁ × Task1_Loss + w₂ × Task2_Loss + λ × Regularization
+                    <br><br>
+                    This allows you to balance multiple objectives with learnable weights.
+                </div>
+            </div>
+
+            <div class="callout">
+                <strong>Implementation tip:</strong> Ensure your custom loss is differentiable so gradients can flow during backpropagation. Most deep learning frameworks handle automatic differentiation.
+            </div>
+        </section>
+
+        <!-- Section 8: Comparison Table -->
+        <section id="comparison">
+            <h2>Comprehensive Comparison Table</h2>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Loss Function</th>
+                        <th>Task Type</th>
+                        <th>Sensitivity to Outliers</th>
+                        <th>Differentiability</th>
+                        <th>Interpretability</th>
+                        <th>Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>MSE</strong></td>
+                        <td>Regression</td>
+                        <td>High</td>
+                        <td>Everywhere</td>
+                        <td>Low (squared units)</td>
+                        <td>Clean data, Gaussian errors</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MAE</strong></td>
+                        <td>Regression</td>
+                        <td>Low</td>
+                        <td>Not at y-ŷ=0</td>
+                        <td>High (original units)</td>
+                        <td>Robust regression, outliers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Huber</strong></td>
+                        <td>Regression</td>
+                        <td>Medium</td>
+                        <td>Everywhere</td>
+                        <td>Medium</td>
+                        <td>Balance MSE & MAE</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Binary CE</strong></td>
+                        <td>Binary Classification</td>
+                        <td>Medium</td>
+                        <td>Everywhere</td>
+                        <td>High</td>
+                        <td>Binary problems</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Categorical CE</strong></td>
+                        <td>Multi-class</td>
+                        <td>Medium</td>
+                        <td>Everywhere</td>
+                        <td>High</td>
+                        <td>Multi-class problems</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Focal Loss</strong></td>
+                        <td>Classification</td>
+                        <td>Low</td>
+                        <td>Everywhere</td>
+                        <td>Medium</td>
+                        <td>Class imbalance</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Key Takeaways -->
+        <section id="takeaways">
+            <h2>Key Takeaways</h2>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Loss Function = Training Signal</h3>
+                    <p>The loss function guides the model's learning. Choosing the right one is crucial for model performance and convergence speed.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Match Task to Loss</h3>
+                    <p>Use regression losses for continuous outputs, classification losses for discrete classes. Mismatch leads to poor results.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Consider Your Data</h3>
+                    <p>Outliers? Use MAE or Huber. Clean data? MSE is fine. Imbalanced classes? Use weighted or focal loss.</p>
+                </div>
+
+                <div class="card">
+                    <h3>Optimize for Your Metric</h3>
+                    <p>Design loss functions that align with your business metric. Misalignment leads to models that optimize the wrong objective.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 Sim Vattanac</p>
+        <p><a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a></p>
+    </footer>
+
+    <script>
+        // Loss Visualizer
+        const predSlider = document.getElementById('predSlider');
+        const predValue = document.getElementById('predValue');
+        const lossCanvas = document.getElementById('lossCanvas');
+        const ctx = lossCanvas.getContext('2d');
+        const mseLossDisplay = document.getElementById('mseLoss');
+        const maeLossDisplay = document.getElementById('maeLoss');
+        const huberLossDisplay = document.getElementById('huberLoss');
+
+        const actualValue = 5.0;
+        const delta = 1.0; // Huber delta parameter
+
+        function calculateMSE(predicted, actual) {
+            return Math.pow(predicted - actual, 2);
+        }
+
+        function calculateMAE(predicted, actual) {
+            return Math.abs(predicted - actual);
+        }
+
+        function calculateHuber(predicted, actual, delta) {
+            const diff = predicted - actual;
+            if (Math.abs(diff) <= delta) {
+                return 0.5 * diff * diff;
+            } else {
+                return delta * (Math.abs(diff) - 0.5 * delta);
+            }
+        }
+
+        function drawLossPlot() {
+            const padding = 40;
+            const graphWidth = lossCanvas.width - 2 * padding;
+            const graphHeight = lossCanvas.height - 2 * padding;
+
+            // Clear canvas
+            ctx.fillStyle = 'rgba(10, 11, 20, 0.8)';
+            ctx.fillRect(0, 0, lossCanvas.width, lossCanvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = 'rgba(30, 32, 69, 0.5)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const x = padding + (graphWidth / 10) * i;
+                const y = padding + (graphHeight / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, lossCanvas.height - padding);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(lossCanvas.width - padding, y);
+                ctx.stroke();
+            }
+
+            // Draw axes
+            ctx.strokeStyle = '#c8cad8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, lossCanvas.height - padding);
+            ctx.lineTo(lossCanvas.width - padding, lossCanvas.height - padding);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, lossCanvas.height - padding);
+            ctx.stroke();
+
+            // Axis labels
+            ctx.fillStyle = '#c8cad8';
+            ctx.font = '12px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Predicted Value', lossCanvas.width / 2, lossCanvas.height - 10);
+            ctx.save();
+            ctx.translate(10, lossCanvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Loss Value', 0, 0);
+            ctx.restore();
+
+            // Scale information
+            ctx.font = '11px Inter';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 10; i++) {
+                ctx.fillText((i * 1).toFixed(1), padding - 10, lossCanvas.height - padding - (graphHeight / 10) * i + 4);
+            }
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 10; i++) {
+                ctx.fillText((i).toFixed(0), padding + (graphWidth / 10) * i, lossCanvas.height - padding + 20);
+            }
+
+            // Draw loss curves
+            const xScale = graphWidth / 10;
+            const maxLoss = 15;
+            const yScale = graphHeight / maxLoss;
+
+            const drawCurve = (color, lossFunc) => {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+
+                for (let x = 0; x <= 10; x += 0.05) {
+                    const loss = lossFunc(x, actualValue);
+                    const canvasX = padding + x * xScale;
+                    const canvasY = lossCanvas.height - padding - Math.min(loss, maxLoss) * yScale;
+
+                    if (x === 0) {
+                        ctx.moveTo(canvasX, canvasY);
+                    } else {
+                        ctx.lineTo(canvasX, canvasY);
+                    }
+                }
+                ctx.stroke();
+            };
+
+            // Draw curves for each loss function
+            drawCurve('#a78bfa', calculateMSE);    // Purple for MSE
+            drawCurve('#5eead4', calculateMAE);    // Teal for MAE
+            drawCurve('#f97316', (p, a) => calculateHuber(p, a, delta)); // Orange for Huber
+
+            // Draw actual value line
+            ctx.strokeStyle = '#6b6e8a';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            const actualX = padding + actualValue * xScale;
+            ctx.beginPath();
+            ctx.moveTo(actualX, padding);
+            ctx.lineTo(actualX, lossCanvas.height - padding);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw predicted value point
+            const predictedVal = parseFloat(predSlider.value);
+            const predictedX = padding + predictedVal * xScale;
+
+            // Draw vertical line for predicted
+            ctx.strokeStyle = 'rgba(200, 202, 216, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(predictedX, padding);
+            ctx.lineTo(predictedX, lossCanvas.height - padding);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Mark actual and predicted points
+            ctx.fillStyle = '#6b6e8a';
+            ctx.font = 'bold 11px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Actual', actualX, padding - 10);
+
+            // Legend
+            const legendX = padding + 20;
+            let legendY = padding + 20;
+
+            const drawLegendItem = (color, label) => {
+                ctx.fillStyle = color;
+                ctx.fillRect(legendX, legendY - 6, 12, 12);
+                ctx.fillStyle = '#c8cad8';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'left';
+                ctx.fillText(label, legendX + 20, legendY);
+                legendY += 20;
+            };
+
+            drawLegendItem('#a78bfa', 'MSE');
+            drawLegendItem('#5eead4', 'MAE');
+            drawLegendItem('#f97316', 'Huber');
+        }
+
+        function updateLossValues() {
+            const predicted = parseFloat(predSlider.value);
+            const mse = calculateMSE(predicted, actualValue);
+            const mae = calculateMAE(predicted, actualValue);
+            const huber = calculateHuber(predicted, actualValue, delta);
+
+            predValue.textContent = predicted.toFixed(1);
+            mseLossDisplay.textContent = mse.toFixed(4);
+            maeLossDisplay.textContent = mae.toFixed(4);
+            huberLossDisplay.textContent = huber.toFixed(4);
+
+            drawLossPlot();
+        }
+
+        predSlider.addEventListener('input', updateLossValues);
+        updateLossValues();
+
+        // Loss Landscape Visualization
+        const landmarkSlider = document.getElementById('landmarkSlider');
+        const landmarkValue = document.getElementById('landmarkValue');
+        const landscapeCanvas = document.getElementById('landscapeCanvas');
+        const landscapeCtx = landscapeCanvas.getContext('2d');
+
+        function generateGradientDescentPath() {
+            const path = [];
+            let w1 = -2;
+            let w2 = -2;
+            const learningRate = 0.1;
+
+            // Simulate gradient descent
+            for (let i = 0; i <= 20; i++) {
+                path.push({ w1, w2, loss: calculateLandscapeLoss(w1, w2) });
+
+                // Simple gradient computation (finite differences)
+                const epsilon = 0.01;
+                const dw1 = (calculateLandscapeLoss(w1 + epsilon, w2) - calculateLandscapeLoss(w1 - epsilon, w2)) / (2 * epsilon);
+                const dw2 = (calculateLandscapeLoss(w1, w2 + epsilon) - calculateLandscapeLoss(w1, w2 - epsilon)) / (2 * epsilon);
+
+                w1 -= learningRate * dw1;
+                w2 -= learningRate * dw2;
+            }
+
+            return path;
+        }
+
+        function calculateLandscapeLoss(w1, w2) {
+            // Paraboloid loss landscape
+            return w1 * w1 + 2 * w2 * w2 - 0.5 * w1 + 0.3 * w2 + 1;
+        }
+
+        const gdPath = generateGradientDescentPath();
+
+        function drawLossLandscape() {
+            const padding = 50;
+            const graphSize = landscapeCanvas.width - 2 * padding;
+            const w1Range = 3;
+            const w2Range = 2.5;
+
+            // Clear canvas
+            landscapeCtx.fillStyle = 'rgba(10, 11, 20, 0.8)';
+            landscapeCtx.fillRect(0, 0, landscapeCanvas.width, landscapeCanvas.height);
+
+            // Draw contour plot
+            const resolution = 20;
+            const cellSize = graphSize / resolution;
+
+            for (let i = 0; i < resolution; i++) {
+                for (let j = 0; j < resolution; j++) {
+                    const w1 = -w1Range + (i / resolution) * (2 * w1Range);
+                    const w2 = -w2Range + (j / resolution) * (2 * w2Range);
+                    const loss = calculateLandscapeLoss(w1, w2);
+
+                    // Normalize loss for color (0 to 1)
+                    const normalizedLoss = Math.min(loss / 5, 1);
+
+                    // Color gradient from dark to bright
+                    const hue = (1 - normalizedLoss) * 240; // 240 = blue, 0 = red
+                    landscapeCtx.fillStyle = `hsl(${hue}, 70%, 40%)`;
+                    landscapeCtx.fillRect(
+                        padding + i * cellSize,
+                        padding + j * cellSize,
+                        cellSize,
+                        cellSize
+                    );
+                }
+            }
+
+            // Draw contour lines
+            landscapeCtx.strokeStyle = 'rgba(107, 110, 138, 0.3)';
+            landscapeCtx.lineWidth = 1;
+            for (let level = 0.5; level <= 5; level += 0.5) {
+                const points = [];
+                for (let angle = 0; angle < Math.PI * 2; angle += 0.1) {
+                    // Approximate contour for visualization
+                    const scale = Math.sqrt(level / 3);
+                    const w1 = scale * Math.cos(angle) * 0.8;
+                    const w2 = scale * Math.sin(angle) * 0.6;
+                    const x = padding + ((w1 + w1Range) / (2 * w1Range)) * graphSize;
+                    const y = padding + ((w2 + w2Range) / (2 * w2Range)) * graphSize;
+                    points.push({ x, y });
+                }
+
+                landscapeCtx.beginPath();
+                landscapeCtx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    landscapeCtx.lineTo(points[i].x, points[i].y);
+                }
+                landscapeCtx.closePath();
+                landscapeCtx.stroke();
+            }
+
+            // Draw gradient descent path
+            const progress = parseInt(landmarkSlider.value) / 100;
+            const pathLength = Math.ceil(gdPath.length * progress);
+
+            if (pathLength > 0) {
+                // Draw path line
+                landscapeCtx.strokeStyle = 'rgba(200, 202, 216, 0.3)';
+                landscapeCtx.lineWidth = 1;
+                landscapeCtx.beginPath();
+
+                for (let i = 0; i < pathLength; i++) {
+                    const point = gdPath[i];
+                    const x = padding + ((point.w1 + w1Range) / (2 * w1Range)) * graphSize;
+                    const y = padding + ((point.w2 + w2Range) / (2 * w2Range)) * graphSize;
+
+                    if (i === 0) {
+                        landscapeCtx.moveTo(x, y);
+                    } else {
+                        landscapeCtx.lineTo(x, y);
+                    }
+                }
+                landscapeCtx.stroke();
+
+                // Draw path points
+                for (let i = 0; i < pathLength; i += 2) {
+                    const point = gdPath[i];
+                    const x = padding + ((point.w1 + w1Range) / (2 * w1Range)) * graphSize;
+                    const y = padding + ((point.w2 + w2Range) / (2 * w2Range)) * graphSize;
+
+                    landscapeCtx.fillStyle = i === pathLength - 1 ? '#5eead4' : '#ef4444';
+                    landscapeCtx.beginPath();
+                    landscapeCtx.arc(x, y, 5, 0, Math.PI * 2);
+                    landscapeCtx.fill();
+
+                    // Draw border
+                    landscapeCtx.strokeStyle = '#c8cad8';
+                    landscapeCtx.lineWidth = 2;
+                    landscapeCtx.stroke();
+                }
+            }
+
+            // Draw axes
+            landscapeCtx.strokeStyle = '#c8cad8';
+            landscapeCtx.lineWidth = 2;
+            landscapeCtx.beginPath();
+            landscapeCtx.moveTo(padding, landscapeCanvas.height - padding);
+            landscapeCtx.lineTo(landscapeCanvas.width - padding, landscapeCanvas.height - padding);
+            landscapeCtx.stroke();
+            landscapeCtx.beginPath();
+            landscapeCtx.moveTo(padding, padding);
+            landscapeCtx.lineTo(padding, landscapeCanvas.height - padding);
+            landscapeCtx.stroke();
+
+            // Axis labels
+            landscapeCtx.fillStyle = '#c8cad8';
+            landscapeCtx.font = '13px Inter';
+            landscapeCtx.textAlign = 'center';
+            landscapeCtx.fillText('Weight 1 (w₁)', landscapeCanvas.width / 2, landscapeCanvas.height - 10);
+            landscapeCtx.save();
+            landscapeCtx.translate(15, landscapeCanvas.height / 2);
+            landscapeCtx.rotate(-Math.PI / 2);
+            landscapeCtx.fillText('Weight 2 (w₂)', 0, 0);
+            landscapeCtx.restore();
+
+            // Scale labels
+            landscapeCtx.font = '11px Inter';
+            landscapeCtx.textAlign = 'right';
+            landscapeCtx.fillStyle = '#6b6e8a';
+            for (let i = 0; i <= 3; i++) {
+                const w2Val = -w2Range + (i / 3) * (2 * w2Range);
+                landscapeCtx.fillText(w2Val.toFixed(1), padding - 10, landscapeCanvas.height - padding - (i / 3) * graphSize + 4);
+            }
+            landscapeCtx.textAlign = 'center';
+            for (let i = 0; i <= 3; i++) {
+                const w1Val = -w1Range + (i / 3) * (2 * w1Range);
+                landscapeCtx.fillText(w1Val.toFixed(1), padding + (i / 3) * graphSize, landscapeCanvas.height - padding + 20);
+            }
+
+            // Legend
+            landscapeCtx.fillStyle = '#ef4444';
+            landscapeCtx.fillRect(landscapeCanvas.width - 150, padding + 10, 12, 12);
+            landscapeCtx.fillStyle = '#c8cad8';
+            landscapeCtx.font = '12px Inter';
+            landscapeCtx.textAlign = 'left';
+            landscapeCtx.fillText('Gradient Descent Steps', landscapeCanvas.width - 135, padding + 20);
+
+            landscapeCtx.fillStyle = '#5eead4';
+            landscapeCtx.fillRect(landscapeCanvas.width - 150, padding + 35, 12, 12);
+            landscapeCtx.fillStyle = '#c8cad8';
+            landscapeCtx.fillText('Current Position', landscapeCanvas.width - 135, padding + 45);
+        }
+
+        landmarkSlider.addEventListener('input', () => {
+            landmarkValue.textContent = landmarkSlider.value + '%';
+            drawLossLandscape();
+        });
+
+        drawLossLandscape();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            updateLossValues();
+            drawLossLandscape();
+        });
+    </script>
+</body>
+</html>

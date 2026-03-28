@@ -1,9 +1,41 @@
 {
   "generated": true,
+  "categories": [
+    "Statistics & Probability",
+    "Linear Algebra",
+    "Machine Learning",
+    "Deep Learning",
+    "Data Processing",
+    "Drone Research",
+    "Swarm Drone Research"
+  ],
   "root": {
     "name": "data-science-mega-document-research",
     "type": "folder",
     "children": [
+      {
+        "name": "activation-functions",
+        "type": "folder",
+        "children": [
+          {
+            "name": "activation_functions_guide.docx",
+            "displayName": "activation_functions_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9704,
+            "path": "activation-functions/activation_functions_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "activation-functions",
+            "type": "file",
+            "ext": "html",
+            "size": 53484,
+            "path": "activation-functions/index.html"
+          }
+        ],
+        "category": "Deep Learning"
+      },
       {
         "name": "bayes-theorem",
         "type": "folder",
@@ -24,7 +56,8 @@
             "size": 36568,
             "path": "bayes-theorem/index.html"
           }
-        ]
+        ],
+        "category": "Statistics & Probability"
       },
       {
         "name": "bias-variance-tradeoff",
@@ -46,7 +79,8 @@
             "size": 36073,
             "path": "bias-variance-tradeoff/index.html"
           }
-        ]
+        ],
+        "category": "Machine Learning"
       },
       {
         "name": "confusion-matrix-and-metrics",
@@ -68,7 +102,8 @@
             "size": 51111,
             "path": "confusion-matrix-and-metrics/index.html"
           }
-        ]
+        ],
+        "category": "Machine Learning"
       },
       {
         "name": "correlation-vs-causation",
@@ -90,7 +125,8 @@
             "size": 37941,
             "path": "correlation-vs-causation/index.html"
           }
-        ]
+        ],
+        "category": "Statistics & Probability"
       },
       {
         "name": "cross-validation",
@@ -112,7 +148,8 @@
             "size": 51610,
             "path": "cross-validation/index.html"
           }
-        ]
+        ],
+        "category": "Machine Learning"
       },
       {
         "name": "decision-trees-and-random-forest",
@@ -134,7 +171,31 @@
             "size": 39482,
             "path": "decision-trees-and-random-forest/index.html"
           }
-        ]
+        ],
+        "category": "Machine Learning"
+      },
+      {
+        "name": "dot-product-and-cosine-similarity",
+        "type": "folder",
+        "children": [
+          {
+            "name": "dot_product_cosine_similarity_guide.docx",
+            "displayName": "dot_product_cosine_similarity_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9695,
+            "path": "dot-product-and-cosine-similarity/dot_product_cosine_similarity_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "dot-product-and-cosine-similarity",
+            "type": "file",
+            "ext": "html",
+            "size": 36797,
+            "path": "dot-product-and-cosine-similarity/index.html"
+          }
+        ],
+        "category": "Linear Algebra"
       },
       {
         "name": "drone-top20-research-topic",
@@ -148,7 +209,8 @@
             "size": 83002,
             "path": "drone-top20-research-topic/index.html"
           }
-        ]
+        ],
+        "category": "Drone Research"
       },
       {
         "name": "eckart-young-the-closest-rank-k-matrix-to-A",
@@ -170,7 +232,8 @@
             "size": 14934,
             "path": "eckart-young-the-closest-rank-k-matrix-to-A/MIT_PCA_Lecture_Notes.docx"
           }
-        ]
+        ],
+        "category": "Linear Algebra"
       },
       {
         "name": "expected-value-vs-mean",
@@ -192,7 +255,31 @@
             "size": 32947,
             "path": "expected-value-vs-mean/index.html"
           }
-        ]
+        ],
+        "category": "Statistics & Probability"
+      },
+      {
+        "name": "feature-scaling",
+        "type": "folder",
+        "children": [
+          {
+            "name": "feature_scaling_guide.docx",
+            "displayName": "feature_scaling_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9754,
+            "path": "feature-scaling/feature_scaling_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "feature-scaling",
+            "type": "file",
+            "ext": "html",
+            "size": 36617,
+            "path": "feature-scaling/index.html"
+          }
+        ],
+        "category": "Data Processing"
       },
       {
         "name": "gradient-descent-react",
@@ -207,7 +294,8 @@
             "path": "gradient-descent-react/index.html",
             "externalUrl": "https://gradient-descent-saas.netlify.app"
           }
-        ]
+        ],
+        "category": "Machine Learning"
       },
       {
         "name": "gradient-descent-saas",
@@ -221,7 +309,31 @@
             "size": 92824,
             "path": "gradient-descent-saas/index.html"
           }
-        ]
+        ],
+        "category": "Machine Learning"
+      },
+      {
+        "name": "handling-missing-data",
+        "type": "folder",
+        "children": [
+          {
+            "name": "handling_missing_data_guide.docx",
+            "displayName": "handling_missing_data_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10004,
+            "path": "handling-missing-data/handling_missing_data_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "handling-missing-data",
+            "type": "file",
+            "ext": "html",
+            "size": 63946,
+            "path": "handling-missing-data/index.html"
+          }
+        ],
+        "category": "Data Processing"
       },
       {
         "name": "hypothesis-testing",
@@ -243,7 +355,8 @@
             "size": 35830,
             "path": "hypothesis-testing/index.html"
           }
-        ]
+        ],
+        "category": "Statistics & Probability"
       },
       {
         "name": "k-means-clustering",
@@ -265,7 +378,8 @@
             "size": 9835,
             "path": "k-means-clustering/k_means_clustering_guide.docx"
           }
-        ]
+        ],
+        "category": "Machine Learning"
       },
       {
         "name": "kdd_process",
@@ -287,7 +401,77 @@
             "size": 21352,
             "path": "kdd_process/KDD_Process_DataMining.docx"
           }
-        ]
+        ],
+        "category": "Statistics & Probability"
+      },
+      {
+        "name": "loss-functions",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "loss-functions",
+            "type": "file",
+            "ext": "html",
+            "size": 44620,
+            "path": "loss-functions/index.html"
+          },
+          {
+            "name": "loss_functions_guide.docx",
+            "displayName": "loss_functions_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9644,
+            "path": "loss-functions/loss_functions_guide.docx"
+          }
+        ],
+        "category": "Deep Learning"
+      },
+      {
+        "name": "matrix-transformations",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "matrix-transformations",
+            "type": "file",
+            "ext": "html",
+            "size": 51373,
+            "path": "matrix-transformations/index.html"
+          },
+          {
+            "name": "matrix_transformations_guide.docx",
+            "displayName": "matrix_transformations_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9864,
+            "path": "matrix-transformations/matrix_transformations_guide.docx"
+          }
+        ],
+        "category": "Linear Algebra"
+      },
+      {
+        "name": "neural-network-backpropagation",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "neural-network-backpropagation",
+            "type": "file",
+            "ext": "html",
+            "size": 47571,
+            "path": "neural-network-backpropagation/index.html"
+          },
+          {
+            "name": "neural_network_backpropagation_guide.docx",
+            "displayName": "neural_network_backpropagation_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9826,
+            "path": "neural-network-backpropagation/neural_network_backpropagation_guide.docx"
+          }
+        ],
+        "category": "Deep Learning"
       },
       {
         "name": "normal-distribution-and-clt",
@@ -309,7 +493,8 @@
             "size": 10302,
             "path": "normal-distribution-and-clt/normal_distribution_clt_guide.docx"
           }
-        ]
+        ],
+        "category": "Statistics & Probability"
       },
       {
         "name": "Regression-Models-Explained",
@@ -323,7 +508,8 @@
             "size": 36978,
             "path": "Regression-Models-Explained/regression_lesson.html"
           }
-        ]
+        ],
+        "category": "Machine Learning"
       },
       {
         "name": "singular-value-decomposition(svd)",
@@ -345,7 +531,318 @@
             "size": 14982,
             "path": "singular-value-decomposition(svd)/SVD_Lecture_MIT18065.docx"
           }
-        ]
+        ],
+        "category": "Linear Algebra"
+      },
+      {
+        "name": "swarm-drone-01-reynolds-boids",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-01-reynolds-boids",
+            "type": "file",
+            "ext": "html",
+            "size": 21023,
+            "path": "swarm-drone-01-reynolds-boids/index.html"
+          },
+          {
+            "name": "original_paper.html",
+            "displayName": "original_paper.html",
+            "type": "file",
+            "ext": "html",
+            "size": 1523,
+            "path": "swarm-drone-01-reynolds-boids/original_paper.html"
+          },
+          {
+            "name": "reynolds_boids_guide.docx",
+            "displayName": "reynolds_boids_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10547,
+            "path": "swarm-drone-01-reynolds-boids/reynolds_boids_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
+        "name": "swarm-drone-02-olfati-saber-flocking",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-02-olfati-saber-flocking",
+            "type": "file",
+            "ext": "html",
+            "size": 23212,
+            "path": "swarm-drone-02-olfati-saber-flocking/index.html"
+          },
+          {
+            "name": "olfati_saber_flocking_guide.docx",
+            "displayName": "olfati_saber_flocking_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10519,
+            "path": "swarm-drone-02-olfati-saber-flocking/olfati_saber_flocking_guide.docx"
+          },
+          {
+            "name": "original_paper.html",
+            "displayName": "original_paper.html",
+            "type": "file",
+            "ext": "html",
+            "size": 1516,
+            "path": "swarm-drone-02-olfati-saber-flocking/original_paper.html"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
+        "name": "swarm-drone-03-kennedy-pso",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-03-kennedy-pso",
+            "type": "file",
+            "ext": "html",
+            "size": 24077,
+            "path": "swarm-drone-03-kennedy-pso/index.html"
+          },
+          {
+            "name": "kennedy_pso_guide.docx",
+            "displayName": "kennedy_pso_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10643,
+            "path": "swarm-drone-03-kennedy-pso/kennedy_pso_guide.docx"
+          },
+          {
+            "name": "original_paper.html",
+            "displayName": "original_paper.html",
+            "type": "file",
+            "ext": "html",
+            "size": 1461,
+            "path": "swarm-drone-03-kennedy-pso/original_paper.html"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
+        "name": "swarm-drone-04-dorigo-ant-colony",
+        "type": "folder",
+        "children": [
+          {
+            "name": "dorigo_ant_colony_guide.docx",
+            "displayName": "dorigo_ant_colony_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10667,
+            "path": "swarm-drone-04-dorigo-ant-colony/dorigo_ant_colony_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-04-dorigo-ant-colony",
+            "type": "file",
+            "ext": "html",
+            "size": 23054,
+            "path": "swarm-drone-04-dorigo-ant-colony/index.html"
+          },
+          {
+            "name": "original_paper.html",
+            "displayName": "original_paper.html",
+            "type": "file",
+            "ext": "html",
+            "size": 1457,
+            "path": "swarm-drone-04-dorigo-ant-colony/original_paper.html"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
+        "name": "swarm-drone-05-brambilla-swarm-robotics",
+        "type": "folder",
+        "children": [
+          {
+            "name": "brambilla_swarm_robotics_guide.docx",
+            "displayName": "brambilla_swarm_robotics_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10578,
+            "path": "swarm-drone-05-brambilla-swarm-robotics/brambilla_swarm_robotics_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-05-brambilla-swarm-robotics",
+            "type": "file",
+            "ext": "html",
+            "size": 25951,
+            "path": "swarm-drone-05-brambilla-swarm-robotics/index.html"
+          },
+          {
+            "name": "original_paper.html",
+            "displayName": "original_paper.html",
+            "type": "file",
+            "ext": "html",
+            "size": 1563,
+            "path": "swarm-drone-05-brambilla-swarm-robotics/original_paper.html"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
+        "name": "swarm-drone-06-chung-aerial-swarm-survey",
+        "type": "folder",
+        "children": [
+          {
+            "name": "chung_aerial_swarm_guide.docx",
+            "displayName": "chung_aerial_swarm_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10674,
+            "path": "swarm-drone-06-chung-aerial-swarm-survey/chung_aerial_swarm_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-06-chung-aerial-swarm-survey",
+            "type": "file",
+            "ext": "html",
+            "size": 21082,
+            "path": "swarm-drone-06-chung-aerial-swarm-survey/index.html"
+          },
+          {
+            "name": "original_paper.html",
+            "displayName": "original_paper.html",
+            "type": "file",
+            "ext": "html",
+            "size": 1505,
+            "path": "swarm-drone-06-chung-aerial-swarm-survey/original_paper.html"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
+        "name": "swarm-drone-07-vasarhelyi-optimized-flocking",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-07-vasarhelyi-optimized-flocking",
+            "type": "file",
+            "ext": "html",
+            "size": 26755,
+            "path": "swarm-drone-07-vasarhelyi-optimized-flocking/index.html"
+          },
+          {
+            "name": "original_paper.html",
+            "displayName": "original_paper.html",
+            "type": "file",
+            "ext": "html",
+            "size": 1586,
+            "path": "swarm-drone-07-vasarhelyi-optimized-flocking/original_paper.html"
+          },
+          {
+            "name": "vasarhelyi_optimized_flocking_guide.docx",
+            "displayName": "vasarhelyi_optimized_flocking_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10645,
+            "path": "swarm-drone-07-vasarhelyi-optimized-flocking/vasarhelyi_optimized_flocking_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
+        "name": "swarm-drone-08-preiss-crazyswarm",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-08-preiss-crazyswarm",
+            "type": "file",
+            "ext": "html",
+            "size": 25169,
+            "path": "swarm-drone-08-preiss-crazyswarm/index.html"
+          },
+          {
+            "name": "original_paper.html",
+            "displayName": "original_paper.html",
+            "type": "file",
+            "ext": "html",
+            "size": 1531,
+            "path": "swarm-drone-08-preiss-crazyswarm/original_paper.html"
+          },
+          {
+            "name": "preiss_crazyswarm_guide.docx",
+            "displayName": "preiss_crazyswarm_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10523,
+            "path": "swarm-drone-08-preiss-crazyswarm/preiss_crazyswarm_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
+        "name": "swarm-drone-09-zhou-micro-flying-robots",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-09-zhou-micro-flying-robots",
+            "type": "file",
+            "ext": "html",
+            "size": 26846,
+            "path": "swarm-drone-09-zhou-micro-flying-robots/index.html"
+          },
+          {
+            "name": "original_paper.html",
+            "displayName": "original_paper.html",
+            "type": "file",
+            "ext": "html",
+            "size": 1570,
+            "path": "swarm-drone-09-zhou-micro-flying-robots/original_paper.html"
+          },
+          {
+            "name": "zhou_micro_flying_robots_guide.docx",
+            "displayName": "zhou_micro_flying_robots_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10622,
+            "path": "swarm-drone-09-zhou-micro-flying-robots/zhou_micro_flying_robots_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
+        "name": "swarm-drone-10-schilling-vision-swarm",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-10-schilling-vision-swarm",
+            "type": "file",
+            "ext": "html",
+            "size": 29516,
+            "path": "swarm-drone-10-schilling-vision-swarm/index.html"
+          },
+          {
+            "name": "original_paper.html",
+            "displayName": "original_paper.html",
+            "type": "file",
+            "ext": "html",
+            "size": 1511,
+            "path": "swarm-drone-10-schilling-vision-swarm/original_paper.html"
+          },
+          {
+            "name": "schilling_vision_swarm_guide.docx",
+            "displayName": "schilling_vision_swarm_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 10790,
+            "path": "swarm-drone-10-schilling-vision-swarm/schilling_vision_swarm_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
       },
       {
         "name": "variance-and-standard-deviation",
@@ -367,7 +864,8 @@
             "size": 15943,
             "path": "variance-and-standard-deviation/variance_std_deviation_guide.docx"
           }
-        ]
+        ],
+        "category": "Statistics & Probability"
       },
       {
         "name": "why_start_with_iris",
@@ -389,7 +887,8 @@
             "size": 16425,
             "path": "why_start_with_iris/iris_dataset_guide.docx"
           }
-        ]
+        ],
+        "category": "Statistics & Probability"
       }
     ]
   }
