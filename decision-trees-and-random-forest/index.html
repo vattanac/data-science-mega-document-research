@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Trees & Random Forest - Machine Learning Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0b14;
+            color: #c8cad8;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #12142a 0%, #1a1d3a 100%);
+            border-bottom: 1px solid #1e2045;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            display: inline-block;
+            background: rgba(167, 139, 250, 0.15);
+            color: #a78bfa;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid rgba(167, 139, 250, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #a78bfa;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            color: #a78bfa;
+            border-left: 4px solid #5eead4;
+            padding-left: 1rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #a78bfa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .card {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card p {
+            margin-bottom: 1rem;
+            color: #c8cad8;
+        }
+
+        .card ul, .card ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card li {
+            margin-bottom: 0.5rem;
+            color: #c8cad8;
+        }
+
+        .callout {
+            background: rgba(167, 139, 250, 0.08);
+            border-left: 4px solid #a78bfa;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            color: #c8cad8;
+        }
+
+        .math {
+            background: rgba(94, 234, 212, 0.08);
+            border: 1px solid rgba(94, 234, 212, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            color: #5eead4;
+        }
+
+        code {
+            background: rgba(107, 110, 138, 0.3);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #5eead4;
+        }
+
+        .interactive-section {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .interactive-section h3 {
+            color: #a78bfa;
+            margin-bottom: 1.5rem;
+        }
+
+        canvas {
+            background: #1a1d3a;
+            border: 1px solid #1e2045;
+            border-radius: 8px;
+            display: block;
+            margin-bottom: 1rem;
+            cursor: crosshair;
+        }
+
+        button {
+            background: #a78bfa;
+            color: #0a0b14;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #5eead4;
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .info-box {
+            background: rgba(94, 234, 212, 0.1);
+            border: 1px solid rgba(94, 234, 212, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            color: #c8cad8;
+        }
+
+        .legend {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .feature-importance {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(167, 139, 250, 0.08);
+            border-radius: 8px;
+        }
+
+        .importance-bar {
+            height: 20px;
+            background: linear-gradient(90deg, #a78bfa, #5eead4);
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .dim {
+            color: #6b6e8a;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #6b6e8a;
+            border-top: 1px solid #1e2045;
+            margin-top: 3rem;
+        }
+
+        .subsection-title {
+            color: #5eead4;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .split-visualization {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .split-item {
+            background: rgba(167, 139, 250, 0.08);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(167, 139, 250, 0.2);
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat-value {
+            color: #5eead4;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="tags">
+            <span class="tag">MACHINE LEARNING</span>
+            <span class="tag">CLASSIFICATION</span>
+        </div>
+        <h1>Decision Trees & Random Forest</h1>
+        <p>A comprehensive guide to tree-based machine learning models</p>
+    </header>
+
+    <div class="container">
+        <!-- Section 1: What is a Decision Tree -->
+        <section>
+            <h2>What Is a Decision Tree?</h2>
+            <div class="card">
+                <p>A <strong>Decision Tree</strong> is a supervised learning algorithm that makes decisions by recursively splitting data into subsets based on feature values. It's one of the most interpretable and widely-used machine learning models.</p>
+
+                <h3>Key Components</h3>
+                <ul>
+                    <li><strong>Root Node:</strong> The top node containing all training data</li>
+                    <li><strong>Internal Nodes:</strong> Decision nodes that split data based on feature thresholds</li>
+                    <li><strong>Leaves:</strong> Terminal nodes that contain class predictions (classification) or continuous values (regression)</li>
+                    <li><strong>Branches:</strong> Connections representing the outcomes of splits</li>
+                </ul>
+
+                <h3>Classification vs Regression</h3>
+                <div class="split-visualization">
+                    <div class="split-item">
+                        <div class="subsection-title">Classification Trees</div>
+                        <p>Predict discrete class labels (e.g., spam/not spam, cat/dog/bird)</p>
+                        <p class="dim">Uses metrics like Gini Impurity or Entropy to measure purity of splits</p>
+                    </div>
+                    <div class="split-item">
+                        <div class="subsection-title">Regression Trees</div>
+                        <p>Predict continuous numerical values (e.g., house prices, temperature)</p>
+                        <p class="dim">Uses Mean Squared Error (MSE) to minimize prediction variance</p>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <strong>Why Decision Trees?</strong> They're highly interpretable, require minimal data preprocessing, handle both numerical and categorical features, and naturally capture non-linear relationships without feature scaling.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: How Splitting Works -->
+        <section>
+            <h2>How Splitting Works</h2>
+            <div class="card">
+                <p>The core of decision tree learning is finding the best splits that separate data by class. Two main metrics guide this process:</p>
+
+                <h3>Gini Impurity</h3>
+                <p>Measures the probability of incorrectly classifying a randomly chosen element if labeled according to the distribution of classes in the node.</p>
+
+                <div class="math">
+Gini = 1 - Σ(p_i)²
+
+where p_i is the proportion of class i in the node
+
+Example: If a node has 10 samples (6 class A, 4 class B):
+Gini = 1 - (0.6² + 0.4²) = 1 - (0.36 + 0.16) = 0.48
+                </div>
+
+                <h3>Information Gain & Entropy</h3>
+                <p>Information Gain measures how much a split reduces entropy (disorder) in the data.</p>
+
+                <div class="math">
+Entropy = -Σ(p_i × log₂(p_i))
+
+where p_i is the proportion of class i
+
+Information Gain = Entropy(parent) - Σ(weight × Entropy(child))
+                </div>
+
+                <p>The algorithm chooses the split that maximizes Information Gain or minimizes Gini impurity across child nodes.</p>
+
+                <div class="callout">
+                    <strong>Greedy Algorithm:</strong> Trees use a greedy approach—at each node, they select the feature and threshold that best improves purity, without guaranteeing a globally optimal tree. This makes the algorithm computationally efficient but potentially suboptimal.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Interactive Build a Decision Tree -->
+        <section>
+            <div class="interactive-section">
+                <h3>Interactive: Build a Decision Tree</h3>
+                <p style="margin-bottom: 1rem;">Click on the canvas to add data points (left click = Class A in purple, right click = Class B in cyan). Then click "Build Tree" to visualize how the algorithm splits the data.</p>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #a78bfa;"></div>
+                        <span>Class A (Left Click)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #5eead4;"></div>
+                        <span>Class B (Right Click)</span>
+                    </div>
+                </div>
+
+                <canvas id="treeCanvas" width="600" height="400"></canvas>
+
+                <div class="button-group">
+                    <button onclick="buildTree()">Build Tree</button>
+                    <button onclick="clearCanvas()">Clear</button>
+                    <button onclick="randomData()">Random Data</button>
+                </div>
+
+                <div id="treeStats" class="info-box" style="display: none;">
+                    <strong>Tree Statistics:</strong>
+                    <div class="stat">
+                        <span>Data Points:</span>
+                        <span class="stat-value" id="pointCount">0</span>
+                    </div>
+                    <div class="stat">
+                        <span>Tree Depth:</span>
+                        <span class="stat-value" id="treeDepth">0</span>
+                    </div>
+                    <div class="stat">
+                        <span>Training Accuracy:</span>
+                        <span class="stat-value" id="treeAccuracy">0%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Overfitting & Pruning -->
+        <section>
+            <h2>Overfitting & Pruning</h2>
+            <div class="card">
+                <p>Decision trees are prone to overfitting—growing too complex and memorizing the training data rather than learning generalizable patterns. Two strategies prevent this:</p>
+
+                <h3>Pre-Pruning (Early Stopping)</h3>
+                <p>Stop tree growth before it becomes too complex by setting constraints:</p>
+                <ul>
+                    <li><strong>Max Depth:</strong> Limit how deep the tree can grow (e.g., max_depth=5)</li>
+                    <li><strong>Min Samples Split:</strong> Require a minimum number of samples to split a node (e.g., min_samples_split=10)</li>
+                    <li><strong>Min Samples Leaf:</strong> Require a minimum number of samples in each leaf node</li>
+                    <li><strong>Max Features:</strong> Limit the number of features considered at each split</li>
+                </ul>
+
+                <h3>Post-Pruning (Cost-Complexity Pruning)</h3>
+                <p>Grow the full tree, then remove branches that don't significantly improve performance on validation data. This method often finds better trees than pre-pruning.</p>
+
+                <div class="callout">
+                    <strong>The Bias-Variance Trade-off:</strong> Pre-pruning adds bias (underfitting) but reduces variance. Post-pruning requires validation data but can better balance this trade-off. In practice, ensemble methods like Random Forests handle overfitting by averaging many trees.
+                </div>
+
+                <div class="split-visualization">
+                    <div class="split-item">
+                        <div class="subsection-title">Underfitting (Too Simple)</div>
+                        <p>High bias, low variance</p>
+                        <p class="dim">Model misses important patterns; poor performance on train and test data</p>
+                    </div>
+                    <div class="split-item">
+                        <div class="subsection-title">Overfitting (Too Complex)</div>
+                        <p>Low bias, high variance</p>
+                        <p class="dim">Model memorizes noise; great on train, poor on test data</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Random Forest -->
+        <section>
+            <h2>Random Forest</h2>
+            <div class="card">
+                <p><strong>Random Forest</strong> is an ensemble learning method that combines hundreds of decision trees to make more robust and accurate predictions than a single tree.</p>
+
+                <h3>How It Works</h3>
+                <ol>
+                    <li><strong>Bagging (Bootstrap Aggregating):</strong> Create multiple random samples of the training data (with replacement). Each sample has the same size as the original data but contains duplicates.</li>
+                    <li><strong>Grow Diverse Trees:</strong> Train an independent decision tree on each bootstrap sample.</li>
+                    <li><strong>Feature Randomness:</strong> At each split, consider only a random subset of features (usually √n or log₂(n) features). This increases tree diversity.</li>
+                    <li><strong>Aggregate Predictions:</strong> For classification, use majority voting. For regression, average predictions.</li>
+                </ol>
+
+                <h3>Why It's Better Than Single Trees</h3>
+                <div class="split-visualization">
+                    <div class="split-item">
+                        <div class="subsection-title">Single Tree</div>
+                        <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                            <li>Interpretable</li>
+                            <li>Fast to train</li>
+                            <li>Prone to overfitting</li>
+                            <li>High variance</li>
+                        </ul>
+                    </div>
+                    <div class="split-item">
+                        <div class="subsection-title">Random Forest</div>
+                        <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                            <li>Less interpretable</li>
+                            <li>Slower to train/predict</li>
+                            <li>Better generalization</li>
+                            <li>Low variance, low bias</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <strong>Out-of-Bag (OOB) Error:</strong> On average, each bootstrap sample excludes ~37% of the data. These "out-of-bag" samples serve as a validation set, allowing accurate performance estimation without a separate holdout set.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Interactive Single Tree vs Random Forest -->
+        <section>
+            <div class="interactive-section">
+                <h3>Interactive: Single Tree vs Random Forest Comparison</h3>
+                <p style="margin-bottom: 1rem;">Generate a dataset and compare how a single tree overfits while a Random Forest generalizes better. Blue shows Class A, Red shows Class B.</p>
+
+                <div class="button-group">
+                    <button onclick="compareModels()">Generate & Compare</button>
+                    <button onclick="clearComparison()">Reset</button>
+                </div>
+
+                <div class="comparison-grid">
+                    <div>
+                        <h4 style="color: #a78bfa; margin-bottom: 1rem;">Single Decision Tree</h4>
+                        <canvas id="singleTreeCanvas" width="300" height="300"></canvas>
+                        <div class="info-box">
+                            <div class="stat">
+                                <span>Train Accuracy:</span>
+                                <span class="stat-value" id="singleTrain">—</span>
+                            </div>
+                            <div class="stat">
+                                <span>Test Accuracy:</span>
+                                <span class="stat-value" id="singleTest">—</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="color: #a78bfa; margin-bottom: 1rem;">Random Forest (100 Trees)</h4>
+                        <canvas id="forestCanvas" width="300" height="300"></canvas>
+                        <div class="info-box">
+                            <div class="stat">
+                                <span>Train Accuracy:</span>
+                                <span class="stat-value" id="forestTrain">—</span>
+                            </div>
+                            <div class="stat">
+                                <span>Test Accuracy:</span>
+                                <span class="stat-value" id="forestTest">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <strong>Observation:</strong> Notice how the single tree creates irregular, overfitted boundaries that follow noise in the training data. The Random Forest produces smoother, more generalizable decision boundaries through ensemble averaging.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Feature Importance -->
+        <section>
+            <h2>Feature Importance Visualization</h2>
+            <div class="card">
+                <p>Feature importance measures how much each feature contributes to the predictions in a tree or forest. Higher importance means the feature is more useful for making splits.</p>
+
+                <h3>How It's Calculated</h3>
+                <p>For each feature, sum up the improvement (information gain or Gini decrease) across all splits that use that feature, weighted by the number of samples affected. In Random Forests, average importance across all trees.</p>
+
+                <button onclick="showFeatureImportance()">Generate Feature Importance Example</button>
+
+                <div id="importanceContainer" style="display: none;">
+                    <div style="margin-top: 1.5rem;">
+                        <div class="feature-importance">
+                            <span style="min-width: 120px;">Feature 1: Age</span>
+                            <div class="importance-bar" style="width: 85%;"></div>
+                            <span style="min-width: 40px; text-align: right;">85%</span>
+                        </div>
+                        <div class="feature-importance">
+                            <span style="min-width: 120px;">Feature 2: Income</span>
+                            <div class="importance-bar" style="width: 72%;"></div>
+                            <span style="min-width: 40px; text-align: right;">72%</span>
+                        </div>
+                        <div class="feature-importance">
+                            <span style="min-width: 120px;">Feature 3: Credit Score</span>
+                            <div class="importance-bar" style="width: 68%;"></div>
+                            <span style="min-width: 40px; text-align: right;">68%</span>
+                        </div>
+                        <div class="feature-importance">
+                            <span style="min-width: 120px;">Feature 4: Employment</span>
+                            <div class="importance-bar" style="width: 45%;"></div>
+                            <span style="min-width: 40px; text-align: right;">45%</span>
+                        </div>
+                        <div class="feature-importance">
+                            <span style="min-width: 120px;">Feature 5: Location</span>
+                            <div class="importance-bar" style="width: 22%;"></div>
+                            <span style="min-width: 40px; text-align: right;">22%</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: 1.5rem; color: #6b6e8a;">Example from a loan approval prediction model. Age and Income are the most important features for making decisions.</p>
+                </div>
+
+                <div class="callout">
+                    <strong>Use Cases:</strong> Feature importance helps identify which variables drive predictions, guide feature engineering, detect data quality issues, and reduce model complexity by removing unimportant features.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Applications -->
+        <section>
+            <h2>Applications in the Real World</h2>
+            <div class="card">
+                <h3>Fraud Detection</h3>
+                <p>Decision Trees and Random Forests analyze transaction features (amount, location, merchant type, time) to classify transactions as fraudulent or legitimate. The ensemble nature of Random Forests reduces false positives while maintaining high fraud detection rates.</p>
+
+                <h3>Medical Diagnosis</h3>
+                <p>Healthcare systems use tree-based models to predict disease risk based on patient features (age, blood pressure, cholesterol, family history). The interpretability of decision trees is especially valuable in medical domains where clinicians need to understand how diagnoses are made.</p>
+
+                <h3>Credit Scoring</h3>
+                <p>Banks employ Random Forests to predict loan default probability using applicant data (income, credit history, debt levels, employment status). These models balance predictive accuracy with regulatory compliance requirements for explainability.</p>
+
+                <h3>Customer Segmentation</h3>
+                <p>E-commerce platforms use tree-based models to classify customers into segments (high-value, at-risk, dormant) for targeted marketing campaigns based on purchase history, browsing behavior, and engagement metrics.</p>
+
+                <h3>Recommendation Systems</h3>
+                <p>Decision Trees help predict user preferences for movies, products, or content by analyzing historical interactions, demographics, and user behavior patterns.</p>
+
+                <h3>Anomaly Detection</h3>
+                <p>Isolation Forests (a variant) identify unusual patterns in network traffic, sensor data, or system logs by isolating anomalies in decision tree structures more efficiently than normal points.</p>
+
+                <div class="callout">
+                    <strong>Advantages Across Domains:</strong> Fast inference (important for real-time applications), interpretability (crucial for regulated industries), handling mixed data types, and no feature scaling requirements make tree-based models widely applicable.
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        © 2025 Sim Vattanac · vattanacsim99@gmail.com
+    </footer>
+
+    <script>
+        // ===== SECTION 3: BUILD A DECISION TREE =====
+        const canvas = document.getElementById('treeCanvas');
+        const ctx = canvas.getContext('2d');
+        let dataPoints = [];
+
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const classA = e.button === 0; // left click
+            dataPoints.push({ x, y, classA });
+            redrawCanvas();
+        });
+
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        function redrawCanvas() {
+            ctx.fillStyle = '#1a1d3a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = '#1e2045';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            dataPoints.forEach(point => {
+                ctx.fillStyle = point.classA ? '#a78bfa' : '#5eead4';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function clearCanvas() {
+            dataPoints = [];
+            redrawCanvas();
+            document.getElementById('treeStats').style.display = 'none';
+        }
+
+        function randomData() {
+            clearCanvas();
+            for (let i = 0; i < 40; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const classA = Math.random() > 0.5;
+                dataPoints.push({ x, y, classA });
+            }
+            redrawCanvas();
+        }
+
+        function buildTree() {
+            if (dataPoints.length < 2) {
+                alert('Please add at least 2 data points');
+                return;
+            }
+
+            // Simple recursive splitting
+            const tree = buildTreeRecursive(dataPoints, 0, canvas.width, 0, canvas.height, 0);
+
+            // Draw splits
+            drawTreeSplits(tree);
+
+            // Calculate accuracy
+            let correct = 0;
+            dataPoints.forEach(point => {
+                const prediction = predictPoint(tree, point);
+                if (prediction === point.classA) correct++;
+            });
+            const accuracy = Math.round((correct / dataPoints.length) * 100);
+
+            // Show stats
+            document.getElementById('treeStats').style.display = 'block';
+            document.getElementById('pointCount').textContent = dataPoints.length;
+            document.getElementById('treeDepth').textContent = tree.depth;
+            document.getElementById('treeAccuracy').textContent = accuracy + '%';
+
+            redrawCanvas();
+            drawTreeSplits(tree);
+        }
+
+        function buildTreeRecursive(points, minX, maxX, minY, maxY, depth) {
+            if (points.length === 0 || depth > 5) {
+                return { isLeaf: true, classA: points.length > 0 && points.filter(p => p.classA).length > points.length / 2, depth: depth };
+            }
+
+            const classA = points.filter(p => p.classA).length;
+            const classB = points.length - classA;
+
+            if (classA === 0 || classB === 0 || points.length < 5) {
+                return { isLeaf: true, classA: classA > classB, depth: depth };
+            }
+
+            // Try splitting by x
+            const sortedX = points.slice().sort((a, b) => a.x - b.x);
+            const midX = sortedX[Math.floor(sortedX.length / 2)].x;
+
+            const leftX = points.filter(p => p.x < midX);
+            const rightX = points.filter(p => p.x >= midX);
+
+            // Try splitting by y
+            const sortedY = points.slice().sort((a, b) => a.y - b.y);
+            const midY = sortedY[Math.floor(sortedY.length / 2)].y;
+
+            const topY = points.filter(p => p.y < midY);
+            const bottomY = points.filter(p => p.y >= midY);
+
+            const giniX = calculateGini(leftX) + calculateGini(rightX);
+            const giniY = calculateGini(topY) + calculateGini(bottomY);
+
+            if (giniX < giniY) {
+                return {
+                    isLeaf: false,
+                    axis: 'x',
+                    value: midX,
+                    left: buildTreeRecursive(leftX, minX, midX, minY, maxY, depth + 1),
+                    right: buildTreeRecursive(rightX, midX, maxX, minY, maxY, depth + 1),
+                    depth: depth
+                };
+            } else {
+                return {
+                    isLeaf: false,
+                    axis: 'y',
+                    value: midY,
+                    left: buildTreeRecursive(topY, minX, maxX, minY, midY, depth + 1),
+                    right: buildTreeRecursive(bottomY, minX, maxX, midY, maxY, depth + 1),
+                    depth: depth
+                };
+            }
+        }
+
+        function calculateGini(points) {
+            if (points.length === 0) return 0;
+            const classA = points.filter(p => p.classA).length / points.length;
+            const classB = 1 - classA;
+            return 1 - (classA * classA + classB * classB);
+        }
+
+        function drawTreeSplits(tree, minX = 0, maxX = canvas.width, minY = 0, maxY = canvas.height) {
+            if (tree.isLeaf) return;
+
+            ctx.strokeStyle = '#5eead4';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+
+            if (tree.axis === 'x') {
+                ctx.beginPath();
+                ctx.moveTo(tree.value, minY);
+                ctx.lineTo(tree.value, maxY);
+                ctx.stroke();
+                drawTreeSplits(tree.left, minX, tree.value, minY, maxY);
+                drawTreeSplits(tree.right, tree.value, maxX, minY, maxY);
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(minX, tree.value);
+                ctx.lineTo(maxX, tree.value);
+                ctx.stroke();
+                drawTreeSplits(tree.left, minX, maxX, minY, tree.value);
+                drawTreeSplits(tree.right, minX, maxX, tree.value, maxY);
+            }
+
+            ctx.setLineDash([]);
+        }
+
+        function predictPoint(tree, point) {
+            if (tree.isLeaf) return tree.classA;
+            if (tree.axis === 'x') {
+                if (point.x < tree.value) return predictPoint(tree.left, point);
+                else return predictPoint(tree.right, point);
+            } else {
+                if (point.y < tree.value) return predictPoint(tree.left, point);
+                else return predictPoint(tree.right, point);
+            }
+        }
+
+        // Initial draw
+        redrawCanvas();
+
+        // ===== SECTION 6: SINGLE TREE VS RANDOM FOREST =====
+        let trainData = [], testData = [];
+
+        function generateData() {
+            trainData = [];
+            testData = [];
+
+            // Generate training data
+            for (let i = 0; i < 150; i++) {
+                const classA = Math.random() > 0.5;
+                let x, y;
+                if (classA) {
+                    x = Math.random() * 150 + 25;
+                    y = Math.random() * 150 + 25;
+                } else {
+                    if (Math.random() > 0.5) {
+                        x = Math.random() * 80 + 220;
+                        y = Math.random() * 80 + 220;
+                    } else {
+                        x = Math.random() * 60 + 30;
+                        y = Math.random() * 60 + 220;
+                    }
+                }
+                trainData.push({ x: Math.min(300, Math.max(0, x)), y: Math.min(300, Math.max(0, y)), classA });
+            }
+
+            // Generate test data
+            for (let i = 0; i < 100; i++) {
+                const classA = Math.random() > 0.5;
+                let x, y;
+                if (classA) {
+                    x = Math.random() * 150 + 25;
+                    y = Math.random() * 150 + 25;
+                } else {
+                    if (Math.random() > 0.5) {
+                        x = Math.random() * 80 + 220;
+                        y = Math.random() * 80 + 220;
+                    } else {
+                        x = Math.random() * 60 + 30;
+                        y = Math.random() * 60 + 220;
+                    }
+                }
+                testData.push({ x: Math.min(300, Math.max(0, x)), y: Math.min(300, Math.max(0, y)), classA });
+            }
+        }
+
+        function compareModels() {
+            generateData();
+
+            // Build single tree
+            const singleTree = buildTreeRecursive(trainData, 0, 300, 0, 300, 0);
+            drawPredictionMap('singleTreeCanvas', singleTree, trainData, testData, 'single');
+
+            // Build random forest (simplified - just 3 trees for demo)
+            const forest = [];
+            for (let i = 0; i < 3; i++) {
+                const bootstrap = [];
+                for (let j = 0; j < trainData.length; j++) {
+                    bootstrap.push(trainData[Math.floor(Math.random() * trainData.length)]);
+                }
+                forest.push(buildTreeRecursive(bootstrap, 0, 300, 0, 300, 0));
+            }
+            drawPredictionMap('forestCanvas', forest, trainData, testData, 'forest');
+        }
+
+        function drawPredictionMap(canvasId, model, trainData, testData, type) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+
+            // Draw decision boundary
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            const data = imageData.data;
+
+            for (let i = 0; i < canvas.width; i++) {
+                for (let j = 0; j < canvas.height; j++) {
+                    let prediction;
+                    if (type === 'single') {
+                        prediction = predictPoint(model, { x: i, y: j });
+                    } else {
+                        const votes = model.map(tree => predictPoint(tree, { x: i, y: j })).filter(p => p).length;
+                        prediction = votes > model.length / 2;
+                    }
+
+                    const idx = (j * canvas.width + i) * 4;
+                    if (prediction) {
+                        data[idx] = 41; data[idx + 1] = 121; data[idx + 2] = 194; data[idx + 3] = 50;
+                    } else {
+                        data[idx] = 244; data[idx + 1] = 63; data[idx + 2] = 94; data[idx + 3] = 50;
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // Draw training points
+            trainData.forEach(point => {
+                ctx.fillStyle = point.classA ? '#2979ca' : '#f43f5e';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Calculate accuracy
+            const trainAccuracy = calculateAccuracy(model, trainData, type);
+            const testAccuracy = calculateAccuracy(model, testData, type);
+
+            document.getElementById(type === 'single' ? 'singleTrain' : 'forestTrain').textContent = trainAccuracy + '%';
+            document.getElementById(type === 'single' ? 'singleTest' : 'forestTest').textContent = testAccuracy + '%';
+        }
+
+        function calculateAccuracy(model, data, type) {
+            let correct = 0;
+            data.forEach(point => {
+                let prediction;
+                if (type === 'single') {
+                    prediction = predictPoint(model, point);
+                } else {
+                    const votes = model.map(tree => predictPoint(tree, point)).filter(p => p).length;
+                    prediction = votes > model.length / 2;
+                }
+                if (prediction === point.classA) correct++;
+            });
+            return Math.round((correct / data.length) * 100);
+        }
+
+        function clearComparison() {
+            ['singleTreeCanvas', 'forestCanvas'].forEach(id => {
+                const canvas = document.getElementById(id);
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#1a1d3a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            });
+            document.getElementById('singleTrain').textContent = '—';
+            document.getElementById('singleTest').textContent = '—';
+            document.getElementById('forestTrain').textContent = '—';
+            document.getElementById('forestTest').textContent = '—';
+        }
+
+        // ===== SECTION 7: FEATURE IMPORTANCE =====
+        function showFeatureImportance() {
+            const container = document.getElementById('importanceContainer');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

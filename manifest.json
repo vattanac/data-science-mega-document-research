@@ -27,6 +27,50 @@
         ]
       },
       {
+        "name": "bias-variance-tradeoff",
+        "type": "folder",
+        "children": [
+          {
+            "name": "bias_variance_tradeoff_guide.docx",
+            "displayName": "bias_variance_tradeoff_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9740,
+            "path": "bias-variance-tradeoff/bias_variance_tradeoff_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "bias-variance-tradeoff",
+            "type": "file",
+            "ext": "html",
+            "size": 36073,
+            "path": "bias-variance-tradeoff/index.html"
+          }
+        ]
+      },
+      {
+        "name": "confusion-matrix-and-metrics",
+        "type": "folder",
+        "children": [
+          {
+            "name": "confusion_matrix_metrics_guide.docx",
+            "displayName": "confusion_matrix_metrics_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9876,
+            "path": "confusion-matrix-and-metrics/confusion_matrix_metrics_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "confusion-matrix-and-metrics",
+            "type": "file",
+            "ext": "html",
+            "size": 51111,
+            "path": "confusion-matrix-and-metrics/index.html"
+          }
+        ]
+      },
+      {
         "name": "correlation-vs-causation",
         "type": "folder",
         "children": [
@@ -45,6 +89,50 @@
             "ext": "html",
             "size": 37941,
             "path": "correlation-vs-causation/index.html"
+          }
+        ]
+      },
+      {
+        "name": "cross-validation",
+        "type": "folder",
+        "children": [
+          {
+            "name": "cross_validation_guide.docx",
+            "displayName": "cross_validation_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9802,
+            "path": "cross-validation/cross_validation_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "cross-validation",
+            "type": "file",
+            "ext": "html",
+            "size": 51610,
+            "path": "cross-validation/index.html"
+          }
+        ]
+      },
+      {
+        "name": "decision-trees-and-random-forest",
+        "type": "folder",
+        "children": [
+          {
+            "name": "decision_trees_random_forest_guide.docx",
+            "displayName": "decision_trees_random_forest_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9829,
+            "path": "decision-trees-and-random-forest/decision_trees_random_forest_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "decision-trees-and-random-forest",
+            "type": "file",
+            "ext": "html",
+            "size": 39482,
+            "path": "decision-trees-and-random-forest/index.html"
           }
         ]
       },
@@ -154,6 +242,28 @@
             "ext": "html",
             "size": 35830,
             "path": "hypothesis-testing/index.html"
+          }
+        ]
+      },
+      {
+        "name": "k-means-clustering",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "k-means-clustering",
+            "type": "file",
+            "ext": "html",
+            "size": 35176,
+            "path": "k-means-clustering/index.html"
+          },
+          {
+            "name": "k_means_clustering_guide.docx",
+            "displayName": "k_means_clustering_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 9835,
+            "path": "k-means-clustering/k_means_clustering_guide.docx"
           }
         ]
       },

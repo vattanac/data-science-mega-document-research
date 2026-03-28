@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Validation: A Comprehensive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0b14;
+            color: #c8cad8;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(94, 234, 212, 0.1) 100%);
+            border-bottom: 1px solid #1e2045;
+            padding: 30px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #a78bfa, #5eead4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            color: #6b6e8a;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #12142a;
+            border: 1px solid #1e2045;
+            color: #5eead4;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        /* Cards */
+        .card {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #a78bfa;
+            box-shadow: 0 0 20px rgba(167, 139, 250, 0.1);
+        }
+
+        h2 {
+            font-size: 1.8em;
+            color: #a78bfa;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            color: #5eead4;
+            font-size: 1.3em;
+            margin: 25px 0 15px 0;
+        }
+
+        h4 {
+            color: #a78bfa;
+            font-size: 1.1em;
+            margin: 20px 0 10px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #c8cad8;
+            line-height: 1.8;
+        }
+
+        .callout {
+            background: rgba(167, 139, 250, 0.05);
+            border-left: 4px solid #a78bfa;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .callout.warning {
+            background: rgba(239, 68, 68, 0.05);
+            border-left-color: #ef4444;
+        }
+
+        .callout.success {
+            background: rgba(94, 234, 212, 0.05);
+            border-left-color: #5eead4;
+        }
+
+        /* Math blocks */
+        .math-block {
+            background: #0a0b14;
+            border: 1px solid #1e2045;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 20px 0;
+            color: #5eead4;
+        }
+
+        .math-symbol {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        /* List styles */
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* Canvas & Visualizers */
+        .visualizer-container {
+            background: #0a0b14;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        canvas {
+            border: 1px solid #1e2045;
+            border-radius: 8px;
+            background: #0a0b14;
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            color: #c8cad8;
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            accent-color: #a78bfa;
+            cursor: pointer;
+            width: 120px;
+        }
+
+        input[type="number"] {
+            background: #0a0b14;
+            border: 1px solid #1e2045;
+            color: #c8cad8;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            width: 80px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #a78bfa, #5eead4);
+            color: #0a0b14;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(167, 139, 250, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: #0a0b14;
+            border: 1px solid #1e2045;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            color: #5eead4;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6b6e8a;
+            font-size: 0.9em;
+        }
+
+        /* Comparison table */
+        .comparison-table {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #0a0b14;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #1e2045;
+            color: #5eead4;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #a78bfa;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #1e2045;
+            color: #c8cad8;
+        }
+
+        tr:hover {
+            background: rgba(167, 139, 250, 0.05);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            background: #a78bfa;
+            border-radius: 50%;
+            margin-top: 4px;
+            margin-right: 20px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .timeline-item:last-child .timeline-line {
+            display: none;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 6px;
+            top: 20px;
+            width: 2px;
+            height: calc(100% + 30px);
+            background: linear-gradient(180deg, #a78bfa, transparent);
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-content h4 {
+            color: #5eead4;
+            margin-top: 0;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #0a0b14;
+            border: 1px solid #1e2045;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+            color: #5eead4;
+            font-size: 0.9em;
+        }
+
+        /* Footer */
+        footer {
+            background: #12142a;
+            border-top: 1px solid #1e2045;
+            text-align: center;
+            padding: 30px 20px;
+            color: #6b6e8a;
+            margin-top: 60px;
+        }
+
+        footer a {
+            color: #a78bfa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #1e2045, transparent);
+            margin: 40px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            input[type="range"] {
+                width: 100%;
+            }
+        }
+
+        .highlight {
+            color: #5eead4;
+            font-weight: 600;
+        }
+
+        .accent {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Cross-Validation</h1>
+            <p class="tagline">Master the art of proper model evaluation and avoid data leakage</p>
+            <div class="tags">
+                <span class="tag">MACHINE LEARNING</span>
+                <span class="tag">MODEL EVALUATION</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Section 1: Why Cross-Validation -->
+        <div class="card">
+            <h2>🎯 Why Cross-Validation?</h2>
+
+            <p>Traditional train/test split seems straightforward: split your data 80/20, train on 80%, evaluate on 20%. However, this approach has significant limitations that can lead to misleading performance estimates.</p>
+
+            <h3>The Problem with Simple Train/Test Split</h3>
+
+            <h4>1. High Variance in Performance Estimates</h4>
+            <p>With a single split, your test set performance depends heavily on which samples ended up in the test set. Different random splits can yield very different performance estimates, making it hard to know the true generalization ability of your model.</p>
+
+            <div class="callout warning">
+                <strong>Example:</strong> You might get 92% accuracy with one random split but only 87% with another, despite using the same model. Which one is more trustworthy?
+            </div>
+
+            <h4>2. Data Leakage</h4>
+            <p>When you build your entire preprocessing pipeline, feature selection, and hyperparameter tuning based on the full dataset before splitting, information from the test set "leaks" into your model. This causes overly optimistic performance estimates that won't generalize to truly new data.</p>
+
+            <div class="callout warning">
+                <strong>Data Leakage Occurs When:</strong>
+                <ul>
+                    <li>You scale features using statistics from the entire dataset</li>
+                    <li>You select features based on correlation with the target across all data</li>
+                    <li>You tune hyperparameters using test set performance</li>
+                </ul>
+            </div>
+
+            <h4>3. Overfitting to Your Test Set</h4>
+            <p>If you repeatedly evaluate on the same test set and iterate your model design, you may unconsciously optimize specifically for that test set. This leads to <span class="highlight">test set overfitting</span>—your model performs well on that specific test set but poorly on new data.</p>
+
+            <div class="callout success">
+                <strong>Cross-Validation Solves This:</strong> By using multiple different train/validation splits, you get:
+                <ul>
+                    <li>More stable and reliable performance estimates</li>
+                    <li>Proper isolation of validation data from training decisions</li>
+                    <li>Better protection against overfitting</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Section 2: K-Fold Cross-Validation -->
+        <div class="card">
+            <h2>📊 K-Fold Cross-Validation</h2>
+
+            <p>K-Fold is the most commonly used cross-validation technique. It works by dividing your data into K equal-sized folds and iteratively using each fold as a validation set while training on the remaining K-1 folds.</p>
+
+            <h3>How K-Fold Works: Step-by-Step</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h4>Step 1: Divide Data into K Folds</h4>
+                        <p>Split your dataset into K equal (or nearly equal) parts. Common values are K=5 or K=10.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h4>Step 2: Iterate Through Each Fold</h4>
+                        <p>For each iteration i from 1 to K:</p>
+                        <ul>
+                            <li>Use fold i as the validation set</li>
+                            <li>Use folds 1 to K excluding i as the training set</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h4>Step 3: Train and Evaluate</h4>
+                        <p>Train your model on the training set and evaluate on the validation fold. Record the performance metric (accuracy, F1-score, etc.).</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h4>Step 4: Average Results</h4>
+                        <p>Calculate the mean and standard deviation of performance across all K folds. This gives you a robust estimate of generalization ability.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Mathematical Representation</h3>
+            <div class="math-block">
+CV Score = (1/K) × Σ(i=1 to K) score(Validation_i)
+
+Where score(Validation_i) = performance metric on fold i
+            </div>
+
+            <h3>Interactive K-Fold Visualizer</h3>
+            <div class="visualizer-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="kFoldSlider">Number of Folds (K):</label>
+                        <input type="range" id="kFoldSlider" min="2" max="10" value="5">
+                        <span id="kValue" style="color: #5eead4; font-weight: 600;">5</span>
+                    </div>
+                </div>
+
+                <canvas id="kFoldCanvas" width="800" height="400"></canvas>
+
+                <div class="controls">
+                    <button id="animateKFold">Animate Splits</button>
+                    <button id="resetKFold">Reset</button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="kFoldIteration">Iteration: 1/5</div>
+                        <div class="stat-label">Current Fold</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="kFoldAccuracy">---</div>
+                        <div class="stat-label">Fold Accuracy</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="kFoldAvg">---</div>
+                        <div class="stat-label">Average CV Score</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Advantages of K-Fold</h3>
+            <ul>
+                <li><span class="highlight">Uses all data:</span> Every sample is used for both training and validation</li>
+                <li><span class="highlight">Stable estimates:</span> Multiple splits reduce variance in performance estimates</li>
+                <li><span class="highlight">Data-efficient:</span> Better use of limited data compared to simple split</li>
+                <li><span class="highlight">Practical:</span> Computationally feasible for most datasets</li>
+            </ul>
+
+            <h3>Choosing K</h3>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>K Value</th>
+                            <th>Pros</th>
+                            <th>Cons</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>K=3</td>
+                            <td>Fast, less variance</td>
+                            <td>Biased estimates, less data per fold</td>
+                            <td>Quick prototyping</td>
+                        </tr>
+                        <tr>
+                            <td>K=5</td>
+                            <td>Standard choice, balanced</td>
+                            <td>—</td>
+                            <td>Most use cases</td>
+                        </tr>
+                        <tr>
+                            <td>K=10</td>
+                            <td>More folds for stability</td>
+                            <td>Slower, more variance</td>
+                            <td>Larger datasets</td>
+                        </tr>
+                        <tr>
+                            <td>K=n (LOOCV)</td>
+                            <td>Maximum use of data</td>
+                            <td>Extremely slow, very high variance</td>
+                            <td>Small datasets only</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Section 3: Stratified K-Fold -->
+        <div class="card">
+            <h2>⚖️ Stratified K-Fold</h2>
+
+            <p>Standard K-Fold randomly splits data, which can be problematic for imbalanced classification datasets. <span class="accent">Stratified K-Fold</span> preserves the class distribution within each fold, ensuring each fold is representative of the overall dataset.</p>
+
+            <h3>When Do You Need Stratification?</h3>
+
+            <div class="callout">
+                <strong>Use Stratified K-Fold when:</strong>
+                <ul>
+                    <li>Your target variable is imbalanced (one class has much fewer samples)</li>
+                    <li>Your dataset is small (stratification matters more with limited data)</li>
+                    <li>You're doing classification (not applicable to regression)</li>
+                </ul>
+            </div>
+
+            <h3>Example: Standard vs Stratified</h3>
+            <div class="code-block">
+Standard K-Fold with Imbalanced Data (60% Class A, 40% Class B):
+Fold 1: 45% Class A, 55% Class B ← Not representative!
+Fold 2: 65% Class A, 35% Class B ← Not representative!
+Fold 3: 58% Class A, 42% Class B ← Close but not exact
+
+Stratified K-Fold:
+Fold 1: 60% Class A, 40% Class B ✓ Representative!
+Fold 2: 60% Class A, 40% Class B ✓ Representative!
+Fold 3: 60% Class A, 40% Class B ✓ Representative!
+            </div>
+
+            <h3>Why This Matters</h3>
+            <p>Without stratification, some folds might have mostly majority class samples, leading to:</p>
+            <ul>
+                <li><span class="highlight">Misleading metrics:</span> A fold with 80% of the majority class can achieve high accuracy just by predicting that class</li>
+                <li><span class="highlight">Unstable CV scores:</span> Large differences between fold performances due to class imbalance</li>
+                <li><span class="highlight">Poor hyperparameter selection:</span> You might choose hyperparameters optimized for unbalanced folds</li>
+            </ul>
+
+            <div class="callout success">
+                <strong>Best Practice:</strong> Always use Stratified K-Fold for classification tasks, especially with imbalanced data. It's the default choice in most machine learning libraries for a reason!
+            </div>
+
+            <h3>Implementation Note</h3>
+            <div class="code-block">
+# Python with scikit-learn
+from sklearn.model_selection import StratifiedKFold
+
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+for train_idx, val_idx in skf.split(X, y):
+    X_train, X_val = X[train_idx], X[val_idx]
+    y_train, y_val = y[train_idx], y[val_idx]
+    # Train and evaluate
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Section 4: Leave-One-Out CV -->
+        <div class="card">
+            <h2>🎲 Leave-One-Out Cross-Validation (LOOCV)</h2>
+
+            <p>Leave-One-Out CV is an extreme case of K-Fold where K equals the number of samples (n). Each iteration uses n-1 samples for training and 1 sample for validation.</p>
+
+            <h3>How LOOCV Works</h3>
+            <div class="code-block">
+For a dataset with n samples:
+
+For each sample i from 1 to n:
+  1. Use sample i as the validation set
+  2. Use all other n-1 samples as training set
+  3. Train model and evaluate on sample i
+  4. Record the prediction result
+
+Final Score = Average of all n predictions
+            </div>
+
+            <h3>When to Use LOOCV</h3>
+
+            <div class="callout success">
+                <strong>LOOCV is useful for:</strong>
+                <ul>
+                    <li><strong>Very small datasets:</strong> When n < 1000, LOOCV maximizes training data per iteration</li>
+                    <li><strong>Hyperparameter-free models:</strong> Linear regression, k-NN with fixed k</li>
+                    <li><strong>Theoretical analysis:</strong> When you need the most accurate estimate possible</li>
+                </ul>
+            </div>
+
+            <div class="callout warning">
+                <strong>LOOCV is problematic for:</strong>
+                <ul>
+                    <li><strong>Large datasets:</strong> O(n) training iterations become extremely slow</li>
+                    <li><strong>Hyperparameter tuning:</strong> Very high variance—estimates can be unstable</li>
+                    <li><strong>Complex models:</strong> Training each model is expensive</li>
+                </ul>
+            </div>
+
+            <h3>Pros and Cons</h3>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>LOOCV</th>
+                            <th>K-Fold (K=5)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Training data per iteration</td>
+                            <td>n-1 (maximum)</td>
+                            <td>4n/5 (good)</td>
+                        </tr>
+                        <tr>
+                            <td>Computational cost</td>
+                            <td>O(n) models (very expensive)</td>
+                            <td>5 models (practical)</td>
+                        </tr>
+                        <tr>
+                            <td>Estimate variance</td>
+                            <td>Very high</td>
+                            <td>Moderate</td>
+                        </tr>
+                        <tr>
+                            <td>Estimate bias</td>
+                            <td>Low</td>
+                            <td>Slightly higher</td>
+                        </tr>
+                        <tr>
+                            <td>Data efficiency</td>
+                            <td>Excellent (small data)</td>
+                            <td>Good (practical)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <strong>Rule of Thumb:</strong> Unless your dataset has fewer than 100 samples, K-Fold is almost always a better choice than LOOCV. The computational savings far outweigh the minor differences in estimate quality.
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Section 5: Time Series Split -->
+        <div class="card">
+            <h2>📈 Time Series Split</h2>
+
+            <p>For time series data, random splitting is <span class="highlight">fundamentally broken</span>. Standard K-Fold can cause severe data leakage by putting future information in the training set. Time Series Split uses an expanding window approach to respect temporal order.</p>
+
+            <h3>Why Random Splitting Fails for Time Series</h3>
+
+            <div class="callout warning">
+                <strong>The Problem:</strong> If you randomly shuffle time series data and use K-Fold, your model trains on data from the future to predict the past. This is impossible in real deployment and gives wildly optimistic performance estimates.
+            </div>
+
+            <p>Example: Stock price prediction with random split</p>
+            <div class="code-block">
+Random K-Fold on stock prices (2020-2023):
+Training set: Mix of 2020, 2021, 2022, 2023 data
+Validation set: Mix of 2020, 2021, 2022, 2023 data
+
+Your model "learned" from 2023 to predict earlier years.
+In production, you only have past data. Performance collapses.
+            </div>
+
+            <h3>Time Series Split Solution: Expanding Window</h3>
+
+            <p>Instead of random splits, use an <span class="accent">expanding window</span> that respects time order:</p>
+
+            <div class="visualizer-container">
+                <canvas id="tsCanvas" width="800" height="350"></canvas>
+                <button id="drawTSSplit" style="align-self: center;">Generate Time Series Split Visualization</button>
+            </div>
+
+            <h3>How Expanding Window Works</h3>
+            <div class="code-block">
+For 120 data points with 5 splits:
+
+Fold 1: Train on [1-24],   Validate on [25-48]
+Fold 2: Train on [1-48],   Validate on [49-72]
+Fold 3: Train on [1-72],   Validate on [73-96]
+Fold 4: Train on [1-96],   Validate on [97-120]
+
+Notice: Training set grows, validation set is always future
+            </div>
+
+            <h3>Advantages of Time Series Split</h3>
+            <ul>
+                <li><span class="highlight">Respects temporal order:</span> Never trains on future data</li>
+                <li><span class="highlight">Realistic evaluation:</span> Mirrors how the model will be used in production</li>
+                <li><span class="highlight">Prevents data leakage:</span> Information truly flows one direction</li>
+                <li><span class="highlight">Progressive difficulty:</span> Each fold uses more training data, matching real scenarios</li>
+            </ul>
+
+            <div class="callout success">
+                <strong>Best Practice:</strong> Always use Time Series Split (or similar expanding/sliding window) for time series, financial, or sequential data. Never use random K-Fold for temporal data.
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Section 6: Nested Cross-Validation -->
+        <div class="card">
+            <h2>🎁 Nested Cross-Validation</h2>
+
+            <p>When tuning hyperparameters, a common mistake is using the same cross-validation folds for both hyperparameter search and final evaluation. This causes data leakage. <span class="accent">Nested cross-validation</span> solves this by nesting two CV loops.</p>
+
+            <h3>The Problem: Data Leakage in Hyperparameter Tuning</h3>
+
+            <div class="code-block">
+❌ WRONG: Single CV loop for both tuning and evaluation
+for fold in cv_splits:
+    X_train, X_val = split(X, fold)
+    for learning_rate in [0.001, 0.01, 0.1]:  ← Using same folds!
+        train(X_train, learning_rate)
+        score = evaluate(X_val)
+    # Best learning_rate is overfitted to these specific folds
+            </div>
+
+            <p>In this scenario, you're using the validation fold to select hyperparameters. This means information from the validation set leaks into your hyperparameter choices, resulting in overly optimistic final estimates.</p>
+
+            <h3>Nested CV Solution</h3>
+
+            <div class="code-block">
+✓ CORRECT: Nested loops (outer for evaluation, inner for tuning)
+
+for outer_fold in outer_cv_splits:           ← Outer loop
+    X_train, X_test = split(X, outer_fold)
+
+    best_score = -∞
+    best_params = None
+
+    for inner_fold in inner_cv_splits:       ← Inner loop
+        X_train_inner, X_val_inner = split(X_train, inner_fold)
+
+        for learning_rate in [0.001, 0.01, 0.1]:
+            train(X_train_inner, learning_rate)
+            score = evaluate(X_val_inner)
+
+            if score > best_score:
+                best_score = score
+                best_params = learning_rate
+
+    # Train final model with best_params on full training set
+    train(X_train, best_params)
+    final_score = evaluate(X_test)  ← Truly unseen data
+            </div>
+
+            <h3>Structure Visualization</h3>
+            <div class="code-block">
+Outer CV Loop (for evaluation):
+┌─ Fold 1 ──────────────────────────────────┐
+│  Train [2,3,4,5] + Hyperparameter Tuning  │
+│  Inner CV on Fold 1 Training Data:        │
+│    ├─ Fold 1a, 1b, 1c, 1d (tune params)  │
+│  Test on Fold 1 Validation Set            │
+└──────────────────────────────────────────┘
+├─ Fold 2 ──────────────────────────────────┤
+│  Train [1,3,4,5] + Hyperparameter Tuning  │
+│  Inner CV on Fold 2 Training Data:        │
+│    ├─ Fold 2a, 2b, 2c, 2d (tune params)  │
+│  Test on Fold 2 Validation Set            │
+└──────────────────────────────────────────┘
+...and so on for remaining folds
+
+Final CV Score = Average of outer fold test scores
+            </div>
+
+            <h3>Why Nested CV Matters</h3>
+            <ul>
+                <li><span class="highlight">No data leakage:</span> Hyperparameters chosen independently for each outer fold</li>
+                <li><span class="highlight">Honest estimates:</span> Outer test sets are truly separate from tuning</li>
+                <li><span class="highlight">Better generalization:</span> Prevents overfitting to specific CV splits</li>
+            </ul>
+
+            <div class="callout warning">
+                <strong>Computational Cost:</strong> Nested CV is expensive! With 5×5 nested CV on a dataset needing 1 min per model, you'd need 125 minutes. Use for important decisions or with efficient models.
+            </div>
+
+            <div class="callout success">
+                <strong>When to Use:</strong>
+                <ul>
+                    <li>When you need honest performance estimates for hyperparameter-tuned models</li>
+                    <li>When publishing research (required for credibility)</li>
+                    <li>When the computational cost is acceptable</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Section 7: Practical Tips -->
+        <div class="card">
+            <h2>💡 Practical Tips & Best Practices</h2>
+
+            <h3>Choosing the Right CV Strategy</h3>
+
+            <div class="code-block">
+Decision Tree for Choosing CV:
+
+1. Is your data time series or sequential?
+   └─ YES → Use Time Series Split
+
+2. Is it classification with imbalanced classes?
+   └─ YES → Use Stratified K-Fold
+
+3. Is your dataset very small (n < 100)?
+   └─ YES → Consider LOOCV or 10-Fold CV
+
+4. Are you tuning hyperparameters?
+   └─ YES → Use Nested CV
+
+5. Otherwise → Use K-Fold (K=5 is standard)
+            </div>
+
+            <h3>Computational Cost Considerations</h3>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CV Method</th>
+                            <th>Models Trained</th>
+                            <th>Time Complexity</th>
+                            <th>When to Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Train/Test Split</td>
+                            <td>1</td>
+                            <td>O(1)</td>
+                            <td>Baseline only, not recommended</td>
+                        </tr>
+                        <tr>
+                            <td>K-Fold (K=5)</td>
+                            <td>5</td>
+                            <td>O(5n)</td>
+                            <td>Standard, fast enough</td>
+                        </tr>
+                        <tr>
+                            <td>Stratified K-Fold</td>
+                            <td>5</td>
+                            <td>O(5n)</td>
+                            <td>Classification, same cost</td>
+                        </tr>
+                        <tr>
+                            <td>10-Fold CV</td>
+                            <td>10</td>
+                            <td>O(10n)</td>
+                            <td>More stable estimates</td>
+                        </tr>
+                        <tr>
+                            <td>5×5 Nested CV</td>
+                            <td>25</td>
+                            <td>O(25n)</td>
+                            <td>Hyperparameter tuning</td>
+                        </tr>
+                        <tr>
+                            <td>LOOCV</td>
+                            <td>n</td>
+                            <td>O(n²)</td>
+                            <td>Only for tiny datasets</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Common Mistakes to Avoid</h3>
+
+            <h4>❌ Mistake 1: Scaling Before Splitting</h4>
+            <p>Computing mean/std from the entire dataset before CV splits causes data leakage.</p>
+            <div class="code-block">
+# WRONG
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)  ← Leakage!
+for train_idx, val_idx in cv.split(X_scaled):
+    ...
+
+# RIGHT
+for train_idx, val_idx in cv.split(X):
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X[train_idx])
+    X_val_scaled = scaler.transform(X[val_idx])
+    ...
+            </div>
+
+            <h4>❌ Mistake 2: Feature Selection Before Splitting</h4>
+            <p>Selecting features based on entire dataset's correlations is data leakage.</p>
+            <div class="code-block">
+# WRONG
+top_features = select_features(X, y)  ← Uses all data
+X_selected = X[top_features]
+for train_idx, val_idx in cv.split(X_selected):
+    ...
+
+# RIGHT
+for train_idx, val_idx in cv.split(X):
+    top_features = select_features(X[train_idx], y[train_idx])
+    X_train_selected = X[train_idx][top_features]
+    X_val_selected = X[val_idx][top_features]
+    ...
+            </div>
+
+            <h4>❌ Mistake 3: Using the Same Folds for Tuning and Evaluation</h4>
+            <p>Always use nested CV for hyperparameter tuning to avoid overfitting to splits.</p>
+
+            <h4>❌ Mistake 4: Random Splitting on Time Series</h4>
+            <p>Always respect temporal order with Time Series Split.</p>
+
+            <h3>Rules of Thumb</h3>
+
+            <div class="callout">
+                <ul>
+                    <li><span class="highlight">K=5 or K=10:</span> Standard for most datasets. 5 is faster, 10 is more stable.</li>
+                    <li><span class="highlight">Larger K for larger data:</span> With 100k+ samples, K=10 is feasible. With 1k samples, K=5 is better.</li>
+                    <li><span class="highlight">Smaller K for small data:</span> With <1k samples, you might use K=3 to have enough training data per fold.</li>
+                    <li><span class="highlight">Shuffle=True:</span> Randomize fold assignment unless you have temporal or grouped data.</li>
+                    <li><span class="highlight">Random state:</span> Always set random_state for reproducibility.</li>
+                    <li><span class="highlight">Report std deviation:</span> Don't just report mean CV score—report standard deviation too!</li>
+                </ul>
+            </div>
+
+            <h3>Reporting CV Results</h3>
+
+            <p>When reporting cross-validation results, always include both mean and standard deviation:</p>
+
+            <div class="code-block">
+# Good reporting
+"Our model achieved 87.3% ± 2.1% accuracy (5-fold CV)"
+"Mean precision: 0.891 (±0.034), Recall: 0.856 (±0.041)"
+
+# Poor reporting (incomplete)
+"Our model achieved 87.3% accuracy"
+"The CV score was high" ← Meaningless without numbers
+            </div>
+
+            <div class="callout success">
+                <strong>Pro Tip:</strong> The standard deviation tells you about stability:
+                <ul>
+                    <li>Low std (±1-2%) = Stable, reliable estimate</li>
+                    <li>High std (±5%+) = Unstable, might need larger K or more data</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Section 8: Summary -->
+        <div class="card">
+            <h2>📋 Summary & Quick Reference</h2>
+
+            <h3>CV Methods at a Glance</h3>
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Best For</th>
+                            <th>Pros</th>
+                            <th>Cons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>K-Fold</strong></td>
+                            <td>General classification & regression</td>
+                            <td>Fast, stable, standard</td>
+                            <td>Random splits (bad for time series)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stratified K-Fold</strong></td>
+                            <td>Imbalanced classification</td>
+                            <td>Preserves class distribution</td>
+                            <td>Only for classification</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Time Series Split</strong></td>
+                            <td>Time series, temporal data</td>
+                            <td>Respects temporal order, realistic</td>
+                            <td>Expanding window complexity</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nested CV</strong></td>
+                            <td>Hyperparameter tuning</td>
+                            <td>Prevents data leakage in tuning</td>
+                            <td>Computationally expensive</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LOOCV</strong></td>
+                            <td>Very small datasets (n<100)</td>
+                            <td>Maximum data usage</td>
+                            <td>Very slow, high variance</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>Never use a simple train/test split—always use cross-validation</li>
+                <li>Be aware of data leakage from preprocessing, feature selection, and hyperparameter tuning</li>
+                <li>Choose your CV strategy based on your data type and task</li>
+                <li>Always use nested CV when tuning hyperparameters</li>
+                <li>Report both mean and standard deviation of CV scores</li>
+                <li>Respect temporal order in time series data</li>
+                <li>Use Stratified K-Fold for imbalanced classification</li>
+            </ul>
+
+            <div class="callout success">
+                <strong>Remember:</strong> Good cross-validation is the foundation of honest model evaluation. Take time to get it right!
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Sim Vattanac · <a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a></p>
+    </footer>
+
+    <script>
+        // K-Fold Visualizer
+        const kFoldCanvas = document.getElementById('kFoldCanvas');
+        const kFoldCtx = kFoldCanvas.getContext('2d');
+        const kFoldSlider = document.getElementById('kFoldSlider');
+        const kValue = document.getElementById('kValue');
+        const animateBtn = document.getElementById('animateKFold');
+        const resetBtn = document.getElementById('resetKFold');
+        const kFoldIteration = document.getElementById('kFoldIteration');
+        const kFoldAccuracy = document.getElementById('kFoldAccuracy');
+        const kFoldAvg = document.getElementById('kFoldAvg');
+
+        let kFoldState = {
+            k: 5,
+            currentIteration: 0,
+            foldAccuracies: [],
+            isAnimating: false
+        };
+
+        function generateFoldAccuracies(k) {
+            const base = 85 + Math.random() * 8;
+            return Array.from({length: k}, () => base + (Math.random() - 0.5) * 6);
+        }
+
+        function drawKFoldVisualization() {
+            const k = kFoldState.k;
+            const width = kFoldCanvas.width;
+            const height = kFoldCanvas.height;
+            const foldHeight = (height - 80) / k;
+            const foldWidth = (width - 100) / 10;
+
+            kFoldCtx.fillStyle = '#0a0b14';
+            kFoldCtx.fillRect(0, 0, width, height);
+
+            const numSamples = 10;
+            const iteration = kFoldState.currentIteration;
+
+            for (let i = 0; i < k; i++) {
+                const y = 30 + i * foldHeight;
+
+                // Draw fold label
+                kFoldCtx.fillStyle = '#6b6e8a';
+                kFoldCtx.font = '12px Inter';
+                kFoldCtx.fillText(`Fold ${i+1}`, 10, y + 20);
+
+                // Draw samples
+                for (let j = 0; j < numSamples; j++) {
+                    const x = 50 + j * foldWidth;
+                    const isValidation = i === iteration;
+
+                    kFoldCtx.fillStyle = isValidation ? '#ef4444' : '#5eead4';
+                    kFoldCtx.fillRect(x, y, foldWidth - 5, 25);
+
+                    kFoldCtx.strokeStyle = '#1e2045';
+                    kFoldCtx.lineWidth = 2;
+                    kFoldCtx.strokeRect(x, y, foldWidth - 5, 25);
+
+                    kFoldCtx.fillStyle = '#0a0b14';
+                    kFoldCtx.font = 'bold 10px Inter';
+                    kFoldCtx.textAlign = 'center';
+                    kFoldCtx.fillText(j+1, x + (foldWidth - 5) / 2, y + 16);
+                }
+
+                // Draw fold type label
+                kFoldCtx.fillStyle = i === iteration ? '#ef4444' : '#5eead4';
+                kFoldCtx.font = 'bold 12px Inter';
+                kFoldCtx.textAlign = 'right';
+                kFoldCtx.fillText(i === iteration ? 'VALIDATION' : 'TRAINING', width - 20, y + 20);
+            }
+
+            // Draw legend
+            kFoldCtx.fillStyle = '#5eead4';
+            kFoldCtx.fillRect(50, height - 40, 15, 15);
+            kFoldCtx.fillStyle = '#c8cad8';
+            kFoldCtx.font = '12px Inter';
+            kFoldCtx.textAlign = 'left';
+            kFoldCtx.fillText('Training Samples', 75, height - 28);
+
+            kFoldCtx.fillStyle = '#ef4444';
+            kFoldCtx.fillRect(300, height - 40, 15, 15);
+            kFoldCtx.fillText('Validation Samples', 325, height - 28);
+        }
+
+        function updateKFoldStats() {
+            const k = kFoldState.k;
+            const iteration = kFoldState.currentIteration;
+
+            kFoldIteration.textContent = `Iteration: ${iteration + 1}/${k}`;
+
+            if (kFoldState.foldAccuracies.length > 0) {
+                kFoldAccuracy.textContent = kFoldState.foldAccuracies[iteration].toFixed(1) + '%';
+                const avg = kFoldState.foldAccuracies.reduce((a, b) => a + b) / kFoldState.foldAccuracies.length;
+                kFoldAvg.textContent = avg.toFixed(1) + '%';
+            }
+        }
+
+        kFoldSlider.addEventListener('input', (e) => {
+            kFoldState.k = parseInt(e.target.value);
+            kValue.textContent = kFoldState.k;
+            kFoldState.currentIteration = 0;
+            kFoldState.foldAccuracies = generateFoldAccuracies(kFoldState.k);
+            drawKFoldVisualization();
+            updateKFoldStats();
+        });
+
+        animateBtn.addEventListener('click', async () => {
+            if (kFoldState.isAnimating) return;
+            kFoldState.isAnimating = true;
+
+            for (let i = 0; i < kFoldState.k; i++) {
+                kFoldState.currentIteration = i;
+                drawKFoldVisualization();
+                updateKFoldStats();
+                await new Promise(resolve => setTimeout(resolve, 800));
+            }
+
+            kFoldState.isAnimating = false;
+        });
+
+        resetBtn.addEventListener('click', () => {
+            kFoldState.currentIteration = 0;
+            kFoldState.foldAccuracies = generateFoldAccuracies(kFoldState.k);
+            drawKFoldVisualization();
+            updateKFoldStats();
+        });
+
+        // Initialize
+        kFoldState.foldAccuracies = generateFoldAccuracies(5);
+        drawKFoldVisualization();
+        updateKFoldStats();
+
+        // Time Series Split Visualization
+        const tsCanvas = document.getElementById('tsCanvas');
+        const tsCtx = tsCanvas.getContext('2d');
+        const drawTSBtn = document.getElementById('drawTSSplit');
+
+        function drawTimeSeriesSplit() {
+            const width = tsCanvas.width;
+            const height = tsCanvas.height;
+            const numSamples = 120;
+            const numFolds = 4;
+            const sampleWidth = (width - 100) / numSamples;
+            const foldHeight = (height - 80) / numFolds;
+
+            tsCtx.fillStyle = '#0a0b14';
+            tsCtx.fillRect(0, 0, width, height);
+
+            const colors = ['#5eead4', '#a78bfa'];
+
+            for (let fold = 0; fold < numFolds; fold++) {
+                const y = 30 + fold * foldHeight;
+
+                // Fold label
+                tsCtx.fillStyle = '#6b6e8a';
+                tsCtx.font = '12px Inter';
+                tsCtx.fillText(`Fold ${fold + 1}`, 10, y + 20);
+
+                // Training set (expanding)
+                const trainEnd = (fold + 1) * (numSamples / numFolds);
+                for (let i = 0; i < trainEnd; i++) {
+                    const x = 60 + i * sampleWidth;
+                    tsCtx.fillStyle = '#5eead4';
+                    tsCtx.fillRect(x, y + 5, sampleWidth - 2, foldHeight - 15);
+                    tsCtx.strokeStyle = '#1e2045';
+                    tsCtx.lineWidth = 1;
+                    tsCtx.strokeRect(x, y + 5, sampleWidth - 2, foldHeight - 15);
+                }
+
+                // Validation set
+                const valStart = trainEnd;
+                const valEnd = trainEnd + (numSamples / numFolds);
+                for (let i = valStart; i < valEnd && i < numSamples; i++) {
+                    const x = 60 + i * sampleWidth;
+                    tsCtx.fillStyle = '#ef4444';
+                    tsCtx.fillRect(x, y + 5, sampleWidth - 2, foldHeight - 15);
+                    tsCtx.strokeStyle = '#1e2045';
+                    tsCtx.lineWidth = 1;
+                    tsCtx.strokeRect(x, y + 5, sampleWidth - 2, foldHeight - 15);
+                }
+
+                // Labels
+                tsCtx.fillStyle = '#a78bfa';
+                tsCtx.font = 'bold 11px Inter';
+                tsCtx.textAlign = 'right';
+                tsCtx.fillText('TRAIN', 55 + (trainEnd * sampleWidth / 2), y + 20);
+                tsCtx.fillStyle = '#ef4444';
+                tsCtx.fillText('VAL', 65 + (valStart * sampleWidth) + ((valEnd - valStart) * sampleWidth / 2), y + 20);
+            }
+
+            // Legend
+            tsCtx.fillStyle = '#5eead4';
+            tsCtx.fillRect(60, height - 40, 15, 15);
+            tsCtx.fillStyle = '#c8cad8';
+            tsCtx.font = '12px Inter';
+            tsCtx.textAlign = 'left';
+            tsCtx.fillText('Training Data (Past)', 85, height - 28);
+
+            tsCtx.fillStyle = '#ef4444';
+            tsCtx.fillRect(350, height - 40, 15, 15);
+            tsCtx.fillStyle = '#c8cad8';
+            tsCtx.fillText('Validation Data (Future)', 375, height - 28);
+
+            // Arrow showing time direction
+            tsCtx.strokeStyle = '#a78bfa';
+            tsCtx.lineWidth = 2;
+            tsCtx.beginPath();
+            tsCtx.moveTo(70, height - 65);
+            tsCtx.lineTo(width - 30, height - 65);
+            tsCtx.stroke();
+            tsCtx.beginPath();
+            tsCtx.moveTo(width - 40, height - 70);
+            tsCtx.lineTo(width - 30, height - 65);
+            tsCtx.lineTo(width - 40, height - 60);
+            tsCtx.stroke();
+
+            tsCtx.fillStyle = '#a78bfa';
+            tsCtx.font = 'bold 12px Inter';
+            tsCtx.fillText('TIME →', width - 110, height - 50);
+        }
+
+        drawTSBtn.addEventListener('click', drawTimeSeriesSplit);
+        drawTimeSeriesSplit(); // Draw on load
+
+        // Responsive canvas resizing
+        function resizeCanvases() {
+            const containerWidth = kFoldCanvas.parentElement.offsetWidth - 40;
+            if (containerWidth < kFoldCanvas.width) {
+                kFoldCanvas.width = Math.max(containerWidth, 500);
+                tsCanvas.width = Math.max(containerWidth, 500);
+                drawKFoldVisualization();
+                drawTimeSeriesSplit();
+            }
+        }
+
+        window.addEventListener('resize', resizeCanvases);
+    </script>
+</body>
+</html>

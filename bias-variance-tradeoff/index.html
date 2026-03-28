@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bias-Variance Tradeoff - Interactive Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0b14;
+            --bg-secondary: #12142a;
+            --border-color: #1e2045;
+            --text-primary: #c8cad8;
+            --text-dim: #6b6e8a;
+            --accent: #a78bfa;
+            --accent2: #5eead4;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto Mono', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .tags {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background-color: var(--border-color);
+            color: var(--accent);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 20px 0;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin: 40px 0 25px 0;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin: 25px 0 15px 0;
+            color: var(--accent2);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            font-size: 1.05rem;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+
+        .callout {
+            background-color: rgba(167, 139, 250, 0.08);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .math-block {
+            background-color: var(--border-color);
+            border-left: 4px solid var(--accent2);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            line-height: 1.8;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .slider-container {
+            margin: 30px 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: var(--border-color);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(167, 139, 250, 0.5);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(167, 139, 250, 0.5);
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .slider-value {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        canvas {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #050609;
+            display: block;
+            margin: 20px 0;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric {
+            background-color: var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(94, 234, 212, 0.2);
+        }
+
+        .metric-label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent2);
+            font-family: 'Courier New', monospace;
+        }
+
+        .bullseye-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .bullseye-container {
+            text-align: center;
+        }
+
+        .bullseye-label {
+            margin-top: 15px;
+            font-weight: 600;
+            color: var(--accent2);
+        }
+
+        .list-section {
+            margin: 20px 0;
+        }
+
+        .list-section ul, .list-section ol {
+            margin-left: 30px;
+        }
+
+        .list-section li {
+            margin: 12px 0;
+            color: var(--text-primary);
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .highlight2 {
+            color: var(--accent2);
+            font-weight: 600;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .comparison-cell {
+            background-color: var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(167, 139, 250, 0.1);
+        }
+
+        .comparison-header {
+            font-weight: 700;
+            color: var(--accent2);
+            margin-bottom: 8px;
+        }
+
+        strong {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="tags">
+                <span class="tag">Machine Learning</span>
+                <span class="tag">Model Evaluation</span>
+            </div>
+            <h1>Bias-Variance Tradeoff</h1>
+            <p style="color: var(--text-dim); font-size: 1.1rem; margin-top: 20px;">
+                Understanding the fundamental tradeoff between model simplicity and complexity
+            </p>
+        </header>
+
+        <!-- Section 1: Definitions -->
+        <section>
+            <h2>What Is Bias? What Is Variance?</h2>
+
+            <div class="card">
+                <h3>Bias</h3>
+                <p>Bias refers to the <span class="highlight">error introduced by approximating a real-world problem with a simplified model</span>. When a model has high bias, it makes strong assumptions about the data and fails to capture the underlying patterns.</p>
+                <div class="callout">
+                    <strong>Key Insight:</strong> High bias leads to <span class="highlight">underfitting</span>, where the model is too simple and performs poorly on both training and test data. Example: fitting a straight line to data that follows a nonlinear curve.
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Variance</h3>
+                <p>Variance refers to the <span class="highlight">sensitivity of the model to fluctuations in the training data</span>. When a model has high variance, it overreacts to individual data points and noise in the training set.</p>
+                <div class="callout">
+                    <strong>Key Insight:</strong> High variance leads to <span class="highlight">overfitting</span>, where the model fits the training data too closely, including noise, and generalizes poorly to new data. Example: a 10th-degree polynomial fitted to a handful of points.
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Underfitting (High Bias)</h3>
+                    <p><strong>Symptoms:</strong></p>
+                    <div class="list-section">
+                        <ul>
+                            <li>Poor training accuracy</li>
+                            <li>Poor test accuracy</li>
+                            <li>Model is too simple</li>
+                            <li>Misses key patterns</li>
+                        </ul>
+                    </div>
+                    <p><strong>Causes:</strong></p>
+                    <div class="list-section">
+                        <ul>
+                            <li>Insufficient model capacity</li>
+                            <li>Too few features</li>
+                            <li>Strong regularization</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Overfitting (High Variance)</h3>
+                    <p><strong>Symptoms:</strong></p>
+                    <div class="list-section">
+                        <ul>
+                            <li>Excellent training accuracy</li>
+                            <li>Poor test accuracy</li>
+                            <li>Model is too complex</li>
+                            <li>Memorizes noise</li>
+                        </ul>
+                    </div>
+                    <p><strong>Causes:</strong></p>
+                    <div class="list-section">
+                        <ul>
+                            <li>Excessive model capacity</li>
+                            <li>Too many features</li>
+                            <li>Insufficient training data</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The Tradeoff -->
+        <section>
+            <h2>The Bias-Variance Tradeoff</h2>
+
+            <p>The fundamental idea is that as you increase model complexity:</p>
+            <div class="list-section">
+                <ul>
+                    <li><span class="highlight">Bias decreases</span> — the model becomes more flexible and can better capture complex patterns</li>
+                    <li><span class="highlight">Variance increases</span> — the model becomes more sensitive to training data variations</li>
+                </ul>
+            </div>
+
+            <p>There exists an <span class="highlight">optimal complexity</span> that minimizes total error. Finding this sweet spot is the central challenge in machine learning.</p>
+
+            <div class="math-block">
+Total Error = Bias² + Variance + Irreducible Error
+
+where:
+  • Bias² = (E[ŷ] - y)²
+  • Variance = E[(ŷ - E[ŷ])²]
+  • Irreducible Error = noise inherent in the problem
+            </div>
+
+            <div class="callout">
+                <strong>Irreducible Error:</strong> Also called <em>noise</em>, this is the minimum error that cannot be reduced regardless of model choice. It represents the variance in the target variable that cannot be explained by the features.
+            </div>
+
+            <p>As model complexity increases, we move along a curve: high bias (left) → optimal (middle) → high variance (right). The goal is to find the sweet spot that minimizes total test error.</p>
+        </section>
+
+        <!-- Section 3: Interactive Model Complexity Slider -->
+        <section>
+            <h2>Interactive: Model Complexity Slider</h2>
+
+            <p>Use the slider below to adjust the polynomial degree fitted to noisy sine wave data. Observe how the model transitions from underfitting to overfitting.</p>
+
+            <div class="card">
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <label for="complexitySlider">Polynomial Degree (Model Complexity):</label>
+                        <span class="slider-value" id="complexityValue">1</span>
+                    </div>
+                    <input type="range" id="complexitySlider" class="slider" min="1" max="15" value="1">
+                </div>
+
+                <canvas id="fitCanvas" width="800" height="400"></canvas>
+
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="metric-label">Bias (est.)</div>
+                        <div class="metric-value" id="biasValue">High</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Variance (est.)</div>
+                        <div class="metric-value" id="varianceValue">Low</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Status</div>
+                        <div class="metric-value" id="statusValue">Underfitting</div>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <strong>Observe:</strong> At low degrees (1-2), the line cannot capture the sine wave pattern (underfitting). At medium degrees (4-6), we get a good balance. At high degrees (10-15), the curve wiggles erratically through data points (overfitting).
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Bullseye Diagram -->
+        <section>
+            <h2>Visual: The Classic Bullseye Diagram</h2>
+
+            <p>The bullseye diagrams below illustrate the four combinations of bias and variance. The center is the true target value.</p>
+
+            <div class="bullseye-grid">
+                <div class="bullseye-container">
+                    <canvas id="bullseye1" width="300" height="300"></canvas>
+                    <div class="bullseye-label">Low Bias / Low Variance<br><span style="color: var(--accent2); font-size: 0.9rem;">✓ Ideal</span></div>
+                </div>
+                <div class="bullseye-container">
+                    <canvas id="bullseye2" width="300" height="300"></canvas>
+                    <div class="bullseye-label">Low Bias / High Variance<br><span style="color: var(--text-dim); font-size: 0.9rem;">Overfitting</span></div>
+                </div>
+                <div class="bullseye-container">
+                    <canvas id="bullseye3" width="300" height="300"></canvas>
+                    <div class="bullseye-label">High Bias / Low Variance<br><span style="color: var(--text-dim); font-size: 0.9rem;">Underfitting</span></div>
+                </div>
+                <div class="bullseye-container">
+                    <canvas id="bullseye4" width="300" height="300"></canvas>
+                    <div class="bullseye-label">High Bias / High Variance<br><span style="color: var(--text-dim); font-size: 0.9rem;">Worst Case</span></div>
+                </div>
+            </div>
+
+            <div class="callout">
+                <strong>Interpretation:</strong> Each dot represents a prediction from a model trained on different subsets of data. Accuracy (closeness to center) reflects bias, and precision (clustering) reflects variance.
+            </div>
+        </section>
+
+        <!-- Section 5: Regularization -->
+        <section>
+            <h2>Regularization: Controlling Variance</h2>
+
+            <p>Regularization techniques add constraints to the learning process to reduce variance and prevent overfitting:</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>L2 Regularization (Ridge)</h3>
+                    <p>Adds a penalty proportional to the <strong>square</strong> of feature coefficients.</p>
+                    <div class="math-block">
+Cost = MSE(y, ŷ) + λ ∑(w²)
+
+λ (lambda) = regularization strength
+                    </div>
+                    <p><strong>Effects:</strong></p>
+                    <div class="list-section">
+                        <ul>
+                            <li>Shrinks large coefficients</li>
+                            <li>Keeps all features</li>
+                            <li>Smooth decision boundaries</li>
+                            <li>Reduces variance</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>L1 Regularization (Lasso)</h3>
+                    <p>Adds a penalty proportional to the <strong>absolute value</strong> of feature coefficients.</p>
+                    <div class="math-block">
+Cost = MSE(y, ŷ) + λ ∑(|w|)
+
+λ (lambda) = regularization strength
+                    </div>
+                    <p><strong>Effects:</strong></p>
+                    <div class="list-section">
+                        <ul>
+                            <li>Can shrink to zero</li>
+                            <li>Feature selection</li>
+                            <li>Sparse models</li>
+                            <li>Interpretability</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout">
+                <strong>Strategy:</strong> Start with no regularization, observe overfitting on validation data, then gradually increase λ until validation performance stabilizes. This trades some training accuracy for better generalization.
+            </div>
+        </section>
+
+        <!-- Section 6: Practical Tips -->
+        <section>
+            <h2>Practical Tips for Managing Bias-Variance</h2>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Diagnosing the Problem</h3>
+                    <div class="list-section">
+                        <ol>
+                            <li><strong>Compare training vs. validation error</strong>
+                                <ul style="margin-top: 8px;">
+                                    <li>Both high? Likely high bias (underfitting)</li>
+                                    <li>Training low, validation high? Likely high variance (overfitting)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Plot learning curves</strong> showing error vs. training set size. Converging curves = bias problem. Diverging curves = variance problem.</li>
+                            <li><strong>Use cross-validation</strong> to get robust estimates of generalization error.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Solutions</h3>
+                    <div class="list-section">
+                        <ol>
+                            <li><strong>For High Bias (Underfitting)</strong>
+                                <ul style="margin-top: 8px;">
+                                    <li>Increase model complexity</li>
+                                    <li>Add more relevant features</li>
+                                    <li>Decrease regularization strength</li>
+                                    <li>Train longer (for neural nets)</li>
+                                </ul>
+                            </li>
+                            <li><strong>For High Variance (Overfitting)</strong>
+                                <ul style="margin-top: 8px;">
+                                    <li>Increase training data</li>
+                                    <li>Reduce model complexity</li>
+                                    <li>Increase regularization strength</li>
+                                    <li>Use ensemble methods</li>
+                                    <li>Early stopping (for neural nets)</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Cross-Validation</h3>
+                <p>K-fold cross-validation splits data into K subsets, training K models and averaging results. This provides a robust estimate of generalization error and reduces variance in your performance estimates.</p>
+                <div class="math-block">
+K-Fold Process:
+  1. Split data into K equal folds
+  2. For each fold i:
+     - Use fold i as validation
+     - Train on remaining K-1 folds
+     - Record validation error
+  3. Average the K validation errors
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Ensemble Methods</h3>
+                <p>Combining multiple models reduces variance without significantly increasing bias.</p>
+                <div class="comparison-grid">
+                    <div class="comparison-cell">
+                        <div class="comparison-header">Bagging</div>
+                        <p style="font-size: 0.95rem;">Train models on random subsets, average predictions. Reduces variance.</p>
+                    </div>
+                    <div class="comparison-cell">
+                        <div class="comparison-header">Boosting</div>
+                        <p style="font-size: 0.95rem;">Sequential training focusing on hard examples. Reduces bias and variance.</p>
+                    </div>
+                    <div class="comparison-cell">
+                        <div class="comparison-header">Stacking</div>
+                        <p style="font-size: 0.95rem;">Meta-learner combines base models. Reduces overall error.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Applications in ML -->
+        <section>
+            <h2>Applications in Machine Learning</h2>
+
+            <div class="card">
+                <h3>Model Selection</h3>
+                <p>When choosing between models, consider their bias-variance characteristics:</p>
+                <div class="list-section">
+                    <ul>
+                        <li><strong>Linear models</strong> (linear regression, logistic regression): High bias, low variance. Good starting point, especially with small datasets.</li>
+                        <li><strong>Tree-based models</strong> (decision trees, random forests): Flexible bias-variance tradeoff. Trees have high variance but forests reduce it.</li>
+                        <li><strong>Neural networks</strong>: Can represent any function (low bias) but require regularization and large datasets to prevent overfitting (reduce variance).</li>
+                        <li><strong>Support vector machines</strong>: Configurable via kernel choice and regularization parameter C.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Hyperparameter Tuning</h3>
+                <p>Different hyperparameters control the bias-variance tradeoff:</p>
+                <div class="comparison-grid">
+                    <div class="comparison-cell">
+                        <div class="comparison-header">Tree Depth</div>
+                        <p style="font-size: 0.95rem;">↑ depth → ↓ bias, ↑ variance</p>
+                    </div>
+                    <div class="comparison-cell">
+                        <div class="comparison-header">Learning Rate</div>
+                        <p style="font-size: 0.95rem;">↑ rate → ↓ training time, ↑ noise</p>
+                    </div>
+                    <div class="comparison-cell">
+                        <div class="comparison-header">Regularization λ</div>
+                        <p style="font-size: 0.95rem;">↑ λ → ↑ bias, ↓ variance</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Data Collection</h3>
+                <p>More data always helps:</p>
+                <div class="list-section">
+                    <ul>
+                        <li><strong>Reduces variance:</strong> Larger datasets make model predictions more stable across different training runs.</li>
+                        <li><strong>Allows complex models:</strong> With more data, you can safely use higher-capacity models without overfitting.</li>
+                        <li><strong>Improves all metrics:</strong> More diverse data helps both bias and variance.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>© 2025 Sim Vattanac · vattanacsim99@gmail.com</p>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================================================
+        // SECTION 3: Interactive Model Complexity Slider
+        // ============================================================================
+
+        const canvas = document.getElementById('fitCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('complexitySlider');
+        const complexityValue = document.getElementById('complexityValue');
+        const biasValue = document.getElementById('biasValue');
+        const varianceValue = document.getElementById('varianceValue');
+        const statusValue = document.getElementById('statusValue');
+
+        // Generate data: noisy sine wave
+        const generateData = () => {
+            const points = [];
+            for (let i = 0; i < 50; i++) {
+                const x = (i / 50) * 2 * Math.PI;
+                const yTrue = Math.sin(x);
+                const noise = (Math.random() - 0.5) * 0.4;
+                points.push({ x, y: yTrue + noise });
+            }
+            return points;
+        };
+
+        const data = generateData();
+
+        // Polynomial fit using Vandermonde matrix (simplified least squares)
+        const fitPolynomial = (data, degree) => {
+            const n = data.length;
+
+            // Build Vandermonde matrix
+            const A = [];
+            const b = [];
+            for (let i = 0; i < n; i++) {
+                const row = [];
+                for (let j = 0; j <= degree; j++) {
+                    row.push(Math.pow(data[i].x, j));
+                }
+                A.push(row);
+                b.push(data[i].y);
+            }
+
+            // Normal equations: A^T A coeff = A^T b
+            const cols = degree + 1;
+            const AtA = [];
+            const Atb = [];
+
+            for (let i = 0; i < cols; i++) {
+                AtA[i] = [];
+                for (let j = 0; j < cols; j++) {
+                    let sum = 0;
+                    for (let k = 0; k < n; k++) {
+                        sum += A[k][i] * A[k][j];
+                    }
+                    AtA[i][j] = sum;
+                }
+                let sum = 0;
+                for (let k = 0; k < n; k++) {
+                    sum += A[k][i] * b[k];
+                }
+                Atb[i] = sum;
+            }
+
+            // Gaussian elimination
+            const coeff = gaussianElimination(AtA, Atb);
+            return coeff;
+        };
+
+        const gaussianElimination = (A, b) => {
+            const n = A.length;
+            const aug = A.map((row, i) => [...row, b[i]]);
+
+            // Forward elimination
+            for (let i = 0; i < n; i++) {
+                let maxRow = i;
+                for (let k = i + 1; k < n; k++) {
+                    if (Math.abs(aug[k][i]) > Math.abs(aug[maxRow][i])) {
+                        maxRow = k;
+                    }
+                }
+                [aug[i], aug[maxRow]] = [aug[maxRow], aug[i]];
+
+                for (let k = i + 1; k < n; k++) {
+                    const c = aug[k][i] / aug[i][i];
+                    for (let j = i; j <= n; j++) {
+                        aug[k][j] -= c * aug[i][j];
+                    }
+                }
+            }
+
+            // Back substitution
+            const x = new Array(n).fill(0);
+            for (let i = n - 1; i >= 0; i--) {
+                x[i] = aug[i][n];
+                for (let j = i + 1; j < n; j++) {
+                    x[i] -= aug[i][j] * x[j];
+                }
+                x[i] /= aug[i][i];
+            }
+            return x;
+        };
+
+        const drawFitPlot = (degree) => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const margin = 50;
+            const width = canvas.width - 2 * margin;
+            const height = canvas.height - 2 * margin;
+
+            // Draw axes
+            ctx.strokeStyle = '#6b6e8a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin, canvas.height - margin);
+            ctx.lineTo(canvas.width - margin, canvas.height - margin);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(margin, margin);
+            ctx.lineTo(margin, canvas.height - margin);
+            ctx.stroke();
+
+            // Fit polynomial
+            const coeff = fitPolynomial(data, degree);
+
+            // Draw true sine wave
+            ctx.strokeStyle = '#5eead4';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 0; i < 200; i++) {
+                const x = (i / 200) * 2 * Math.PI;
+                const y = Math.sin(x);
+                const px = margin + (x / (2 * Math.PI)) * width;
+                const py = canvas.height - margin - (y + 1) / 2 * height;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+
+            // Draw fitted curve
+            ctx.strokeStyle = '#a78bfa';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            for (let i = 0; i < 200; i++) {
+                const x = (i / 200) * 2 * Math.PI;
+                let y = 0;
+                for (let j = 0; j < coeff.length; j++) {
+                    y += coeff[j] * Math.pow(x, j);
+                }
+                const px = margin + (x / (2 * Math.PI)) * width;
+                const py = canvas.height - margin - (y + 1) / 2 * height;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+
+            // Draw data points
+            ctx.fillStyle = '#c8cad8';
+            for (const point of data) {
+                const px = margin + (point.x / (2 * Math.PI)) * width;
+                const py = canvas.height - margin - (point.y + 1) / 2 * height;
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            // Legend
+            ctx.fillStyle = '#5eead4';
+            ctx.fillRect(canvas.width - 180, margin, 15, 15);
+            ctx.fillStyle = '#c8cad8';
+            ctx.font = '12px Inter';
+            ctx.fillText('True Sine', canvas.width - 155, margin + 12);
+
+            ctx.fillStyle = '#a78bfa';
+            ctx.fillRect(canvas.width - 180, margin + 25, 15, 15);
+            ctx.fillStyle = '#c8cad8';
+            ctx.fillText('Fitted Curve', canvas.width - 155, margin + 37);
+        };
+
+        const updateMetrics = (degree) => {
+            let biasLevel, varianceLevel, status;
+
+            if (degree <= 2) {
+                biasLevel = 'High';
+                varianceLevel = 'Low';
+                status = 'Underfitting';
+            } else if (degree <= 5) {
+                biasLevel = 'Low';
+                varianceLevel = 'Low';
+                status = 'Optimal';
+            } else if (degree <= 10) {
+                biasLevel = 'Low';
+                varianceLevel = 'Medium';
+                status = 'Slight Overfit';
+            } else {
+                biasLevel = 'Very Low';
+                varianceLevel = 'High';
+                status = 'Overfitting';
+            }
+
+            biasValue.textContent = biasLevel;
+            varianceValue.textContent = varianceLevel;
+            statusValue.textContent = status;
+        };
+
+        slider.addEventListener('input', (e) => {
+            const degree = parseInt(e.target.value);
+            complexityValue.textContent = degree;
+            drawFitPlot(degree);
+            updateMetrics(degree);
+        });
+
+        // Initial draw
+        drawFitPlot(1);
+        updateMetrics(1);
+
+        // ============================================================================
+        // SECTION 4: Bullseye Diagrams
+        // ============================================================================
+
+        const drawBullseye = (canvasId, pattern) => {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw background
+            ctx.fillStyle = '#050609';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw bullseye rings
+            const ringColor = '#1e2045';
+            for (let i = 3; i >= 1; i--) {
+                ctx.fillStyle = ringColor;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, i * 30, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            // Center dot
+            ctx.fillStyle = '#5eead4';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 5, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Draw shots based on pattern
+            const patterns = {
+                'low-bias-low-var': { points: 12, spread: 8, offsetX: 0, offsetY: 0 },
+                'low-bias-high-var': { points: 12, spread: 40, offsetX: 0, offsetY: 0 },
+                'high-bias-low-var': { points: 12, spread: 8, offsetX: 25, offsetY: 25 },
+                'high-bias-high-var': { points: 12, spread: 50, offsetX: 30, offsetY: 30 }
+            };
+
+            const config = patterns[pattern];
+            ctx.fillStyle = '#a78bfa';
+
+            for (let i = 0; i < config.points; i++) {
+                const angle = (i / config.points) * 2 * Math.PI;
+                const baseRadius = config.spread;
+                const radius = baseRadius + (Math.random() - 0.5) * 10;
+                const x = centerX + config.offsetX + Math.cos(angle) * radius;
+                const y = centerY + config.offsetY + Math.sin(angle) * radius;
+
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            // Border
+            ctx.strokeStyle = '#1e2045';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+        };
+
+        drawBullseye('bullseye1', 'low-bias-low-var');
+        drawBullseye('bullseye2', 'low-bias-high-var');
+        drawBullseye('bullseye3', 'high-bias-low-var');
+        drawBullseye('bullseye4', 'high-bias-high-var');
+    </script>
+</body>
+</html>

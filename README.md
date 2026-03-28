@@ -6,7 +6,7 @@ A collection of interactive, self-contained HTML explainers covering foundationa
 
 Each project runs entirely in the browser with zero dependencies.
 
-> **27 projects** across **8 categories**
+> **32 projects** across **9 categories**
 
 ---
 
@@ -24,6 +24,16 @@ Each project runs entirely in the browser with zero dependencies.
 | 6 | Hypothesis Testing (t-test, p-value) | — | [`hypothesis-testing/`](hypothesis-testing/) |
 | 7 | Bayes' Theorem — Conditional Probability | — | [`bayes-theorem/`](bayes-theorem/) |
 | 8 | Correlation vs Causation | — | [`correlation-vs-causation/`](correlation-vs-causation/) |
+
+### 🤖 Machine Learning Foundations `5 projects`
+
+| # | Project | Demo | Repo |
+|---|---------|------|------|
+| 1 | K-Means Clustering — Interactive Visualization | — | [`k-means-clustering/`](k-means-clustering/) |
+| 2 | Decision Trees & Random Forest | — | [`decision-trees-and-random-forest/`](decision-trees-and-random-forest/) |
+| 3 | Bias-Variance Tradeoff — Interactive Explorer | — | [`bias-variance-tradeoff/`](bias-variance-tradeoff/) |
+| 4 | Confusion Matrix, Precision, Recall & F1 | — | [`confusion-matrix-and-metrics/`](confusion-matrix-and-metrics/) |
+| 5 | Cross-Validation — K-Fold Visualizer | — | [`cross-validation/`](cross-validation/) |
 
 ---
 

@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Means Clustering Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0b14;
+            color: #c8cad8;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #a78bfa, #5eead4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #12142a;
+            border: 1px solid #1e2045;
+            color: #5eead4;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #a78bfa;
+            border-bottom: 2px solid #1e2045;
+            padding-bottom: 0.5rem;
+        }
+
+        .section h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #5eead4;
+        }
+
+        .card {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout {
+            background: #12142a;
+            border-left: 4px solid #a78bfa;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            font-style: italic;
+        }
+
+        .callout.warning {
+            border-left-color: #5eead4;
+        }
+
+        .math {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            color: #5eead4;
+        }
+
+        .step {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #a78bfa;
+            color: #0a0b14;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 2.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .step h3 {
+            display: inline-block;
+            margin: 0;
+            color: #c8cad8;
+        }
+
+        .step p {
+            margin-left: 4rem;
+            margin-top: 0.5rem;
+            color: #6b6e8a;
+        }
+
+        .controls {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .control-group label {
+            color: #c8cad8;
+            font-weight: 500;
+        }
+
+        .control-group input[type="range"],
+        .control-group input[type="number"],
+        .control-group select {
+            background: #0a0b14;
+            border: 1px solid #1e2045;
+            color: #c8cad8;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .control-group input[type="range"] {
+            width: 120px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #a78bfa, #5eead4);
+            border: none;
+            color: #0a0b14;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        canvas {
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            display: block;
+            background: #0a0b14;
+            margin-top: 1rem;
+        }
+
+        .canvas-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-top: 1rem;
+        }
+
+        .application-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .info-box {
+            background: #12142a;
+            border: 1px solid #1e2045;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .info-box h4 {
+            color: #5eead4;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-box p {
+            color: #6b6e8a;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid #1e2045;
+            text-align: center;
+            color: #6b6e8a;
+            font-size: 0.9rem;
+        }
+
+        .status-text {
+            color: #5eead4;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-box {
+            background: #0a0b14;
+            border: 1px solid #1e2045;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #6b6e8a;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            color: #a78bfa;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>K-Means Clustering</h1>
+            <div class="tags">
+                <span class="tag">MACHINE LEARNING</span>
+                <span class="tag">CLUSTERING</span>
+            </div>
+            <p style="color: #6b6e8a; margin-top: 0.5rem;">A comprehensive guide to understanding and implementing K-Means clustering with interactive visualizations.</p>
+        </header>
+
+        <!-- What Is K-Means Section -->
+        <section class="section">
+            <h2>What Is K-Means?</h2>
+            <div class="card">
+                <p>K-Means is one of the most popular unsupervised learning algorithms used to partition a dataset into K distinct clusters. Each cluster is represented by its <strong>centroid</strong> (center point), and the algorithm aims to group similar data points together while keeping clusters as compact as possible.</p>
+            </div>
+
+            <h3>Algorithm Overview</h3>
+            <p>K-Means works by iteratively assigning data points to the nearest centroid and then recalculating centroid positions. The process continues until centroids stabilize and no more changes occur.</p>
+
+            <h3>Objective Function</h3>
+            <div class="math">
+J = Σ Σ ||x_i - c_k||²<br>
+<br>
+where:<br>
+• x_i = individual data point<br>
+• c_k = centroid of cluster k<br>
+• ||x_i - c_k||² = squared Euclidean distance<br>
+<br>
+Goal: Minimize J (within-cluster sum of squares)
+            </div>
+
+            <div class="callout">
+                The algorithm minimizes the total within-cluster sum of squares, ensuring that points in the same cluster are as similar as possible.
+            </div>
+        </section>
+
+        <!-- Algorithm Step-by-Step Section -->
+        <section class="section">
+            <h2>The Algorithm Step-by-Step</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Initialize Centroids</h3>
+                <p>Randomly select K data points from the dataset as initial centroids. Better initialization methods (like K-Means++) improve convergence.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Assign Points to Nearest Centroid</h3>
+                <p>Calculate the distance from each data point to all centroids. Assign each point to the cluster of the nearest centroid. This creates K clusters.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Update Centroids</h3>
+                <p>Recalculate the position of each centroid by taking the mean of all points assigned to that cluster.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h3>Repeat Until Convergence</h3>
+                <p>Repeat steps 2-3 until centroids stop moving or the algorithm reaches the maximum iteration limit.</p>
+            </div>
+
+            <div class="callout warning">
+                Convergence is typically fast, often requiring only 5-20 iterations for reasonable datasets.
+            </div>
+        </section>
+
+        <!-- Interactive Visualization Section -->
+        <section class="section">
+            <h2>Interactive: K-Means Visualization</h2>
+            <p>Click on the canvas to add points, then watch the algorithm animate step by step. The centroids are shown as larger shapes, and cluster membership changes color with each iteration.</p>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="kValue">K (number of clusters):</label>
+                    <select id="kValue">
+                        <option value="2">2</option>
+                        <option value="3" selected>3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <button onclick="startKMeans()">Start Algorithm</button>
+                <button onclick="resetVisualization()">Reset</button>
+                <button onclick="nextIteration()">Next Step</button>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="vizCanvas" width="900" height="500"></canvas>
+            </div>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">Iteration</div>
+                    <div class="stat-value" id="iterationCount">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Inertia</div>
+                    <div class="stat-value" id="inertiaValue">0.00</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Points</div>
+                    <div class="stat-value" id="pointsCount">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Status</div>
+                    <div class="stat-value" id="statusLabel" style="font-size: 0.9rem;">Ready</div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #60a5fa;"></div>
+                    <span>Cluster 1</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f472b6;"></div>
+                    <span>Cluster 2</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4ade80;"></div>
+                    <span>Cluster 3</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #facc15;"></div>
+                    <span>Cluster 4</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f97316;"></div>
+                    <span>Cluster 5</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #a78bfa; border: 2px solid #5eead4;"></div>
+                    <span>Centroid</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Choosing K: Elbow Method Section -->
+        <section class="section">
+            <h2>Choosing K: The Elbow Method</h2>
+            <div class="card">
+                <p>One of the main challenges with K-Means is deciding how many clusters (K) to create. The <strong>Elbow Method</strong> is a popular heuristic for selecting K.</p>
+            </div>
+
+            <h3>How It Works</h3>
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Run K-Means for Different Values of K</h3>
+                <p>Train the algorithm for K = 1, 2, 3, ... up to some reasonable maximum (typically 10).</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Measure Inertia</h3>
+                <p>For each K, calculate the inertia (within-cluster sum of squares).</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Plot Inertia vs K</h3>
+                <p>Create a graph with K on the x-axis and inertia on the y-axis. Look for the "elbow" point where inertia stops decreasing as rapidly.</p>
+            </div>
+
+            <h3>Interactive Elbow Method</h3>
+            <p>Click "Generate Data" to create sample data, then the elbow curve will automatically appear below:</p>
+
+            <div class="controls">
+                <button onclick="generateElbowData()">Generate Data</button>
+                <button onclick="resetElbowChart()">Reset Chart</button>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="elbowCanvas" width="900" height="350"></canvas>
+            </div>
+
+            <div class="callout">
+                Look for the "elbow" in the curve - the point where inertia decreases more slowly. This is typically a good choice for K.
+            </div>
+        </section>
+
+        <!-- K-Means++ Initialization Section -->
+        <section class="section">
+            <h2>K-Means++ Initialization</h2>
+            <div class="card">
+                <p><strong>K-Means++</strong> is an improved initialization method that addresses K-Means' sensitivity to initial centroid placement. Instead of random selection, it intelligently spreads out initial centroids.</p>
+            </div>
+
+            <h3>K-Means++ Algorithm</h3>
+            <div class="step">
+                <span class="step-number">1</span>
+                <h3>Choose First Centroid</h3>
+                <p>Randomly select the first centroid from the data points.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h3>Choose Remaining Centroids</h3>
+                <p>For each subsequent centroid, select a point with probability proportional to its squared distance from the nearest existing centroid. Points far from other centroids are more likely to be selected.</p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h3>Run Standard K-Means</h3>
+                <p>Once K centroids are initialized, run the standard K-Means algorithm.</p>
+            </div>
+
+            <div class="callout">
+                K-Means++ typically converges faster and to better solutions than random initialization, making it the preferred method in practice.
+            </div>
+
+            <h3>Benefits</h3>
+            <ul style="margin-left: 1.5rem; margin-top: 1rem;">
+                <li style="margin-bottom: 0.75rem;"><strong>Faster Convergence:</strong> Fewer iterations needed to reach final clusters.</li>
+                <li style="margin-bottom: 0.75rem;"><strong>Better Solutions:</strong> Higher likelihood of finding optimal or near-optimal clustering.</li>
+                <li style="margin-bottom: 0.75rem;"><strong>Reduced Variance:</strong> More consistent results across different runs.</li>
+            </ul>
+        </section>
+
+        <!-- Limitations Section -->
+        <section class="section">
+            <h2>Limitations</h2>
+
+            <div class="info-box">
+                <h4>Sensitive to Initialization</h4>
+                <p>Different random initializations can lead to different final clusters. This is why K-Means++ is often preferred as it provides more consistent results.</p>
+            </div>
+
+            <div class="info-box">
+                <h4>Assumes Spherical Clusters</h4>
+                <p>K-Means works best when clusters are roughly spherical and similarly sized. Non-convex or elongated clusters may not be properly identified.</p>
+            </div>
+
+            <div class="info-box">
+                <h4>K Must Be Specified</h4>
+                <p>Unlike hierarchical clustering, K-Means requires you to decide K in advance. Methods like the Elbow Method help, but they're not definitive.</p>
+            </div>
+
+            <div class="info-box">
+                <h4>Sensitive to Outliers</h4>
+                <p>A single outlier can significantly affect centroid positions. Consider data preprocessing or using robust variants like K-Medoids.</p>
+            </div>
+
+            <div class="info-box">
+                <h4>Local Optima</h4>
+                <p>K-Means may converge to a local minimum rather than the global optimum. Running multiple times with different initializations can help.</p>
+            </div>
+
+            <div class="info-box">
+                <h4>Computationally Expensive for Large K</h4>
+                <p>As K increases, computational cost grows. For very large K, consider approximate methods or hierarchical clustering instead.</p>
+            </div>
+        </section>
+
+        <!-- Applications Section -->
+        <section class="section">
+            <h2>Applications in Data Science</h2>
+
+            <div class="application-grid">
+                <div class="info-box">
+                    <h4>Customer Segmentation</h4>
+                    <p>Group customers based on purchasing behavior, demographics, or engagement metrics. Enables targeted marketing and personalized strategies.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Image Compression</h4>
+                    <p>Reduce the number of colors in an image by clustering similar colors and replacing them with cluster centroids. Dramatically reduces file size.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Anomaly Detection</h4>
+                    <p>Identify unusual data points by finding those far from cluster centroids. Useful for fraud detection and system monitoring.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Document Clustering</h4>
+                    <p>Group similar documents together for organization, recommendation systems, or topic discovery.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Gene Sequencing</h4>
+                    <p>Cluster DNA sequences or protein structures to identify similarities and evolutionary relationships in bioinformatics.</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Traffic Analysis</h4>
+                    <p>Group network traffic patterns to detect botnet activity, DDoS attacks, or unusual behavior in cybersecurity.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            © 2025 Sim Vattanac · vattanacsim99@gmail.com
+        </footer>
+    </div>
+
+    <script>
+        // ===== VISUALIZATION STATE =====
+        let points = [];
+        let centroids = [];
+        let clusters = [];
+        let iteration = 0;
+        let isRunning = false;
+        let maxIterations = 100;
+        let K = 3;
+
+        const clusterColors = [
+            '#60a5fa', '#f472b6', '#4ade80', '#facc15', '#f97316'
+        ];
+
+        const canvas = document.getElementById('vizCanvas');
+        const ctx = canvas.getContext('2d');
+        const CANVAS_WIDTH = canvas.width;
+        const CANVAS_HEIGHT = canvas.height;
+        const PADDING = 40;
+
+        // ===== EVENT LISTENERS =====
+        canvas.addEventListener('click', function(event) {
+            if (isRunning) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            // Check if click is within canvas bounds (with padding)
+            if (x > PADDING && x < CANVAS_WIDTH - PADDING &&
+                y > PADDING && y < CANVAS_HEIGHT - PADDING) {
+                points.push({
+                    x: x,
+                    y: y
+                });
+                updatePointsCount();
+                drawVisualization();
+            }
+        });
+
+        document.getElementById('kValue').addEventListener('change', function() {
+            K = parseInt(this.value);
+            resetVisualization();
+        });
+
+        // ===== K-MEANS LOGIC =====
+        function startKMeans() {
+            if (points.length < K) {
+                alert(`Need at least ${K} points to create ${K} clusters. Current: ${points.length}`);
+                return;
+            }
+            isRunning = true;
+            iteration = 0;
+            initializeCentroids();
+            updateVisualization();
+        }
+
+        function nextIteration() {
+            if (!isRunning || iteration >= maxIterations) return;
+
+            assignPointsToClusters();
+            const converged = updateCentroids();
+            iteration++;
+            updateVisualization();
+
+            if (converged || iteration >= maxIterations) {
+                isRunning = false;
+                updateStatus(converged ? 'Converged' : 'Max iterations reached');
+            }
+        }
+
+        function initializeCentroids() {
+            centroids = [];
+            const shuffled = [...points].sort(() => Math.random() - 0.5);
+            for (let i = 0; i < K; i++) {
+                if (i < shuffled.length) {
+                    centroids.push({
+                        x: shuffled[i].x,
+                        y: shuffled[i].y
+                    });
+                }
+            }
+            assignPointsToClusters();
+            updateStatus('Initialized');
+        }
+
+        function assignPointsToClusters() {
+            clusters = Array(K).fill(null).map(() => []);
+
+            points.forEach(point => {
+                let nearestCentroid = 0;
+                let minDistance = Infinity;
+
+                centroids.forEach((centroid, idx) => {
+                    const dist = distance(point, centroid);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        nearestCentroid = idx;
+                    }
+                });
+
+                clusters[nearestCentroid].push(point);
+                point.cluster = nearestCentroid;
+            });
+        }
+
+        function updateCentroids() {
+            let converged = true;
+            const newCentroids = [];
+
+            for (let i = 0; i < K; i++) {
+                if (clusters[i].length === 0) {
+                    newCentroids.push(centroids[i]);
+                    continue;
+                }
+
+                const avgX = clusters[i].reduce((sum, p) => sum + p.x, 0) / clusters[i].length;
+                const avgY = clusters[i].reduce((sum, p) => sum + p.y, 0) / clusters[i].length;
+
+                const newCentroid = { x: avgX, y: avgY };
+
+                if (distance(centroids[i], newCentroid) > 0.1) {
+                    converged = false;
+                }
+
+                newCentroids.push(newCentroid);
+            }
+
+            centroids = newCentroids;
+            return converged;
+        }
+
+        function distance(p1, p2) {
+            const dx = p1.x - p2.x;
+            const dy = p1.y - p2.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function calculateInertia() {
+            let inertia = 0;
+            clusters.forEach((cluster, idx) => {
+                cluster.forEach(point => {
+                    const dist = distance(point, centroids[idx]);
+                    inertia += dist * dist;
+                });
+            });
+            return inertia;
+        }
+
+        function updateVisualization() {
+            drawVisualization();
+            updateStats();
+        }
+
+        function drawVisualization() {
+            ctx.fillStyle = '#0a0b14';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            // Draw grid/border
+            ctx.strokeStyle = '#1e2045';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(PADDING, PADDING, CANVAS_WIDTH - 2*PADDING, CANVAS_HEIGHT - 2*PADDING);
+
+            // Draw points
+            points.forEach(point => {
+                const color = point.cluster !== undefined ? clusterColors[point.cluster] : '#6b6e8a';
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+
+            // Draw centroids
+            centroids.forEach((centroid, idx) => {
+                ctx.fillStyle = '#a78bfa';
+                ctx.beginPath();
+                ctx.arc(centroid.x, centroid.y, 8, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Draw outline
+                ctx.strokeStyle = '#5eead4';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(centroid.x, centroid.y, 8, 0, 2 * Math.PI);
+                ctx.stroke();
+
+                // Draw cluster number
+                ctx.fillStyle = '#0a0b14';
+                ctx.font = 'bold 10px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(idx + 1, centroid.x, centroid.y);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('iterationCount').textContent = iteration;
+            document.getElementById('inertiaValue').textContent = calculateInertia().toFixed(2);
+            document.getElementById('pointsCount').textContent = points.length;
+        }
+
+        function updateStatus(status) {
+            document.getElementById('statusLabel').textContent = status;
+        }
+
+        function updatePointsCount() {
+            document.getElementById('pointsCount').textContent = points.length;
+        }
+
+        function resetVisualization() {
+            points = [];
+            centroids = [];
+            clusters = [];
+            iteration = 0;
+            isRunning = false;
+            K = parseInt(document.getElementById('kValue').value);
+            updateStats();
+            updateStatus('Ready');
+            drawVisualization();
+        }
+
+        // ===== ELBOW METHOD =====
+        const elbowCanvas = document.getElementById('elbowCanvas');
+        const elbowCtx = elbowCanvas.getContext('2d');
+        let elbowData = [];
+
+        function generateElbowData() {
+            // Generate synthetic clustered data
+            const tempPoints = [];
+            const numClusters = 4;
+            const pointsPerCluster = 25;
+
+            // Create synthetic clusters
+            const centers = [
+                { x: 150, y: 150 },
+                { x: 250, y: 100 },
+                { x: 300, y: 250 },
+                { x: 100, y: 280 }
+            ];
+
+            centers.forEach(center => {
+                for (let i = 0; i < pointsPerCluster; i++) {
+                    tempPoints.push({
+                        x: center.x + (Math.random() - 0.5) * 60,
+                        y: center.y + (Math.random() - 0.5) * 60
+                    });
+                }
+            });
+
+            // Run K-Means for K = 1 to 10
+            elbowData = [];
+            for (let k = 1; k <= 10; k++) {
+                let minInertia = Infinity;
+
+                // Run multiple times and take best
+                for (let trial = 0; trial < 3; trial++) {
+                    const testCentroids = tempPoints.slice(0, k).map(p => ({x: p.x, y: p.y}));
+                    const testClusters = Array(k).fill(null).map(() => []);
+
+                    // Assign points
+                    tempPoints.forEach(point => {
+                        let nearest = 0;
+                        let minDist = Infinity;
+                        testCentroids.forEach((c, idx) => {
+                            const d = Math.sqrt((point.x - c.x)**2 + (point.y - c.y)**2);
+                            if (d < minDist) {
+                                minDist = d;
+                                nearest = idx;
+                            }
+                        });
+                        testClusters[nearest].push(point);
+                    });
+
+                    // Calculate inertia
+                    let inertia = 0;
+                    testClusters.forEach((cluster, idx) => {
+                        if (cluster.length === 0) return;
+                        const cx = cluster.reduce((s, p) => s + p.x, 0) / cluster.length;
+                        const cy = cluster.reduce((s, p) => s + p.y, 0) / cluster.length;
+                        cluster.forEach(p => {
+                            const d = Math.sqrt((p.x - cx)**2 + (p.y - cy)**2);
+                            inertia += d * d;
+                        });
+                    });
+
+                    minInertia = Math.min(minInertia, inertia);
+                }
+
+                elbowData.push({ k: k, inertia: minInertia });
+            }
+
+            drawElbowChart();
+        }
+
+        function drawElbowChart() {
+            if (elbowData.length === 0) {
+                elbowCtx.fillStyle = '#6b6e8a';
+                elbowCtx.font = '14px Inter';
+                elbowCtx.textAlign = 'center';
+                elbowCtx.fillText('Click "Generate Data" to see the elbow curve', elbowCanvas.width/2, elbowCanvas.height/2);
+                return;
+            }
+
+            elbowCtx.fillStyle = '#0a0b14';
+            elbowCtx.fillRect(0, 0, elbowCanvas.width, elbowCanvas.height);
+
+            const margin = 60;
+            const graphWidth = elbowCanvas.width - 2 * margin;
+            const graphHeight = elbowCanvas.height - 2 * margin;
+
+            // Draw axes
+            elbowCtx.strokeStyle = '#1e2045';
+            elbowCtx.lineWidth = 2;
+            elbowCtx.beginPath();
+            elbowCtx.moveTo(margin, elbowCanvas.height - margin);
+            elbowCtx.lineTo(elbowCanvas.width - margin, elbowCanvas.height - margin);
+            elbowCtx.stroke();
+
+            elbowCtx.beginPath();
+            elbowCtx.moveTo(margin, margin);
+            elbowCtx.lineTo(margin, elbowCanvas.height - margin);
+            elbowCtx.stroke();
+
+            // Labels
+            elbowCtx.fillStyle = '#c8cad8';
+            elbowCtx.font = '12px Inter';
+            elbowCtx.textAlign = 'center';
+            elbowCtx.fillText('K (Number of Clusters)', elbowCanvas.width / 2, elbowCanvas.height - 20);
+
+            elbowCtx.save();
+            elbowCtx.translate(30, elbowCanvas.height / 2);
+            elbowCtx.rotate(-Math.PI / 2);
+            elbowCtx.textAlign = 'center';
+            elbowCtx.fillText('Inertia', 0, 0);
+            elbowCtx.restore();
+
+            // Scale data
+            const maxK = Math.max(...elbowData.map(d => d.k));
+            const maxInertia = Math.max(...elbowData.map(d => d.inertia));
+
+            // Draw curve
+            elbowCtx.strokeStyle = '#a78bfa';
+            elbowCtx.lineWidth = 3;
+            elbowCtx.beginPath();
+
+            elbowData.forEach((data, idx) => {
+                const x = margin + (data.k / maxK) * graphWidth;
+                const y = elbowCanvas.height - margin - (data.inertia / maxInertia) * graphHeight;
+
+                if (idx === 0) {
+                    elbowCtx.moveTo(x, y);
+                } else {
+                    elbowCtx.lineTo(x, y);
+                }
+            });
+            elbowCtx.stroke();
+
+            // Draw points
+            elbowCtx.fillStyle = '#5eead4';
+            elbowData.forEach(data => {
+                const x = margin + (data.k / maxK) * graphWidth;
+                const y = elbowCanvas.height - margin - (data.inertia / maxInertia) * graphHeight;
+
+                elbowCtx.beginPath();
+                elbowCtx.arc(x, y, 5, 0, 2 * Math.PI);
+                elbowCtx.fill();
+            });
+
+            // Draw K values
+            elbowCtx.fillStyle = '#6b6e8a';
+            elbowCtx.font = '11px Inter';
+            elbowCtx.textAlign = 'center';
+            for (let i = 1; i <= maxK; i += 1) {
+                const x = margin + (i / maxK) * graphWidth;
+                elbowCtx.fillText(i, x, elbowCanvas.height - margin + 20);
+            }
+        }
+
+        function resetElbowChart() {
+            elbowData = [];
+            elbowCtx.fillStyle = '#0a0b14';
+            elbowCtx.fillRect(0, 0, elbowCanvas.width, elbowCanvas.height);
+            elbowCtx.fillStyle = '#6b6e8a';
+            elbowCtx.font = '14px Inter';
+            elbowCtx.textAlign = 'center';
+            elbowCtx.fillText('Click "Generate Data" to see the elbow curve', elbowCanvas.width/2, elbowCanvas.height/2);
+        }
+
+        // Initial draw
+        drawVisualization();
+        resetElbowChart();
+    </script>
+</body>
+</html>
