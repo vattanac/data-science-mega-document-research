@@ -1,5 +1,7 @@
 # 📚 Data Science Mega Document Research
 
+🔗 **Live Demo:** [data-science-mega-document-research.netlify.app](https://data-science-mega-document-research.netlify.app/)
+
 A collection of interactive, self-contained HTML explainers covering foundational Data Science and Machine Learning concepts — built for **MDSE (Master of Data Science and Engineering) Cohort 4**.
 
 Each project runs entirely in the browser with zero dependencies.
