@@ -95,8 +95,14 @@ def build_tree(root_path: Path) -> dict:
                 continue
             if entry.suffix.lower() in INCLUDE_EXTENSIONS:
                 rel_path = entry.relative_to(REPO_ROOT).as_posix()
+                # Use parent folder name as display name for index.html
+                display_name = entry.name
+                if entry.name.lower() == "index.html":
+                    display_name = root_path.name
+
                 node["children"].append({
                     "name": entry.name,
+                    "displayName": display_name,
                     "type": "file",
                     "ext": entry.suffix.lower().lstrip("."),
                     "size": entry.stat().st_size,

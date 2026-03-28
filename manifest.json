@@ -10,6 +10,7 @@
         "children": [
           {
             "name": "index.html",
+            "displayName": "drone-top20-research-topic",
             "type": "file",
             "ext": "html",
             "size": 83002,
@@ -23,6 +24,7 @@
         "children": [
           {
             "name": "index.html",
+            "displayName": "eckart-young-the-closest-rank-k-matrix-to-A",
             "type": "file",
             "ext": "html",
             "size": 78735,
@@ -30,6 +32,7 @@
           },
           {
             "name": "MIT_PCA_Lecture_Notes.docx",
+            "displayName": "MIT_PCA_Lecture_Notes.docx",
             "type": "file",
             "ext": "docx",
             "size": 14934,
@@ -43,6 +46,7 @@
         "children": [
           {
             "name": "expected_value_vs_mean.docx",
+            "displayName": "expected_value_vs_mean.docx",
             "type": "file",
             "ext": "docx",
             "size": 14884,
@@ -50,6 +54,7 @@
           },
           {
             "name": "index.html",
+            "displayName": "expected-value-vs-mean",
             "type": "file",
             "ext": "html",
             "size": 32947,
@@ -63,6 +68,7 @@
         "children": [
           {
             "name": "index.html",
+            "displayName": "gradient-descent-react",
             "type": "file",
             "ext": "html",
             "size": 374,
@@ -76,6 +82,7 @@
         "children": [
           {
             "name": "index.html",
+            "displayName": "gradient-descent-saas",
             "type": "file",
             "ext": "html",
             "size": 92824,
@@ -89,6 +96,7 @@
         "children": [
           {
             "name": "index.html",
+            "displayName": "kdd_process",
             "type": "file",
             "ext": "html",
             "size": 49834,
@@ -96,6 +104,7 @@
           },
           {
             "name": "KDD_Process_DataMining.docx",
+            "displayName": "KDD_Process_DataMining.docx",
             "type": "file",
             "ext": "docx",
             "size": 21352,
@@ -109,6 +118,7 @@
         "children": [
           {
             "name": "index.html",
+            "displayName": "singular-value-decomposition(svd)",
             "type": "file",
             "ext": "html",
             "size": 66101,
@@ -116,6 +126,7 @@
           },
           {
             "name": "SVD_Lecture_MIT18065.docx",
+            "displayName": "SVD_Lecture_MIT18065.docx",
             "type": "file",
             "ext": "docx",
             "size": 14982,
@@ -129,6 +140,7 @@
         "children": [
           {
             "name": "index.html",
+            "displayName": "variance-and-standard-deviation",
             "type": "file",
             "ext": "html",
             "size": 32218,
@@ -136,6 +148,7 @@
           },
           {
             "name": "variance_std_deviation_guide.docx",
+            "displayName": "variance_std_deviation_guide.docx",
             "type": "file",
             "ext": "docx",
             "size": 15943,
@@ -149,6 +162,7 @@
         "children": [
           {
             "name": "index.html",
+            "displayName": "why_start_with_iris",
             "type": "file",
             "ext": "html",
             "size": 36695,
@@ -156,6 +170,7 @@
           },
           {
             "name": "iris_dataset_guide.docx",
+            "displayName": "iris_dataset_guide.docx",
             "type": "file",
             "ext": "docx",
             "size": 16425,

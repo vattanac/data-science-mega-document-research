@@ -40,7 +40,7 @@
       min-width: var(--sidebar-w);
       height: 100vh;
       background: var(--bg-side);
-      border-right: 1px solid var(--border);
+      border-right: none;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -290,6 +290,19 @@
     }
     .stats-bar span { display: flex; align-items: center; gap: 4px; }
 
+    /* Sidebar footer */
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      font-size: .68rem;
+      color: var(--text-dim);
+      text-align: center;
+      line-height: 1.6;
+    }
+    .sidebar-footer strong { color: var(--accent); font-weight: 600; }
+    .sidebar-footer a { color: var(--accent2); text-decoration: none; }
+    .sidebar-footer a:hover { text-decoration: underline; }
+
     /* ── Responsive ───────────────────────────────────── */
     @media (max-width: 768px) {
       :root { --sidebar-w: 100vw; }
@@ -309,6 +322,40 @@
       z-index: 0;
     }
     .sidebar, .main { position: relative; z-index: 1; }
+
+    /* ── Resize Handle ───────────────────────────────── */
+    .resize-handle {
+      width: 6px;
+      cursor: col-resize;
+      background: transparent;
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+      transition: background .2s;
+    }
+    .resize-handle:hover,
+    .resize-handle.active {
+      background: var(--accent);
+    }
+    .resize-handle::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 40px;
+      border-radius: 2px;
+      background: var(--border);
+      transition: background .2s, height .2s;
+    }
+    .resize-handle:hover::after,
+    .resize-handle.active::after {
+      background: var(--accent);
+      height: 60px;
+    }
+    body.resizing { cursor: col-resize; user-select: none; }
+    body.resizing iframe { pointer-events: none; }
   </style>
 </head>
 <body>
@@ -328,7 +375,14 @@
   </div>
   <div class="tree-container" id="treeContainer"></div>
   <div class="stats-bar" id="statsBar"></div>
+  <div class="sidebar-footer">
+    <p>&copy; 2025 <strong>Sim Vattanac</strong></p>
+    <p><a href="mailto:vattanacsim99@gmail.com">vattanacsim99@gmail.com</a></p>
+  </div>
 </aside>
+
+<!-- ═══ Resize Handle ═══ -->
+<div class="resize-handle" id="resizeHandle"></div>
 
 <!-- ═══ Main ═══ -->
 <main class="main">
@@ -439,7 +493,8 @@ function createNode(node) {
     item.className = 'tree-item tree-file';
     item.dataset.path = node.path;
     item.dataset.ext = node.ext;
-    item.dataset.name = node.name.toLowerCase();
+    const label = node.displayName || node.name;
+    item.dataset.name = label.toLowerCase();
 
     const icon = node.ext === 'html' ? '🌐' : '📄';
     const badgeClass = node.ext === 'html' ? 'badge-html' : 'badge-docx';
@@ -447,7 +502,7 @@ function createNode(node) {
     item.innerHTML = `
       <span style="width:12px"></span>
       <span class="icon">${icon}</span>
-      <span class="name">${escHtml(node.name)}</span>
+      <span class="name">${escHtml(label)}</span>
       <span class="badge ${badgeClass}">${node.ext}</span>
     `;
 
@@ -470,7 +525,7 @@ function selectFile(node, element) {
   const frame = document.getElementById('previewFrame');
   frame.classList.add('visible');
 
-  document.getElementById('previewName').textContent = node.name;
+  document.getElementById('previewName').textContent = node.displayName || node.name;
   document.getElementById('previewPath').textContent = node.path;
 
   const body = document.getElementById('previewBody');
@@ -579,6 +634,40 @@ function escHtml(str) {
 function toggleTheme() {
   // Placeholder for future light/dark toggle
 }
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR RESIZE
+   ═══════════════════════════════════════════════════════════ */
+(function initResize() {
+  const handle = document.getElementById('resizeHandle');
+  const sidebar = document.querySelector('.sidebar');
+  const MIN_WIDTH = 200;
+  const MAX_WIDTH = 600;
+  let isResizing = false;
+
+  handle.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    isResizing = true;
+    handle.classList.add('active');
+    document.body.classList.add('resizing');
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isResizing) return;
+    let newWidth = e.clientX;
+    if (newWidth < MIN_WIDTH) newWidth = MIN_WIDTH;
+    if (newWidth > MAX_WIDTH) newWidth = MAX_WIDTH;
+    sidebar.style.width = newWidth + 'px';
+    sidebar.style.minWidth = newWidth + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!isResizing) return;
+    isResizing = false;
+    handle.classList.remove('active');
+    document.body.classList.remove('resizing');
+  });
+})();
 
 /* ═══════════════════════════════════════════════════════════
    INIT
