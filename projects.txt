@@ -48,6 +48,7 @@ swarm-drone-08-preiss-crazyswarm
 swarm-drone-09-zhou-micro-flying-robots
 swarm-drone-10-schilling-vision-swarm
 swarm-drone-11-werfel-termite-construction
+swarm-drone-12-rubenstein-kilobot-swarm
 swarm-drone-complete-guide
 time-series-analysis
 variance-and-standard-deviation

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rubenstein – Kilobot Swarm Self-Assembly | Swarm Drone Research #12</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#111827;--bg-card:#1a1b2e;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warn:#fbbf24;--accent-red:#f87171;--border-color:#2d2e4a;--code-bg:#0d1117}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.7;overflow-x:hidden}
+.hero{text-align:center;padding:60px 20px 40px;background:linear-gradient(135deg,#1a0a2e 0%,#0a1628 50%,#0a2018 100%)}
+.hero h1{font-size:2.8rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px}
+.hero .sub{color:var(--text-secondary);font-size:1.15rem;max-width:720px;margin:0 auto}
+.hero .badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:.8rem;margin-top:14px;background:rgba(167,139,250,.15);color:var(--accent-primary);border:1px solid rgba(167,139,250,.3)}
+nav.toc{position:sticky;top:0;z-index:100;background:rgba(10,11,20,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-color);padding:10px 20px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{color:var(--text-secondary);text-decoration:none;margin-right:18px;font-size:.85rem;transition:color .2s}
+nav.toc a:hover,nav.toc a.active{color:var(--accent-primary)}
+.container{max-width:960px;margin:0 auto;padding:0 20px 80px}
+section{margin-top:48px}
+section h2{font-size:1.7rem;color:var(--accent-primary);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border-color)}
+section h3{font-size:1.2rem;color:var(--accent-secondary);margin:20px 0 10px}
+p{margin-bottom:14px;color:var(--text-secondary)}
+ul,ol{margin:0 0 16px 24px;color:var(--text-secondary)}
+li{margin-bottom:6px}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:24px;margin:20px 0}
+.highlight{background:rgba(167,139,250,.08);border-left:3px solid var(--accent-primary);padding:16px 20px;border-radius:0 8px 8px 0;margin:16px 0}
+code{background:var(--code-bg);padding:2px 7px;border-radius:4px;font-size:.9rem;color:var(--accent-secondary)}
+pre{background:var(--code-bg);padding:18px;border-radius:8px;overflow-x:auto;margin:14px 0;border:1px solid var(--border-color)}
+pre code{background:none;padding:0;color:var(--text-primary)}
+table{width:100%;border-collapse:collapse;margin:16px 0}
+th,td{text-align:left;padding:10px 14px;border:1px solid var(--border-color);font-size:.92rem}
+th{background:var(--bg-card);color:var(--accent-primary)}
+td{color:var(--text-secondary)}
+.demo-area{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:24px;margin:24px 0}
+.demo-area h3{color:var(--accent-secondary);margin-bottom:16px;font-size:1.15rem}
+canvas{display:block;margin:0 auto;border-radius:8px;background:#0d1117;cursor:pointer;max-width:100%}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;justify-content:center}
+.controls button{padding:8px 18px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);cursor:pointer;font-size:.85rem;transition:all .2s}
+.controls button:hover{border-color:var(--accent-primary);background:rgba(167,139,250,.1)}
+.controls button.active{background:rgba(167,139,250,.2);border-color:var(--accent-primary);color:var(--accent-primary)}
+.controls label{color:var(--text-secondary);font-size:.85rem;display:flex;align-items:center;gap:6px}
+.controls input[type=range]{width:120px;accent-color:var(--accent-primary)}
+.controls select{padding:6px 10px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);font-size:.85rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}.hero h1{font-size:1.8rem}}
+.eq{background:var(--code-bg);padding:14px 18px;border-radius:8px;text-align:center;font-family:'Courier New',monospace;color:var(--accent-secondary);margin:12px 0;font-size:1rem;border:1px solid var(--border-color);overflow-x:auto}
+.tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.75rem;margin-right:6px}
+.tag-green{background:rgba(94,234,212,.12);color:var(--accent-secondary)}
+.tag-purple{background:rgba(167,139,250,.12);color:var(--accent-primary)}
+.tag-yellow{background:rgba(251,191,36,.12);color:var(--accent-warn)}
+footer{text-align:center;padding:40px 20px;color:var(--text-secondary);font-size:.85rem;border-top:1px solid var(--border-color)}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Programmable Self-Assembly in a Thousand-Robot Swarm</h1>
+  <p class="sub">Rubenstein, Cornejo & Nagpal (2014) — The first demonstration of 1,024 robots self-assembling into complex 2D shapes using only local interactions and no central control.</p>
+  <span class="badge">Swarm Drone Research Paper #12</span>
+</div>
+
+<nav class="toc" id="toc">
+  <a href="#s1">Overview</a>
+  <a href="#s2">Kilobot Hardware</a>
+  <a href="#s3">Self-Assembly</a>
+  <a href="#s4">Algorithm</a>
+  <a href="#s5">Gradient Formation</a>
+  <a href="#s6">Demo 1: Shape Formation</a>
+  <a href="#s7">Edge Following</a>
+  <a href="#s8">Error Handling</a>
+  <a href="#s9">Demo 2: Gradient Propagation</a>
+  <a href="#s10">Scalability</a>
+  <a href="#s11">Demo 3: Swarm Density</a>
+  <a href="#s12">Applications</a>
+  <a href="#s13">Limitations</a>
+  <a href="#s14">Key Takeaways</a>
+</nav>
+
+<div class="container">
+
+<!-- Section 1 -->
+<section id="s1">
+<h2>1. Paper Overview</h2>
+<div class="card">
+  <p><strong>Title:</strong> Programmable Self-Assembly in a Thousand-Robot Swarm</p>
+  <p><strong>Authors:</strong> Michael Rubenstein, Alejandro Cornejo, Radhika Nagpal</p>
+  <p><strong>Published:</strong> Science, Vol. 345, Issue 6198, pp. 795–799 (August 2014)</p>
+  <p><strong>Institution:</strong> Harvard University — Wyss Institute & School of Engineering and Applied Sciences</p>
+  <p><strong>Citations:</strong> 2,000+ (one of the most influential papers in swarm robotics)</p>
+</div>
+<p>This paper demonstrates the largest-scale autonomous robot self-assembly ever achieved: <strong>1,024 Kilobots</strong> organizing themselves into complex predetermined 2D shapes. Each robot is just 3 cm in diameter, costs about $14, and communicates only with neighbors within ~10 cm using infrared.</p>
+<p>The robots start in a random blob at the edge of a seed group. Using only local communication and simple rules, they collectively form shapes like stars, letters, and wrenches — with no GPS, no global communication, and no human intervention during assembly.</p>
+<div class="highlight">
+  <strong>Core Contribution:</strong> Proved that programmable self-assembly at the 1,000-robot scale is physically achievable using extremely simple, low-cost robots — closing the gap between swarm theory and large-scale reality.
+</div>
+</section>
+
+<!-- Section 2 -->
+<section id="s2">
+<h2>2. Kilobot Hardware</h2>
+<p>The Kilobot was specifically designed for large-scale swarm experiments. The guiding philosophy: make each robot as cheap and simple as possible so you can afford thousands.</p>
+<table>
+  <tr><th>Feature</th><th>Specification</th></tr>
+  <tr><td>Diameter</td><td>33 mm (~3.3 cm)</td></tr>
+  <tr><td>Height</td><td>34 mm (including legs)</td></tr>
+  <tr><td>Cost</td><td>~$14 per robot</td></tr>
+  <tr><td>Locomotion</td><td>2 vibration motors (stick-slip on smooth surface)</td></tr>
+  <tr><td>Communication</td><td>Infrared TX/RX (range ~10 cm, ~30 bps)</td></tr>
+  <tr><td>Sensing</td><td>Ambient light sensor, IR distance to neighbors</td></tr>
+  <tr><td>Processor</td><td>ATmega328P (8-bit, 8 MHz)</td></tr>
+  <tr><td>Memory</td><td>32 KB flash, 2 KB RAM</td></tr>
+  <tr><td>Battery</td><td>3.4V Li-ion, ~3 hours active, ~3 months standby</td></tr>
+  <tr><td>Programming</td><td>Overhead IR controller (programs all robots simultaneously)</td></tr>
+</table>
+<h3>Design Trade-offs</h3>
+<p>Vibration motors are imprecise — robots drift, rotate unpredictably, and move at slightly different speeds. This is intentional: the algorithms must be robust to noisy actuation. If the algorithm works with Kilobots, it will work with better hardware too.</p>
+</section>
+
+<!-- Section 3 -->
+<section id="s3">
+<h2>3. Self-Assembly: The Big Picture</h2>
+<p>Self-assembly is the process by which a disordered system of components forms an organized structure through only local interactions, without external direction. In nature, this is how proteins fold, crystals grow, and cells organize into tissues.</p>
+<h3>The Challenge at Scale</h3>
+<p>Previous robot self-assembly demonstrations used at most ~100 robots. Scaling to 1,000+ introduces fundamental challenges:</p>
+<ul>
+  <li><strong>Communication bottlenecks:</strong> More robots = more messages = more collisions and delays</li>
+  <li><strong>Error accumulation:</strong> Small positioning errors compound across hundreds of robots</li>
+  <li><strong>Traffic jams:</strong> Robots physically block each other's paths</li>
+  <li><strong>Noise amplification:</strong> Imprecise actuation means robots drift off course</li>
+  <li><strong>Time:</strong> Sequential operations become impractically slow at scale</li>
+</ul>
+<div class="highlight">
+  <strong>Key Insight:</strong> The algorithm must be inherently parallel (many robots moving simultaneously), self-correcting (handling drift and errors), and patient (tolerating slow, noisy movement).
+</div>
+</section>
+
+<!-- Section 4 -->
+<section id="s4">
+<h2>4. The Self-Assembly Algorithm</h2>
+<p>The algorithm has three cooperative sub-behaviors that each robot executes:</p>
+<div class="grid-2">
+  <div class="card">
+    <h3>1. Gradient Formation</h3>
+    <p>Four seed robots broadcast a gradient signal. Each robot computes its hop-count distance from the seeds, creating a coordinate system across the swarm.</p>
+  </div>
+  <div class="card">
+    <h3>2. Localization</h3>
+    <p>Each robot estimates its position relative to neighbors using IR distance measurements and triangulation with the gradient values.</p>
+  </div>
+  <div class="card">
+    <h3>3. Edge Following + Shape Check</h3>
+    <p>Unlocalized robots follow the edge of the growing shape. When a robot reaches a position inside the target shape that isn't yet occupied, it stops and joins the structure.</p>
+  </div>
+  <div class="card">
+    <h3>Coordination Rule</h3>
+    <p>Only robots on the outer edge move. Interior robots are stationary and serve as reference points. This prevents the structure from collapsing.</p>
+  </div>
+</div>
+<pre><code>while not in_target_shape():
+    gradient = receive_gradient_from_seeds()
+    my_pos = trilaterate(neighbor_distances, neighbor_gradients)
+
+    if am_on_edge():
+        follow_edge(clockwise)           # Slide along the boundary
+        if position_in_target(my_pos) and spot_available():
+            stop_and_join()              # Become part of the structure
+    else:
+        wait()                           # Already placed — be a landmark</code></pre>
+</section>
+
+<!-- Section 5 -->
+<section id="s5">
+<h2>5. Gradient Formation & Localization</h2>
+<h3>Gradient Propagation</h3>
+<p>The four seed robots are placed manually at known positions. They broadcast their identity and a hop count of 0. Each robot that receives this message increments the hop count and rebroadcasts. After convergence, every robot knows its hop-count distance to each of the four seeds.</p>
+<div class="eq">G_i(robot) = min hop-count distance from robot to seed_i, for i ∈ {1,2,3,4}</div>
+<h3>Trilateration</h3>
+<p>Using IR signal strength, each robot estimates its distance to nearby neighbors. Combined with the gradient values, robots can estimate their (x, y) position in a shared coordinate frame:</p>
+<div class="eq">position = trilaterate(d₁, d₂, d₃) using 3+ neighbor distances</div>
+<p>This position estimate is noisy (±1-2 robot diameters) but sufficient for the shape-filling algorithm to work. The key is that errors are local — they don't propagate across the entire swarm because each robot only uses nearby neighbors for localization.</p>
+</section>
+
+<!-- Section 6: Demo 1 -->
+<section id="s6">
+<h2>6. Demo: Kilobot Shape Formation</h2>
+<div class="demo-area">
+  <h3>Interactive Self-Assembly Simulator</h3>
+  <p style="margin-bottom:12px;font-size:.9rem;color:var(--text-secondary)">Watch hundreds of simulated Kilobots self-assemble into a target shape. Robots (dots) follow the edge and stop when they reach a target position. Seeds are shown in yellow. Choose a shape and click Start.</p>
+  <canvas id="c1" width="800" height="500"></canvas>
+  <div class="controls">
+    <button onclick="d1_reset()">Reset</button>
+    <button onclick="d1_toggle()" id="d1Btn">Start</button>
+    <label>Shape: <select id="d1Shape" onchange="d1_reset()">
+      <option value="star">Star</option>
+      <option value="circle">Circle</option>
+      <option value="square">Square</option>
+      <option value="letter">Letter K</option>
+    </select></label>
+    <label>Robots: <input type="range" id="d1Count" min="100" max="500" value="300" oninput="document.getElementById('d1CountV').textContent=this.value"><span id="d1CountV">300</span></label>
+    <label>Speed: <input type="range" id="d1Spd" min="1" max="10" value="5"></label>
+  </div>
+</div>
+</section>
+
+<!-- Section 7 -->
+<section id="s7">
+<h2>7. Edge Following</h2>
+<p>Edge following is the primary locomotion strategy. A robot that needs to move does not navigate through the middle of the swarm (which would cause collisions). Instead, it follows the outer boundary of the already-formed structure.</p>
+<h3>How It Works</h3>
+<ol>
+  <li>The robot detects it has neighbors on one side but not the other (it's on the edge).</li>
+  <li>It moves in a consistent direction (clockwise) along the edge, maintaining a fixed distance from its nearest stationary neighbor.</li>
+  <li>At each step, it checks: "Am I at a position that's inside the target shape and not yet occupied?"</li>
+  <li>If yes, it stops permanently and becomes part of the structure.</li>
+  <li>If no, it continues following the edge.</li>
+</ol>
+<p>This creates a "flow" of robots around the perimeter of the growing shape, gradually filling it in from the seed outward. The process is inherently parallel — multiple robots can be edge-following simultaneously on different parts of the boundary.</p>
+</section>
+
+<!-- Section 8 -->
+<section id="s8">
+<h2>8. Error Handling & Robustness</h2>
+<p>With 1,024 imprecise robots, errors are inevitable. The system handles them through multiple mechanisms:</p>
+<table>
+  <tr><th>Error Type</th><th>Frequency</th><th>Mitigation</th></tr>
+  <tr><td>Position drift</td><td>Continuous</td><td>Ongoing trilateration with stationary neighbors corrects drift</td></tr>
+  <tr><td>Traffic jams</td><td>Common at bottlenecks</td><td>Robots wait and retry; random back-off reduces congestion</td></tr>
+  <tr><td>Lost robots</td><td>~2-5% per run</td><td>Algorithm continues; unfilled spots don't block others</td></tr>
+  <tr><td>Communication collision</td><td>Frequent</td><td>Messages are simple and repeated; robots use latest data</td></tr>
+  <tr><td>Motor noise</td><td>Every movement</td><td>Edge-following provides continuous error correction</td></tr>
+  <tr><td>Misplacement</td><td>Occasional</td><td>Nearby robots adjust; small gaps are tolerable</td></tr>
+</table>
+<div class="highlight">
+  <strong>Design Philosophy:</strong> Don't try to prevent errors — design the algorithm to tolerate them. The shape will be approximate, not pixel-perfect, and that's acceptable for a 1,000-robot system.
+</div>
+</section>
+
+<!-- Section 9: Demo 2 -->
+<section id="s9">
+<h2>9. Demo: Gradient Propagation Visualizer</h2>
+<div class="demo-area">
+  <h3>Hop-Count Gradient Spread</h3>
+  <p style="margin-bottom:12px;font-size:.9rem;color:var(--text-secondary)">Click anywhere to place a seed robot. Watch the gradient (hop-count distance) propagate outward through the network. Color = distance from nearest seed. Click multiple seeds to see overlapping gradients.</p>
+  <canvas id="c2" width="800" height="450"></canvas>
+  <div class="controls">
+    <button onclick="d2_reset()">Clear All</button>
+    <label>Network size: <select id="d2Size" onchange="d2_reset()">
+      <option value="200">200 nodes</option>
+      <option value="400" selected>400 nodes</option>
+      <option value="800">800 nodes</option>
+    </select></label>
+    <button onclick="d2_propagate()">Propagate</button>
+  </div>
+</div>
+</section>
+
+<!-- Section 10 -->
+<section id="s10">
+<h2>10. Scalability Results</h2>
+<p>The paper tested self-assembly with various swarm sizes and target shapes:</p>
+<table>
+  <tr><th>Shape</th><th>Robots Used</th><th>Time (hours)</th><th>Accuracy</th></tr>
+  <tr><td>Star</td><td>1,024</td><td>~12</td><td>High — recognizable shape with minor edge noise</td></tr>
+  <tr><td>Wrench</td><td>1,024</td><td>~12</td><td>Complex shape successfully formed</td></tr>
+  <tr><td>Letter K</td><td>1,024</td><td>~11</td><td>Clean formation with readable letter</td></tr>
+</table>
+<p>Assembly time scales roughly linearly with the number of robots (each robot must travel from the blob to its target position). The process is slow — approximately 12 hours for 1,024 robots — because Kilobots move at only ~1 cm/second and use conservative collision avoidance.</p>
+<h3>Speedup Opportunities</h3>
+<ul>
+  <li>Multiple entry points to the shape (currently only one "flow" direction)</li>
+  <li>Faster hardware with better locomotion</li>
+  <li>Predictive path planning to reduce edge-following distance</li>
+  <li>Hierarchical assembly: form sub-shapes in parallel, then merge</li>
+</ul>
+</section>
+
+<!-- Section 11: Demo 3 -->
+<section id="s11">
+<h2>11. Demo: Swarm Density & Connectivity</h2>
+<div class="demo-area">
+  <h3>Communication Range vs. Connectivity</h3>
+  <p style="margin-bottom:12px;font-size:.9rem;color:var(--text-secondary)">Explore how communication range affects swarm connectivity. Each dot is a robot; lines show communication links. Green = connected to the largest component, gray = disconnected. Adjust the range slider to see the percolation threshold.</p>
+  <canvas id="c3" width="800" height="400"></canvas>
+  <div class="controls">
+    <button onclick="d3_reset()">Randomize</button>
+    <label>Robots: <select id="d3N" onchange="d3_reset()">
+      <option value="100">100</option>
+      <option value="200" selected>200</option>
+      <option value="400">400</option>
+    </select></label>
+    <label>Comm Range: <input type="range" id="d3Range" min="10" max="80" value="35" oninput="d3_draw()"><span id="d3RangeV">35</span></label>
+  </div>
+</div>
+</section>
+
+<!-- Section 12 -->
+<section id="s12">
+<h2>12. Applications & Impact</h2>
+<div class="grid-2">
+  <div class="card">
+    <h3>Programmable Matter</h3>
+    <p>The vision of materials that can reshape themselves on command. Kilobots are a macro-scale proof of concept for future micro/nano-scale programmable matter.</p>
+  </div>
+  <div class="card">
+    <h3>Environmental Monitoring</h3>
+    <p>Deploy thousands of cheap sensor robots that self-organize into coverage patterns — monitoring pollution, radiation, or wildlife across large areas.</p>
+  </div>
+  <div class="card">
+    <h3>Search & Rescue</h3>
+    <p>Swarms of simple robots that spread out, form sensor networks, and collectively map disaster areas — finding survivors faster than individual robots.</p>
+  </div>
+  <div class="card">
+    <h3>Education & Research</h3>
+    <p>Kilobots have become the standard platform for swarm robotics education and research worldwide, with 100+ labs using them for experiments.</p>
+  </div>
+</div>
+</section>
+
+<!-- Section 13 -->
+<section id="s13">
+<h2>13. Limitations & Open Challenges</h2>
+<table>
+  <tr><th>Limitation</th><th>Details</th><th>Future Direction</th></tr>
+  <tr><td>2D only</td><td>Kilobots move on a flat surface; no 3D self-assembly</td><td>Flying or climbing robots for 3D shapes</td></tr>
+  <tr><td>Very slow</td><td>~12 hours for 1,024 robots to form a shape</td><td>Faster locomotion, parallel entry points</td></tr>
+  <tr><td>Flat surface required</td><td>Vibration motors only work on smooth, level surfaces</td><td>Legged or wheeled robots for rough terrain</td></tr>
+  <tr><td>Static shapes</td><td>Once formed, the shape cannot reconfigure</td><td>Dynamic reconfiguration algorithms</td></tr>
+  <tr><td>No manipulation</td><td>Robots can only form shapes, not carry or build</td><td>Add grippers for collective transport</td></tr>
+  <tr><td>Manual seed placement</td><td>4 seed robots placed by hand</td><td>Automatic leader election</td></tr>
+</table>
+</section>
+
+<!-- Section 14 -->
+<section id="s14">
+<h2>14. Key Takeaways</h2>
+<div class="card">
+  <ol>
+    <li><strong>Scale matters:</strong> 1,024 robots is not just 10× harder than 100 — it requires fundamentally different approaches to error tolerance and coordination.</li>
+    <li><strong>Simplicity enables scale:</strong> At $14/robot, you can afford 1,000. Complex robots at $1,000 each limit you to small swarms.</li>
+    <li><strong>Local rules, global patterns:</strong> No robot knows the global shape. Each makes local decisions that collectively produce the target.</li>
+    <li><strong>Noise tolerance is essential:</strong> The algorithm works despite imprecise motors, noisy sensors, and communication failures.</li>
+    <li><strong>Gradient-based coordination:</strong> Simple hop-count gradients create a shared coordinate system without GPS or global communication.</li>
+    <li><strong>Edge following:</strong> Restricting movement to the boundary avoids internal collisions and simplifies path planning.</li>
+    <li><strong>Patience pays off:</strong> The process is slow but reliable — exactly the right trade-off for autonomous swarms.</li>
+  </ol>
+</div>
+<div class="highlight">
+  <strong>Legacy:</strong> This paper proved that thousand-robot self-assembly is real, not theoretical. Kilobots became the de facto standard research platform for swarm robotics and have been adopted by laboratories worldwide.
+</div>
+</section>
+
+</div>
+
+<footer>
+  Swarm Drone Research #12 — Rubenstein, Cornejo & Nagpal (2014) — Data Science Mega Document Research
+</footer>
+
+<script>
+/* ===== DEMO 1: Kilobot Shape Formation ===== */
+(function(){
+const cv=document.getElementById('c1'),cx=cv.getContext('2d');
+let bots=[],seeds=[],running=false,animId;
+const W=cv.width,H=cv.height;
+
+function inShape(x,y,shape){
+  const cx2=W/2,cy2=H/2;
+  const dx=x-cx2,dy=y-cy2;
+  if(shape==='circle') return dx*dx+dy*dy<130*130;
+  if(shape==='square') return Math.abs(dx)<120&&Math.abs(dy)<120;
+  if(shape==='star'){
+    const a=Math.atan2(dy,dx),r=Math.sqrt(dx*dx+dy*dy);
+    const R=130,rr=55;
+    const star=R*(1-0.55*Math.pow(Math.cos(a*5/2),2))+rr*0.3;
+    return r<star;
+  }
+  if(shape==='letter'){
+    // Letter K
+    if(Math.abs(dx+60)<20&&Math.abs(dy)<110) return true; // vertical bar
+    const dy1=dy+dx+60,dy2=-dy+dx+60;
+    if(dx>-60&&dx<80&&Math.abs(dy1)<25) return true; // upper diagonal
+    if(dx>-60&&dx<80&&Math.abs(dy2)<25) return true; // lower diagonal
+    return false;
+  }
+  return false;
+}
+
+function init(){
+  const shape=document.getElementById('d1Shape').value;
+  const n=parseInt(document.getElementById('d1Count').value);
+  seeds=[{x:W/2-15,y:H/2-15,placed:true},{x:W/2+15,y:H/2-15,placed:true},
+         {x:W/2-15,y:H/2+15,placed:true},{x:W/2+15,y:H/2+15,placed:true}];
+  bots=[];
+  // Start robots in a blob on the left
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,r=Math.random()*100+50;
+    bots.push({x:80+Math.cos(a)*r*0.5,y:H/2+Math.sin(a)*r,placed:false,
+      vx:0,vy:0,edgeFollowing:false,angle:Math.random()*Math.PI*2});
+  }
+  running=false;document.getElementById('d1Btn').textContent='Start';
+  draw();
+}
+
+function draw(){
+  cx.clearRect(0,0,W,H);
+  // Draw target shape ghost
+  const shape=document.getElementById('d1Shape').value;
+  cx.globalAlpha=0.08;
+  for(let x=0;x<W;x+=4) for(let y=0;y<H;y+=4){
+    if(inShape(x,y,shape)){cx.fillStyle='#a78bfa';cx.fillRect(x,y,4,4);}
+  }
+  cx.globalAlpha=1;
+
+  // Draw bots
+  for(const b of bots){
+    cx.beginPath();cx.arc(b.x,b.y,3,0,Math.PI*2);
+    cx.fillStyle=b.placed?'#5eead4':'rgba(167,139,250,0.6)';cx.fill();
+  }
+  // Seeds
+  for(const s of seeds){
+    cx.beginPath();cx.arc(s.x,s.y,5,0,Math.PI*2);
+    cx.fillStyle='#fbbf24';cx.fill();cx.strokeStyle='#fff';cx.lineWidth=1;cx.stroke();
+  }
+  // Stats
+  const placed=bots.filter(b=>b.placed).length;
+  cx.fillStyle='#e2e8f0';cx.font='13px monospace';
+  cx.fillText(`Placed: ${placed}/${bots.length} | Seeds: ${seeds.length}`,10,20);
+}
+
+function step(){
+  const shape=document.getElementById('d1Shape').value;
+  const allPlaced=[...seeds,...bots.filter(b=>b.placed)];
+
+  for(const b of bots){
+    if(b.placed)continue;
+
+    // Move toward the shape center area
+    const tx=W/2,ty=H/2;
+    let dx=tx-b.x,dy=ty-b.y;
+    const d=Math.sqrt(dx*dx+dy*dy)||1;
+
+    // Check if current position is in shape and not occupied
+    if(inShape(b.x,b.y,shape)){
+      let tooClose=false;
+      for(const p of allPlaced){
+        const dd=(b.x-p.x)**2+(b.y-p.y)**2;
+        if(dd<64){tooClose=true;break;}
+      }
+      if(!tooClose){b.placed=true;continue;}
+    }
+
+    // Edge following behavior: move along the boundary
+    const speed=0.8;
+    // Add some noise for natural movement
+    b.angle+=((Math.random()-0.5)*0.3);
+    // Attract toward center but follow edge
+    b.angle=Math.atan2(dy,dx)+(Math.random()-0.5)*1.5;
+
+    // Avoid other moving bots
+    for(const ob of bots){
+      if(ob===b||ob.placed)continue;
+      const odx=b.x-ob.x,ody=b.y-ob.y;
+      const od=odx*odx+ody*ody;
+      if(od<100&&od>0){const f=2/Math.sqrt(od);b.angle+=Math.atan2(ody,odx)*0.1;}
+    }
+
+    b.x+=Math.cos(b.angle)*speed;
+    b.y+=Math.sin(b.angle)*speed;
+    b.x=Math.max(5,Math.min(W-5,b.x));
+    b.y=Math.max(5,Math.min(H-5,b.y));
+  }
+}
+
+function loop(){
+  if(!running)return;
+  const spd=parseInt(document.getElementById('d1Spd').value);
+  for(let i=0;i<spd;i++)step();
+  draw();
+  animId=requestAnimationFrame(loop);
+}
+
+window.d1_toggle=function(){
+  running=!running;
+  document.getElementById('d1Btn').textContent=running?'Pause':'Start';
+  if(running)loop();
+};
+window.d1_reset=function(){cancelAnimationFrame(animId);init();};
+init();
+})();
+
+/* ===== DEMO 2: Gradient Propagation ===== */
+(function(){
+const cv=document.getElementById('c2'),cx=cv.getContext('2d');
+const W=cv.width,Hc=cv.height;
+let nodes=[],seeds2=[],propagated=false;
+
+function init(){
+  const n=parseInt(document.getElementById('d2Size').value);
+  nodes=[];seeds2=[];propagated=false;
+  for(let i=0;i<n;i++){
+    nodes.push({x:30+Math.random()*(W-60),y:30+Math.random()*(Hc-60),grad:Infinity});
+  }
+  draw();
+}
+
+function draw(){
+  cx.clearRect(0,0,W,Hc);
+  const maxG=nodes.reduce((m,n)=>n.grad<Infinity?Math.max(m,n.grad):m,1)||1;
+  const range=50;
+
+  // Draw edges
+  if(propagated){
+    cx.strokeStyle='rgba(167,139,250,0.06)';cx.lineWidth=0.5;
+    for(let i=0;i<nodes.length;i++) for(let j=i+1;j<nodes.length;j++){
+      const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;
+      if(dx*dx+dy*dy<range*range){
+        cx.beginPath();cx.moveTo(nodes[i].x,nodes[i].y);cx.lineTo(nodes[j].x,nodes[j].y);cx.stroke();
+      }
+    }
+  }
+
+  // Draw nodes
+  for(const n of nodes){
+    cx.beginPath();cx.arc(n.x,n.y,4,0,Math.PI*2);
+    if(n.grad===Infinity){cx.fillStyle='#333';}
+    else{
+      const t=n.grad/maxG;
+      const r=Math.floor(40+190*t),g=Math.floor(200-150*t),b=Math.floor(250-200*t);
+      cx.fillStyle=`rgb(${r},${g},${b})`;
+    }
+    cx.fill();
+  }
+  // Seeds
+  for(const s of seeds2){
+    cx.beginPath();cx.arc(s.x,s.y,7,0,Math.PI*2);
+    cx.fillStyle='#fbbf24';cx.fill();cx.strokeStyle='#fff';cx.lineWidth=2;cx.stroke();
+  }
+  cx.fillStyle='#94a3b8';cx.font='12px monospace';
+  cx.fillText(`Seeds: ${seeds2.length} | Click to place seeds, then Propagate`,10,Hc-10);
+}
+
+function propagate(){
+  if(seeds2.length===0)return;
+  const range=50;
+  // Set seed gradients
+  for(const s of seeds2){
+    let closest=null,cd=Infinity;
+    for(const n of nodes){
+      const d=(n.x-s.x)**2+(n.y-s.y)**2;
+      if(d<cd){cd=d;closest=n;}
+    }
+    if(closest)closest.grad=0;
+  }
+  // BFS propagation
+  let changed=true,iter=0;
+  while(changed&&iter<200){
+    changed=false;iter++;
+    for(const a of nodes){
+      for(const b of nodes){
+        if(a===b)continue;
+        const dx=a.x-b.x,dy=a.y-b.y;
+        if(dx*dx+dy*dy<range*range){
+          if(a.grad+1<b.grad){b.grad=a.grad+1;changed=true;}
+          if(b.grad+1<a.grad){a.grad=b.grad+1;changed=true;}
+        }
+      }
+    }
+  }
+  propagated=true;draw();
+}
+
+cv.addEventListener('click',e=>{
+  const rect=cv.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(W/rect.width);
+  const my=(e.clientY-rect.top)*(Hc/rect.height);
+  seeds2.push({x:mx,y:my});
+  // Reset gradients
+  for(const n of nodes)n.grad=Infinity;
+  propagated=false;draw();
+});
+
+window.d2_reset=function(){init();};
+window.d2_propagate=propagate;
+init();
+})();
+
+/* ===== DEMO 3: Swarm Density & Connectivity ===== */
+(function(){
+const cv=document.getElementById('c3'),cx=cv.getContext('2d');
+const W=cv.width,Hc=cv.height;
+let nodes3=[];
+
+function init(){
+  const n=parseInt(document.getElementById('d3N').value);
+  nodes3=[];
+  for(let i=0;i<n;i++){
+    nodes3.push({x:40+Math.random()*(W-80),y:40+Math.random()*(Hc-80)});
+  }
+  d3_draw();
+}
+
+function findComponents(range){
+  const parent=nodes3.map((_,i)=>i);
+  function find(a){while(parent[a]!==a)a=parent[a]=parent[parent[a]];return a;}
+  function union(a,b){parent[find(a)]=find(b);}
+  for(let i=0;i<nodes3.length;i++) for(let j=i+1;j<nodes3.length;j++){
+    const dx=nodes3[i].x-nodes3[j].x,dy=nodes3[i].y-nodes3[j].y;
+    if(dx*dx+dy*dy<range*range)union(i,j);
+  }
+  // Find largest component
+  const counts={};
+  for(let i=0;i<nodes3.length;i++){const r=find(i);counts[r]=(counts[r]||0)+1;}
+  let maxRoot=0,maxCount=0;
+  for(const [r,c] of Object.entries(counts)){if(c>maxCount){maxCount=c;maxRoot=parseInt(r);}}
+  return{find,largestRoot:maxRoot,largestSize:maxCount};
+}
+
+window.d3_draw=function(){
+  const range=parseInt(document.getElementById('d3Range').value);
+  document.getElementById('d3RangeV').textContent=range;
+  cx.clearRect(0,0,W,Hc);
+  const{find,largestRoot,largestSize}=findComponents(range);
+
+  // Draw edges
+  cx.lineWidth=0.5;
+  for(let i=0;i<nodes3.length;i++) for(let j=i+1;j<nodes3.length;j++){
+    const dx=nodes3[i].x-nodes3[j].x,dy=nodes3[i].y-nodes3[j].y;
+    if(dx*dx+dy*dy<range*range){
+      const inMain=find(i)===find(largestRoot);
+      cx.strokeStyle=inMain?'rgba(94,234,212,0.15)':'rgba(148,163,184,0.08)';
+      cx.beginPath();cx.moveTo(nodes3[i].x,nodes3[i].y);cx.lineTo(nodes3[j].x,nodes3[j].y);cx.stroke();
+    }
+  }
+
+  // Draw nodes
+  for(let i=0;i<nodes3.length;i++){
+    const inMain=find(i)===find(largestRoot);
+    cx.beginPath();cx.arc(nodes3[i].x,nodes3[i].y,3.5,0,Math.PI*2);
+    cx.fillStyle=inMain?'#5eead4':'#555';cx.fill();
+  }
+
+  // Stats
+  const connectivity=(largestSize/nodes3.length*100).toFixed(1);
+  let edgeCount=0;
+  for(let i=0;i<nodes3.length;i++) for(let j=i+1;j<nodes3.length;j++){
+    const dx=nodes3[i].x-nodes3[j].x,dy=nodes3[i].y-nodes3[j].y;
+    if(dx*dx+dy*dy<range*range)edgeCount++;
+  }
+  cx.fillStyle='#e2e8f0';cx.font='13px monospace';
+  cx.fillText(`Range: ${range}px | Largest component: ${largestSize}/${nodes3.length} (${connectivity}%) | Links: ${edgeCount}`,10,20);
+  // Connectivity bar
+  cx.fillStyle='#1a1b2e';cx.fillRect(W-220,Hc-30,200,16);
+  cx.fillStyle=connectivity>80?'#5eead4':connectivity>50?'#fbbf24':'#f87171';
+  cx.fillRect(W-220,Hc-30,200*largestSize/nodes3.length,16);
+  cx.fillStyle='#e2e8f0';cx.font='11px monospace';cx.fillText('Connectivity',W-220,Hc-35);
+};
+
+window.d3_reset=init;
+init();
+})();
+
+/* ===== TOC Highlight ===== */
+const tocLinks=document.querySelectorAll('nav.toc a');
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    tocLinks.forEach(l=>l.classList.remove('active'));
+    const a=document.querySelector(`nav.toc a[href="#${e.target.id}"]`);
+    if(a)a.classList.add('active');
+  }});
+},{threshold:0.3});
+document.querySelectorAll('section[id]').forEach(s=>observer.observe(s));
+</script>
+</body>
+</html>

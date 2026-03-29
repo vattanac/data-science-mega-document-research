@@ -116,6 +116,7 @@ FOLDER_CATEGORIES = {
     "swarm-drone-09-zhou-micro-flying-robots":  "Swarm Drone Research",
     "swarm-drone-10-schilling-vision-swarm":    "Swarm Drone Research",
     "swarm-drone-11-werfel-termite-construction": "Swarm Drone Research",
+    "swarm-drone-12-rubenstein-kilobot-swarm":    "Swarm Drone Research",
     # Swarm Drone Complete Guide
     "swarm-drone-complete-guide":              "Swarm Drone Research",
 }

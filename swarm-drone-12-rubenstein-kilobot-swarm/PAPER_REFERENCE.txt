@@ -1,0 +1,34 @@
+ORIGINAL RESEARCH PAPER REFERENCE
+===================================
+
+Title:   Programmable Self-Assembly in a Thousand-Robot Swarm
+Authors: Michael Rubenstein, Alejandro Cornejo, Radhika Nagpal
+Journal: Science, Vol. 345, Issue 6198, pp. 795–799
+Date:    August 15, 2014
+DOI:     10.1126/science.1254295
+PMID:    25124435
+
+Institution: Wyss Institute for Biologically Inspired Engineering &
+             School of Engineering and Applied Sciences, Harvard University
+
+WHERE TO ACCESS THE FULL PDF:
+-----------------------------
+1. Science Magazine (official):  https://www.science.org/doi/10.1126/science.1254295
+2. PubMed:                       https://pubmed.ncbi.nlm.nih.gov/25124435/
+3. Semantic Scholar:             https://www.semanticscholar.org/paper/Programmable-self-assembly-in-a-thousand-robot-Rubenstein-Cornejo/
+4. ResearchGate:                 https://www.researchgate.net/publication/264868498
+5. Harvard SSR page:             https://ssr.seas.harvard.edu/publications
+
+ABSTRACT (paraphrased):
+-----------------------
+The paper demonstrates programmable self-assembly with 1,024 Kilobots —
+simple robots that cost ~$14 each, communicate via infrared, and move
+using vibration motors. Starting from an unordered group, the robots
+collectively form complex predetermined 2D shapes (stars, wrenches,
+letters) using only local sensing and communication with no centralized
+control. The algorithm uses gradient-based localization, edge following,
+and local shape-checking to achieve robust assembly despite significant
+hardware noise and ~2-5% robot failure rate.
+
+NOTE: To add the original PDF to this folder, download from one of the
+links above and save it here as "rubenstein_2014_kilobot_swarm.pdf"

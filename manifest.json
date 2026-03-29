@@ -1190,6 +1190,29 @@
         "category": "Swarm Drone Research"
       },
       {
+        "name": "swarm-drone-12-rubenstein-kilobot-swarm",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-12-rubenstein-kilobot-swarm",
+            "type": "file",
+            "ext": "html",
+            "size": 32771,
+            "path": "swarm-drone-12-rubenstein-kilobot-swarm/index.html"
+          },
+          {
+            "name": "rubenstein_kilobot_swarm_guide.docx",
+            "displayName": "rubenstein_kilobot_swarm_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 16723,
+            "path": "swarm-drone-12-rubenstein-kilobot-swarm/rubenstein_kilobot_swarm_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
         "name": "swarm-drone-complete-guide",
         "type": "folder",
         "children": [
