@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Networks Fundamentals — Interactive Guide</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131e;--bg-card:#191a2e;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warning:#fbbf24;--accent-pink:#f472b6;--border-color:#2a2b4a;--formula-bg:#1e1f3a;--shadow:0 4px 24px rgba(0,0,0,0.4)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.subtitle{color:var(--text-secondary);font-size:1.1rem;margin-bottom:2.5rem}
+h2{color:var(--accent-primary);font-size:1.6rem;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--border-color)}
+h3{color:var(--accent-secondary);font-size:1.2rem;margin:1.5rem 0 .8rem}
+p{color:var(--text-secondary);margin-bottom:1rem}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.formula-box{background:var(--formula-bg);border-left:4px solid var(--accent-primary);padding:1rem 1.5rem;margin:1rem 0;border-radius:0 8px 8px 0;font-family:'Courier New',monospace;font-size:1.05rem;color:var(--accent-primary);overflow-x:auto}
+.analogy-box{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(94,234,212,.08));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:1.2rem 1.5rem;margin:1.2rem 0}
+.analogy-box::before{content:'💡 ';font-size:1.2rem}
+.key-insight{background:linear-gradient(135deg,rgba(94,234,212,.1),rgba(167,139,250,.05));border:1px solid rgba(94,234,212,.3);border-radius:12px;padding:1.2rem 1.5rem;margin:1.2rem 0}
+.key-insight::before{content:'🔑 ';font-size:1.1rem}
+ul,ol{color:var(--text-secondary);margin:.8rem 0 1rem 1.5rem}
+li{margin:.4rem 0}
+strong{color:var(--text-primary)}
+code{background:var(--formula-bg);color:var(--accent-secondary);padding:.15rem .4rem;border-radius:4px;font-size:.9rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th{background:var(--formula-bg);color:var(--accent-primary);padding:.7rem;text-align:left;border:1px solid var(--border-color)}
+td{padding:.7rem;border:1px solid var(--border-color);color:var(--text-secondary)}
+tr:hover{background:rgba(167,139,250,.05)}
+.demo-section{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0}
+.demo-section h3{margin-top:0}
+canvas{border:1px solid var(--border-color);border-radius:8px;display:block;margin:.8rem auto;background:#0d0e1a;cursor:crosshair}
+.controls{display:flex;flex-wrap:wrap;gap:.8rem;margin:.8rem 0;align-items:center}
+.controls label{color:var(--text-secondary);font-size:.9rem}
+.controls select,.controls input[type=range]{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:6px;padding:.4rem .6rem;font-size:.85rem}
+.controls input[type=range]{width:120px}
+button{background:linear-gradient(135deg,var(--accent-primary),#8b5cf6);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:opacity .2s}
+button:hover{opacity:.85}
+button.secondary{background:var(--bg-secondary);border:1px solid var(--border-color)}
+.info-text{font-size:.85rem;color:var(--text-secondary);text-align:center;margin:.5rem 0}
+.toc{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.toc h3{color:var(--accent-primary);margin-top:0}
+.toc ol{list-style:decimal;margin-left:1.5rem}
+.toc a{color:var(--accent-secondary);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Neural Networks Fundamentals</h1>
+<p class="subtitle">From single neurons to deep architectures — understand the building blocks of modern AI</p>
+
+<div class="toc">
+<h3>Table of Contents</h3>
+<ol>
+<li><a href="#s1">Biological Inspiration</a></li>
+<li><a href="#s2">The Perceptron</a></li>
+<li><a href="#s3">Activation Functions</a></li>
+<li><a href="#s4">Multi-Layer Networks</a></li>
+<li><a href="#s5">Forward Propagation</a></li>
+<li><a href="#s6">Loss Functions</a></li>
+<li><a href="#s7">Backpropagation</a></li>
+<li><a href="#s8">Training Process</a></li>
+<li><a href="#s9">Architecture Design</a></li>
+<li><a href="#s10">Regularization</a></li>
+<li><a href="#s11">Interactive: Single Neuron Explorer</a></li>
+<li><a href="#s12">Interactive: Network Builder & Trainer</a></li>
+<li><a href="#s13">Interactive: Activation Function Visualizer</a></li>
+<li><a href="#s14">Summary & Key Takeaways</a></li>
+</ol>
+</div>
+
+<!-- Section 1 -->
+<h2 id="s1">1. Biological Inspiration</h2>
+<p>Artificial neural networks are loosely inspired by the brain. Biological neurons receive signals through <strong>dendrites</strong>, process them in the <strong>cell body</strong>, and transmit output through <strong>axons</strong>. Similarly, artificial neurons receive weighted inputs, apply an activation function, and produce an output.</p>
+<div class="analogy-box">
+Think of a neuron as a tiny decision-maker. It listens to many inputs (friends giving advice), weights each one by how much it trusts that friend, adds them up, and makes a yes/no decision if the total "convincing power" crosses a threshold.
+</div>
+<p>Key differences from biology: artificial neurons operate on precise numbers, use continuous (not spiking) signals, and are arranged in clean layers rather than the brain's complex web. Still, this simple model is powerful enough to learn almost any function.</p>
+
+<!-- Section 2 -->
+<h2 id="s2">2. The Perceptron</h2>
+<p>The <strong>perceptron</strong> (Rosenblatt, 1958) is the simplest neural network — a single neuron that computes a weighted sum of inputs plus a bias, then applies a step function:</p>
+<div class="formula-box">z = w₁x₁ + w₂x₂ + ... + wₙxₙ + b = Σ wᵢxᵢ + b</div>
+<div class="formula-box">output = 1 if z ≥ 0, else 0</div>
+<p>The perceptron can learn any <strong>linearly separable</strong> pattern — it draws a hyperplane to divide two classes. It cannot solve XOR or any non-linearly separable problem (this was the famous Minsky & Papert criticism in 1969).</p>
+<div class="card">
+<h3>Perceptron Learning Rule</h3>
+<div class="formula-box">wᵢ ← wᵢ + α · (y_true − y_pred) · xᵢ</div>
+<p>If the prediction is correct, no update. If wrong, weights are nudged toward the correct answer. The learning rate <strong>α</strong> controls step size. This is guaranteed to converge for linearly separable data.</p>
+</div>
+
+<!-- Section 3 -->
+<h2 id="s3">3. Activation Functions</h2>
+<p>Activation functions introduce <strong>nonlinearity</strong> — without them, stacking layers would just compute another linear function. They determine what a neuron "fires."</p>
+<table>
+<tr><th>Function</th><th>Formula</th><th>Range</th><th>Pros</th><th>Cons</th></tr>
+<tr><td><strong>Sigmoid</strong></td><td>σ(z) = 1/(1+e⁻ᶻ)</td><td>(0,1)</td><td>Smooth, probabilistic</td><td>Vanishing gradient, not zero-centered</td></tr>
+<tr><td><strong>Tanh</strong></td><td>tanh(z)</td><td>(−1,1)</td><td>Zero-centered</td><td>Still vanishing gradient</td></tr>
+<tr><td><strong>ReLU</strong></td><td>max(0, z)</td><td>[0,∞)</td><td>Fast, no vanishing gradient</td><td>"Dying ReLU" (neurons stuck at 0)</td></tr>
+<tr><td><strong>Leaky ReLU</strong></td><td>max(0.01z, z)</td><td>(−∞,∞)</td><td>Fixes dying ReLU</td><td>Small extra hyperparameter</td></tr>
+<tr><td><strong>Softmax</strong></td><td>eᶻⁱ / Σeᶻʲ</td><td>(0,1), sums to 1</td><td>Multi-class probabilities</td><td>Output layer only</td></tr>
+</table>
+<div class="key-insight">
+<strong>Default choice:</strong> Use ReLU for hidden layers. Use sigmoid for binary output, softmax for multi-class output. Only try others if ReLU causes problems.
+</div>
+
+<!-- Section 4 -->
+<h2 id="s4">4. Multi-Layer Networks (MLPs)</h2>
+<p>A <strong>Multi-Layer Perceptron (MLP)</strong> stacks multiple layers of neurons. The magic: by adding hidden layers with nonlinear activations, the network can approximate <em>any</em> continuous function (Universal Approximation Theorem).</p>
+<div class="card">
+<h3>Network Structure</h3>
+<ul>
+<li><strong>Input layer:</strong> one neuron per feature (no computation, just passes data through)</li>
+<li><strong>Hidden layers:</strong> where the learning happens — each neuron transforms its inputs nonlinearly</li>
+<li><strong>Output layer:</strong> produces the final prediction (1 neuron for regression/binary, C neurons for C classes)</li>
+</ul>
+<p><strong>Parameters:</strong> a network with layers of size [n₀, n₁, n₂, ..., nₖ] has Σ(nᵢ × nᵢ₊₁ + nᵢ₊₁) total parameters (weights + biases).</p>
+</div>
+<div class="analogy-box">
+An MLP is like a factory assembly line. Raw materials (input) pass through multiple processing stations (hidden layers). Each station transforms the product. Early stations do basic processing (detect edges), later stations do sophisticated work (recognize faces). The final station packages the output.
+</div>
+
+<!-- Section 5 -->
+<h2 id="s5">5. Forward Propagation</h2>
+<p>Forward propagation computes the network's output from input to output, layer by layer:</p>
+<div class="formula-box">Layer ℓ:  z⁽ℓ⁾ = W⁽ℓ⁾ · a⁽ℓ⁻¹⁾ + b⁽ℓ⁾,  a⁽ℓ⁾ = f(z⁽ℓ⁾)</div>
+<p>Where <strong>W⁽ℓ⁾</strong> is the weight matrix, <strong>a⁽ℓ⁻¹⁾</strong> is the previous layer's activation, <strong>b⁽ℓ⁾</strong> is the bias vector, and <strong>f</strong> is the activation function. The input layer activation is simply <code>a⁽⁰⁾ = x</code>.</p>
+<p>This is a composition of functions: <code>ŷ = f₃(W₃ · f₂(W₂ · f₁(W₁ · x + b₁) + b₂) + b₃)</code>. The depth (number of compositions) is what makes "deep" learning powerful.</p>
+
+<!-- Section 6 -->
+<h2 id="s6">6. Loss Functions</h2>
+<p>The <strong>loss function</strong> measures how wrong the network's predictions are. Training = minimizing loss.</p>
+<table>
+<tr><th>Task</th><th>Loss</th><th>Formula</th></tr>
+<tr><td>Regression</td><td>Mean Squared Error</td><td>L = (1/n) Σ(yᵢ − ŷᵢ)²</td></tr>
+<tr><td>Binary Classification</td><td>Binary Cross-Entropy</td><td>L = −(1/n) Σ[yᵢ log ŷᵢ + (1−yᵢ) log(1−ŷᵢ)]</td></tr>
+<tr><td>Multi-class</td><td>Categorical Cross-Entropy</td><td>L = −(1/n) Σ Σ yᵢⱼ log ŷᵢⱼ</td></tr>
+</table>
+<div class="key-insight">
+Cross-entropy penalizes confident wrong predictions very heavily (log of near-zero). This is why it converges faster than MSE for classification.
+</div>
+
+<!-- Section 7 -->
+<h2 id="s7">7. Backpropagation</h2>
+<p>Backpropagation is the algorithm that computes how to update each weight. It applies the <strong>chain rule</strong> backwards through the network to find ∂L/∂w for every weight.</p>
+<div class="card">
+<h3>The Chain Rule in Action</h3>
+<div class="formula-box">∂L/∂W⁽ℓ⁾ = ∂L/∂a⁽ℓ⁾ · ∂a⁽ℓ⁾/∂z⁽ℓ⁾ · ∂z⁽ℓ⁾/∂W⁽ℓ⁾</div>
+<ol>
+<li><strong>Compute loss:</strong> compare ŷ to y using the loss function.</li>
+<li><strong>Output gradient:</strong> ∂L/∂a⁽ᴸ⁾ (how does loss change with output?).</li>
+<li><strong>Propagate backward:</strong> at each layer, compute δ⁽ℓ⁾ = ∂L/∂z⁽ℓ⁾ using the layer above's delta.</li>
+<li><strong>Compute weight gradients:</strong> ∂L/∂W⁽ℓ⁾ = δ⁽ℓ⁾ · a⁽ℓ⁻¹⁾ᵀ.</li>
+<li><strong>Update weights:</strong> W⁽ℓ⁾ ← W⁽ℓ⁾ − α · ∂L/∂W⁽ℓ⁾.</li>
+</ol>
+</div>
+<div class="analogy-box">
+Backpropagation is like blame assignment. The boss (loss) is unhappy with the result. They figure out which department (output layer) contributed most to the problem, that department traces it to sub-departments (hidden layers), all the way back to individual workers (weights). Everyone gets feedback proportional to their contribution to the error.
+</div>
+<h3>Vanishing & Exploding Gradients</h3>
+<p><strong>Vanishing:</strong> If activation derivatives are small (sigmoid/tanh), gradients shrink exponentially through layers. Early layers barely learn. Fix: use ReLU, batch normalization, residual connections.</p>
+<p><strong>Exploding:</strong> If weights are large, gradients grow exponentially. Training becomes unstable. Fix: gradient clipping, proper initialization (He or Xavier).</p>
+
+<!-- Section 8 -->
+<h2 id="s8">8. Training Process</h2>
+<div class="card">
+<h3>Training Loop</h3>
+<ol>
+<li><strong>Initialize</strong> weights (He init for ReLU, Xavier for tanh/sigmoid).</li>
+<li><strong>Forward pass:</strong> compute predictions for a mini-batch.</li>
+<li><strong>Compute loss:</strong> measure prediction error.</li>
+<li><strong>Backward pass:</strong> compute gradients via backpropagation.</li>
+<li><strong>Update weights:</strong> optimizer step (SGD, Adam, etc.).</li>
+<li><strong>Repeat</strong> for all mini-batches = 1 epoch. Train for many epochs.</li>
+</ol>
+</div>
+<h3>Weight Initialization</h3>
+<table>
+<tr><th>Method</th><th>Formula</th><th>Use With</th></tr>
+<tr><td>Xavier/Glorot</td><td>W ~ N(0, 2/(nᵢₙ + nₒᵤₜ))</td><td>Sigmoid, Tanh</td></tr>
+<tr><td>He</td><td>W ~ N(0, 2/nᵢₙ)</td><td>ReLU, Leaky ReLU</td></tr>
+</table>
+<p>Good initialization keeps activations and gradients in a healthy range across layers, preventing vanishing/exploding at the start of training.</p>
+
+<!-- Section 9 -->
+<h2 id="s9">9. Architecture Design</h2>
+<h3>How Many Layers?</h3>
+<ul>
+<li><strong>1 hidden layer:</strong> can approximate any function (theoretically), good for simple tasks.</li>
+<li><strong>2–3 hidden layers:</strong> good default for most tabular data problems.</li>
+<li><strong>Deep (5+ layers):</strong> needed for complex patterns (images, language). Requires careful design (batch norm, residual connections, dropout).</li>
+</ul>
+<h3>How Many Neurons Per Layer?</h3>
+<ul>
+<li>Common pattern: <strong>funnel shape</strong> — wider early layers, narrowing toward output.</li>
+<li>Start with layer sizes between input and output dimension.</li>
+<li>Powers of 2 (64, 128, 256) are common (GPU efficiency).</li>
+<li>More neurons = more capacity but more overfitting risk.</li>
+</ul>
+<h3>Common Architectures</h3>
+<table>
+<tr><th>Architecture</th><th>Best For</th><th>Key Idea</th></tr>
+<tr><td>MLP (Feedforward)</td><td>Tabular data</td><td>Fully connected layers</td></tr>
+<tr><td>CNN</td><td>Images, spatial data</td><td>Convolutional filters detect local patterns</td></tr>
+<tr><td>RNN / LSTM</td><td>Sequences, time series</td><td>Recurrent connections for memory</td></tr>
+<tr><td>Transformer</td><td>Language, any sequence</td><td>Self-attention for global context</td></tr>
+<tr><td>Autoencoder</td><td>Compression, denoising</td><td>Bottleneck for learned representation</td></tr>
+</table>
+
+<!-- Section 10 -->
+<h2 id="s10">10. Regularization</h2>
+<p>Neural networks easily overfit (memorize training data). Regularization keeps them generalizing:</p>
+<ul>
+<li><strong>L2 Regularization (Weight Decay):</strong> add λ·Σw² to loss. Penalizes large weights, encourages small distributed weights.</li>
+<li><strong>Dropout:</strong> randomly set p% of neurons to 0 during training. Forces redundancy — the network can't rely on any single neuron. Typically p = 0.2–0.5.</li>
+<li><strong>Batch Normalization:</strong> normalize layer inputs to zero mean, unit variance. Stabilizes training and acts as mild regularization.</li>
+<li><strong>Early Stopping:</strong> stop training when validation loss starts increasing. Simple and effective.</li>
+<li><strong>Data Augmentation:</strong> artificially expand training set (rotate, flip, crop images). More data = less overfitting.</li>
+</ul>
+<div class="key-insight">
+In practice, use a combination: batch normalization + dropout + early stopping is a strong default. Add L2 regularization if still overfitting.
+</div>
+
+<!-- Demo 1: Single Neuron Explorer -->
+<h2 id="s11">11. Interactive: Single Neuron Explorer</h2>
+<div class="demo-section">
+<h3>🧠 Single Neuron — Learn a Decision Boundary</h3>
+<p>Click to add <strong style="color:#5eead4">green (class 1)</strong> and <strong style="color:#f472b6">pink (class 0)</strong> points. The neuron learns a linear boundary to separate them.</p>
+<div class="controls">
+<label>Class: </label>
+<select id="neuronClass"><option value="1">Class 1 (Green)</option><option value="0">Class 0 (Pink)</option></select>
+<label>Learning Rate:</label>
+<input type="range" id="neuronLR" min="0.01" max="1" step="0.01" value="0.1">
+<span id="neuronLRVal">0.10</span>
+<button id="neuronTrain">Train 100 Steps</button>
+<button id="neuronReset" class="secondary">Reset</button>
+</div>
+<canvas id="neuronCanvas" width="700" height="400"></canvas>
+<div class="info-text" id="neuronInfo">w₁=0.00, w₂=0.00, b=0.00 | Accuracy: —</div>
+</div>
+
+<!-- Demo 2: Network Builder & Trainer -->
+<h2 id="s12">12. Interactive: Network Builder & Trainer</h2>
+<div class="demo-section">
+<h3>🏗️ Neural Network — Classify 2D Patterns</h3>
+<p>Choose a dataset, configure hidden layers, and watch the network learn to classify regions.</p>
+<div class="controls">
+<label>Dataset:</label>
+<select id="nnDataset"><option value="circle">Circle</option><option value="xor">XOR</option><option value="spiral">Spiral</option><option value="moons">Moons</option></select>
+<label>Hidden Layers:</label>
+<select id="nnLayers"><option value="4">1 Layer (4)</option><option value="4,4">2 Layers (4,4)</option><option value="8,8">2 Layers (8,8)</option><option value="8,6,4">3 Layers (8,6,4)</option></select>
+<label>LR:</label>
+<input type="range" id="nnLR" min="0.01" max="2" step="0.01" value="0.5">
+<span id="nnLRVal">0.50</span>
+</div>
+<div class="controls">
+<button id="nnTrain">Train 500 Epochs</button>
+<button id="nnStep">Step 1 Epoch</button>
+<button id="nnReset" class="secondary">New Data</button>
+</div>
+<canvas id="nnCanvas" width="700" height="400"></canvas>
+<div class="info-text" id="nnInfo">Epoch: 0 | Loss: — | Accuracy: —</div>
+</div>
+
+<!-- Demo 3: Activation Function Visualizer -->
+<h2 id="s13">13. Interactive: Activation Function Visualizer</h2>
+<div class="demo-section">
+<h3>📈 Activation Functions & Their Derivatives</h3>
+<p>Compare how different activation functions transform inputs and how their gradients behave.</p>
+<div class="controls">
+<label>Show:</label>
+<select id="actFunc">
+<option value="all">All Functions</option>
+<option value="sigmoid">Sigmoid</option>
+<option value="tanh">Tanh</option>
+<option value="relu">ReLU</option>
+<option value="leaky">Leaky ReLU</option>
+</select>
+<label><input type="checkbox" id="showDeriv" checked> Show Derivatives</label>
+</div>
+<canvas id="actCanvas" width="700" height="400"></canvas>
+<div class="info-text">Hover over the plot to see exact values. Solid = function, dashed = derivative.</div>
+</div>
+
+<!-- Section 14: Summary -->
+<h2 id="s14">14. Summary & Key Takeaways</h2>
+<div class="card">
+<ol>
+<li><strong>Neurons</strong> compute weighted sums + nonlinear activations. The nonlinearity is crucial.</li>
+<li><strong>Stacking layers</strong> creates universal function approximators. Depth enables hierarchical feature learning.</li>
+<li><strong>Backpropagation</strong> efficiently computes gradients via the chain rule, making training possible.</li>
+<li><strong>ReLU</strong> is the default activation. Use He initialization. Use Adam optimizer as default.</li>
+<li><strong>Regularization</strong> (dropout, batch norm, early stopping) prevents overfitting.</li>
+<li><strong>Architecture</strong> depends on data: MLPs for tabular, CNNs for images, Transformers for sequences.</li>
+<li>Start simple (1–2 hidden layers) and add complexity only if needed.</li>
+</ol>
+</div>
+
+</div><!-- end container -->
+
+<script>
+// ============================================================
+// DEMO 1: SINGLE NEURON EXPLORER
+// ============================================================
+(function(){
+const cv=document.getElementById('neuronCanvas'),ctx=cv.getContext('2d');
+const lrSlider=document.getElementById('neuronLR'),lrVal=document.getElementById('neuronLRVal');
+const classSelect=document.getElementById('neuronClass');
+const info=document.getElementById('neuronInfo');
+let points=[], w1=0, w2=0, b=0;
+
+lrSlider.oninput=()=>lrVal.textContent=parseFloat(lrSlider.value).toFixed(2);
+
+cv.addEventListener('click',e=>{
+  const r=cv.getBoundingClientRect();
+  const x=(e.clientX-r.left)/cv.width*4-2, y=-(((e.clientY-r.top)/cv.height)*4-2);
+  points.push({x,y,c:parseInt(classSelect.value)});
+  draw();
+});
+
+document.getElementById('neuronTrain').onclick=()=>{
+  if(points.length<2) return;
+  const lr=parseFloat(lrSlider.value);
+  for(let i=0;i<100;i++){
+    for(const p of points){
+      const z=w1*p.x+w2*p.y+b;
+      const pred=1/(1+Math.exp(-z));
+      const err=p.c-pred;
+      const g=pred*(1-pred);
+      w1+=lr*err*g*p.x;
+      w2+=lr*err*g*p.y;
+      b+=lr*err*g;
+    }
+  }
+  draw();
+};
+
+document.getElementById('neuronReset').onclick=()=>{points=[];w1=w2=b=0;draw();};
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  // draw decision regions
+  const res=4;
+  for(let px=0;px<cv.width;px+=res){
+    for(let py=0;py<cv.height;py+=res){
+      const x=px/cv.width*4-2, y=-((py/cv.height)*4-2);
+      const z=w1*x+w2*y+b;
+      const p=1/(1+Math.exp(-z));
+      if(p>0.5) ctx.fillStyle=`rgba(94,234,212,${(p-0.5)*0.3})`;
+      else ctx.fillStyle=`rgba(244,114,182,${(0.5-p)*0.3})`;
+      ctx.fillRect(px,py,res,res);
+    }
+  }
+  // decision boundary line: w1*x + w2*y + b = 0 => y = -(w1*x+b)/w2
+  if(Math.abs(w2)>0.001){
+    ctx.beginPath();ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+    for(let px=0;px<cv.width;px++){
+      const x=px/cv.width*4-2;
+      const y=-(w1*x+b)/w2;
+      const py=(-y+2)/4*cv.height;
+      px===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.stroke();ctx.setLineDash([]);
+  }
+  // draw axes
+  ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(cv.width/2,0);ctx.lineTo(cv.width/2,cv.height);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,cv.height/2);ctx.lineTo(cv.width,cv.height/2);ctx.stroke();
+  // draw points
+  for(const p of points){
+    const px=(p.x+2)/4*cv.width, py=(-p.y+2)/4*cv.height;
+    ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);
+    ctx.fillStyle=p.c===1?'#5eead4':'#f472b6';
+    ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  // accuracy
+  let correct=0;
+  for(const p of points){
+    const z=w1*p.x+w2*p.y+b;
+    const pred=1/(1+Math.exp(-z))>=0.5?1:0;
+    if(pred===p.c)correct++;
+  }
+  const acc=points.length>0?(correct/points.length*100).toFixed(0)+'%':'—';
+  info.textContent=`w₁=${w1.toFixed(2)}, w₂=${w2.toFixed(2)}, b=${b.toFixed(2)} | Accuracy: ${acc}`;
+}
+draw();
+})();
+
+// ============================================================
+// DEMO 2: NETWORK BUILDER & TRAINER
+// ============================================================
+(function(){
+const cv=document.getElementById('nnCanvas'),ctx=cv.getContext('2d');
+const dataSelect=document.getElementById('nnDataset');
+const layerSelect=document.getElementById('nnLayers');
+const lrSlider=document.getElementById('nnLR'),lrVal=document.getElementById('nnLRVal');
+const info=document.getElementById('nnInfo');
+let data=[],net=null,epoch=0,training=false;
+
+lrSlider.oninput=()=>lrVal.textContent=parseFloat(lrSlider.value).toFixed(2);
+
+function genData(type,n=200){
+  const pts=[];
+  if(type==='circle'){
+    for(let i=0;i<n;i++){
+      const a=Math.random()*Math.PI*2, r=Math.random();
+      const x=r*Math.cos(a), y=r*Math.sin(a);
+      pts.push({x,y,c:r<0.5?1:0});
+    }
+  }else if(type==='xor'){
+    for(let i=0;i<n;i++){
+      const x=Math.random()*2-1, y=Math.random()*2-1;
+      pts.push({x,y,c:(x>0)===(y>0)?1:0});
+    }
+  }else if(type==='spiral'){
+    for(let i=0;i<n/2;i++){
+      const t=i/n*4*Math.PI;const r=t/12;
+      pts.push({x:r*Math.cos(t)+rn(.08),y:r*Math.sin(t)+rn(.08),c:1});
+      pts.push({x:-r*Math.cos(t)+rn(.08),y:-r*Math.sin(t)+rn(.08),c:0});
+    }
+  }else if(type==='moons'){
+    for(let i=0;i<n/2;i++){
+      const a=Math.PI*i/(n/2);
+      pts.push({x:Math.cos(a)+rn(.1),y:Math.sin(a)+rn(.1),c:1});
+      pts.push({x:1-Math.cos(a)+rn(.1),y:1-Math.sin(a)-.5+rn(.1),c:0});
+    }
+  }
+  return pts;
+}
+function rn(s){return (Math.random()-.5)*2*s;}
+
+// Simple NN
+function createNet(layerSizes){
+  const layers=[];
+  for(let i=0;i<layerSizes.length-1;i++){
+    const nIn=layerSizes[i],nOut=layerSizes[i+1];
+    const w=[],bi=[];
+    const std=Math.sqrt(2/nIn);
+    for(let j=0;j<nOut;j++){
+      const wj=[];
+      for(let k=0;k<nIn;k++) wj.push(rn(1)*std);
+      w.push(wj); bi.push(0);
+    }
+    layers.push({w,b:bi,a:[],z:[]});
+  }
+  return {layers,sizes:layerSizes};
+}
+
+function relu(x){return x>0?x:0;}
+function drelu(x){return x>0?1:0;}
+function sigmoid(x){return 1/(1+Math.exp(-Math.max(-500,Math.min(500,x))));}
+
+function forward(net,x){
+  let a=[...x];
+  for(let l=0;l<net.layers.length;l++){
+    const layer=net.layers[l];
+    const z=[],aNext=[];
+    const isLast=l===net.layers.length-1;
+    for(let j=0;j<layer.w.length;j++){
+      let s=layer.b[j];
+      for(let k=0;k<a.length;k++) s+=layer.w[j][k]*a[k];
+      z.push(s);
+      aNext.push(isLast?sigmoid(s):relu(s));
+    }
+    layer.z=z;layer.a=aNext;
+    a=aNext;
+  }
+  return a;
+}
+
+function trainStep(net,data,lr){
+  let totalLoss=0;
+  // mini-batch (full batch)
+  const grads=net.layers.map(l=>({
+    w:l.w.map(wj=>wj.map(()=>0)),
+    b:l.b.map(()=>0)
+  }));
+
+  for(const p of data){
+    // forward
+    const inp=[p.x,p.y];
+    let activations=[inp];
+    let a=[...inp];
+    for(let l=0;l<net.layers.length;l++){
+      const layer=net.layers[l];
+      const z=[],aNext=[];
+      const isLast=l===net.layers.length-1;
+      for(let j=0;j<layer.w.length;j++){
+        let s=layer.b[j];
+        for(let k=0;k<a.length;k++) s+=layer.w[j][k]*a[k];
+        z.push(s);
+        aNext.push(isLast?sigmoid(s):relu(s));
+      }
+      layer.z=z;layer.a=aNext;
+      a=aNext;
+      activations.push(aNext);
+    }
+    const pred=a[0];
+    const eps=1e-7;
+    totalLoss+=-(p.c*Math.log(pred+eps)+(1-p.c)*Math.log(1-pred+eps));
+
+    // backward
+    let deltas=[(pred-p.c)]; // dL/dz for output (sigmoid+BCE simplifies)
+    for(let l=net.layers.length-1;l>=0;l--){
+      const aP=activations[l]; // previous layer activation
+      for(let j=0;j<net.layers[l].w.length;j++){
+        grads[l].b[j]+=deltas[j];
+        for(let k=0;k<aP.length;k++){
+          grads[l].w[j][k]+=deltas[j]*aP[k];
+        }
+      }
+      if(l>0){
+        const newDeltas=[];
+        for(let k=0;k<net.layers[l-1].w.length;k++){
+          let s=0;
+          for(let j=0;j<net.layers[l].w.length;j++){
+            s+=net.layers[l].w[j][k]*deltas[j];
+          }
+          newDeltas.push(s*drelu(net.layers[l-1].z[k]));
+        }
+        deltas=newDeltas;
+      }
+    }
+  }
+
+  // update
+  const n=data.length;
+  for(let l=0;l<net.layers.length;l++){
+    for(let j=0;j<net.layers[l].w.length;j++){
+      net.layers[l].b[j]-=lr*grads[l].b[j]/n;
+      for(let k=0;k<net.layers[l].w[j].length;k++){
+        net.layers[l].w[j][k]-=lr*grads[l].w[j][k]/n;
+      }
+    }
+  }
+  return totalLoss/n;
+}
+
+function initAll(){
+  const type=dataSelect.value;
+  data=genData(type);
+  // normalize
+  let mx=-9,Mx=9,my=-9,My=9;
+  for(const p of data){mx=Math.min(mx,p.x);Mx=Math.max(Mx,p.x);my=Math.min(my,p.y);My=Math.max(My,p.y);}
+  for(const p of data){p.x=(p.x-(mx+Mx)/2)/((Mx-mx)/2||1);p.y=(p.y-(my+My)/2)/((My-my)/2||1);}
+  const hidden=layerSelect.value.split(',').map(Number);
+  const sizes=[2,...hidden,1];
+  net=createNet(sizes);
+  epoch=0;
+  draw();
+}
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  // decision boundary heatmap
+  const res=5;
+  for(let px=0;px<cv.width;px+=res){
+    for(let py=0;py<cv.height;py+=res){
+      const x=px/cv.width*4-2,y=-((py/cv.height)*4-2);
+      const out=forward(net,[x,y])[0];
+      if(out>0.5)ctx.fillStyle=`rgba(94,234,212,${(out-0.5)*0.5})`;
+      else ctx.fillStyle=`rgba(244,114,182,${(0.5-out)*0.5})`;
+      ctx.fillRect(px,py,res,res);
+    }
+  }
+  // points
+  for(const p of data){
+    const px=(p.x+2)/4*cv.width, py=(-p.y+2)/4*cv.height;
+    ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);
+    ctx.fillStyle=p.c===1?'#5eead4':'#f472b6';
+    ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=1;ctx.stroke();
+  }
+  // accuracy
+  let correct=0;
+  for(const p of data){
+    const pred=forward(net,[p.x,p.y])[0]>=0.5?1:0;
+    if(pred===p.c)correct++;
+  }
+  const acc=(correct/data.length*100).toFixed(1);
+  info.textContent=`Epoch: ${epoch} | Accuracy: ${acc}% | Architecture: [2, ${layerSelect.value}, 1]`;
+}
+
+document.getElementById('nnTrain').onclick=async()=>{
+  if(training)return;training=true;
+  const lr=parseFloat(lrSlider.value);
+  for(let i=0;i<500;i++){
+    trainStep(net,data,lr);epoch++;
+    if(i%10===0){draw();await new Promise(r=>setTimeout(r,0));}
+  }
+  draw();training=false;
+};
+
+document.getElementById('nnStep').onclick=()=>{
+  const lr=parseFloat(lrSlider.value);
+  trainStep(net,data,lr);epoch++;draw();
+};
+
+document.getElementById('nnReset').onclick=()=>{training=false;initAll();};
+dataSelect.onchange=layerSelect.onchange=()=>{training=false;initAll();};
+
+initAll();
+})();
+
+// ============================================================
+// DEMO 3: ACTIVATION FUNCTION VISUALIZER
+// ============================================================
+(function(){
+const cv=document.getElementById('actCanvas'),ctx=cv.getContext('2d');
+const funcSelect=document.getElementById('actFunc');
+const derivCheck=document.getElementById('showDeriv');
+let mouseX=null;
+
+const funcs={
+  sigmoid:{fn:x=>1/(1+Math.exp(-x)), dfn:x=>{const s=1/(1+Math.exp(-x));return s*(1-s);}, color:'#a78bfa', name:'Sigmoid'},
+  tanh:{fn:x=>Math.tanh(x), dfn:x=>1-Math.tanh(x)**2, color:'#5eead4', name:'Tanh'},
+  relu:{fn:x=>Math.max(0,x), dfn:x=>x>0?1:0, color:'#fbbf24', name:'ReLU'},
+  leaky:{fn:x=>x>0?x:0.1*x, dfn:x=>x>0?1:0.1, color:'#f472b6', name:'Leaky ReLU'}
+};
+
+function xToP(x){return (x+6)/12*cv.width;}
+function yToP(y){return (1-((y+3)/6))*cv.height;}
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=1;
+  for(let x=-5;x<=5;x++){const px=xToP(x);ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,cv.height);ctx.stroke();}
+  for(let y=-2;y<=2;y++){const py=yToP(y);ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(cv.width,py);ctx.stroke();}
+  // axes
+  ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(xToP(0),0);ctx.lineTo(xToP(0),cv.height);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,yToP(0));ctx.lineTo(cv.width,yToP(0));ctx.stroke();
+  // axis labels
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='11px monospace';ctx.textAlign='center';
+  for(let x=-5;x<=5;x++)if(x!==0)ctx.fillText(x,xToP(x),yToP(0)+14);
+  ctx.textAlign='right';
+  for(let y=-2;y<=2;y++)if(y!==0)ctx.fillText(y,xToP(0)-6,yToP(y)+4);
+
+  const sel=funcSelect.value;
+  const show=sel==='all'?Object.keys(funcs):[sel];
+  const showD=derivCheck.checked;
+
+  // draw functions
+  for(const key of show){
+    const f=funcs[key];
+    // function
+    ctx.beginPath();ctx.strokeStyle=f.color;ctx.lineWidth=2.5;ctx.setLineDash([]);
+    for(let px=0;px<cv.width;px++){
+      const x=px/cv.width*12-6;
+      const y=f.fn(x);
+      const py=yToP(y);
+      px===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    // derivative
+    if(showD){
+      ctx.beginPath();ctx.strokeStyle=f.color;ctx.lineWidth=1.5;ctx.setLineDash([5,5]);
+      for(let px=0;px<cv.width;px++){
+        const x=px/cv.width*12-6;
+        const y=f.dfn(x);
+        const py=yToP(y);
+        px===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+      }
+      ctx.stroke();ctx.setLineDash([]);
+    }
+    // label
+    ctx.fillStyle=f.color;ctx.font='bold 13px sans-serif';ctx.textAlign='left';
+    const lx=cv.width-110, ly=show.indexOf(key)*22+20;
+    ctx.fillRect(lx,ly-2,30,2.5);
+    ctx.fillText(f.name,lx+36,ly+4);
+  }
+
+  // hover line
+  if(mouseX!==null){
+    const x=mouseX/cv.width*12-6;
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(mouseX,0);ctx.lineTo(mouseX,cv.height);ctx.stroke();ctx.setLineDash([]);
+    // values
+    let ty=20;
+    ctx.font='12px monospace';ctx.textAlign='left';
+    ctx.fillStyle='rgba(255,255,255,0.7)';
+    ctx.fillText(`x = ${x.toFixed(2)}`,mouseX+10,ty);ty+=18;
+    for(const key of show){
+      const f=funcs[key];
+      ctx.fillStyle=f.color;
+      let txt=`${f.name}: ${f.fn(x).toFixed(4)}`;
+      if(showD)txt+=` | d: ${f.dfn(x).toFixed(4)}`;
+      ctx.fillText(txt,mouseX+10,ty);ty+=16;
+      // dot on curve
+      const py=yToP(f.fn(x));
+      ctx.beginPath();ctx.arc(mouseX,py,4,0,Math.PI*2);ctx.fill();
+    }
+  }
+}
+
+cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mouseX=e.clientX-r.left;draw();});
+cv.addEventListener('mouseleave',()=>{mouseX=null;draw();});
+funcSelect.onchange=()=>draw();
+derivCheck.onchange=()=>draw();
+draw();
+})();
+
+// pause animations when hidden
+document.addEventListener('visibilitychange',()=>{});
+</script>
+</body>
+</html>

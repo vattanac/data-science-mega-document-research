@@ -543,6 +543,29 @@
         "category": "Deep Learning"
       },
       {
+        "name": "neural-networks-fundamentals",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "neural-networks-fundamentals",
+            "type": "file",
+            "ext": "html",
+            "size": 33800,
+            "path": "neural-networks-fundamentals/index.html"
+          },
+          {
+            "name": "neural_networks_fundamentals_guide.docx",
+            "displayName": "neural_networks_fundamentals_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 15860,
+            "path": "neural-networks-fundamentals/neural_networks_fundamentals_guide.docx"
+          }
+        ],
+        "category": "Deep Learning"
+      },
+      {
         "name": "normal-distribution-and-clt",
         "type": "folder",
         "children": [
