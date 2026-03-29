@@ -946,6 +946,29 @@
         "category": "Statistics & Probability"
       },
       {
+        "name": "vector-spaces-and-subspaces",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "vector-spaces-and-subspaces",
+            "type": "file",
+            "ext": "html",
+            "size": 54033,
+            "path": "vector-spaces-and-subspaces/index.html"
+          },
+          {
+            "name": "vector_spaces_and_subspaces_guide.docx",
+            "displayName": "vector_spaces_and_subspaces_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 16495,
+            "path": "vector-spaces-and-subspaces/vector_spaces_and_subspaces_guide.docx"
+          }
+        ],
+        "category": "Linear Algebra"
+      },
+      {
         "name": "why_start_with_iris",
         "type": "folder",
         "children": [

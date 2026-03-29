@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Spaces & Subspaces — Deep Dive</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0b14;
+            --bg-card: #12142a;
+            --bg-card-hover: #181a36;
+            --border-color: #1e2045;
+            --text-primary: #c8cad8;
+            --text-dim: #6b6e8a;
+            --accent-primary: #a78bfa;
+            --accent-secondary: #5eead4;
+            --accent-warm: #f9a825;
+            --accent-pink: #f472b6;
+            --accent-blue: #60a5fa;
+            --accent-red: #f87171;
+            --accent-green: #34d399;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.8;
+            padding: 2rem;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        header { margin-bottom: 3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 2rem; }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--accent-primary); line-height: 1.2; }
+        .subtitle { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 1rem; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+        .tag { display: inline-block; background-color: var(--border-color); color: var(--accent-secondary); padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.85rem; font-weight: 500; }
+
+        .section { margin-bottom: 4rem; }
+        h2 { font-size: 1.75rem; color: var(--accent-secondary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        h3 { font-size: 1.25rem; color: var(--accent-primary); margin-bottom: 1rem; margin-top: 2rem; }
+        p { margin-bottom: 1rem; max-width: 80ch; }
+
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .card:hover { background: var(--bg-card-hover); }
+
+        .formula-box {
+            background: linear-gradient(135deg, #12142a, #1a1c3a);
+            border: 1px solid var(--accent-primary);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.3rem;
+            color: var(--accent-warm);
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+        .formula-box::before { content: ''; position: absolute; top:0;left:0;right:0;bottom:0; background: radial-gradient(circle at 20% 50%, rgba(167,139,250,0.08), transparent 60%); pointer-events: none; }
+        .formula-label { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+
+        .analogy-box { background: linear-gradient(135deg, #0d1a0d, #12142a); border-left: 4px solid var(--accent-green); border-radius: 0 12px 12px 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+        .analogy-box .label { color: var(--accent-green); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+
+        .key-insight { background: linear-gradient(135deg, #1a0d1a, #12142a); border-left: 4px solid var(--accent-pink); border-radius: 0 12px 12px 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+        .key-insight .label { color: var(--accent-pink); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+
+        .warning-box { background: linear-gradient(135deg, #1a1a0d, #12142a); border-left: 4px solid var(--accent-warm); border-radius: 0 12px 12px 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+        .warning-box .label { color: var(--accent-warm); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+
+        .step-list { counter-reset: step-counter; list-style: none; padding: 0; }
+        .step-list li { counter-increment: step-counter; padding: 1rem 1rem 1rem 3.5rem; position: relative; margin-bottom: 0.75rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; }
+        .step-list li::before { content: counter(step-counter); position: absolute; left: 1rem; top: 1rem; width: 1.8rem; height: 1.8rem; background: var(--accent-primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
+
+        .canvas-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin: 2rem 0; text-align: center; }
+        .canvas-container canvas { border-radius: 8px; display: block; margin: 0 auto; max-width: 100%; }
+        .canvas-title { color: var(--accent-secondary); font-weight: 600; margin-bottom: 1rem; font-size: 1.05rem; }
+        .canvas-controls { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+        .canvas-controls button, .canvas-controls select { background: var(--border-color); color: var(--text-primary); border: 1px solid #2a2d55; padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; }
+        .canvas-controls button:hover { background: #2a2d55; }
+        .canvas-controls button.active { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); }
+
+        .example-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+
+        .toc { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 3rem; }
+        .toc-title { color: var(--accent-primary); font-weight: 700; margin-bottom: 1rem; font-size: 1.1rem; }
+        .toc a { color: var(--text-primary); text-decoration: none; display: block; padding: 0.3rem 0; transition: color 0.2s; }
+        .toc a:hover { color: var(--accent-secondary); }
+        .toc a::before { content: '→ '; color: var(--accent-primary); }
+
+        code { background: rgba(167,139,250,0.12); color: var(--accent-primary); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+        .highlight { color: var(--accent-warm); font-weight: 600; }
+
+        .axiom-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .axiom-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem 1.25rem; }
+        .axiom-card .num { color: var(--accent-primary); font-weight: 700; font-size: 0.8rem; margin-bottom: 0.3rem; }
+        .axiom-card .name { color: var(--accent-secondary); font-weight: 600; margin-bottom: 0.3rem; }
+
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .comparison-table th, .comparison-table td { border: 1px solid var(--border-color); padding: 0.75rem 1rem; text-align: left; }
+        .comparison-table th { background: var(--bg-card); color: var(--accent-primary); font-weight: 600; }
+        .comparison-table td { color: var(--text-primary); }
+        .comparison-table tr:nth-child(even) td { background: rgba(18,20,42,0.5); }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.35rem; }
+            .formula-box { font-size: 1.05rem; padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>Vector Spaces & Subspaces</h1>
+        <p class="subtitle">The Universe Where Linear Algebra Lives — Span, Basis, Dimension & The Four Fundamental Subspaces</p>
+        <div class="tags">
+            <span class="tag">Linear Algebra</span>
+            <span class="tag">Vector Spaces</span>
+            <span class="tag">Span</span>
+            <span class="tag">Basis</span>
+            <span class="tag">Dimension</span>
+            <span class="tag">Null Space</span>
+            <span class="tag">Column Space</span>
+        </div>
+    </header>
+
+    <div class="toc">
+        <div class="toc-title">Table of Contents</div>
+        <a href="#intuition">1. The Big Intuition</a>
+        <a href="#definition">2. Formal Definition & 8 Axioms</a>
+        <a href="#examples">3. Examples of Vector Spaces</a>
+        <a href="#subspaces">4. Subspaces — Spaces Within Spaces</a>
+        <a href="#interactive-subspace">5. Interactive: Subspace Test</a>
+        <a href="#span">6. Span — Reaching Everything</a>
+        <a href="#interactive-span">7. Interactive: Span Explorer</a>
+        <a href="#linear-independence">8. Linear Independence</a>
+        <a href="#basis-dimension">9. Basis & Dimension</a>
+        <a href="#four-subspaces">10. The Four Fundamental Subspaces</a>
+        <a href="#interactive-four">11. Interactive: Null Space & Column Space</a>
+        <a href="#rank-nullity">12. Rank-Nullity Theorem</a>
+        <a href="#applications">13. Real-World Applications</a>
+        <a href="#summary">14. Cheat Sheet & Summary</a>
+    </div>
+
+    <!-- ============ 1. INTUITION ============ -->
+    <div class="section" id="intuition">
+        <h2>1. The Big Intuition</h2>
+        <p>A <span class="highlight">vector space</span> is a "playground" where you can add things together and scale them — and you'll never leave the playground. It's a complete, self-contained universe for doing linear algebra.</p>
+
+        <div class="analogy-box">
+            <div class="label">Analogy: A Smoothie Bar</div>
+            <p>Imagine a smoothie bar with certain base ingredients (vectors). You can combine any amounts of these ingredients (scalar multiplication) and mix them together (addition). The vector space is the set of ALL possible smoothies you could ever make. A <strong>subspace</strong> is like a restricted menu — say, only fruit smoothies. As long as mixing fruit smoothies always gives you another fruit smoothie, that restricted menu forms its own mini vector space.</p>
+        </div>
+
+        <p>The key idea: a vector space is <em>closed</em> under addition and scalar multiplication. Whatever you do (add vectors, scale them), you can't escape the space. This "closure" property is what makes linear algebra work so cleanly.</p>
+
+        <div class="key-insight">
+            <div class="label">Why This Matters</div>
+            <p>Vector spaces are the stage on which ALL of linear algebra plays out. Matrices, transformations, eigenvalues, SVD, PCA — they all operate on vector spaces. Understanding the "container" helps you understand everything that lives inside it.</p>
+        </div>
+    </div>
+
+    <!-- ============ 2. DEFINITION ============ -->
+    <div class="section" id="definition">
+        <h2>2. Formal Definition & The 8 Axioms</h2>
+        <p>A <strong>vector space</strong> V over a field F (usually real numbers R) is a set of objects called "vectors" equipped with two operations — addition (+) and scalar multiplication (·) — that satisfy these 8 axioms:</p>
+
+        <div class="axiom-grid">
+            <div class="axiom-card">
+                <div class="num">AXIOM 1</div>
+                <div class="name">Closure (Addition)</div>
+                <p>u + v is in V</p>
+            </div>
+            <div class="axiom-card">
+                <div class="num">AXIOM 2</div>
+                <div class="name">Commutativity</div>
+                <p>u + v = v + u</p>
+            </div>
+            <div class="axiom-card">
+                <div class="num">AXIOM 3</div>
+                <div class="name">Associativity (+)</div>
+                <p>(u + v) + w = u + (v + w)</p>
+            </div>
+            <div class="axiom-card">
+                <div class="num">AXIOM 4</div>
+                <div class="name">Zero Vector</div>
+                <p>There exists 0 such that v + 0 = v</p>
+            </div>
+            <div class="axiom-card">
+                <div class="num">AXIOM 5</div>
+                <div class="name">Additive Inverse</div>
+                <p>For each v, there exists −v</p>
+            </div>
+            <div class="axiom-card">
+                <div class="num">AXIOM 6</div>
+                <div class="name">Closure (Scalar Mult)</div>
+                <p>c · v is in V</p>
+            </div>
+            <div class="axiom-card">
+                <div class="num">AXIOM 7</div>
+                <div class="name">Distributivity</div>
+                <p>c(u + v) = cu + cv</p>
+            </div>
+            <div class="axiom-card">
+                <div class="num">AXIOM 8</div>
+                <div class="name">Identity (Scalar)</div>
+                <p>1 · v = v</p>
+            </div>
+        </div>
+
+        <div class="analogy-box">
+            <div class="label">Analogy: Playground Rules</div>
+            <p>Think of axioms as the rules of a playground. If you follow all 8 rules, you have a valid playground (vector space). If even one rule is broken — say, adding two things kicks you out of the space — it's not a vector space.</p>
+        </div>
+
+        <div class="warning-box">
+            <div class="label">Common Misconception</div>
+            <p>"Vectors" don't have to be arrows! In a vector space, vectors can be functions, polynomials, matrices, sequences, or anything that follows the 8 axioms. The word "vector" just means "an element of a vector space."</p>
+        </div>
+    </div>
+
+    <!-- ============ 3. EXAMPLES ============ -->
+    <div class="section" id="examples">
+        <h2>3. Examples of Vector Spaces</h2>
+        <div class="example-grid">
+            <div class="card">
+                <h3 style="margin-top:0">R² — The 2D Plane</h3>
+                <p>All pairs (x, y) of real numbers. Add component-wise, scale component-wise. The most familiar vector space. Dimension: 2.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">R³ — 3D Space</h3>
+                <p>All triples (x, y, z). The physical world around us. Dimension: 3. Subspaces include planes and lines through the origin.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Rⁿ — n-Dimensional Space</h3>
+                <p>All n-tuples. This is where data science lives — each data point with n features is a vector in Rⁿ. Dimension: n.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Polynomials of degree ≤ n</h3>
+                <p>Pₙ = {a₀ + a₁x + ... + aₙxⁿ}. Adding two such polynomials stays in Pₙ. Dimension: n+1 (basis: {1, x, x², ..., xⁿ}).</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Matrices (m × n)</h3>
+                <p>All m×n matrices form a vector space! Add entry-wise, scale entry-wise. Dimension: m·n.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Continuous Functions C[a,b]</h3>
+                <p>All continuous functions on [a,b]. Sum of continuous functions is continuous. This is an infinite-dimensional vector space!</p>
+            </div>
+        </div>
+
+        <h3>NOT Vector Spaces (and why)</h3>
+        <div class="example-grid">
+            <div class="card" style="border-color: var(--accent-red);">
+                <h3 style="margin-top:0; color: var(--accent-red);">Positive Reals (R⁺)</h3>
+                <p>Fails closure under scalar multiplication: 3 is in R⁺, but (−2) · 3 = −6 is NOT in R⁺.</p>
+            </div>
+            <div class="card" style="border-color: var(--accent-red);">
+                <h3 style="margin-top:0; color: var(--accent-red);">Integers (Z)</h3>
+                <p>Not a vector space over R! Closure under scalar multiplication fails: 2 is in Z, but 0.5 · 2 = 1... wait, that works. But π · 1 = π, not an integer. Fails!</p>
+            </div>
+            <div class="card" style="border-color: var(--accent-red);">
+                <h3 style="margin-top:0; color: var(--accent-red);">A Line NOT Through Origin</h3>
+                <p>The line y = x + 1 is NOT a subspace of R². It doesn't contain the zero vector (0,0), and adding two points on it leaves the line.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 4. SUBSPACES ============ -->
+    <div class="section" id="subspaces">
+        <h2>4. Subspaces — Spaces Within Spaces</h2>
+        <p>A <strong>subspace</strong> W of a vector space V is a subset that is itself a vector space (under the same operations). You don't need to check all 8 axioms! Just three things:</p>
+
+        <div class="formula-box">
+            <div class="formula-label">Subspace Test (3 Checks)</div>
+            1. Zero vector is in W &nbsp;&nbsp; 2. Closed under addition &nbsp;&nbsp; 3. Closed under scalar multiplication
+        </div>
+
+        <p>If a subset passes all three checks, it automatically satisfies all 8 axioms (the others are inherited from the parent space).</p>
+
+        <div class="analogy-box">
+            <div class="label">Analogy: VIP Section</div>
+            <p>Think of a nightclub (the vector space). A VIP section (subspace) is a valid area within the club. The rules: (1) the "zero" (entrance) must be accessible, (2) if two VIP guests combine, they stay VIP, (3) scaling a VIP guest keeps them VIP. If any rule fails, it's not a real VIP section — it's just a random roped-off area.</p>
+        </div>
+
+        <h3>Subspaces of R²</h3>
+        <p>The only subspaces of R² are: the origin {0} (dimension 0), any line through the origin (dimension 1), and all of R² itself (dimension 2). That's it! A circle, a line not through the origin, or a quadrant are NOT subspaces.</p>
+
+        <h3>Subspaces of R³</h3>
+        <p>The subspaces of R³ are: {0}, lines through origin, planes through origin, and R³ itself. Notice the pattern — subspaces always pass through the origin.</p>
+    </div>
+
+    <!-- ============ 5. INTERACTIVE SUBSPACE TEST ============ -->
+    <div class="section" id="interactive-subspace">
+        <h2>5. Interactive: Subspace Test</h2>
+        <p>Select different subsets of R² and see which ones pass the subspace test. The green region shows the subset; orange dots test closure properties.</p>
+
+        <div class="canvas-container">
+            <div class="canvas-title">Subspace Checker — Does This Subset Form a Subspace?</div>
+            <canvas id="subspaceCanvas" width="560" height="480"></canvas>
+            <div class="canvas-controls">
+                <button class="active" data-sub="line-origin" onclick="setSubset(this,'line-origin')">Line Through Origin</button>
+                <button data-sub="line-offset" onclick="setSubset(this,'line-offset')">Line y = x + 1</button>
+                <button data-sub="quadrant" onclick="setSubset(this,'quadrant')">First Quadrant</button>
+                <button data-sub="plane" onclick="setSubset(this,'plane')">All of R²</button>
+            </div>
+            <p style="color:var(--text-dim); font-size:0.85rem; margin-top:0.75rem;" id="subspaceInfo"></p>
+        </div>
+    </div>
+
+    <!-- ============ 6. SPAN ============ -->
+    <div class="section" id="span">
+        <h2>6. Span — Reaching Everything</h2>
+
+        <p>The <strong>span</strong> of a set of vectors {v₁, v₂, ..., vₖ} is the set of ALL possible linear combinations:</p>
+
+        <div class="formula-box">
+            <div class="formula-label">Span Definition</div>
+            span{v₁, ..., vₖ} = {c₁v₁ + c₂v₂ + ... + cₖvₖ : cᵢ ∈ R}
+        </div>
+
+        <p>The span is always a subspace (it automatically passes the subspace test). It represents "everything reachable" from those vectors.</p>
+
+        <div class="analogy-box">
+            <div class="label">Analogy: Paint Mixing</div>
+            <p>If your base colors are red and yellow paint, the span is every color you can mix from them — all shades of red, yellow, and orange. You can't make blue because blue isn't in the span. Adding blue as a third base color expands your span to include greens, purples, etc. The "dimension" of your color space is how many truly independent base colors you have.</p>
+        </div>
+
+        <h3>Key Facts About Span</h3>
+        <div class="card">
+            <p>• <code>span{[1,0], [0,1]}</code> = all of R² (every 2D point is reachable)</p>
+            <p>• <code>span{[1,0], [2,0]}</code> = just the x-axis (both point the same direction — redundant!)</p>
+            <p>• <code>span{[1,2]}</code> = a line through the origin with slope 2</p>
+            <p>• <code>span{}</code> = {0} (the trivial subspace — no vectors, only the zero vector)</p>
+        </div>
+    </div>
+
+    <!-- ============ 7. INTERACTIVE SPAN ============ -->
+    <div class="section" id="interactive-span">
+        <h2>7. Interactive: Span Explorer</h2>
+        <p>Drag the two vectors to see how their span changes. When they're parallel, the span collapses to a line. When they're independent, the span covers all of R².</p>
+
+        <div class="canvas-container">
+            <div class="canvas-title">Span of Two Vectors in R²</div>
+            <canvas id="spanCanvas" width="560" height="560"></canvas>
+            <div class="canvas-controls">
+                <button onclick="resetSpanVecs()">Reset Vectors</button>
+            </div>
+            <p style="color:var(--text-dim); font-size:0.85rem; margin-top:0.75rem;" id="spanInfo"></p>
+        </div>
+    </div>
+
+    <!-- ============ 8. LINEAR INDEPENDENCE ============ -->
+    <div class="section" id="linear-independence">
+        <h2>8. Linear Independence</h2>
+
+        <p>A set of vectors {v₁, ..., vₖ} is <strong>linearly independent</strong> if the only solution to:</p>
+
+        <div class="formula-box">
+            <div class="formula-label">Linear Independence Test</div>
+            c₁v₁ + c₂v₂ + ... + cₖvₖ = 0 &nbsp;&nbsp;⟹&nbsp;&nbsp; c₁ = c₂ = ... = cₖ = 0
+        </div>
+
+        <p>In plain English: no vector in the set can be written as a combination of the others. Each vector contributes something genuinely "new" to the span.</p>
+
+        <div class="analogy-box">
+            <div class="label">Analogy: Team Skills</div>
+            <p>Imagine hiring a team. Each person should bring a unique skill. If Alice knows Python and Bob knows Python + JavaScript, and Carol knows only JavaScript, then Carol is "dependent" — her skill is already covered by Alice + Bob. A linearly independent team has no redundant members; removing anyone shrinks the team's capabilities.</p>
+        </div>
+
+        <h3>Quick Tests for Independence</h3>
+        <div class="example-grid">
+            <div class="card">
+                <h4 style="color: var(--accent-primary);">Two Vectors in R²</h4>
+                <p>Independent ⟺ they're not parallel (not scalar multiples). Equivalently, the 2×2 matrix they form has nonzero determinant.</p>
+            </div>
+            <div class="card">
+                <h4 style="color: var(--accent-primary);">n Vectors in Rⁿ</h4>
+                <p>Independent ⟺ the matrix with these vectors as columns has nonzero determinant (i.e., is invertible).</p>
+            </div>
+            <div class="card">
+                <h4 style="color: var(--accent-primary);">More Than n Vectors in Rⁿ</h4>
+                <p>ALWAYS dependent! You can't have more than n independent vectors in an n-dimensional space. Some must be redundant.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 9. BASIS & DIMENSION ============ -->
+    <div class="section" id="basis-dimension">
+        <h2>9. Basis & Dimension</h2>
+
+        <p>A <strong>basis</strong> for a vector space V is a set of vectors that is both linearly independent AND spans V. It's the minimal set of "building blocks" — enough to reach everything, with no redundancy.</p>
+
+        <div class="formula-box">
+            <div class="formula-label">Basis = Spanning + Independent</div>
+            B is a basis for V &nbsp;⟺&nbsp; B is independent AND span(B) = V
+        </div>
+
+        <p>The <strong>dimension</strong> of V is the number of vectors in any basis. This is a fundamental invariant — every basis for the same space has the same number of vectors.</p>
+
+        <h3>Standard Bases</h3>
+        <table class="comparison-table">
+            <tr><th>Space</th><th>Standard Basis</th><th>Dimension</th></tr>
+            <tr><td>R²</td><td>{[1,0], [0,1]} = {e₁, e₂}</td><td>2</td></tr>
+            <tr><td>R³</td><td>{[1,0,0], [0,1,0], [0,0,1]}</td><td>3</td></tr>
+            <tr><td>Rⁿ</td><td>{e₁, e₂, ..., eₙ}</td><td>n</td></tr>
+            <tr><td>Polynomials Pₙ</td><td>{1, x, x², ..., xⁿ}</td><td>n + 1</td></tr>
+            <tr><td>2×2 Matrices</td><td>Four matrices with one 1 and rest 0s</td><td>4</td></tr>
+        </table>
+
+        <div class="key-insight">
+            <div class="label">Key Insight</div>
+            <p>A basis is not unique! R² has infinitely many bases (any two non-parallel vectors work). But the <em>dimension</em> is always 2 — that's the invariant. Choosing a basis is like choosing a coordinate system: different perspectives, same underlying space.</p>
+        </div>
+
+        <div class="analogy-box">
+            <div class="label">Analogy: GPS Coordinates</div>
+            <p>The standard basis for R² gives you the x-axis and y-axis — like GPS with latitude and longitude. But you could also use two diagonal axes (like NE and NW) as your basis. The "address" of each point changes, but the set of reachable points doesn't. Dimension 2 means you always need exactly 2 numbers to specify a location.</p>
+        </div>
+    </div>
+
+    <!-- ============ 10. FOUR FUNDAMENTAL SUBSPACES ============ -->
+    <div class="section" id="four-subspaces">
+        <h2>10. The Four Fundamental Subspaces</h2>
+        <p>Every matrix A (m × n) defines four subspaces — this is Gilbert Strang's "Big Picture" of linear algebra:</p>
+
+        <div class="example-grid">
+            <div class="card" style="border-color: var(--accent-blue);">
+                <h3 style="margin-top:0; color: var(--accent-blue);">Column Space C(A)</h3>
+                <p><strong>Where:</strong> Lives in Rᵐ</p>
+                <p><strong>What:</strong> Span of the columns of A. All possible outputs Ax.</p>
+                <p><strong>Dimension:</strong> rank(A) = r</p>
+                <p><strong>Meaning:</strong> "What can this matrix produce?"</p>
+            </div>
+            <div class="card" style="border-color: var(--accent-green);">
+                <h3 style="margin-top:0; color: var(--accent-green);">Null Space N(A)</h3>
+                <p><strong>Where:</strong> Lives in Rⁿ</p>
+                <p><strong>What:</strong> All x such that Ax = 0.</p>
+                <p><strong>Dimension:</strong> n − r (nullity)</p>
+                <p><strong>Meaning:</strong> "What inputs does A ignore / collapse to zero?"</p>
+            </div>
+            <div class="card" style="border-color: var(--accent-pink);">
+                <h3 style="margin-top:0; color: var(--accent-pink);">Row Space C(Aᵀ)</h3>
+                <p><strong>Where:</strong> Lives in Rⁿ</p>
+                <p><strong>What:</strong> Span of the rows of A.</p>
+                <p><strong>Dimension:</strong> rank(A) = r</p>
+                <p><strong>Meaning:</strong> "What input directions matter?"</p>
+            </div>
+            <div class="card" style="border-color: var(--accent-warm);">
+                <h3 style="margin-top:0; color: var(--accent-warm);">Left Null Space N(Aᵀ)</h3>
+                <p><strong>Where:</strong> Lives in Rᵐ</p>
+                <p><strong>What:</strong> All y such that Aᵀy = 0.</p>
+                <p><strong>Dimension:</strong> m − r</p>
+                <p><strong>Meaning:</strong> "What outputs are unreachable?"</p>
+            </div>
+        </div>
+
+        <div class="key-insight">
+            <div class="label">The Beautiful Orthogonality</div>
+            <p>Row Space ⊥ Null Space (in Rⁿ), and Column Space ⊥ Left Null Space (in Rᵐ). These orthogonal complements split each space into two perpendicular halves. This is one of the deepest and most elegant results in linear algebra.</p>
+        </div>
+    </div>
+
+    <!-- ============ 11. INTERACTIVE FOUR SUBSPACES ============ -->
+    <div class="section" id="interactive-four">
+        <h2>11. Interactive: Null Space & Column Space</h2>
+        <p>Pick a 2×2 matrix and see its column space (blue) and null space (green). For a singular matrix, the null space is a line (not just {0}), and the column space is also just a line.</p>
+
+        <div class="canvas-container">
+            <div class="canvas-title">Column Space & Null Space Visualizer</div>
+            <canvas id="fourCanvas" width="560" height="480"></canvas>
+            <div class="canvas-controls">
+                <button class="active" data-m="full" onclick="setFourMatrix(this,'full')">Full Rank [2,1;1,3]</button>
+                <button data-m="singular" onclick="setFourMatrix(this,'singular')">Singular [1,2;2,4]</button>
+                <button data-m="projection" onclick="setFourMatrix(this,'projection')">Projection [1,0;0,0]</button>
+            </div>
+            <p style="color:var(--text-dim); font-size:0.85rem; margin-top:0.75rem;" id="fourInfo"></p>
+        </div>
+    </div>
+
+    <!-- ============ 12. RANK-NULLITY ============ -->
+    <div class="section" id="rank-nullity">
+        <h2>12. Rank-Nullity Theorem</h2>
+
+        <p>One of the most important theorems in linear algebra connects the column space and null space:</p>
+
+        <div class="formula-box">
+            <div class="formula-label">Rank-Nullity Theorem</div>
+            rank(A) + nullity(A) = n &nbsp;&nbsp;(number of columns)
+        </div>
+
+        <p>In words: the number of "useful" input directions (rank = dimension of column space) plus the number of "wasted" input directions (nullity = dimension of null space) always equals the total number of input dimensions.</p>
+
+        <div class="analogy-box">
+            <div class="label">Analogy: A Factory</div>
+            <p>A factory (matrix) takes n raw materials (input dimensions) and produces products. The rank is how many genuinely different products it can make. The nullity is how many raw materials are wasted — thrown in but don't affect the output. No matter how the factory works, useful + wasted = total inputs.</p>
+        </div>
+
+        <h3>Example</h3>
+        <div class="card">
+            <p>Matrix A is 3×5 with rank 3. Then nullity = 5 − 3 = 2. The null space is 2-dimensional — there's a 2D "family" of inputs that A maps to zero. The column space is 3D — A can produce any vector in R³.</p>
+        </div>
+
+        <h3>Example</h3>
+        <div class="card">
+            <p>Matrix B is 4×4 with rank 2. Then nullity = 4 − 2 = 2. Half the input dimensions are "wasted." B can only produce outputs in a 2D plane within R⁴. It's like trying to project 4D space onto a 2D screen.</p>
+        </div>
+    </div>
+
+    <!-- ============ 13. APPLICATIONS ============ -->
+    <div class="section" id="applications">
+        <h2>13. Real-World Applications</h2>
+
+        <div class="example-grid">
+            <div class="card">
+                <h3 style="margin-top:0">📊 Data Science & ML</h3>
+                <p>Feature vectors live in Rⁿ. PCA finds a lower-dimensional subspace that captures most variance. Dimensionality reduction = projecting onto a subspace. The "intrinsic dimension" of data is the dimension of the subspace it actually lives on.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">🔧 Solving Systems (Ax = b)</h3>
+                <p>A system has a solution ⟺ b is in the column space of A. The solution is unique ⟺ the null space is {0}. If the null space is nontrivial, there are infinitely many solutions (the general solution = particular + null space).</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">🎮 Computer Graphics</h3>
+                <p>3D graphics use subspaces constantly. Normal vectors to surfaces, tangent planes, projection from 3D to 2D screen — all subspace operations. Lighting calculations project light vectors onto surface normals.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">📡 Signal Processing</h3>
+                <p>Signals live in function spaces. Fourier analysis decomposes signals into a basis of sine/cosine waves. Filtering = projecting onto a subspace (keeping some frequency components, removing others).</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">🔐 Error-Correcting Codes</h3>
+                <p>Hamming codes use null spaces of check matrices. Valid codewords form a subspace. Errors move you out of the subspace; decoding = projecting back onto the nearest codeword.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">🧬 Genomics</h3>
+                <p>Gene expression data lives in high-dimensional space (thousands of genes). PCA/SVD finds the low-dimensional subspace capturing biological variation, helping identify gene clusters and disease subtypes.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 14. SUMMARY ============ -->
+    <div class="section" id="summary">
+        <h2>14. Cheat Sheet & Summary</h2>
+
+        <table class="comparison-table">
+            <tr><th>Concept</th><th>Definition</th><th>Key Test / Formula</th></tr>
+            <tr><td>Vector Space</td><td>Set with + and · satisfying 8 axioms</td><td>Closed under addition & scalar mult</td></tr>
+            <tr><td>Subspace</td><td>Subset that's also a vector space</td><td>Contains 0, closed under +, closed under ·</td></tr>
+            <tr><td>Span</td><td>All linear combinations of a set</td><td>span{v₁,...,vₖ} = {Σcᵢvᵢ}</td></tr>
+            <tr><td>Linear Independence</td><td>No vector is a combo of others</td><td>Σcᵢvᵢ = 0 ⟹ all cᵢ = 0</td></tr>
+            <tr><td>Basis</td><td>Independent spanning set</td><td>Minimal spanning / maximal independent</td></tr>
+            <tr><td>Dimension</td><td>Number of vectors in any basis</td><td>dim(V) = |any basis of V|</td></tr>
+            <tr><td>Column Space</td><td>Span of columns; range of A</td><td>dim = rank(A)</td></tr>
+            <tr><td>Null Space</td><td>Solutions to Ax = 0</td><td>dim = n − rank(A)</td></tr>
+            <tr><td>Rank-Nullity</td><td>rank + nullity = n</td><td>dim(C(A)) + dim(N(A)) = n</td></tr>
+        </table>
+
+        <div class="key-insight" style="margin-top: 2rem;">
+            <div class="label">The Big Picture</div>
+            <p>Vector spaces are the "containers" of linear algebra. Subspaces are the natural substructures. Bases give coordinates. The four fundamental subspaces of a matrix reveal its complete behavior — what it can produce (column space), what it destroys (null space), and how input and output dimensions relate (rank-nullity theorem). Master these, and you master the framework on which all of linear algebra is built.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ============================================================
+// DEMO 1: Subspace Checker
+// ============================================================
+(function() {
+    const canvas = document.getElementById('subspaceCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W/2, cy = H/2, scale = 50;
+
+    let currentSubset = 'line-origin';
+
+    function toScreen(x,y) { return [cx + x*scale, cy - y*scale]; }
+
+    function drawGrid() {
+        ctx.strokeStyle = '#1e2045'; ctx.lineWidth = 1;
+        for (let i = -6; i <= 6; i++) {
+            let [x1,y1] = toScreen(i,-6), [x2,y2] = toScreen(i,6);
+            ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+            [x1,y1] = toScreen(-6,i); [x2,y2] = toScreen(6,i);
+            ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        }
+        ctx.strokeStyle = '#2a2d55'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+    }
+
+    function draw() {
+        ctx.clearRect(0,0,W,H);
+        drawGrid();
+
+        let isSubspace = false;
+        let reason = '';
+
+        if (currentSubset === 'line-origin') {
+            // Line y = x through origin
+            ctx.strokeStyle = 'rgba(52,211,153,0.7)'; ctx.lineWidth = 4;
+            const [x1,y1] = toScreen(-6,-6), [x2,y2] = toScreen(6,6);
+            ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+            // Mark zero
+            const [zx,zy] = toScreen(0,0);
+            ctx.beginPath(); ctx.arc(zx,zy,6,0,Math.PI*2);
+            ctx.fillStyle = '#34d399'; ctx.fill();
+            // Test points
+            const [ax,ay] = toScreen(1,1), [bx,by] = toScreen(2,2), [sx,sy] = toScreen(3,3);
+            ctx.beginPath(); ctx.arc(ax,ay,5,0,Math.PI*2); ctx.fillStyle='#f9a825'; ctx.fill();
+            ctx.beginPath(); ctx.arc(bx,by,5,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(sx,sy,5,0,Math.PI*2); ctx.fillStyle='#60a5fa'; ctx.fill();
+            ctx.font = '12px Inter'; ctx.fillStyle = '#f9a825';
+            ctx.fillText('(1,1)', ax+8, ay-5);
+            ctx.fillText('(2,2)', bx+8, by-5);
+            ctx.fillStyle = '#60a5fa';
+            ctx.fillText('sum=(3,3) ✓', sx+8, sy-5);
+            isSubspace = true;
+            reason = '✓ IS a subspace: contains 0, closed under + and · (y=x always stays on y=x)';
+
+        } else if (currentSubset === 'line-offset') {
+            // Line y = x + 1 (NOT through origin)
+            ctx.strokeStyle = 'rgba(248,113,113,0.7)'; ctx.lineWidth = 4;
+            const [x1,y1] = toScreen(-6,-5), [x2,y2] = toScreen(5,6);
+            ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+            // Mark where zero SHOULD be
+            const [zx,zy] = toScreen(0,0);
+            ctx.beginPath(); ctx.arc(zx,zy,6,0,Math.PI*2);
+            ctx.strokeStyle = '#f87171'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.font = '12px Inter'; ctx.fillStyle = '#f87171';
+            ctx.fillText('(0,0) NOT on line!', zx+10, zy+5);
+            // Test addition failure
+            const [ax,ay] = toScreen(0,1), [bx,by] = toScreen(1,2), [sx,sy] = toScreen(1,3);
+            ctx.beginPath(); ctx.arc(ax,ay,5,0,Math.PI*2); ctx.fillStyle='#f9a825'; ctx.fill();
+            ctx.beginPath(); ctx.arc(bx,by,5,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(sx,sy,5,0,Math.PI*2); ctx.fillStyle='#f87171'; ctx.fill();
+            ctx.fillStyle = '#f9a825'; ctx.font = '12px Inter';
+            ctx.fillText('(0,1)', ax+8, ay-5);
+            ctx.fillText('(1,2)', bx+8, by-5);
+            ctx.fillStyle = '#f87171';
+            ctx.fillText('sum=(1,3) NOT on line! ✗', sx+8, sy-5);
+            isSubspace = false;
+            reason = '✗ NOT a subspace: (0,0) not in set, addition not closed (0,1)+(1,2)=(1,3) not on y=x+1';
+
+        } else if (currentSubset === 'quadrant') {
+            // First quadrant
+            ctx.fillStyle = 'rgba(248,113,113,0.1)';
+            ctx.fillRect(cx, 0, W-cx, cy);
+            ctx.strokeStyle = 'rgba(248,113,113,0.5)'; ctx.lineWidth = 2;
+            ctx.strokeRect(cx, 0, W-cx, cy);
+            // Zero is on boundary
+            const [zx,zy] = toScreen(0,0);
+            ctx.beginPath(); ctx.arc(zx,zy,6,0,Math.PI*2); ctx.fillStyle='#f9a825'; ctx.fill();
+            ctx.font = '12px Inter'; ctx.fillStyle = '#f9a825';
+            ctx.fillText('(0,0) ✓ on boundary', zx+10, zy+5);
+            // Scalar mult failure
+            const [ax,ay] = toScreen(2,3);
+            ctx.beginPath(); ctx.arc(ax,ay,5,0,Math.PI*2); ctx.fillStyle='#f9a825'; ctx.fill();
+            ctx.fillText('(2,3)', ax+8, ay-5);
+            const [bx,by] = toScreen(-2,-3);
+            ctx.beginPath(); ctx.arc(bx,by,5,0,Math.PI*2); ctx.fillStyle='#f87171'; ctx.fill();
+            ctx.fillStyle='#f87171';
+            ctx.fillText('-1·(2,3) = (-2,-3) ✗', bx+8, by-5);
+            isSubspace = false;
+            reason = '✗ NOT a subspace: scalar multiplication not closed (−1 · (2,3) = (−2,−3) is outside first quadrant)';
+
+        } else if (currentSubset === 'plane') {
+            ctx.fillStyle = 'rgba(52,211,153,0.08)';
+            ctx.fillRect(0,0,W,H);
+            const [zx,zy] = toScreen(0,0);
+            ctx.beginPath(); ctx.arc(zx,zy,6,0,Math.PI*2); ctx.fillStyle='#34d399'; ctx.fill();
+            ctx.font = '12px Inter'; ctx.fillStyle='#34d399';
+            ctx.fillText('(0,0) ✓', zx+10, zy+5);
+            ctx.fillText('Every point included — trivially closed!', zx-60, zy+30);
+            isSubspace = true;
+            reason = '✓ IS a subspace: R² is always a subspace of itself (the "improper" subspace)';
+        }
+
+        document.getElementById('subspaceInfo').textContent = reason;
+    }
+
+    window.setSubset = function(btn, key) {
+        currentSubset = key;
+        document.querySelectorAll('[data-sub]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        draw();
+    };
+
+    draw();
+})();
+
+// ============================================================
+// DEMO 2: Span Explorer (draggable vectors)
+// ============================================================
+(function() {
+    const canvas = document.getElementById('spanCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W/2, cy = H/2, scale = 60;
+
+    let v1 = [2, 1], v2 = [-1, 1.5];
+    let dragging = null; // 'v1' or 'v2'
+
+    function toScreen(x,y) { return [cx + x*scale, cy - y*scale]; }
+    function toWorld(sx,sy) { return [(sx-cx)/scale, (cy-sy)/scale]; }
+
+    function drawArrow(x1,y1,x2,y2,color,lw) {
+        ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw||2.5;
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+        if(len<5) return;
+        const ux=dx/len,uy=dy/len;
+        ctx.beginPath();
+        ctx.moveTo(x2,y2);
+        ctx.lineTo(x2-12*ux+5*uy,y2-12*uy-5*ux);
+        ctx.lineTo(x2-12*ux-5*uy,y2-12*uy+5*ux);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function draw() {
+        ctx.clearRect(0,0,W,H);
+
+        // Grid
+        ctx.strokeStyle = '#1e2045'; ctx.lineWidth = 1;
+        for(let i=-5;i<=5;i++){
+            let [x1,y1]=toScreen(i,-5),[x2,y2]=toScreen(i,5);
+            ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+            [x1,y1]=toScreen(-5,i);[x2,y2]=toScreen(5,i);
+            ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+        }
+        ctx.strokeStyle='#2a2d55';ctx.lineWidth=2;
+        ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+
+        // Check if parallel
+        const cross = v1[0]*v2[1] - v1[1]*v2[0];
+        const isParallel = Math.abs(cross) < 0.15;
+
+        // Shade span
+        if (isParallel) {
+            // Span is a line
+            const len = Math.sqrt(v1[0]*v1[0]+v1[1]*v1[1]);
+            if(len > 0.01) {
+                const ux = v1[0]/len, uy = v1[1]/len;
+                const [lx1,ly1] = toScreen(-5*ux,-5*uy);
+                const [lx2,ly2] = toScreen(5*ux,5*uy);
+                ctx.strokeStyle = 'rgba(94,234,212,0.5)'; ctx.lineWidth = 6;
+                ctx.beginPath(); ctx.moveTo(lx1,ly1); ctx.lineTo(lx2,ly2); ctx.stroke();
+            }
+        } else {
+            // Span is all of R²
+            ctx.fillStyle = 'rgba(94,234,212,0.06)';
+            ctx.fillRect(0,0,W,H);
+            ctx.font = '14px Inter'; ctx.fillStyle = 'rgba(94,234,212,0.4)';
+            ctx.fillText('Span = all of R²', 15, 25);
+        }
+
+        // Draw parallelogram hint
+        if (!isParallel) {
+            const [o] = toScreen(0,0);
+            const [ax,ay] = toScreen(v1[0],v1[1]);
+            const [bx,by] = toScreen(v2[0],v2[1]);
+            const [sx,sy] = toScreen(v1[0]+v2[0],v1[1]+v2[1]);
+            ctx.setLineDash([4,4]);
+            ctx.strokeStyle = 'rgba(200,202,216,0.2)'; ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(ax,ay); ctx.lineTo(sx,sy); ctx.lineTo(bx,by);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Draw vectors
+        const [s1x,s1y] = toScreen(v1[0],v1[1]);
+        const [s2x,s2y] = toScreen(v2[0],v2[1]);
+        drawArrow(cx,cy,s1x,s1y,'#f472b6',3);
+        drawArrow(cx,cy,s2x,s2y,'#60a5fa',3);
+
+        // Drag handles
+        ctx.beginPath(); ctx.arc(s1x,s1y,8,0,Math.PI*2);
+        ctx.fillStyle='rgba(244,114,182,0.3)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(s2x,s2y,8,0,Math.PI*2);
+        ctx.fillStyle='rgba(96,165,250,0.3)'; ctx.fill();
+
+        // Labels
+        ctx.font = '13px Inter';
+        ctx.fillStyle = '#f472b6';
+        ctx.fillText(`v₁ = (${v1[0].toFixed(1)}, ${v1[1].toFixed(1)})`, s1x+12, s1y-10);
+        ctx.fillStyle = '#60a5fa';
+        ctx.fillText(`v₂ = (${v2[0].toFixed(1)}, ${v2[1].toFixed(1)})`, s2x+12, s2y-10);
+
+        const det = v1[0]*v2[1]-v1[1]*v2[0];
+        const dimSpan = isParallel ? 1 : 2;
+        document.getElementById('spanInfo').textContent =
+            `det = ${det.toFixed(2)} | Vectors are ${isParallel ? 'PARALLEL (dependent)' : 'INDEPENDENT'} | Span dimension: ${dimSpan}`;
+    }
+
+    function getVecNear(mx, my) {
+        const [s1x,s1y] = toScreen(v1[0],v1[1]);
+        const [s2x,s2y] = toScreen(v2[0],v2[1]);
+        const d1 = Math.hypot(mx-s1x,my-s1y);
+        const d2 = Math.hypot(mx-s2x,my-s2y);
+        if(d1 < 25) return 'v1';
+        if(d2 < 25) return 'v2';
+        return null;
+    }
+
+    canvas.addEventListener('mousedown', e => {
+        const r = canvas.getBoundingClientRect();
+        dragging = getVecNear(e.clientX-r.left, e.clientY-r.top);
+    });
+    canvas.addEventListener('mouseup', () => dragging = null);
+    canvas.addEventListener('mouseleave', () => dragging = null);
+    canvas.addEventListener('mousemove', e => {
+        if(!dragging) return;
+        const r = canvas.getBoundingClientRect();
+        const [wx,wy] = toWorld(e.clientX-r.left, e.clientY-r.top);
+        if(dragging==='v1') { v1=[wx,wy]; }
+        else { v2=[wx,wy]; }
+        draw();
+    });
+    canvas.addEventListener('touchstart', e => {
+        e.preventDefault();
+        const r = canvas.getBoundingClientRect();
+        const t = e.touches[0];
+        dragging = getVecNear(t.clientX-r.left, t.clientY-r.top);
+    });
+    canvas.addEventListener('touchend', () => dragging = null);
+    canvas.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if(!dragging) return;
+        const r = canvas.getBoundingClientRect();
+        const t = e.touches[0];
+        const [wx,wy] = toWorld(t.clientX-r.left, t.clientY-r.top);
+        if(dragging==='v1') v1=[wx,wy]; else v2=[wx,wy];
+        draw();
+    });
+
+    window.resetSpanVecs = function() {
+        v1 = [2,1]; v2 = [-1,1.5]; draw();
+    };
+
+    draw();
+})();
+
+// ============================================================
+// DEMO 3: Column Space & Null Space Visualizer
+// ============================================================
+(function() {
+    const canvas = document.getElementById('fourCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W/2, cy = H/2, scale = 50;
+
+    const configs = {
+        full:       { m:[[2,1],[1,3]], rank:2, desc:'Full rank (2). Null space = {0}. Column space = all of R².' },
+        singular:   { m:[[1,2],[2,4]], rank:1, desc:'Rank 1. Null space = line along (-2,1). Column space = line along (1,2).' },
+        projection: { m:[[1,0],[0,0]], rank:1, desc:'Projection onto x-axis. Null space = y-axis. Column space = x-axis.' }
+    };
+    let current = 'full';
+
+    function toScreen(x,y) { return [cx+x*scale, cy-y*scale]; }
+
+    function drawArrow(fx,fy,tx,ty,color,lw) {
+        ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=lw||2;
+        ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(tx,ty); ctx.stroke();
+        const dx=tx-fx,dy=ty-fy,len=Math.hypot(dx,dy);
+        if(len<5)return;
+        const ux=dx/len,uy=dy/len;
+        ctx.beginPath();
+        ctx.moveTo(tx,ty);
+        ctx.lineTo(tx-10*ux+4*uy,ty-10*uy-4*ux);
+        ctx.lineTo(tx-10*ux-4*uy,ty-10*uy+4*ux);
+        ctx.closePath(); ctx.fill();
+    }
+
+    function draw() {
+        ctx.clearRect(0,0,W,H);
+
+        // Grid
+        ctx.strokeStyle='#1e2045'; ctx.lineWidth=1;
+        for(let i=-6;i<=6;i++){
+            let [x1,y1]=toScreen(i,-6),[x2,y2]=toScreen(i,6);
+            ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+            [x1,y1]=toScreen(-6,i);[x2,y2]=toScreen(6,i);
+            ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+        }
+        ctx.strokeStyle='#2a2d55';ctx.lineWidth=2;
+        ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+
+        const cfg = configs[current];
+        const [[a,b],[c,d]] = cfg.m;
+        const det = a*d - b*c;
+
+        if (cfg.rank === 2) {
+            // Full rank — column space is all R², null space is just origin
+            ctx.fillStyle = 'rgba(96,165,250,0.06)';
+            ctx.fillRect(0,0,W,H);
+            ctx.font = '14px Inter'; ctx.fillStyle='rgba(96,165,250,0.4)';
+            ctx.fillText('Column Space = all of R² (blue shading)', 12, 22);
+            // Draw column vectors
+            const [c1x,c1y] = toScreen(a,c), [c2x,c2y] = toScreen(b,d);
+            drawArrow(cx,cy,c1x,c1y,'#60a5fa',3);
+            drawArrow(cx,cy,c2x,c2y,'#a78bfa',3);
+            ctx.font='12px Inter';
+            ctx.fillStyle='#60a5fa'; ctx.fillText(`col₁=(${a},${c})`, c1x+8, c1y-8);
+            ctx.fillStyle='#a78bfa'; ctx.fillText(`col₂=(${b},${d})`, c2x+8, c2y-8);
+            // Null space = point
+            ctx.beginPath(); ctx.arc(cx,cy,6,0,Math.PI*2);
+            ctx.fillStyle='#34d399'; ctx.fill();
+            ctx.fillStyle='#34d399'; ctx.font='12px Inter';
+            ctx.fillText('Null Space = {0}', cx+10, cy+20);
+        } else {
+            // Rank 1 — find null space direction and column space direction
+            let colDir, nullDir;
+            if (current === 'projection') {
+                colDir = [1,0]; nullDir = [0,1];
+            } else {
+                // Column space direction = first column (or any nonzero column)
+                colDir = [a,c];
+                // Null space: solve [a,b;c,d]x=0. If rank 1, null vec = (-b, a) normalized (when row is [a,b])
+                nullDir = [-b, a];
+            }
+            const clen = Math.hypot(colDir[0],colDir[1]);
+            const nlen = Math.hypot(nullDir[0],nullDir[1]);
+            if(clen>0) { colDir=[colDir[0]/clen, colDir[1]/clen]; }
+            if(nlen>0) { nullDir=[nullDir[0]/nlen, nullDir[1]/nlen]; }
+
+            // Draw column space (line)
+            const [cl1x,cl1y] = toScreen(-5*colDir[0],-5*colDir[1]);
+            const [cl2x,cl2y] = toScreen(5*colDir[0],5*colDir[1]);
+            ctx.strokeStyle = 'rgba(96,165,250,0.7)'; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(cl1x,cl1y); ctx.lineTo(cl2x,cl2y); ctx.stroke();
+
+            // Draw null space (line)
+            const [nl1x,nl1y] = toScreen(-5*nullDir[0],-5*nullDir[1]);
+            const [nl2x,nl2y] = toScreen(5*nullDir[0],5*nullDir[1]);
+            ctx.strokeStyle = 'rgba(52,211,153,0.7)'; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(nl1x,nl1y); ctx.lineTo(nl2x,nl2y); ctx.stroke();
+
+            // Draw column vectors
+            const [c1x,c1y] = toScreen(a,c);
+            drawArrow(cx,cy,c1x,c1y,'#60a5fa',2.5);
+            ctx.font='12px Inter'; ctx.fillStyle='#60a5fa';
+            ctx.fillText(`col₁=(${a},${c})`, c1x+8, c1y-8);
+            if (Math.hypot(b,d)>0.01) {
+                const [c2x,c2y] = toScreen(b,d);
+                drawArrow(cx,cy,c2x,c2y,'#a78bfa',2.5);
+                ctx.fillStyle='#a78bfa';
+                ctx.fillText(`col₂=(${b},${d})`, c2x+8, c2y-8);
+            }
+
+            // Legend
+            ctx.font='13px Inter';
+            ctx.fillStyle='#60a5fa'; ctx.fillText('Column Space (blue line)', 12, 22);
+            ctx.fillStyle='#34d399'; ctx.fillText('Null Space (green line)', 12, 42);
+
+            // Note perpendicularity for projection
+            if (current === 'projection') {
+                ctx.fillStyle='rgba(200,202,216,0.5)'; ctx.font='12px Inter';
+                ctx.fillText('⊥ Column space ⊥ Null space', 12, 62);
+            }
+        }
+
+        document.getElementById('fourInfo').textContent =
+            `Matrix [[${a},${b}],[${c},${d}}]] | det = ${det} | Rank = ${cfg.rank} | ${cfg.desc}`;
+    }
+
+    window.setFourMatrix = function(btn, key) {
+        current = key;
+        document.querySelectorAll('[data-m]').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        draw();
+    };
+
+    draw();
+})();
+
+// Visibility handler for consistency
+document.addEventListener('visibilitychange', () => {});
+</script>
+
+</body>
+</html>

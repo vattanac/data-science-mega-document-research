@@ -71,6 +71,7 @@ FOLDER_CATEGORIES = {
     "singular-value-decomposition(svd)":            "Linear Algebra",
     "eckart-young-the-closest-rank-k-matrix-to-A":  "Linear Algebra",
     "eigenvalues-and-eigenvectors":                "Linear Algebra",
+    "vector-spaces-and-subspaces":                 "Linear Algebra",
     # Machine Learning
     "k-means-clustering":               "Machine Learning",
     "decision-trees-and-random-forest":  "Machine Learning",
