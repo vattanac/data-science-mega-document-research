@@ -1,0 +1,40 @@
+ORIGINAL RESEARCH PAPER REFERENCE
+===================================
+
+Title:   On-Board Communication-Based Relative Localization for Collision
+         Avoidance in Micro Air Vehicle Teams
+Authors: Mario Coppola, Kimberly N. McGuire, Kirk Y. W. Scheper,
+         Guido C. H. E. de Croon
+Journal: Autonomous Robots
+Volume:  Vol. 42, pp. 1787–1805
+Date:    2018
+DOI:     10.1007/s10514-018-9760-3
+
+Institution: Delft University of Technology (TU Delft)
+             Micro Air Vehicle Laboratory (MAVLab), Netherlands
+
+WHERE TO ACCESS THE FULL PDF:
+-----------------------------
+1. Springer (official):      https://link.springer.com/article/10.1007/s10514-018-9760-3
+2. TU Delft Repository:      https://repository.tudelft.nl/
+3. Semantic Scholar:          https://www.semanticscholar.org/paper/On-board-communication-based-relative-localization-Coppola-McGuire/
+4. Google Scholar:            Search "Coppola McGuire relative localization collision avoidance MAV 2018"
+5. ResearchGate:              https://www.researchgate.net/publication/325868888
+
+ABSTRACT (paraphrased):
+-----------------------
+This paper presents a method for collision avoidance in teams of micro
+air vehicles (MAVs) using only on-board communication hardware for
+relative localization. Instead of requiring dedicated ranging sensors
+(UWB, cameras, infrared), the system extracts distance estimates from
+RSSI (Received Signal Strength Indicator) measurements of the radio
+signals already used for inter-drone communication. An Extended Kalman
+Filter fuses noisy RSSI readings with a motion model to produce stable
+range estimates. Despite RSSI's limited accuracy (~1-2m), the system
+achieves 100% collision avoidance success across all test flights with
+up to 4 drones. The approach adds zero weight and zero cost since it
+leverages existing communication hardware, making it ideal for
+resource-constrained swarms.
+
+NOTE: To add the original PDF to this folder, download from one of the
+links above and save it here as "coppola_2018_relative_localization.pdf"

@@ -1259,6 +1259,29 @@
         "category": "Swarm Drone Research"
       },
       {
+        "name": "swarm-drone-15-coppola-swarm-localization",
+        "type": "folder",
+        "children": [
+          {
+            "name": "coppola_swarm_localization_guide.docx",
+            "displayName": "coppola_swarm_localization_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 16734,
+            "path": "swarm-drone-15-coppola-swarm-localization/coppola_swarm_localization_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-15-coppola-swarm-localization",
+            "type": "file",
+            "ext": "html",
+            "size": 32173,
+            "path": "swarm-drone-15-coppola-swarm-localization/index.html"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
         "name": "swarm-drone-complete-guide",
         "type": "folder",
         "children": [
