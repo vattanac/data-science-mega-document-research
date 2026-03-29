@@ -727,6 +727,29 @@
         "category": "Statistics & Probability"
       },
       {
+        "name": "recurrent-neural-networks",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "recurrent-neural-networks",
+            "type": "file",
+            "ext": "html",
+            "size": 30697,
+            "path": "recurrent-neural-networks/index.html"
+          },
+          {
+            "name": "recurrent_neural_networks_guide.docx",
+            "displayName": "recurrent_neural_networks_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 13828,
+            "path": "recurrent-neural-networks/recurrent_neural_networks_guide.docx"
+          }
+        ],
+        "category": "Deep Learning"
+      },
+      {
         "name": "regression-analysis",
         "type": "folder",
         "children": [

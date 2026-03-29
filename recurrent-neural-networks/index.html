@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recurrent Neural Networks — Data Science Mega Document Research</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131f;--bg-card:#181926;--bg-card-hover:#1e1f33;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-tertiary:#f472b6;--border-color:#262840;--success:#34d399;--warning:#fbbf24;--error:#f87171}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:960px;margin:0 auto;padding:2rem 1.5rem}
+a{color:var(--accent-primary);text-decoration:none}a:hover{text-decoration:underline}
+.hero{text-align:center;padding:4rem 0 3rem}
+.hero h1{font-size:2.8rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.hero .subtitle{color:var(--text-secondary);font-size:1.15rem}
+.hero .tags{margin-top:1rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.tag{background:var(--bg-card);border:1px solid var(--border-color);padding:.25rem .75rem;border-radius:999px;font-size:.8rem;color:var(--accent-secondary)}
+section{margin-bottom:3rem}
+section h2{font-size:1.6rem;color:var(--accent-primary);margin-bottom:1rem;padding-bottom:.4rem;border-bottom:2px solid var(--border-color)}
+section h3{font-size:1.15rem;color:var(--accent-secondary);margin:1.2rem 0 .5rem}
+p,li{color:var(--text-secondary);margin-bottom:.6rem}
+ul,ol{padding-left:1.5rem;margin-bottom:1rem}
+code{background:var(--bg-card);padding:.15rem .4rem;border-radius:4px;font-size:.9em;color:var(--accent-tertiary)}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;transition:border-color .3s}.card:hover{border-color:var(--accent-primary)}
+.formula{background:var(--bg-secondary);border-left:3px solid var(--accent-primary);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1rem 0;font-family:'Courier New',monospace;font-size:.95rem;color:var(--accent-secondary);overflow-x:auto}
+.demo-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.demo-container h3{margin-top:0}
+canvas{display:block;margin:1rem auto;border-radius:8px;background:#0f1021}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin:.75rem 0}
+.controls label{color:var(--text-secondary);font-size:.85rem}
+.controls select,.controls input[type=range]{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:6px;padding:.35rem .5rem;font-size:.85rem}
+.controls input[type=range]{width:140px}
+button{background:linear-gradient(135deg,var(--accent-primary),#8b5cf6);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:opacity .2s}button:hover{opacity:.85}
+.btn-secondary{background:linear-gradient(135deg,var(--accent-secondary),#2dd4bf)}
+.btn-tertiary{background:linear-gradient(135deg,var(--accent-tertiary),#ec4899)}
+.info-text{font-size:.82rem;color:var(--text-muted);margin-top:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:.6rem .8rem;border:1px solid var(--border-color);text-align:left;font-size:.9rem}
+th{background:var(--bg-secondary);color:var(--accent-primary)}td{color:var(--text-secondary)}
+.back-link{display:inline-block;margin-bottom:1.5rem;color:var(--accent-secondary);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">← Back to Playbook</a>
+
+<header class="hero">
+  <h1>Recurrent Neural Networks</h1>
+  <p class="subtitle">Sequence modelling — from vanilla RNNs to LSTMs, GRUs & Seq2Seq</p>
+  <div class="tags">
+    <span class="tag">Deep Learning</span>
+    <span class="tag">Sequences</span>
+    <span class="tag">LSTM</span>
+    <span class="tag">GRU</span>
+    <span class="tag">Seq2Seq</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="why-sequences">
+  <h2>1. Why Sequences Need Special Architectures</h2>
+  <p>Standard feedforward networks treat each input independently — they have no notion of order or memory. But many real-world problems are <strong>sequential</strong>: language, audio, time series, video, DNA.</p>
+  <p>A sentence's meaning depends on word order ("dog bites man" vs "man bites dog"). A stock price depends on its history. We need architectures that can <em>remember</em> previous inputs and use that context to process the current one.</p>
+  <p>Recurrent Neural Networks solve this by introducing loops — the output at each timestep feeds back as input to the next, creating a form of memory.</p>
+</section>
+
+<!-- 2 -->
+<section id="vanilla-rnn">
+  <h2>2. The Vanilla RNN</h2>
+  <p>At each timestep t, the RNN takes input x(t) and the previous hidden state h(t−1), producing a new hidden state:</p>
+  <div class="formula">h(t) = tanh(W_hh · h(t−1) + W_xh · x(t) + b_h)
+y(t) = W_hy · h(t) + b_y</div>
+  <p>The hidden state h(t) is the network's "memory" — a compressed representation of everything it has seen so far. The same weights W_hh, W_xh, W_hy are shared across all timesteps (parameter sharing).</p>
+  <h3>Unrolling Through Time</h3>
+  <p>To understand training, we "unroll" the RNN: duplicate the network for each timestep, creating a very deep feedforward network where each layer shares weights. This is why RNNs can handle variable-length sequences.</p>
+</section>
+
+<!-- 3 -->
+<section id="bptt">
+  <h2>3. Backpropagation Through Time (BPTT)</h2>
+  <p>Training an RNN uses BPTT — backpropagation applied to the unrolled network. The loss is summed across timesteps, and gradients flow backwards through the entire sequence.</p>
+  <div class="formula">L = Σ L(t)    (total loss across timesteps)
+∂L/∂W = Σ ∂L(t)/∂W    (gradients accumulated)</div>
+  <h3>The Vanishing Gradient Problem</h3>
+  <p>Gradients are multiplied by W_hh at each timestep. If the largest eigenvalue of W_hh is &lt; 1, gradients shrink exponentially — the network "forgets" long-range dependencies. If &gt; 1, gradients explode.</p>
+  <div class="formula">∂h(t)/∂h(k) = Π_{i=k+1}^{t} diag(tanh'(·)) · W_hh
+
+For t − k large: gradients → 0 (vanishing) or → ∞ (exploding)</div>
+  <p><strong>Gradient clipping</strong> handles exploding gradients (cap the norm). But vanishing gradients require architectural solutions — enter LSTM and GRU.</p>
+</section>
+
+<!-- 4 — DEMO 1 -->
+<section id="demo-vanishing">
+  <h2>4. Interactive Demo — Vanishing Gradient Visualiser</h2>
+  <div class="demo-container">
+    <h3>📉 Watch Gradients Vanish (or Explode)</h3>
+    <p>Adjust the weight magnitude and see how gradient signals decay or explode as they propagate backwards through timesteps.</p>
+    <div class="controls">
+      <label>Weight magnitude |W|: <input type="range" id="weightMag" min="0.3" max="1.8" step="0.05" value="0.7"> <span id="weightVal">0.70</span></label>
+      <label>Timesteps: <input type="range" id="numSteps" min="5" max="30" step="1" value="15"> <span id="stepsVal">15</span></label>
+      <button onclick="drawVanishing()">Visualise</button>
+    </div>
+    <canvas id="canvasVanish" width="900" height="350"></canvas>
+    <p class="info-text">Green = gradient magnitude at each timestep flowing backwards. Red dashed = exploding threshold. When |W| < 1, gradients vanish; when |W| > 1, they explode.</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="lstm">
+  <h2>5. LSTM — Long Short-Term Memory</h2>
+  <p>LSTMs (Hochreiter & Schmidhuber, 1997) solve vanishing gradients by introducing a <strong>cell state</strong> c(t) — a highway that carries information across timesteps with minimal interference — controlled by three gates:</p>
+  <div class="card">
+    <h3>Forget Gate (f)</h3>
+    <p>Decides what to discard from the cell state: <code>f(t) = σ(W_f · [h(t−1), x(t)] + b_f)</code></p>
+    <p>Output is between 0 (forget everything) and 1 (keep everything).</p>
+  </div>
+  <div class="card">
+    <h3>Input Gate (i) + Candidate</h3>
+    <p>Decides what new information to store: <code>i(t) = σ(W_i · [h(t−1), x(t)] + b_i)</code></p>
+    <p>Candidate values: <code>c̃(t) = tanh(W_c · [h(t−1), x(t)] + b_c)</code></p>
+  </div>
+  <div class="card">
+    <h3>Cell State Update</h3>
+    <p><code>c(t) = f(t) ⊙ c(t−1) + i(t) ⊙ c̃(t)</code></p>
+    <p>The cell state is a linear combination — gradients flow through with minimal decay!</p>
+  </div>
+  <div class="card">
+    <h3>Output Gate (o)</h3>
+    <p>Decides what to output: <code>o(t) = σ(W_o · [h(t−1), x(t)] + b_o)</code></p>
+    <p>Hidden state: <code>h(t) = o(t) ⊙ tanh(c(t))</code></p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="gru">
+  <h2>6. GRU — Gated Recurrent Unit</h2>
+  <p>GRUs (Cho et al., 2014) simplify the LSTM to two gates — fewer parameters, often comparable performance:</p>
+  <div class="formula">Update gate:  z(t) = σ(W_z · [h(t−1), x(t)])
+Reset gate:   r(t) = σ(W_r · [h(t−1), x(t)])
+Candidate:    h̃(t) = tanh(W · [r(t) ⊙ h(t−1), x(t)])
+Hidden state: h(t) = (1 − z(t)) ⊙ h(t−1) + z(t) ⊙ h̃(t)</div>
+  <p>The <strong>update gate z</strong> blends old and new state (like a combined forget+input gate). The <strong>reset gate r</strong> controls how much past state to expose when computing the candidate. No separate cell state — the hidden state does everything.</p>
+  <table>
+    <tr><th>Feature</th><th>LSTM</th><th>GRU</th></tr>
+    <tr><td>Gates</td><td>3 (forget, input, output)</td><td>2 (update, reset)</td></tr>
+    <tr><td>States</td><td>h(t) and c(t)</td><td>h(t) only</td></tr>
+    <tr><td>Parameters</td><td>More (~4x hidden²)</td><td>Fewer (~3x hidden²)</td></tr>
+    <tr><td>Performance</td><td>Often slightly better on long sequences</td><td>Comparable; faster to train</td></tr>
+  </table>
+</section>
+
+<!-- 7 — DEMO 2 -->
+<section id="demo-gates">
+  <h2>7. Interactive Demo — LSTM Gate Visualiser</h2>
+  <div class="demo-container">
+    <h3>🔧 Watch LSTM Gates in Action</h3>
+    <p>Feed a sequence of characters and see how the forget, input, and output gates activate at each timestep. The cell state bar shows what information is being retained.</p>
+    <div class="controls">
+      <label>Sequence:
+        <select id="gateSeq">
+          <option value="hello world">hello world</option>
+          <option value="abcabcabc">abcabcabc (repeating)</option>
+          <option value="aaaaabbbbb">aaaaabbbbb (transition)</option>
+          <option value="12321232123">12321232123 (numeric)</option>
+        </select>
+      </label>
+      <label>Hidden size: <input type="range" id="hiddenSize" min="2" max="8" step="1" value="4"> <span id="hidVal">4</span></label>
+      <button onclick="drawGates()">Run LSTM</button>
+    </div>
+    <canvas id="canvasGates" width="900" height="450"></canvas>
+    <p class="info-text">Each row shows gate activations (0=dark, 1=bright) across timesteps. Simulated with random initialised weights to demonstrate the gate dynamics.</p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="bidirectional">
+  <h2>8. Bidirectional RNNs</h2>
+  <p>Standard RNNs only see the past. A <strong>Bidirectional RNN</strong> runs two separate RNNs — one forward, one backward — and concatenates their hidden states:</p>
+  <div class="formula">h_fwd(t) = RNN_fwd(x(t), h_fwd(t−1))
+h_bwd(t) = RNN_bwd(x(t), h_bwd(t+1))
+h(t) = [h_fwd(t); h_bwd(t)]    (concatenation)</div>
+  <p>This gives each position access to <em>both</em> left and right context. Essential for tasks like NER and sentiment analysis where future context matters. Used in ELMo, BERT's training (via masking), and many sequence labelling tasks.</p>
+</section>
+
+<!-- 9 -->
+<section id="seq2seq">
+  <h2>9. Sequence-to-Sequence (Seq2Seq)</h2>
+  <p>Seq2Seq models map variable-length input sequences to variable-length output sequences using an <strong>encoder-decoder</strong> architecture:</p>
+  <div class="card">
+    <h3>Encoder</h3>
+    <p>Processes the input sequence and compresses it into a fixed-size <strong>context vector</strong> (the final hidden state).</p>
+  </div>
+  <div class="card">
+    <h3>Decoder</h3>
+    <p>Takes the context vector and generates the output sequence one token at a time, autoregressively.</p>
+  </div>
+  <p>Applications: machine translation, text summarisation, chatbots, code generation. The bottleneck of compressing everything into a single vector led to the invention of <strong>attention mechanisms</strong>.</p>
+</section>
+
+<!-- 10 -->
+<section id="attention">
+  <h2>10. Attention in RNNs</h2>
+  <p>Instead of relying on a single context vector, attention lets the decoder look at <em>all</em> encoder hidden states and focus on the most relevant ones at each decoding step:</p>
+  <div class="formula">score(s_t, h_i) = s_t^T · h_i    (dot-product attention)
+α_i = softmax(score)              (attention weights)
+context = Σ α_i · h_i             (weighted sum)</div>
+  <p>This solved the information bottleneck and dramatically improved machine translation. Bahdanau attention (2014) used a learned alignment; Luong attention (2015) simplified it with dot products.</p>
+</section>
+
+<!-- 11 — DEMO 3 -->
+<section id="demo-sequence">
+  <h2>11. Interactive Demo — Sequence Prediction</h2>
+  <div class="demo-container">
+    <h3>🔮 Train a Tiny RNN to Predict Sequences</h3>
+    <p>Watch a simple RNN learn to predict the next character in a repeating pattern. The loss curve shows learning progress.</p>
+    <div class="controls">
+      <label>Pattern:
+        <select id="seqPattern">
+          <option value="abcabc">abc abc abc...</option>
+          <option value="aabbaabb">aabb aabb...</option>
+          <option value="abcdabcd">abcd abcd...</option>
+          <option value="ababccababcc">ababcc ababcc...</option>
+        </select>
+      </label>
+      <label>Learning rate: <input type="range" id="seqLR" min="-3" max="-0.5" step="0.1" value="-1.5"> <span id="lrVal">0.032</span></label>
+      <button onclick="trainSequence()">Train</button>
+      <button class="btn-secondary" onclick="stopTraining()">Stop</button>
+    </div>
+    <canvas id="canvasSeq" width="900" height="400"></canvas>
+    <p class="info-text">Left: loss curve over training steps. Right: predicted next-character probabilities at each position in the sequence. Green = correct prediction.</p>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="practical">
+  <h2>12. Practical Tips</h2>
+  <ul>
+    <li><strong>Start with LSTM or GRU</strong> — never vanilla RNN for real tasks. GRU if speed matters; LSTM for longer sequences.</li>
+    <li><strong>Gradient clipping</strong> — always clip gradients (max_norm=1.0 or 5.0) to prevent explosions.</li>
+    <li><strong>Layer stacking</strong> — 2–3 layers is common. More layers need residual connections.</li>
+    <li><strong>Dropout</strong> — apply between layers, NOT within recurrent connections. Use variational dropout for recurrent dropout.</li>
+    <li><strong>Bidirectional</strong> — use for classification/labelling tasks; NOT for generation (can't see the future while generating).</li>
+    <li><strong>Teacher forcing</strong> — during training, feed ground truth as decoder input; at inference, feed predicted tokens.</li>
+    <li><strong>Consider Transformers</strong> — for most tasks today, transformers outperform RNNs. Use RNNs when: sequences are very long, latency matters, or you need online/streaming processing.</li>
+  </ul>
+</section>
+
+<!-- 13 -->
+<section id="rnn-vs-transformer">
+  <h2>13. RNNs vs Transformers</h2>
+  <table>
+    <tr><th>Aspect</th><th>RNN/LSTM/GRU</th><th>Transformer</th></tr>
+    <tr><td>Processing</td><td>Sequential (token by token)</td><td>Parallel (all tokens at once)</td></tr>
+    <tr><td>Training Speed</td><td>Slow (no parallelism)</td><td>Fast (GPU-friendly)</td></tr>
+    <tr><td>Long-Range Deps</td><td>Difficult (vanishing gradients)</td><td>Easy (direct attention paths)</td></tr>
+    <tr><td>Memory</td><td>O(1) per step (hidden state)</td><td>O(n²) (attention matrix)</td></tr>
+    <tr><td>Streaming</td><td>Natural (process token by token)</td><td>Requires full context window</td></tr>
+    <tr><td>State of Art</td><td>Niche uses (edge, streaming)</td><td>Dominant in NLP, vision, etc.</td></tr>
+  </table>
+  <p>Modern hybrids like <strong>Mamba</strong> (state-space models) combine the best of both: linear-time processing with selective state updates, achieving transformer-level quality with RNN-like efficiency.</p>
+</section>
+
+<!-- 14 -->
+<section id="summary">
+  <h2>14. Quick Reference & Summary</h2>
+  <table>
+    <tr><th>Concept</th><th>Key Idea</th></tr>
+    <tr><td>Vanilla RNN</td><td>Hidden state = tanh(W·h + W·x); suffers vanishing gradients</td></tr>
+    <tr><td>BPTT</td><td>Backpropagation unrolled through time; gradients multiply per step</td></tr>
+    <tr><td>Vanishing Gradients</td><td>Gradients shrink exponentially over long sequences</td></tr>
+    <tr><td>LSTM</td><td>Cell state highway + 3 gates (forget, input, output)</td></tr>
+    <tr><td>GRU</td><td>Simplified: 2 gates (update, reset), no cell state</td></tr>
+    <tr><td>Bidirectional</td><td>Forward + backward RNNs for full context</td></tr>
+    <tr><td>Seq2Seq</td><td>Encoder compresses input → decoder generates output</td></tr>
+    <tr><td>Attention</td><td>Decoder focuses on relevant encoder states at each step</td></tr>
+  </table>
+  <p style="margin-top:1.5rem;color:var(--text-muted);font-size:.85rem;text-align:center;">Recurrent Neural Networks — Data Science Mega Document Research</p>
+</section>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════════════ */
+function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function sigmoid(x){return 1/(1+Math.exp(-x));}
+
+/* ═══════════════════════════════════════════════
+   DEMO 1 — VANISHING GRADIENT VISUALISER
+   ═══════════════════════════════════════════════ */
+document.getElementById('weightMag').addEventListener('input',e=>{document.getElementById('weightVal').textContent=parseFloat(e.target.value).toFixed(2);});
+document.getElementById('numSteps').addEventListener('input',e=>{document.getElementById('stepsVal').textContent=e.target.value;});
+
+function drawVanishing(){
+  const w=parseFloat(document.getElementById('weightMag').value);
+  const T=parseInt(document.getElementById('numSteps').value);
+  const c=document.getElementById('canvasVanish');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+
+  // Compute gradient magnitudes (simplified: |grad| ≈ w^(T-t))
+  const grads=[];
+  for(let t=0;t<T;t++) grads.push(Math.pow(w,T-t));
+
+  const maxG=Math.max(...grads,2);
+  const barW=(W-100)/T;
+  const baseY=H-50;
+
+  // Draw bars
+  for(let t=0;t<T;t++){
+    const h=Math.min(grads[t]/maxG*(H-100),H-100);
+    const x=60+t*barW;
+    const isExploding=grads[t]>2;
+    const hue=isExploding?0:120;
+    const sat=70;
+    const light=Math.max(25,Math.min(65,30+grads[t]/maxG*40));
+    ctx.fillStyle=`hsl(${hue},${sat}%,${light}%)`;
+    ctx.fillRect(x,baseY-h,barW*0.7,h);
+    // Label
+    ctx.fillStyle='#64748b';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(`t=${t+1}`,x+barW*0.35,baseY+14);
+    if(grads[t]<100){
+      ctx.fillStyle='#e2e8f0';ctx.font='9px sans-serif';
+      ctx.fillText(grads[t].toFixed(3),x+barW*0.35,baseY-h-6);
+    }
+  }
+
+  // Threshold line
+  ctx.strokeStyle='#f87171';ctx.setLineDash([5,5]);ctx.lineWidth=1;
+  const threshY=baseY-(1/maxG)*(H-100);
+  ctx.beginPath();ctx.moveTo(60,threshY);ctx.lineTo(W-20,threshY);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#f87171';ctx.font='11px sans-serif';ctx.textAlign='left';
+  ctx.fillText('|grad| = 1.0',W-80,threshY-5);
+
+  // Axis labels
+  ctx.fillStyle='#94a3b8';ctx.font='12px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Timestep (backward from loss)',W/2,H-8);
+  ctx.save();ctx.translate(16,H/2);ctx.rotate(-Math.PI/2);ctx.fillText('Gradient Magnitude',0,0);ctx.restore();
+
+  // Status
+  ctx.fillStyle=w<1?'#5eead4':'#f87171';ctx.font='bold 13px sans-serif';ctx.textAlign='left';
+  ctx.fillText(w<1?'⚠ Gradients VANISHING':'⚠ Gradients EXPLODING',60,26);
+  ctx.fillStyle='#94a3b8';ctx.font='12px sans-serif';
+  ctx.fillText(`|W| = ${w.toFixed(2)}  →  gradient at t=1 is ${grads[0].toExponential(2)}`,60,44);
+}
+
+/* ═══════════════════════════════════════════════
+   DEMO 2 — LSTM GATE VISUALISER
+   ═══════════════════════════════════════════════ */
+document.getElementById('hiddenSize').addEventListener('input',e=>{document.getElementById('hidVal').textContent=e.target.value;});
+
+function drawGates(){
+  const seq=document.getElementById('gateSeq').value;
+  const hs=parseInt(document.getElementById('hiddenSize').value);
+  const T=seq.length;
+  const c=document.getElementById('canvasGates');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+
+  // Simulate LSTM with random weights
+  const chars=[...new Set(seq.split(''))];
+  const vocabSize=chars.length;
+  const randW=()=>(Math.random()-0.5)*2;
+  const Wf=[],Wi=[],Wo=[],Wc=[];
+  for(let i=0;i<hs;i++){Wf.push([]);Wi.push([]);Wo.push([]);Wc.push([]);
+    for(let j=0;j<hs+vocabSize;j++){Wf[i].push(randW());Wi[i].push(randW());Wo[i].push(randW());Wc[i].push(randW());}}
+
+  const forgetGates=[],inputGates=[],outputGates=[],cellStates=[],hiddenStates=[];
+  let h=new Float64Array(hs);
+  let cell=new Float64Array(hs);
+
+  for(let t=0;t<T;t++){
+    const x=new Float64Array(vocabSize);
+    x[chars.indexOf(seq[t])]=1;
+    const concat=[...h,...x];
+    const fg=[],ig=[],og=[],cand=[];
+    for(let i=0;i<hs;i++){
+      let sf=0,si=0,so=0,sc=0;
+      for(let j=0;j<concat.length;j++){sf+=Wf[i][j]*concat[j];si+=Wi[i][j]*concat[j];so+=Wo[i][j]*concat[j];sc+=Wc[i][j]*concat[j];}
+      fg.push(sigmoid(sf));ig.push(sigmoid(si));og.push(sigmoid(so));cand.push(Math.tanh(sc));
+    }
+    const newCell=new Float64Array(hs);
+    const newH=new Float64Array(hs);
+    for(let i=0;i<hs;i++){
+      newCell[i]=fg[i]*cell[i]+ig[i]*cand[i];
+      newH[i]=og[i]*Math.tanh(newCell[i]);
+    }
+    forgetGates.push(fg);inputGates.push(ig);outputGates.push(og);
+    cellStates.push([...newCell].map(v=>(Math.tanh(v)+1)/2));
+    hiddenStates.push([...newH].map(v=>(v+1)/2));
+    h=newH;cell=newCell;
+  }
+
+  // Draw heatmaps
+  const panels=[
+    {label:'Forget Gate (f)',data:forgetGates,color:[167,139,250]},
+    {label:'Input Gate (i)',data:inputGates,color:[94,234,212]},
+    {label:'Output Gate (o)',data:outputGates,color:[244,114,182]},
+    {label:'Cell State (c)',data:cellStates,color:[251,191,36]},
+  ];
+  const margin={top:30,left:110,right:20,bottom:40};
+  const ph=(H-margin.top-margin.bottom)/panels.length;
+  const cellW=(W-margin.left-margin.right)/T;
+  const cellH=(ph-20)/hs;
+
+  panels.forEach((p,pi)=>{
+    const y0=margin.top+pi*ph;
+    ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='right';
+    ctx.fillText(p.label,margin.left-8,y0+ph/2);
+    for(let t=0;t<T;t++){
+      for(let i=0;i<hs;i++){
+        const v=p.data[t][i];
+        const x=margin.left+t*cellW;
+        const y=y0+i*cellH;
+        ctx.fillStyle=`rgba(${p.color[0]},${p.color[1]},${p.color[2]},${v.toFixed(2)})`;
+        ctx.fillRect(x,y,cellW-1,cellH-1);
+      }
+    }
+  });
+
+  // Character labels at bottom
+  ctx.fillStyle='#e2e8f0';ctx.font='12px monospace';ctx.textAlign='center';
+  for(let t=0;t<T;t++){
+    ctx.fillText(seq[t],margin.left+t*cellW+cellW/2,H-12);
+  }
+  ctx.fillStyle='#64748b';ctx.font='11px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Input Characters',W/2,H-1);
+}
+
+/* ═══════════════════════════════════════════════
+   DEMO 3 — SEQUENCE PREDICTION
+   ═══════════════════════════════════════════════ */
+document.getElementById('seqLR').addEventListener('input',e=>{
+  document.getElementById('lrVal').textContent=Math.pow(10,parseFloat(e.target.value)).toFixed(3);
+});
+
+let trainInterval=null;
+function stopTraining(){if(trainInterval){clearInterval(trainInterval);trainInterval=null;}}
+
+function trainSequence(){
+  stopTraining();
+  const pattern=document.getElementById('seqPattern').value;
+  const lr=Math.pow(10,parseFloat(document.getElementById('seqLR').value));
+  const chars=[...new Set(pattern.split(''))];
+  const V=chars.length;
+  const hs=12;
+
+  // Init weights
+  let Wxh=[],Whh=[],Why=[],bh=new Float64Array(hs),by=new Float64Array(V);
+  for(let i=0;i<hs;i++){Wxh.push(new Float64Array(V));Whh.push(new Float64Array(hs));
+    for(let j=0;j<V;j++) Wxh[i][j]=randn()*0.1;
+    for(let j=0;j<hs;j++) Whh[i][j]=randn()*0.1;}
+  for(let i=0;i<V;i++){Why.push(new Float64Array(hs));
+    for(let j=0;j<hs;j++) Why[i][j]=randn()*0.1;}
+
+  const losses=[];
+  let step=0;
+  const c=document.getElementById('canvasSeq');const ctx=c.getContext('2d');
+
+  function trainStep(){
+    const T=pattern.length;
+    // Forward pass
+    const hs_arr=[new Float64Array(hs)];
+    const xs=[];const ps=[];let loss=0;
+    for(let t=0;t<T;t++){
+      const x=new Float64Array(V);x[chars.indexOf(pattern[t])]=1;xs.push(x);
+      const hprev=hs_arr[t];
+      const hnew=new Float64Array(hs);
+      for(let i=0;i<hs;i++){
+        let s=bh[i];
+        for(let j=0;j<V;j++) s+=Wxh[i][j]*x[j];
+        for(let j=0;j<hs;j++) s+=Whh[i][j]*hprev[j];
+        hnew[i]=Math.tanh(s);
+      }
+      hs_arr.push(hnew);
+      if(t<T-1){
+        const y=new Float64Array(V);
+        for(let i=0;i<V;i++){let s=by[i];for(let j=0;j<hs;j++) s+=Why[i][j]*hnew[j];y[i]=s;}
+        const maxY=Math.max(...y);
+        const expY=y.map(v=>Math.exp(v-maxY));
+        const sumE=expY.reduce((a,b)=>a+b);
+        const p=expY.map(v=>v/sumE);
+        ps.push(p);
+        const target=chars.indexOf(pattern[t+1]);
+        loss+=-Math.log(Math.max(p[target],1e-8));
+      }
+    }
+    losses.push(loss/(T-1));
+
+    // Backward pass (simplified SGD)
+    const dWxh=Wxh.map(r=>new Float64Array(r.length));
+    const dWhh=Whh.map(r=>new Float64Array(r.length));
+    const dWhy=Why.map(r=>new Float64Array(r.length));
+    const dbh=new Float64Array(hs);const dby=new Float64Array(V);
+    let dhnext=new Float64Array(hs);
+
+    for(let t=T-2;t>=0;t--){
+      const target=chars.indexOf(pattern[t+1]);
+      const dy=[...ps[t]];dy[target]-=1;
+      for(let i=0;i<V;i++){dby[i]+=dy[i];for(let j=0;j<hs;j++) dWhy[i][j]+=dy[i]*hs_arr[t+1][j];}
+      const dh=new Float64Array(hs);
+      for(let j=0;j<hs;j++){for(let i=0;i<V;i++) dh[j]+=Why[i][j]*dy[i];dh[j]+=dhnext[j];}
+      const dhraw=new Float64Array(hs);
+      for(let i=0;i<hs;i++) dhraw[i]=dh[i]*(1-hs_arr[t+1][i]*hs_arr[t+1][i]);
+      for(let i=0;i<hs;i++){dbh[i]+=dhraw[i];
+        for(let j=0;j<V;j++) dWxh[i][j]+=dhraw[i]*xs[t][j];
+        for(let j=0;j<hs;j++) dWhh[i][j]+=dhraw[i]*hs_arr[t][j];}
+      dhnext=new Float64Array(hs);
+      for(let i=0;i<hs;i++) for(let j=0;j<hs;j++) dhnext[j]+=Whh[i][j]*dhraw[i];
+    }
+
+    // Clip and update
+    const clip=v=>Math.max(-5,Math.min(5,v));
+    for(let i=0;i<hs;i++){bh[i]-=lr*clip(dbh[i]);
+      for(let j=0;j<V;j++) Wxh[i][j]-=lr*clip(dWxh[i][j]);
+      for(let j=0;j<hs;j++) Whh[i][j]-=lr*clip(dWhh[i][j]);}
+    for(let i=0;i<V;i++){by[i]-=lr*clip(dby[i]);
+      for(let j=0;j<hs;j++) Why[i][j]-=lr*clip(dWhy[i][j]);}
+
+    step++;
+    drawSequenceVis(ctx,c.width,c.height,losses,ps,pattern,chars);
+    if(step>=500) stopTraining();
+  }
+
+  trainInterval=setInterval(trainStep,30);
+}
+
+function drawSequenceVis(ctx,W,H,losses,ps,pattern,chars){
+  ctx.clearRect(0,0,W,H);
+  const midX=W*0.45;
+  // Loss curve
+  ctx.fillStyle='#94a3b8';ctx.font='12px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Training Loss',midX/2,18);
+  if(losses.length>1){
+    const maxL=Math.max(...losses.slice(0,20));
+    ctx.strokeStyle='#a78bfa';ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<losses.length;i++){
+      const x=30+i/(losses.length-1)*(midX-60);
+      const y=35+(losses[i]/maxL)*(H-70);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.fillStyle='#64748b';ctx.font='10px sans-serif';ctx.textAlign='left';
+    ctx.fillText(`Step ${losses.length}  Loss: ${losses[losses.length-1].toFixed(3)}`,35,H-10);
+  }
+
+  // Predictions
+  if(ps.length>0){
+    ctx.fillStyle='#94a3b8';ctx.font='12px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Predicted Next Character Probabilities',midX+(W-midX)/2,18);
+    const T=ps.length;
+    const cellW=Math.min(40,(W-midX-40)/T);
+    const cellH=Math.min(30,(H-80)/chars.length);
+    for(let t=0;t<T;t++){
+      // Input char
+      ctx.fillStyle='#e2e8f0';ctx.font='11px monospace';ctx.textAlign='center';
+      ctx.fillText(pattern[t],midX+20+t*cellW+cellW/2,40);
+      const target=chars.indexOf(pattern[t+1]);
+      for(let v=0;v<chars.length;v++){
+        const p=ps[t][v];
+        const x=midX+20+t*cellW;
+        const y=50+v*cellH;
+        const isCorrect=v===target;
+        ctx.fillStyle=isCorrect?`rgba(52,211,153,${p.toFixed(2)})`:`rgba(167,139,250,${p.toFixed(2)})`;
+        ctx.fillRect(x,y,cellW-2,cellH-2);
+        if(cellH>14){
+          ctx.fillStyle=p>0.4?'#fff':'#64748b';ctx.font='9px sans-serif';
+          ctx.fillText((p*100).toFixed(0),x+cellW/2-1,y+cellH/2+3);
+        }
+      }
+    }
+    // Char labels
+    ctx.fillStyle='#94a3b8';ctx.font='11px monospace';ctx.textAlign='right';
+    for(let v=0;v<chars.length;v++) ctx.fillText(chars[v],midX+14,50+v*cellH+cellH/2+4);
+  }
+}
+
+// Init
+window.addEventListener('DOMContentLoaded',()=>{drawVanishing();drawGates();});
+</script>
+</body>
+</html>
