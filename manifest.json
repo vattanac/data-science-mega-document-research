@@ -83,6 +83,29 @@
         "category": "Machine Learning"
       },
       {
+        "name": "clustering-algorithms",
+        "type": "folder",
+        "children": [
+          {
+            "name": "clustering_algorithms_guide.docx",
+            "displayName": "clustering_algorithms_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14732,
+            "path": "clustering-algorithms/clustering_algorithms_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "clustering-algorithms",
+            "type": "file",
+            "ext": "html",
+            "size": 30438,
+            "path": "clustering-algorithms/index.html"
+          }
+        ],
+        "category": "Machine Learning"
+      },
+      {
         "name": "confusion-matrix-and-metrics",
         "type": "folder",
         "children": [

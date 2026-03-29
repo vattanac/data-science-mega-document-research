@@ -85,6 +85,7 @@ FOLDER_CATEGORIES = {
     "gradient-descent-deep-dive":        "Machine Learning",
     "dimensionality-reduction":          "Machine Learning",
     "regression-analysis":               "Machine Learning",
+    "clustering-algorithms":             "Machine Learning",
     # Deep Learning
     "neural-networks-fundamentals":      "Deep Learning",
     "neural-network-backpropagation":    "Deep Learning",

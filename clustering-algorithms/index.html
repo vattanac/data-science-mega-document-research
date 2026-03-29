@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clustering Algorithms — Interactive Guide</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131e;--bg-card:#191a2e;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warning:#fbbf24;--accent-pink:#f472b6;--border-color:#2a2b4a;--formula-bg:#1e1f3a;--shadow:0 4px 24px rgba(0,0,0,0.4)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.subtitle{color:var(--text-secondary);font-size:1.1rem;margin-bottom:2.5rem}
+h2{color:var(--accent-primary);font-size:1.6rem;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--border-color)}
+h3{color:var(--accent-secondary);font-size:1.2rem;margin:1.5rem 0 .8rem}
+p{color:var(--text-secondary);margin-bottom:1rem}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.formula-box{background:var(--formula-bg);border-left:4px solid var(--accent-primary);padding:1rem 1.5rem;margin:1rem 0;border-radius:0 8px 8px 0;font-family:'Courier New',monospace;font-size:1.05rem;color:var(--accent-primary);overflow-x:auto}
+.analogy-box{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(94,234,212,.08));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:1.2rem 1.5rem;margin:1.2rem 0}
+.analogy-box::before{content:'💡 ';font-size:1.2rem}
+.key-insight{background:linear-gradient(135deg,rgba(94,234,212,.1),rgba(167,139,250,.05));border:1px solid rgba(94,234,212,.3);border-radius:12px;padding:1.2rem 1.5rem;margin:1.2rem 0}
+.key-insight::before{content:'🔑 ';font-size:1.1rem}
+ul,ol{color:var(--text-secondary);margin:.8rem 0 1rem 1.5rem}
+li{margin:.4rem 0}
+strong{color:var(--text-primary)}
+code{background:var(--formula-bg);color:var(--accent-secondary);padding:.15rem .4rem;border-radius:4px;font-size:.9rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th{background:var(--formula-bg);color:var(--accent-primary);padding:.7rem;text-align:left;border:1px solid var(--border-color)}
+td{padding:.7rem;border:1px solid var(--border-color);color:var(--text-secondary)}
+tr:hover{background:rgba(167,139,250,.05)}
+.demo-section{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0}
+.demo-section h3{margin-top:0}
+canvas{border:1px solid var(--border-color);border-radius:8px;display:block;margin:.8rem auto;background:#0d0e1a;cursor:crosshair}
+.controls{display:flex;flex-wrap:wrap;gap:.8rem;margin:.8rem 0;align-items:center}
+.controls label{color:var(--text-secondary);font-size:.9rem}
+.controls select,.controls input[type=range]{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:6px;padding:.4rem .6rem;font-size:.85rem}
+.controls input[type=range]{width:120px}
+button{background:linear-gradient(135deg,var(--accent-primary),#8b5cf6);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:opacity .2s}
+button:hover{opacity:.85}
+button.secondary{background:var(--bg-secondary);border:1px solid var(--border-color)}
+.info-text{font-size:.85rem;color:var(--text-secondary);text-align:center;margin:.5rem 0}
+.toc{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.toc h3{color:var(--accent-primary);margin-top:0}
+.toc ol{list-style:decimal;margin-left:1.5rem}
+.toc a{color:var(--accent-secondary);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Clustering Algorithms</h1>
+<p class="subtitle">K-Means, DBSCAN, hierarchical clustering & Gaussian mixtures — unsupervised learning for grouping data</p>
+
+<div class="toc">
+<h3>Table of Contents</h3>
+<ol>
+<li><a href="#s1">What Is Clustering?</a></li>
+<li><a href="#s2">K-Means Clustering</a></li>
+<li><a href="#s3">K-Means++ Initialization</a></li>
+<li><a href="#s4">Choosing K: The Elbow Method & Silhouette</a></li>
+<li><a href="#s5">DBSCAN</a></li>
+<li><a href="#s6">Hierarchical Clustering</a></li>
+<li><a href="#s7">Gaussian Mixture Models (GMM)</a></li>
+<li><a href="#s8">Mean Shift</a></li>
+<li><a href="#s9">Method Comparison</a></li>
+<li><a href="#s10">Practical Guide</a></li>
+<li><a href="#s11">Interactive: K-Means Step-by-Step</a></li>
+<li><a href="#s12">Interactive: DBSCAN Explorer</a></li>
+<li><a href="#s13">Interactive: Algorithm Comparison</a></li>
+<li><a href="#s14">Summary & Key Takeaways</a></li>
+</ol>
+</div>
+
+<!-- Section 1 -->
+<h2 id="s1">1. What Is Clustering?</h2>
+<p><strong>Clustering</strong> is unsupervised learning — you have data with no labels, and you want to discover natural groups (clusters) within it. Points in the same cluster should be similar; points in different clusters should be dissimilar.</p>
+<div class="analogy-box">
+Imagine you dump a bag of mixed candies on a table. Without anyone telling you the types, you'd naturally group them by color, shape, and size. That's clustering — finding structure in unlabeled data.
+</div>
+<p>Applications: customer segmentation, anomaly detection, image segmentation, document grouping, gene expression analysis, social network community detection.</p>
+<h3>Types of Clustering</h3>
+<ul>
+<li><strong>Partitional:</strong> divide data into non-overlapping groups (K-Means, K-Medoids).</li>
+<li><strong>Density-based:</strong> groups are dense regions separated by sparse regions (DBSCAN, Mean Shift).</li>
+<li><strong>Hierarchical:</strong> nested tree of clusters at multiple granularities (Agglomerative, Divisive).</li>
+<li><strong>Model-based:</strong> fit statistical models to the data (Gaussian Mixture Models).</li>
+</ul>
+
+<!-- Section 2 -->
+<h2 id="s2">2. K-Means Clustering</h2>
+<p>K-Means is the most popular clustering algorithm. It partitions n points into K clusters by minimizing within-cluster sum of squares (WCSS/inertia).</p>
+<div class="card">
+<h3>Algorithm (Lloyd's Algorithm)</h3>
+<ol>
+<li><strong>Initialize:</strong> choose K random centroids (cluster centers).</li>
+<li><strong>Assign:</strong> assign each point to the nearest centroid.</li>
+<li><strong>Update:</strong> recompute each centroid as the mean of its assigned points.</li>
+<li><strong>Repeat</strong> steps 2–3 until centroids stop moving (convergence).</li>
+</ol>
+</div>
+<div class="formula-box">Objective: min Σₖ Σᵢ∈Cₖ ‖xᵢ − μₖ‖²</div>
+<p>Where μₖ is the centroid of cluster Cₖ. This is an NP-hard problem, but Lloyd's algorithm finds a good local minimum quickly.</p>
+<h3>Strengths & Limitations</h3>
+<ul>
+<li><strong>Strengths:</strong> fast (O(nKd) per iteration), simple, scales well, works great for spherical clusters.</li>
+<li><strong>Limitations:</strong> must specify K in advance, sensitive to initialization, assumes spherical equal-size clusters, sensitive to outliers, finds only convex clusters.</li>
+</ul>
+
+<!-- Section 3 -->
+<h2 id="s3">3. K-Means++ Initialization</h2>
+<p>Bad initialization can lead to poor clustering. K-Means++ is a smarter initialization that spreads initial centroids apart:</p>
+<ol>
+<li>Pick the first centroid randomly from data points.</li>
+<li>For each remaining point, compute distance to nearest existing centroid.</li>
+<li>Pick next centroid with probability proportional to distance² (farther points more likely).</li>
+<li>Repeat until K centroids are chosen.</li>
+</ol>
+<div class="key-insight">
+K-Means++ gives O(log K)-competitive results compared to optimal clustering, and converges faster. It's the default in scikit-learn and should always be used.
+</div>
+
+<!-- Section 4 -->
+<h2 id="s4">4. Choosing K: Elbow Method & Silhouette</h2>
+<h3>Elbow Method</h3>
+<p>Plot WCSS (inertia) vs K. Look for the "elbow" — the point where adding more clusters stops significantly reducing inertia. The bend in the curve suggests the optimal K.</p>
+<h3>Silhouette Score</h3>
+<div class="formula-box">s(i) = (b(i) − a(i)) / max(a(i), b(i))</div>
+<p>Where <strong>a(i)</strong> = average distance to points in same cluster, <strong>b(i)</strong> = average distance to points in nearest other cluster. Score ranges from −1 to +1:</p>
+<ul>
+<li><strong>+1:</strong> perfectly clustered (far from other clusters).</li>
+<li><strong>0:</strong> on the boundary between clusters.</li>
+<li><strong>−1:</strong> probably in the wrong cluster.</li>
+</ul>
+<p>Choose K that maximizes the average silhouette score.</p>
+
+<!-- Section 5 -->
+<h2 id="s5">5. DBSCAN (Density-Based Spatial Clustering)</h2>
+<p>DBSCAN finds clusters as dense regions separated by sparse regions. It doesn't require K and can find arbitrarily shaped clusters.</p>
+<div class="card">
+<h3>Key Concepts</h3>
+<ul>
+<li><strong>ε (epsilon):</strong> neighborhood radius — how close points must be to be "neighbors."</li>
+<li><strong>minPts:</strong> minimum points needed in an ε-neighborhood to form a dense region.</li>
+<li><strong>Core point:</strong> has ≥ minPts neighbors within ε.</li>
+<li><strong>Border point:</strong> within ε of a core point but has < minPts neighbors itself.</li>
+<li><strong>Noise point:</strong> not within ε of any core point — an outlier.</li>
+</ul>
+</div>
+<h3>Algorithm</h3>
+<ol>
+<li>For each unvisited point, check if it's a core point.</li>
+<li>If core: start a new cluster. Add all density-reachable points (recursively expand through connected core points).</li>
+<li>Border points get assigned to a nearby cluster. Noise points remain unassigned.</li>
+</ol>
+<h3>Strengths & Limitations</h3>
+<ul>
+<li><strong>Strengths:</strong> no K needed, finds arbitrary shapes, identifies outliers naturally, robust to noise.</li>
+<li><strong>Limitations:</strong> sensitive to ε and minPts, struggles with varying-density clusters, O(n²) without spatial indexing (O(n log n) with KD-tree).</li>
+</ul>
+
+<!-- Section 6 -->
+<h2 id="s6">6. Hierarchical Clustering</h2>
+<p>Builds a tree (dendrogram) of clusters at every level of granularity.</p>
+<h3>Agglomerative (Bottom-Up)</h3>
+<ol>
+<li>Start: each point is its own cluster.</li>
+<li>Merge the two closest clusters.</li>
+<li>Repeat until one cluster remains.</li>
+<li>Cut the dendrogram at desired height to get K clusters.</li>
+</ol>
+<h3>Linkage Methods</h3>
+<table>
+<tr><th>Linkage</th><th>Distance Between Clusters</th><th>Behavior</th></tr>
+<tr><td><strong>Single</strong></td><td>Min distance between any two points</td><td>Chaining effect, elongated clusters</td></tr>
+<tr><td><strong>Complete</strong></td><td>Max distance between any two points</td><td>Compact, spherical clusters</td></tr>
+<tr><td><strong>Average</strong></td><td>Average of all pairwise distances</td><td>Balanced compromise</td></tr>
+<tr><td><strong>Ward's</strong></td><td>Increase in total WCSS after merge</td><td>Minimizes variance, like K-Means</td></tr>
+</table>
+<div class="key-insight">
+Ward's linkage is usually the best default — it produces compact, even-sized clusters similar to K-Means. Use single linkage only if you expect elongated or chain-like clusters.
+</div>
+
+<!-- Section 7 -->
+<h2 id="s7">7. Gaussian Mixture Models (GMM)</h2>
+<p>GMM assumes data comes from a mixture of K Gaussian distributions. Each cluster is modeled as a Gaussian with its own mean and covariance — allowing <strong>elliptical</strong> cluster shapes.</p>
+<div class="formula-box">p(x) = Σₖ πₖ · N(x | μₖ, Σₖ)</div>
+<p>Where πₖ = mixing weight (how big each cluster is), μₖ = mean, Σₖ = covariance matrix.</p>
+<h3>EM Algorithm</h3>
+<ol>
+<li><strong>E-step:</strong> compute probability each point belongs to each Gaussian (soft assignment).</li>
+<li><strong>M-step:</strong> update means, covariances, and mixing weights using weighted data.</li>
+<li>Repeat until convergence (log-likelihood stops increasing).</li>
+</ol>
+<p><strong>Key difference from K-Means:</strong> GMM gives <em>soft</em> assignments (probabilities) rather than hard assignments. A point might be 70% cluster A, 30% cluster B. This captures uncertainty.</p>
+<ul>
+<li><strong>Strengths:</strong> elliptical clusters, soft assignments, principled probabilistic model, can use BIC/AIC for model selection.</li>
+<li><strong>Limitations:</strong> must specify K, sensitive to initialization, can overfit with too many parameters, struggles in high dimensions.</li>
+</ul>
+
+<!-- Section 8 -->
+<h2 id="s8">8. Mean Shift</h2>
+<p>Mean Shift finds clusters by iteratively shifting points toward regions of highest density (modes of the density function).</p>
+<div class="formula-box">x ← Σᵢ K(xᵢ − x) · xᵢ / Σᵢ K(xᵢ − x)</div>
+<p>Where K is a kernel function (usually Gaussian). Each point "climbs" the density gradient until it reaches a mode. Points converging to the same mode form a cluster.</p>
+<ul>
+<li><strong>Strengths:</strong> no K required, finds arbitrary shapes, automatic number of clusters.</li>
+<li><strong>Limitations:</strong> slow (O(n²) per iteration), bandwidth parameter is critical, doesn't scale well.</li>
+</ul>
+
+<!-- Section 9 -->
+<h2 id="s9">9. Method Comparison</h2>
+<table>
+<tr><th>Method</th><th>Requires K?</th><th>Cluster Shape</th><th>Speed</th><th>Outlier Handling</th><th>Best For</th></tr>
+<tr><td><strong>K-Means</strong></td><td>Yes</td><td>Spherical</td><td>Very fast</td><td>Poor</td><td>Large data, round clusters</td></tr>
+<tr><td><strong>DBSCAN</strong></td><td>No</td><td>Arbitrary</td><td>Fast (w/ index)</td><td>Excellent</td><td>Spatial data, outlier detection</td></tr>
+<tr><td><strong>Hierarchical</strong></td><td>No*</td><td>Depends on linkage</td><td>Slow O(n³)</td><td>Moderate</td><td>Small data, want dendrogram</td></tr>
+<tr><td><strong>GMM</strong></td><td>Yes</td><td>Elliptical</td><td>Moderate</td><td>Poor</td><td>Soft assignments, elliptical</td></tr>
+<tr><td><strong>Mean Shift</strong></td><td>No</td><td>Arbitrary</td><td>Slow O(n²)</td><td>Moderate</td><td>Small data, automatic K</td></tr>
+</table>
+
+<!-- Section 10 -->
+<h2 id="s10">10. Practical Guide</h2>
+<div class="card">
+<h3>Decision Flowchart</h3>
+<ol>
+<li><strong>Large dataset (>100K)?</strong> → K-Means or Mini-Batch K-Means.</li>
+<li><strong>Need outlier detection?</strong> → DBSCAN.</li>
+<li><strong>Non-spherical clusters?</strong> → DBSCAN or GMM.</li>
+<li><strong>Want a hierarchy / dendrogram?</strong> → Agglomerative clustering.</li>
+<li><strong>Need soft assignments?</strong> → GMM.</li>
+<li><strong>Don't know K?</strong> → DBSCAN, Mean Shift, or use silhouette/elbow to find K.</li>
+</ol>
+</div>
+<h3>Common Pitfalls</h3>
+<ul>
+<li><strong>Always scale features</strong> before clustering (StandardScaler). Distance-based methods are sensitive to feature scales.</li>
+<li>K-Means with <strong>bad K</strong> will force data into wrong number of groups.</li>
+<li>DBSCAN with <strong>wrong ε</strong> either merges everything (too large) or labels everything as noise (too small). Use k-distance plot to find good ε.</li>
+<li><strong>High dimensions:</strong> distances become meaningless. Use PCA/UMAP first to reduce dimensions.</li>
+<li><strong>Evaluation:</strong> use silhouette score, Davies-Bouldin index, or domain knowledge. There's no single "right" answer in unsupervised learning.</li>
+</ul>
+
+<!-- Demo 1: K-Means Step-by-Step -->
+<h2 id="s11">11. Interactive: K-Means Step-by-Step</h2>
+<div class="demo-section">
+<h3>🎯 K-Means — Watch It Converge</h3>
+<p>Generate data, then step through the K-Means algorithm one iteration at a time. Watch centroids move and assignments change.</p>
+<div class="controls">
+<label>Dataset:</label>
+<select id="kmData"><option value="blobs">3 Blobs</option><option value="blobs5">5 Blobs</option><option value="uneven">Uneven Sizes</option><option value="moons">Moons (Hard)</option></select>
+<label>K:</label>
+<select id="kmK"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+<button id="kmStep">Step</button>
+<button id="kmRun">Run to Convergence</button>
+<button id="kmReset" class="secondary">Reset</button>
+</div>
+<canvas id="kmCanvas" width="700" height="400"></canvas>
+<div class="info-text" id="kmInfo">Iteration: 0 | Click "Step" to begin</div>
+</div>
+
+<!-- Demo 2: DBSCAN Explorer -->
+<h2 id="s12">12. Interactive: DBSCAN Explorer</h2>
+<div class="demo-section">
+<h3>🔍 DBSCAN — Tune ε and minPts</h3>
+<p>See how DBSCAN labels points as core (large), border (medium), or noise (small ×). Adjust parameters to find the right clustering.</p>
+<div class="controls">
+<label>Dataset:</label>
+<select id="dbData"><option value="blobs">Blobs</option><option value="moons">Moons</option><option value="rings">Concentric Rings</option><option value="noisy">Noisy Clusters</option></select>
+<label>ε:</label>
+<input type="range" id="dbEps" min="0.05" max="1.0" step="0.01" value="0.25">
+<span id="dbEpsVal">0.25</span>
+<label>minPts:</label>
+<input type="range" id="dbMinPts" min="2" max="15" step="1" value="5">
+<span id="dbMinPtsVal">5</span>
+</div>
+<canvas id="dbCanvas" width="700" height="400"></canvas>
+<div class="info-text" id="dbInfo">Clusters: — | Core: — | Border: — | Noise: —</div>
+</div>
+
+<!-- Demo 3: Algorithm Comparison -->
+<h2 id="s13">13. Interactive: Algorithm Comparison</h2>
+<div class="demo-section">
+<h3>⚔️ K-Means vs DBSCAN — Side by Side</h3>
+<p>Compare how K-Means and DBSCAN handle the same dataset. Notice where each struggles.</p>
+<div class="controls">
+<label>Dataset:</label>
+<select id="cmpData"><option value="blobs">Blobs</option><option value="moons">Moons</option><option value="rings">Rings</option><option value="varied">Varied Density</option></select>
+<button id="cmpRun">Run Both</button>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+<div>
+<div class="info-text">K-Means</div>
+<canvas id="cmpKM" width="340" height="340"></canvas>
+</div>
+<div>
+<div class="info-text">DBSCAN</div>
+<canvas id="cmpDB" width="340" height="340"></canvas>
+</div>
+</div>
+<div class="info-text" id="cmpInfo">Click "Run Both" to compare</div>
+</div>
+
+<!-- Section 14: Summary -->
+<h2 id="s14">14. Summary & Key Takeaways</h2>
+<div class="card">
+<ol>
+<li><strong>K-Means</strong> is fast and simple — the go-to for large datasets with spherical clusters.</li>
+<li><strong>DBSCAN</strong> finds arbitrary shapes and detects outliers — great for spatial data.</li>
+<li><strong>Hierarchical clustering</strong> gives you a dendrogram — useful when you want multiple granularities.</li>
+<li><strong>GMM</strong> provides soft assignments and models elliptical clusters probabilistically.</li>
+<li>Always <strong>scale your features</strong> before clustering.</li>
+<li>Use <strong>silhouette score</strong> or <strong>elbow method</strong> to choose K.</li>
+<li>Reduce dimensions with <strong>PCA/UMAP</strong> first for high-dimensional data.</li>
+<li>There's no universally "best" algorithm — the right choice depends on your data shape, size, and goals.</li>
+</ol>
+</div>
+
+</div><!-- end container -->
+
+<script>
+// ============================================================
+// DATA GENERATION UTILITIES
+// ============================================================
+const COLORS=['#a78bfa','#5eead4','#fbbf24','#f472b6','#fb923c','#60a5fa','#34d399','#e879f9','#facc15','#38bdf8'];
+function rn(s=1){return((Math.random()+Math.random()+Math.random()-1.5)/1.5)*s;}
+function dist(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);}
+
+function genDataset(type,n=200){
+  const pts=[];
+  if(type==='blobs'){
+    const centers=[[0.3,0.3],[0.7,0.7],[0.3,0.7]];
+    for(let i=0;i<n;i++){const c=centers[i%3];pts.push({x:c[0]+rn(0.08),y:c[1]+rn(0.08)});}
+  }else if(type==='blobs5'){
+    const centers=[[0.2,0.2],[0.8,0.2],[0.5,0.5],[0.2,0.8],[0.8,0.8]];
+    for(let i=0;i<n;i++){const c=centers[i%5];pts.push({x:c[0]+rn(0.06),y:c[1]+rn(0.06)});}
+  }else if(type==='uneven'){
+    for(let i=0;i<n*0.6;i++)pts.push({x:0.3+rn(0.12),y:0.5+rn(0.12)});
+    for(let i=0;i<n*0.25;i++)pts.push({x:0.75+rn(0.05),y:0.3+rn(0.05)});
+    for(let i=0;i<n*0.15;i++)pts.push({x:0.75+rn(0.04),y:0.75+rn(0.04)});
+  }else if(type==='moons'){
+    for(let i=0;i<n/2;i++){
+      const a=Math.PI*i/(n/2);
+      pts.push({x:0.35+0.2*Math.cos(a)+rn(0.02),y:0.5+0.2*Math.sin(a)+rn(0.02)});
+      pts.push({x:0.65-0.2*Math.cos(a)+rn(0.02),y:0.5-0.2*Math.sin(a)+0.1+rn(0.02)});
+    }
+  }else if(type==='rings'){
+    for(let i=0;i<n/2;i++){
+      const a=Math.random()*Math.PI*2;
+      pts.push({x:0.5+0.12*Math.cos(a)+rn(0.015),y:0.5+0.12*Math.sin(a)+rn(0.015)});
+      pts.push({x:0.5+0.3*Math.cos(a)+rn(0.015),y:0.5+0.3*Math.sin(a)+rn(0.015)});
+    }
+  }else if(type==='noisy'){
+    const centers=[[0.3,0.3],[0.7,0.7],[0.3,0.7]];
+    for(let i=0;i<n*0.85;i++){const c=centers[i%3];pts.push({x:c[0]+rn(0.06),y:c[1]+rn(0.06)});}
+    for(let i=0;i<n*0.15;i++)pts.push({x:Math.random(),y:Math.random()}); // noise
+  }else if(type==='varied'){
+    for(let i=0;i<n*0.5;i++)pts.push({x:0.25+rn(0.1),y:0.5+rn(0.1)});
+    for(let i=0;i<n*0.3;i++){const a=Math.random()*Math.PI*2;pts.push({x:0.72+0.15*Math.cos(a)+rn(0.01),y:0.5+0.15*Math.sin(a)+rn(0.01)});}
+    for(let i=0;i<n*0.2;i++)pts.push({x:0.5+rn(0.03),y:0.15+rn(0.03)});
+  }
+  // clamp
+  for(const p of pts){p.x=Math.max(0.02,Math.min(0.98,p.x));p.y=Math.max(0.02,Math.min(0.98,p.y));}
+  return pts;
+}
+
+// ============================================================
+// K-MEANS IMPLEMENTATION
+// ============================================================
+function kmeansInit(pts,K){
+  // K-Means++ initialization
+  const centroids=[pts[Math.floor(Math.random()*pts.length)]];
+  while(centroids.length<K){
+    const dists=pts.map(p=>{let mn=Infinity;for(const c of centroids)mn=Math.min(mn,dist(p,c));return mn*mn;});
+    const total=dists.reduce((a,b)=>a+b,0);
+    let r=Math.random()*total,s=0;
+    for(let i=0;i<pts.length;i++){s+=dists[i];if(s>=r){centroids.push({...pts[i]});break;}}
+  }
+  return centroids.map(c=>({x:c.x,y:c.y}));
+}
+
+function kmeansStep(pts,centroids){
+  const K=centroids.length;
+  // assign
+  const labels=pts.map(p=>{
+    let best=0,bestD=Infinity;
+    for(let k=0;k<K;k++){const d=dist(p,centroids[k]);if(d<bestD){bestD=d;best=k;}}
+    return best;
+  });
+  // update
+  const newC=centroids.map(()=>({x:0,y:0,n:0}));
+  for(let i=0;i<pts.length;i++){const k=labels[i];newC[k].x+=pts[i].x;newC[k].y+=pts[i].y;newC[k].n++;}
+  let moved=false;
+  for(let k=0;k<K;k++){
+    if(newC[k].n>0){
+      const nx=newC[k].x/newC[k].n, ny=newC[k].y/newC[k].n;
+      if(Math.abs(nx-centroids[k].x)>1e-6||Math.abs(ny-centroids[k].y)>1e-6)moved=true;
+      centroids[k]={x:nx,y:ny};
+    }
+  }
+  return{labels,moved};
+}
+
+// ============================================================
+// DBSCAN IMPLEMENTATION
+// ============================================================
+function dbscan(pts,eps,minPts){
+  const n=pts.length;
+  const labels=new Array(n).fill(-1); // -1=unvisited
+  const types=new Array(n).fill('noise'); // core, border, noise
+  let clusterId=0;
+
+  // find neighbors
+  function regionQuery(i){
+    const nbrs=[];
+    for(let j=0;j<n;j++)if(dist(pts[i],pts[j])<=eps)nbrs.push(j);
+    return nbrs;
+  }
+
+  for(let i=0;i<n;i++){
+    if(labels[i]!==-1)continue;
+    const nbrs=regionQuery(i);
+    if(nbrs.length<minPts){labels[i]=-2;continue;} // noise (temporarily)
+    // core point, start cluster
+    types[i]='core';
+    labels[i]=clusterId;
+    const queue=[...nbrs];
+    const visited=new Set([i]);
+    while(queue.length>0){
+      const j=queue.shift();
+      if(visited.has(j))continue;
+      visited.add(j);
+      if(labels[j]===-2)labels[j]=clusterId; // was noise, now border
+      if(labels[j]!==-1)continue;
+      labels[j]=clusterId;
+      const jNbrs=regionQuery(j);
+      if(jNbrs.length>=minPts){
+        types[j]='core';
+        for(const k of jNbrs)if(!visited.has(k))queue.push(k);
+      }else{
+        types[j]='border';
+      }
+    }
+    clusterId++;
+  }
+  // remaining -1 or -2 are noise
+  for(let i=0;i<n;i++)if(labels[i]<0){labels[i]=-1;types[i]='noise';}
+  return{labels,types,nClusters:clusterId};
+}
+
+// ============================================================
+// DEMO 1: K-MEANS STEP-BY-STEP
+// ============================================================
+(function(){
+const cv=document.getElementById('kmCanvas'),ctx=cv.getContext('2d');
+let pts=[],centroids=[],labels=[],iter=0,converged=false;
+
+function init(){
+  pts=genDataset(document.getElementById('kmData').value,200);
+  const K=parseInt(document.getElementById('kmK').value);
+  centroids=kmeansInit(pts,K);
+  labels=pts.map(()=>-1);
+  iter=0;converged=false;
+  draw();
+}
+
+function step(){
+  if(converged)return;
+  const r=kmeansStep(pts,centroids);
+  labels=r.labels;iter++;
+  if(!r.moved)converged=true;
+  draw();
+}
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  // points
+  for(let i=0;i<pts.length;i++){
+    const px=pts[i].x*cv.width, py=(1-pts[i].y)*cv.height;
+    ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);
+    ctx.fillStyle=labels[i]>=0?COLORS[labels[i]%COLORS.length]:'rgba(255,255,255,0.3)';
+    ctx.fill();
+  }
+  // centroids
+  for(let k=0;k<centroids.length;k++){
+    const px=centroids[k].x*cv.width, py=(1-centroids[k].y)*cv.height;
+    ctx.beginPath();ctx.arc(px,py,10,0,Math.PI*2);
+    ctx.fillStyle=COLORS[k%COLORS.length];ctx.fill();
+    ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();
+    // cross
+    ctx.beginPath();ctx.moveTo(px-6,py);ctx.lineTo(px+6,py);ctx.moveTo(px,py-6);ctx.lineTo(px,py+6);
+    ctx.strokeStyle='rgba(0,0,0,0.7)';ctx.lineWidth=2;ctx.stroke();
+  }
+  document.getElementById('kmInfo').textContent=
+    `Iteration: ${iter} | K=${centroids.length} | ${converged?'✅ Converged!':'Click "Step" to continue'}`;
+}
+
+document.getElementById('kmStep').onclick=step;
+document.getElementById('kmRun').onclick=()=>{for(let i=0;i<100&&!converged;i++)step();};
+document.getElementById('kmReset').onclick=init;
+document.getElementById('kmData').onchange=init;
+document.getElementById('kmK').onchange=init;
+init();
+})();
+
+// ============================================================
+// DEMO 2: DBSCAN EXPLORER
+// ============================================================
+(function(){
+const cv=document.getElementById('dbCanvas'),ctx=cv.getContext('2d');
+const epsSlider=document.getElementById('dbEps'),epsVal=document.getElementById('dbEpsVal');
+const minPtsSlider=document.getElementById('dbMinPts'),minPtsVal=document.getElementById('dbMinPtsVal');
+let pts=[];
+
+epsSlider.oninput=()=>{epsVal.textContent=parseFloat(epsSlider.value).toFixed(2);draw();};
+minPtsSlider.oninput=()=>{minPtsVal.textContent=minPtsSlider.value;draw();};
+
+function init(){
+  pts=genDataset(document.getElementById('dbData').value,200);
+  draw();
+}
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const eps=parseFloat(epsSlider.value);
+  const minPts=parseInt(minPtsSlider.value);
+  const{labels,types,nClusters}=dbscan(pts,eps,minPts);
+
+  let nCore=0,nBorder=0,nNoise=0;
+  for(let i=0;i<pts.length;i++){
+    const px=pts[i].x*cv.width, py=(1-pts[i].y)*cv.height;
+    if(types[i]==='noise'){
+      nNoise++;
+      ctx.beginPath();ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;
+      ctx.moveTo(px-3,py-3);ctx.lineTo(px+3,py+3);ctx.moveTo(px+3,py-3);ctx.lineTo(px-3,py+3);
+      ctx.stroke();
+    }else{
+      const r=types[i]==='core'?5:3;
+      if(types[i]==='core')nCore++;else nBorder++;
+      ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);
+      ctx.fillStyle=labels[i]>=0?COLORS[labels[i]%COLORS.length]:'rgba(255,255,255,0.3)';
+      ctx.fill();
+      if(types[i]==='core'){ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=1;ctx.stroke();}
+    }
+  }
+  document.getElementById('dbInfo').textContent=
+    `Clusters: ${nClusters} | Core: ${nCore} | Border: ${nBorder} | Noise: ${nNoise}`;
+}
+
+document.getElementById('dbData').onchange=init;
+init();
+})();
+
+// ============================================================
+// DEMO 3: ALGORITHM COMPARISON
+// ============================================================
+(function(){
+const cvKM=document.getElementById('cmpKM'),ctxKM=cvKM.getContext('2d');
+const cvDB=document.getElementById('cmpDB'),ctxDB=cvDB.getContext('2d');
+let pts=[];
+
+function init(){
+  pts=genDataset(document.getElementById('cmpData').value,200);
+  run();
+}
+
+function run(){
+  // K-Means (K=3)
+  let centroids=kmeansInit(pts,3);
+  let labels;
+  for(let i=0;i<50;i++){const r=kmeansStep(pts,centroids);labels=r.labels;if(!r.moved)break;}
+  drawCanvas(ctxKM,cvKM,pts,labels);
+
+  // DBSCAN (auto-tune eps)
+  // heuristic: try a few eps values and pick one giving 2-4 clusters
+  let bestEps=0.08,bestResult=dbscan(pts,0.08,5);
+  for(let e=0.04;e<=0.2;e+=0.01){
+    const r=dbscan(pts,e,5);
+    if(r.nClusters>=2&&r.nClusters<=5){bestResult=r;bestEps=e;break;}
+  }
+  drawCanvas(ctxDB,cvDB,pts,bestResult.labels,bestResult.types);
+
+  document.getElementById('cmpInfo').textContent=
+    `K-Means: K=3 | DBSCAN: ε=${bestEps.toFixed(2)}, minPts=5, found ${bestResult.nClusters} clusters`;
+}
+
+function drawCanvas(ctx,cv,pts,labels,types=null){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  for(let i=0;i<pts.length;i++){
+    const px=pts[i].x*cv.width, py=(1-pts[i].y)*cv.height;
+    if(types&&types[i]==='noise'){
+      ctx.beginPath();ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;
+      ctx.moveTo(px-3,py-3);ctx.lineTo(px+3,py+3);ctx.moveTo(px+3,py-3);ctx.lineTo(px-3,py+3);
+      ctx.stroke();
+    }else{
+      const r=types?(types[i]==='core'?5:3):4;
+      ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);
+      ctx.fillStyle=labels[i]>=0?COLORS[labels[i]%COLORS.length]:'rgba(255,255,255,0.3)';
+      ctx.fill();
+    }
+  }
+}
+
+document.getElementById('cmpRun').onclick=run;
+document.getElementById('cmpData').onchange=init;
+init();
+})();
+
+document.addEventListener('visibilitychange',()=>{});
+</script>
+</body>
+</html>
