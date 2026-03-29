@@ -88,6 +88,7 @@ FOLDER_CATEGORIES = {
     "clustering-algorithms":             "Machine Learning",
     # Deep Learning
     "neural-networks-fundamentals":      "Deep Learning",
+    "convolutional-neural-networks":     "Deep Learning",
     "neural-network-backpropagation":    "Deep Learning",
     "activation-functions":              "Deep Learning",
     "loss-functions":                    "Deep Learning",

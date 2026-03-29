@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convolutional Neural Networks — Interactive Guide</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131e;--bg-card:#191a2e;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warning:#fbbf24;--accent-pink:#f472b6;--border-color:#2a2b4a;--formula-bg:#1e1f3a;--shadow:0 4px 24px rgba(0,0,0,0.4)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.subtitle{color:var(--text-secondary);font-size:1.1rem;margin-bottom:2.5rem}
+h2{color:var(--accent-primary);font-size:1.6rem;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--border-color)}
+h3{color:var(--accent-secondary);font-size:1.2rem;margin:1.5rem 0 .8rem}
+p{color:var(--text-secondary);margin-bottom:1rem}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.formula-box{background:var(--formula-bg);border-left:4px solid var(--accent-primary);padding:1rem 1.5rem;margin:1rem 0;border-radius:0 8px 8px 0;font-family:'Courier New',monospace;font-size:1.05rem;color:var(--accent-primary);overflow-x:auto}
+.analogy-box{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(94,234,212,.08));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:1.2rem 1.5rem;margin:1.2rem 0}
+.analogy-box::before{content:'💡 ';font-size:1.2rem}
+.key-insight{background:linear-gradient(135deg,rgba(94,234,212,.1),rgba(167,139,250,.05));border:1px solid rgba(94,234,212,.3);border-radius:12px;padding:1.2rem 1.5rem;margin:1.2rem 0}
+.key-insight::before{content:'🔑 ';font-size:1.1rem}
+ul,ol{color:var(--text-secondary);margin:.8rem 0 1rem 1.5rem}
+li{margin:.4rem 0}
+strong{color:var(--text-primary)}
+code{background:var(--formula-bg);color:var(--accent-secondary);padding:.15rem .4rem;border-radius:4px;font-size:.9rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th{background:var(--formula-bg);color:var(--accent-primary);padding:.7rem;text-align:left;border:1px solid var(--border-color)}
+td{padding:.7rem;border:1px solid var(--border-color);color:var(--text-secondary)}
+tr:hover{background:rgba(167,139,250,.05)}
+.demo-section{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0}
+.demo-section h3{margin-top:0}
+canvas{border:1px solid var(--border-color);border-radius:8px;display:block;margin:.8rem auto;background:#0d0e1a}
+.controls{display:flex;flex-wrap:wrap;gap:.8rem;margin:.8rem 0;align-items:center}
+.controls label{color:var(--text-secondary);font-size:.9rem}
+.controls select,.controls input[type=range]{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:6px;padding:.4rem .6rem;font-size:.85rem}
+.controls input[type=range]{width:120px}
+button{background:linear-gradient(135deg,var(--accent-primary),#8b5cf6);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:opacity .2s}
+button:hover{opacity:.85}
+button.secondary{background:var(--bg-secondary);border:1px solid var(--border-color)}
+.info-text{font-size:.85rem;color:var(--text-secondary);text-align:center;margin:.5rem 0}
+.toc{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.toc h3{color:var(--accent-primary);margin-top:0}
+.toc ol{list-style:decimal;margin-left:1.5rem}
+.toc a{color:var(--accent-secondary);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.grid-vis{display:grid;gap:2px;margin:.8rem auto;width:fit-content}
+.grid-vis div{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;border-radius:3px}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Convolutional Neural Networks</h1>
+<p class="subtitle">Filters, pooling, architectures & transfer learning — how deep learning sees and understands images</p>
+
+<div class="toc">
+<h3>Table of Contents</h3>
+<ol>
+<li><a href="#s1">Why CNNs?</a></li>
+<li><a href="#s2">The Convolution Operation</a></li>
+<li><a href="#s3">Padding & Stride</a></li>
+<li><a href="#s4">Pooling Layers</a></li>
+<li><a href="#s5">CNN Building Blocks</a></li>
+<li><a href="#s6">Feature Hierarchy</a></li>
+<li><a href="#s7">Famous Architectures</a></li>
+<li><a href="#s8">Transfer Learning</a></li>
+<li><a href="#s9">Practical Tips</a></li>
+<li><a href="#s10">Interactive: Convolution Visualizer</a></li>
+<li><a href="#s11">Interactive: Feature Map Explorer</a></li>
+<li><a href="#s12">Interactive: Architecture Builder</a></li>
+<li><a href="#s13">Summary & Key Takeaways</a></li>
+</ol>
+</div>
+
+<!-- Section 1 -->
+<h2 id="s1">1. Why CNNs?</h2>
+<p>Standard neural networks (MLPs) treat every pixel as an independent input. A 256×256 RGB image has 196,608 inputs — connecting all of them to even a small hidden layer creates millions of parameters, most of which are redundant.</p>
+<p>CNNs exploit three key properties of visual data:</p>
+<ul>
+<li><strong>Local connectivity:</strong> a pixel is most related to its neighbors, not pixels far away.</li>
+<li><strong>Parameter sharing:</strong> the same pattern (edge, texture) can appear anywhere in the image.</li>
+<li><strong>Translation invariance:</strong> a cat is a cat whether it's in the top-left or bottom-right.</li>
+</ul>
+<div class="analogy-box">
+Instead of looking at every pixel simultaneously (like an MLP), a CNN slides a small magnifying glass (filter) across the image, looking for specific patterns. The same magnifying glass is used everywhere — so one filter can detect horizontal edges wherever they occur.
+</div>
+
+<!-- Section 2 -->
+<h2 id="s2">2. The Convolution Operation</h2>
+<p>A <strong>convolution</strong> slides a small filter (kernel) over the input, computing element-wise multiplication and sum at each position to produce a <strong>feature map</strong>.</p>
+<div class="formula-box">(I * K)[i,j] = ΣₘΣₙ I[i+m, j+n] · K[m,n]</div>
+<p>A 3×3 filter has only 9 learnable parameters, but it gets applied at every position in the image. This is <strong>parameter sharing</strong> — dramatically fewer parameters than a fully connected layer.</p>
+<div class="card">
+<h3>Example: 3×3 Edge Detection Filter</h3>
+<p>A vertical edge detector might look like:</p>
+<div class="formula-box">K = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]]</div>
+<p>This filter produces high values where there's a sharp horizontal brightness change (vertical edge). The network <em>learns</em> these filters from data — you don't design them manually.</p>
+</div>
+<h3>Multiple Filters = Multiple Feature Maps</h3>
+<p>Each convolutional layer applies multiple filters (e.g., 32, 64, 128). Each filter detects a different feature. The output is a stack of feature maps — one per filter. This is the "depth" dimension of the output.</p>
+<div class="formula-box">Input: H×W×C_in → Conv(F filters, k×k) → Output: H'×W'×F</div>
+
+<!-- Section 3 -->
+<h2 id="s3">3. Padding & Stride</h2>
+<h3>Padding</h3>
+<p>Without padding, the output shrinks: a 5×5 input with 3×3 filter produces 3×3 output. <strong>Padding</strong> adds zeros around the border to control output size.</p>
+<ul>
+<li><strong>Valid (no padding):</strong> output = (n - k + 1). Shrinks each layer.</li>
+<li><strong>Same (zero padding):</strong> pad with p = (k-1)/2. Output = same size as input.</li>
+</ul>
+<h3>Stride</h3>
+<p>Stride controls how many pixels the filter jumps. Stride=1 slides one pixel at a time. Stride=2 skips every other position, halving the output size.</p>
+<div class="formula-box">Output size = ⌊(n + 2p - k) / s⌋ + 1</div>
+<p>Where n=input size, k=kernel size, p=padding, s=stride.</p>
+<div class="key-insight">
+<strong>Common pattern:</strong> 3×3 filters with same padding and stride 1 for most layers. Use stride 2 (or pooling) to downsample.
+</div>
+
+<!-- Section 4 -->
+<h2 id="s4">4. Pooling Layers</h2>
+<p>Pooling reduces spatial dimensions, making the network more efficient and providing some translation invariance.</p>
+<ul>
+<li><strong>Max Pooling (most common):</strong> take the maximum value in each window. Preserves the strongest activations.</li>
+<li><strong>Average Pooling:</strong> take the average in each window. Smoother but loses sharp features.</li>
+<li><strong>Global Average Pooling:</strong> average the entire feature map to a single value. Often used before the final classifier layer.</li>
+</ul>
+<p>Typical: 2×2 max pooling with stride 2 → halves spatial dimensions. A 28×28 feature map becomes 14×14.</p>
+<div class="analogy-box">
+Max pooling is like summarizing a paragraph with just the most important sentence. You lose detail but keep the key information, and the summary is shorter (smaller spatial dimensions).
+</div>
+
+<!-- Section 5 -->
+<h2 id="s5">5. CNN Building Blocks</h2>
+<div class="card">
+<h3>Typical CNN Architecture</h3>
+<ol>
+<li><strong>Input:</strong> raw image (e.g., 224×224×3 for RGB).</li>
+<li><strong>Conv + ReLU + Pool block</strong> (repeated): extract increasingly abstract features while reducing spatial size.</li>
+<li><strong>Flatten:</strong> reshape 3D feature maps into 1D vector.</li>
+<li><strong>Fully Connected layers:</strong> classify based on extracted features.</li>
+<li><strong>Output:</strong> softmax for classification (or linear for regression).</li>
+</ol>
+</div>
+<h3>Batch Normalization</h3>
+<p>Normalize activations within each mini-batch. Placed after conv (before or after ReLU). Stabilizes training, allows higher learning rates, acts as mild regularization.</p>
+<h3>1×1 Convolutions</h3>
+<p>A 1×1 filter doesn't look at spatial context — it combines information across channels. Used to reduce/increase channel depth cheaply. Key building block in modern architectures (Inception, ResNet bottlenecks).</p>
+
+<!-- Section 6 -->
+<h2 id="s6">6. Feature Hierarchy</h2>
+<p>The magic of deep CNNs: each layer builds on the previous one to detect increasingly complex patterns.</p>
+<table>
+<tr><th>Layer Depth</th><th>What It Detects</th><th>Examples</th></tr>
+<tr><td>Layer 1</td><td>Low-level features</td><td>Edges, corners, color gradients</td></tr>
+<tr><td>Layers 2–3</td><td>Mid-level features</td><td>Textures, patterns, simple shapes</td></tr>
+<tr><td>Layers 4–5</td><td>High-level features</td><td>Object parts (eyes, wheels, windows)</td></tr>
+<tr><td>Final layers</td><td>Semantic features</td><td>Whole objects, scenes, concepts</td></tr>
+</table>
+<div class="key-insight">
+Early layers are universal — edges and textures appear in all image types. Later layers become task-specific. This is why transfer learning works: reuse early layers, retrain later ones.
+</div>
+
+<!-- Section 7 -->
+<h2 id="s7">7. Famous Architectures</h2>
+<table>
+<tr><th>Architecture</th><th>Year</th><th>Key Innovation</th><th>Depth</th><th>Parameters</th></tr>
+<tr><td><strong>LeNet-5</strong></td><td>1998</td><td>First successful CNN (digit recognition)</td><td>5</td><td>60K</td></tr>
+<tr><td><strong>AlexNet</strong></td><td>2012</td><td>ReLU, dropout, GPU training, won ImageNet</td><td>8</td><td>60M</td></tr>
+<tr><td><strong>VGGNet</strong></td><td>2014</td><td>Only 3×3 filters, depth matters</td><td>16–19</td><td>138M</td></tr>
+<tr><td><strong>GoogLeNet/Inception</strong></td><td>2014</td><td>Inception modules (parallel filter sizes)</td><td>22</td><td>5M</td></tr>
+<tr><td><strong>ResNet</strong></td><td>2015</td><td>Skip connections (residual learning)</td><td>50–152</td><td>25–60M</td></tr>
+<tr><td><strong>EfficientNet</strong></td><td>2019</td><td>Compound scaling (width×depth×resolution)</td><td>Varies</td><td>5–66M</td></tr>
+</table>
+<h3>ResNet's Skip Connections</h3>
+<div class="formula-box">output = F(x) + x    (residual: learn the difference, not the full mapping)</div>
+<p>Skip connections allow gradients to flow directly through the network, enabling training of very deep networks (100+ layers) without vanishing gradients. This was a breakthrough that enabled modern deep learning.</p>
+
+<!-- Section 8 -->
+<h2 id="s8">8. Transfer Learning</h2>
+<p>Training a CNN from scratch requires millions of images. <strong>Transfer learning</strong> reuses a network pre-trained on a large dataset (ImageNet: 1.2M images, 1000 classes).</p>
+<div class="card">
+<h3>Two Approaches</h3>
+<ol>
+<li><strong>Feature extraction:</strong> freeze all pre-trained layers, replace only the final classifier. Train only the new head. Fast, works with small datasets.</li>
+<li><strong>Fine-tuning:</strong> unfreeze some later layers and retrain with a very small learning rate. More powerful, needs more data.</li>
+</ol>
+</div>
+<div class="key-insight">
+Transfer learning is the most important practical technique in deep learning. With it, you can get state-of-the-art results on custom tasks with just hundreds of images instead of millions.
+</div>
+
+<!-- Section 9 -->
+<h2 id="s9">9. Practical Tips</h2>
+<ul>
+<li><strong>Start with transfer learning</strong> (ResNet-50, EfficientNet-B0) unless you have millions of images.</li>
+<li><strong>Data augmentation</strong> is essential: random flips, rotations, crops, color jitter. More effective than collecting more data.</li>
+<li><strong>Batch normalization</strong> after every conv layer for stable training.</li>
+<li><strong>Use 3×3 filters</strong> — two 3×3 layers have the same receptive field as one 5×5, but fewer parameters and more nonlinearity.</li>
+<li><strong>Double channels when halving spatial size</strong> (e.g., 64 channels at 56×56 → 128 channels at 28×28).</li>
+<li><strong>Global average pooling</strong> instead of flatten+FC to reduce parameters at the end.</li>
+<li><strong>Learning rate:</strong> start with 1e-3 for training from scratch, 1e-4 for fine-tuning.</li>
+</ul>
+
+<!-- Demo 1: Convolution Visualizer -->
+<h2 id="s10">10. Interactive: Convolution Visualizer</h2>
+<div class="demo-section">
+<h3>🔬 See How Convolution Works</h3>
+<p>Watch a filter slide across a small input image. The highlighted region shows the current receptive field; the output shows the computed feature map value.</p>
+<div class="controls">
+<label>Filter:</label>
+<select id="convFilter">
+<option value="edge_v">Vertical Edge</option>
+<option value="edge_h">Horizontal Edge</option>
+<option value="sharpen">Sharpen</option>
+<option value="blur">Blur (Average)</option>
+<option value="emboss">Emboss</option>
+</select>
+<label>Stride:</label>
+<select id="convStride"><option value="1">1</option><option value="2">2</option></select>
+<label>Padding:</label>
+<select id="convPad"><option value="0">Valid (0)</option><option value="1">Same (1)</option></select>
+<button id="convStep">Step</button>
+<button id="convAnimate">Animate</button>
+<button id="convReset" class="secondary">Reset</button>
+</div>
+<canvas id="convCanvas" width="700" height="350"></canvas>
+<div class="info-text" id="convInfo">Position: (0,0) | Value: —</div>
+</div>
+
+<!-- Demo 2: Feature Map Explorer -->
+<h2 id="s11">11. Interactive: Feature Map Explorer</h2>
+<div class="demo-section">
+<h3>🎨 Apply Filters to a Pattern</h3>
+<p>Draw on the left canvas, then see how different filters transform your drawing into feature maps.</p>
+<div class="controls">
+<label>Brush Size:</label>
+<input type="range" id="fmBrush" min="2" max="20" value="8">
+<button id="fmApply">Apply Filters</button>
+<button id="fmClear" class="secondary">Clear</button>
+<label>Preset:</label>
+<select id="fmPreset"><option value="none">Custom Drawing</option><option value="cross">Cross</option><option value="circle">Circle</option><option value="diag">Diagonal Lines</option></select>
+</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+<div>
+<div class="info-text">Input</div>
+<canvas id="fmInput" width="200" height="200" style="cursor:crosshair"></canvas>
+</div>
+<div>
+<div class="info-text">Vertical Edge</div>
+<canvas id="fmOut1" width="200" height="200"></canvas>
+</div>
+<div>
+<div class="info-text">Horizontal Edge</div>
+<canvas id="fmOut2" width="200" height="200"></canvas>
+</div>
+</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px">
+<div>
+<div class="info-text">Sharpen</div>
+<canvas id="fmOut3" width="200" height="200"></canvas>
+</div>
+<div>
+<div class="info-text">Blur</div>
+<canvas id="fmOut4" width="200" height="200"></canvas>
+</div>
+<div>
+<div class="info-text">Emboss</div>
+<canvas id="fmOut5" width="200" height="200"></canvas>
+</div>
+</div>
+</div>
+
+<!-- Demo 3: Architecture Builder -->
+<h2 id="s12">12. Interactive: Architecture Builder</h2>
+<div class="demo-section">
+<h3>🏗️ Build a CNN — See the Dimensions Flow</h3>
+<p>Configure an input image and stack layers to see how spatial dimensions and parameters change through the network.</p>
+<div class="controls">
+<label>Input:</label>
+<select id="archInput"><option value="28">28×28×1 (MNIST)</option><option value="32">32×32×3 (CIFAR)</option><option value="224" selected>224×224×3 (ImageNet)</option></select>
+<button id="archAdd">Add Conv Block</button>
+<button id="archPool">Add MaxPool</button>
+<button id="archFC">Add FC Layer</button>
+<button id="archClear" class="secondary">Clear</button>
+</div>
+<canvas id="archCanvas" width="700" height="300"></canvas>
+<div class="info-text" id="archInfo">Total Parameters: 0 | Add layers to build your CNN</div>
+</div>
+
+<!-- Section 13: Summary -->
+<h2 id="s13">13. Summary & Key Takeaways</h2>
+<div class="card">
+<ol>
+<li><strong>Convolution</strong> exploits locality and parameter sharing — slides small filters across images to detect patterns.</li>
+<li><strong>Pooling</strong> reduces spatial dimensions and provides translation invariance.</li>
+<li><strong>Deeper layers</strong> detect increasingly abstract features: edges → textures → parts → objects.</li>
+<li><strong>ResNet's skip connections</strong> solved vanishing gradients, enabling 100+ layer networks.</li>
+<li><strong>Transfer learning</strong> is the practical default — start with pre-trained models, fine-tune on your data.</li>
+<li><strong>Data augmentation</strong> is essential for preventing overfitting on small datasets.</li>
+<li>Use <strong>3×3 filters, batch normalization, and global average pooling</strong> as standard building blocks.</li>
+<li>Modern CNNs are the backbone of computer vision: image classification, object detection, segmentation, and more.</li>
+</ol>
+</div>
+
+</div><!-- end container -->
+
+<script>
+// ============================================================
+// FILTERS
+// ============================================================
+const FILTERS={
+  edge_v:{name:'Vertical Edge',k:[[-1,0,1],[-1,0,1],[-1,0,1]]},
+  edge_h:{name:'Horizontal Edge',k:[[-1,-1,-1],[0,0,0],[1,1,1]]},
+  sharpen:{name:'Sharpen',k:[[0,-1,0],[-1,5,-1],[0,-1,0]]},
+  blur:{name:'Blur',k:[[1/9,1/9,1/9],[1/9,1/9,1/9],[1/9,1/9,1/9]]},
+  emboss:{name:'Emboss',k:[[-2,-1,0],[-1,1,1],[0,1,2]]}
+};
+
+// ============================================================
+// DEMO 1: CONVOLUTION VISUALIZER
+// ============================================================
+(function(){
+const cv=document.getElementById('convCanvas'),ctx=cv.getContext('2d');
+const info=document.getElementById('convInfo');
+// 7x7 sample input image
+const IMG=[
+  [10, 10, 10, 0,  0,  0,  0],
+  [10, 80, 80, 10, 0,  0,  0],
+  [10, 80,200,200, 10, 0,  0],
+  [10, 80,200,255,200, 10, 0],
+  [ 0, 10, 80,200,200, 80,10],
+  [ 0,  0, 10, 80, 80, 80,10],
+  [ 0,  0,  0, 10, 10, 10,10]
+];
+let posR=0,posC=0,animId=null,outVals=[];
+
+function getFilter(){return FILTERS[document.getElementById('convFilter').value].k;}
+function getStride(){return parseInt(document.getElementById('convStride').value);}
+function getPad(){return parseInt(document.getElementById('convPad').value);}
+
+function padImage(img,p){
+  if(p===0)return img;
+  const h=img.length,w=img[0].length;
+  const out=[];
+  for(let r=0;r<h+2*p;r++){
+    const row=[];
+    for(let c=0;c<w+2*p;c++){
+      const ir=r-p,ic=c-p;
+      row.push(ir>=0&&ir<h&&ic>=0&&ic<w?img[ir][ic]:0);
+    }
+    out.push(row);
+  }
+  return out;
+}
+
+function computeAll(){
+  const k=getFilter(),s=getStride(),p=getPad();
+  const img=padImage(IMG,p);
+  const h=img.length,w=img[0].length;
+  outVals=[];
+  for(let r=0;r+3<=h;r+=s){
+    const row=[];
+    for(let c=0;c+3<=w;c+=s){
+      let sum=0;
+      for(let dr=0;dr<3;dr++)for(let dc=0;dc<3;dc++)sum+=img[r+dr][c+dc]*k[dr][dc];
+      row.push(sum);
+    }
+    outVals.push(row);
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const k=getFilter(),s=getStride(),p=getPad();
+  const img=padImage(IMG,p);
+  const h=img.length,w=img[0].length;
+  const cs=Math.min(38,Math.floor(250/Math.max(h,w)));
+  const ox=20,oy=30;
+
+  // Input grid
+  ctx.fillStyle='var(--text-secondary)';ctx.font='bold 13px sans-serif';
+  ctx.fillText('Input'+(p>0?' (padded)':''),ox,oy-10);
+  for(let r=0;r<h;r++)for(let c=0;c<w;c++){
+    const v=img[r][c];
+    const isPad=(p>0&&(r<p||r>=h-p||c<p||c>=w-p));
+    ctx.fillStyle=isPad?`rgba(50,50,80,0.5)`:`rgb(${v},${v},${v})`;
+    ctx.fillRect(ox+c*cs,oy+r*cs,cs-1,cs-1);
+    if(cs>20){ctx.fillStyle=v>128?'#000':'#aaa';ctx.font='9px monospace';ctx.textAlign='center';
+      ctx.fillText(Math.round(v),ox+c*cs+cs/2,oy+r*cs+cs/2+3);}
+  }
+
+  // Highlight receptive field
+  const rfR=posR*s, rfC=posC*s;
+  ctx.strokeStyle='#fbbf24';ctx.lineWidth=2.5;
+  ctx.strokeRect(ox+rfC*cs-1,oy+rfR*cs-1,3*cs+1,3*cs+1);
+
+  // Filter
+  const fx=ox+w*cs+30, fy=oy;
+  ctx.fillStyle='var(--text-secondary)';ctx.font='bold 13px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Filter (3×3)',fx,fy-10);
+  for(let r=0;r<3;r++)for(let c=0;c<3;c++){
+    const v=k[r][c];
+    const a=Math.abs(v)/Math.max(...k.flat().map(Math.abs),1);
+    ctx.fillStyle=v>0?`rgba(94,234,212,${a*0.7+0.1})`:(v<0?`rgba(244,114,182,${a*0.7+0.1})`:'rgba(100,100,120,0.3)');
+    ctx.fillRect(fx+c*cs,fy+r*cs,cs-1,cs-1);
+    ctx.fillStyle='#e2e8f0';ctx.font='10px monospace';ctx.textAlign='center';
+    ctx.fillText(v%1===0?v.toString():v.toFixed(1),fx+c*cs+cs/2,fy+r*cs+cs/2+3);
+  }
+
+  // Computation
+  const compX=fx,compY=fy+4*cs+10;
+  ctx.fillStyle='var(--text-secondary)';ctx.font='bold 12px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Computation:',compX,compY);
+  let compStr='';let sum=0;
+  for(let dr=0;dr<3;dr++)for(let dc=0;dc<3;dc++){
+    const iv=img[rfR+dr]?.[rfC+dc]||0;
+    const kv=k[dr][dc];
+    sum+=iv*kv;
+    if(compStr)compStr+=' + ';
+    compStr+=`${Math.round(iv)}×${kv%1===0?kv:kv.toFixed(1)}`;
+  }
+  ctx.font='9px monospace';ctx.fillText(compStr.substring(0,80)+(compStr.length>80?'...':''),compX,compY+16);
+  ctx.fillStyle='#fbbf24';ctx.font='bold 12px sans-serif';
+  ctx.fillText(`= ${Math.round(sum)}`,compX,compY+34);
+
+  // Output grid
+  if(outVals.length>0){
+    const oRows=outVals.length,oCols=outVals[0].length;
+    const oox=fx+160,ooy=oy;
+    ctx.fillStyle='var(--text-secondary)';ctx.font='bold 13px sans-serif';ctx.textAlign='left';
+    ctx.fillText(`Output (${oRows}×${oCols})`,oox,ooy-10);
+    // find range for coloring
+    const flat=outVals.flat();const mn=Math.min(...flat),mx=Math.max(...flat);
+    for(let r=0;r<oRows;r++)for(let c=0;c<oCols;c++){
+      const v=outVals[r][c];
+      const t=mx!==mn?(v-mn)/(mx-mn):0.5;
+      const col=Math.round(t*255);
+      ctx.fillStyle=`rgb(${col},${col},${col})`;
+      ctx.fillRect(oox+c*cs,ooy+r*cs,cs-1,cs-1);
+      // highlight current
+      if(r===posR&&c===posC){
+        ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;
+        ctx.strokeRect(oox+c*cs-1,ooy+r*cs-1,cs+1,cs+1);
+      }
+      if(cs>20){ctx.fillStyle=col>128?'#000':'#aaa';ctx.font='8px monospace';ctx.textAlign='center';
+        ctx.fillText(Math.round(v),oox+c*cs+cs/2,ooy+r*cs+cs/2+3);}
+    }
+  }
+
+  info.textContent=`Position: (${posR},${posC}) | Value: ${outVals[posR]?Math.round(outVals[posR][posC]):'—'} | Output size: ${outVals.length}×${outVals[0]?.length||0}`;
+}
+
+function step(){
+  computeAll();
+  const oRows=outVals.length,oCols=outVals[0]?.length||1;
+  posC++;
+  if(posC>=oCols){posC=0;posR++;}
+  if(posR>=oRows){posR=0;posC=0;}
+  draw();
+}
+
+document.getElementById('convStep').onclick=step;
+document.getElementById('convReset').onclick=()=>{posR=posC=0;if(animId){clearInterval(animId);animId=null;}computeAll();draw();};
+document.getElementById('convAnimate').onclick=()=>{
+  if(animId){clearInterval(animId);animId=null;return;}
+  animId=setInterval(step,400);
+};
+['convFilter','convStride','convPad'].forEach(id=>document.getElementById(id).onchange=()=>{posR=posC=0;computeAll();draw();});
+computeAll();draw();
+})();
+
+// ============================================================
+// DEMO 2: FEATURE MAP EXPLORER
+// ============================================================
+(function(){
+const cvIn=document.getElementById('fmInput'),ctxIn=cvIn.getContext('2d');
+const outputs=[1,2,3,4,5].map(i=>({cv:document.getElementById('fmOut'+i),ctx:document.getElementById('fmOut'+i).getContext('2d')}));
+let drawing=false;
+const S=200;
+
+ctxIn.fillStyle='#0d0e1a';ctxIn.fillRect(0,0,S,S);
+
+cvIn.addEventListener('mousedown',()=>drawing=true);
+cvIn.addEventListener('mouseup',()=>drawing=false);
+cvIn.addEventListener('mouseleave',()=>drawing=false);
+cvIn.addEventListener('mousemove',e=>{
+  if(!drawing)return;
+  const r=cvIn.getBoundingClientRect();
+  const x=e.clientX-r.left,y=e.clientY-r.top;
+  const bs=parseInt(document.getElementById('fmBrush').value);
+  ctxIn.fillStyle='#ffffff';
+  ctxIn.beginPath();ctxIn.arc(x,y,bs,0,Math.PI*2);ctxIn.fill();
+});
+
+function drawPreset(type){
+  ctxIn.fillStyle='#0d0e1a';ctxIn.fillRect(0,0,S,S);
+  ctxIn.strokeStyle='#ffffff';ctxIn.lineWidth=4;ctxIn.fillStyle='#ffffff';
+  if(type==='cross'){
+    ctxIn.fillRect(90,20,20,160);ctxIn.fillRect(20,90,160,20);
+  }else if(type==='circle'){
+    ctxIn.beginPath();ctxIn.arc(100,100,60,0,Math.PI*2);ctxIn.stroke();
+  }else if(type==='diag'){
+    for(let i=-200;i<400;i+=30){ctxIn.beginPath();ctxIn.moveTo(i,0);ctxIn.lineTo(i+200,200);ctxIn.stroke();}
+  }
+}
+
+document.getElementById('fmPreset').onchange=function(){if(this.value!=='none')drawPreset(this.value);};
+document.getElementById('fmClear').onclick=()=>{ctxIn.fillStyle='#0d0e1a';ctxIn.fillRect(0,0,S,S);};
+
+document.getElementById('fmApply').onclick=()=>{
+  const imgData=ctxIn.getImageData(0,0,S,S);
+  const gray=[];
+  for(let r=0;r<S;r++){const row=[];for(let c=0;c<S;c++){const i=(r*S+c)*4;row.push(imgData.data[i]);}gray.push(row);}
+
+  const filterKeys=['edge_v','edge_h','sharpen','blur','emboss'];
+  filterKeys.forEach((fk,idx)=>{
+    const k=FILTERS[fk].k;
+    const out=outputs[idx];
+    const od=out.ctx.createImageData(S,S);
+    let mn=Infinity,mx=-Infinity;
+    const vals=[];
+    for(let r=1;r<S-1;r++){const row=[];for(let c=1;c<S-1;c++){
+      let s=0;
+      for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)s+=gray[r+dr][c+dc]*k[dr+1][dc+1];
+      row.push(s);mn=Math.min(mn,s);mx=Math.max(mx,s);
+    }vals.push(row);}
+    // normalize and draw
+    for(let r=0;r<S;r++)for(let c=0;c<S;c++){
+      const i=(r*S+c)*4;
+      if(r>=1&&r<S-1&&c>=1&&c<S-1){
+        const v=vals[r-1][c-1];
+        const t=mx!==mn?(v-mn)/(mx-mn):0.5;
+        const col=Math.round(t*255);
+        od.data[i]=fk==='edge_v'?0:fk==='edge_h'?col:(fk==='emboss'?col:0);
+        od.data[i+1]=fk==='edge_v'?col:(fk==='sharpen'?col:fk==='blur'?col:0);
+        od.data[i+2]=fk==='edge_h'?0:(fk==='emboss'?0:col);
+      }else{od.data[i]=od.data[i+1]=od.data[i+2]=0;}
+      od.data[i+3]=255;
+    }
+    out.ctx.putImageData(od,0,0);
+  });
+};
+})();
+
+// ============================================================
+// DEMO 3: ARCHITECTURE BUILDER
+// ============================================================
+(function(){
+const cv=document.getElementById('archCanvas'),ctx=cv.getContext('2d');
+const info=document.getElementById('archInfo');
+let layers=[];
+
+function getInputDims(){
+  const v=document.getElementById('archInput').value;
+  if(v==='28')return{h:28,w:28,c:1};
+  if(v==='32')return{h:32,w:32,c:3};
+  return{h:224,w:224,c:3};
+}
+
+function calcParams(){
+  let total=0;
+  const dims=[getInputDims()];
+  for(const l of layers){
+    const prev=dims[dims.length-1];
+    if(l.type==='conv'){
+      const outH=Math.floor((prev.h+2*l.pad-l.k)/l.stride)+1;
+      const outW=Math.floor((prev.w+2*l.pad-l.k)/l.stride)+1;
+      const params=l.filters*(prev.c*l.k*l.k+1);
+      total+=params;
+      dims.push({h:outH,w:outW,c:l.filters,params});
+    }else if(l.type==='pool'){
+      dims.push({h:Math.floor(prev.h/2),w:Math.floor(prev.w/2),c:prev.c,params:0});
+    }else if(l.type==='fc'){
+      const inSize=prev.h*prev.w*prev.c;
+      const params=inSize*l.units+l.units;
+      total+=params;
+      dims.push({h:1,w:1,c:l.units,params,flat:true});
+    }
+  }
+  return{dims,total};
+}
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const{dims,total}=calcParams();
+  const n=dims.length;
+  const gap=Math.min(80,cv.width/(n+1));
+  const maxH=200;
+
+  for(let i=0;i<n;i++){
+    const d=dims[i];
+    const x=gap*(i+0.5);
+    const scale=Math.max(8,Math.min(maxH,Math.sqrt(d.h*d.w*d.c)/5));
+    const w=Math.max(15,scale*0.4+d.c*0.05);
+    const h=Math.max(15,scale);
+
+    // draw layer box
+    const y=cv.height/2-h/2;
+    const isInput=i===0;
+    const hue=isInput?0:layers[i-1]?.type==='conv'?267:layers[i-1]?.type==='pool'?170:45;
+    ctx.fillStyle=isInput?'rgba(100,100,140,0.4)':`hsla(${hue},60%,60%,0.3)`;
+    ctx.strokeStyle=isInput?'rgba(150,150,200,0.6)':`hsla(${hue},70%,70%,0.7)`;
+    ctx.lineWidth=1.5;
+    // 3D effect
+    ctx.fillRect(x+3,y-3,w,h);
+    ctx.fillStyle=isInput?'rgba(100,100,140,0.6)':`hsla(${hue},60%,55%,0.5)`;
+    ctx.fillRect(x,y,w,h);
+    ctx.strokeRect(x,y,w,h);
+
+    // connection
+    if(i>0){
+      ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;
+      const prevX=gap*(i-0.5)+Math.max(15,Math.min(maxH,Math.sqrt(dims[i-1].h*dims[i-1].w*dims[i-1].c)/5)*0.4+dims[i-1].c*0.05);
+      ctx.beginPath();ctx.moveTo(prevX,cv.height/2);ctx.lineTo(x,cv.height/2);ctx.stroke();
+    }
+
+    // labels
+    ctx.fillStyle='#e2e8f0';ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+    const label=isInput?'Input':layers[i-1].type==='conv'?`Conv`:layers[i-1].type==='pool'?'Pool':'FC';
+    ctx.fillText(label,x+w/2,y-8);
+    ctx.fillStyle='#94a3b8';ctx.font='9px monospace';
+    if(d.flat)ctx.fillText(`${d.c}`,x+w/2,y+h+12);
+    else ctx.fillText(`${d.h}×${d.w}×${d.c}`,x+w/2,y+h+12);
+    if(d.params>0){ctx.fillText(`${(d.params/1000).toFixed(1)}K`,x+w/2,y+h+24);}
+  }
+
+  info.textContent=`Total Parameters: ${total>1e6?(total/1e6).toFixed(1)+'M':total>1e3?(total/1e3).toFixed(1)+'K':total} | Layers: ${layers.length} | Output: ${dims[n-1].h}×${dims[n-1].w}×${dims[n-1].c}`;
+}
+
+document.getElementById('archAdd').onclick=()=>{
+  const{dims}=calcParams();
+  const last=dims[dims.length-1];
+  if(last.flat)return; // can't add conv after FC
+  const filters=last.c<=3?32:Math.min(512,last.c*2);
+  layers.push({type:'conv',k:3,stride:1,pad:1,filters});
+  draw();
+};
+document.getElementById('archPool').onclick=()=>{
+  const{dims}=calcParams();
+  const last=dims[dims.length-1];
+  if(last.flat||last.h<4)return;
+  layers.push({type:'pool'});
+  draw();
+};
+document.getElementById('archFC').onclick=()=>{
+  const{dims}=calcParams();
+  const last=dims[dims.length-1];
+  const units=last.flat?Math.max(10,Math.floor(last.c/4)):128;
+  layers.push({type:'fc',units});
+  draw();
+};
+document.getElementById('archClear').onclick=()=>{layers=[];draw();};
+document.getElementById('archInput').onchange=()=>{layers=[];draw();};
+draw();
+})();
+
+document.addEventListener('visibilitychange',()=>{});
+</script>
+</body>
+</html>

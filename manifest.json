@@ -129,6 +129,29 @@
         "category": "Machine Learning"
       },
       {
+        "name": "convolutional-neural-networks",
+        "type": "folder",
+        "children": [
+          {
+            "name": "convolutional_neural_networks_guide.docx",
+            "displayName": "convolutional_neural_networks_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14851,
+            "path": "convolutional-neural-networks/convolutional_neural_networks_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "convolutional-neural-networks",
+            "type": "file",
+            "ext": "html",
+            "size": 32189,
+            "path": "convolutional-neural-networks/index.html"
+          }
+        ],
+        "category": "Deep Learning"
+      },
+      {
         "name": "correlation-vs-causation",
         "type": "folder",
         "children": [
