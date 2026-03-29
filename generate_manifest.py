@@ -118,6 +118,7 @@ FOLDER_CATEGORIES = {
     "swarm-drone-11-werfel-termite-construction": "Swarm Drone Research",
     "swarm-drone-12-rubenstein-kilobot-swarm":    "Swarm Drone Research",
     "swarm-drone-13-saska-multi-uav-formation":   "Swarm Drone Research",
+    "swarm-drone-14-hauert-fixed-wing-swarm":     "Swarm Drone Research",
     # Swarm Drone Complete Guide
     "swarm-drone-complete-guide":              "Swarm Drone Research",
 }

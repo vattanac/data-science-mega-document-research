@@ -1,0 +1,35 @@
+ORIGINAL RESEARCH PAPER REFERENCE
+===================================
+
+Title:   Reynolds Flocking in Reality with Fixed-Wing Robots
+Authors: Sabine Hauert, Severin Leven, Maja Varga, Fabio Ruini,
+         Angelo Cangelosi, Jean-Christophe Zufferey, Dario Floreano
+Journal: International Journal of Robotics Research (IJRR)
+Volume:  Vol. 30, No. 7, pp. 917–931
+Date:    June 2011
+DOI:     10.1177/0278364910391996
+
+Institutions: EPFL Laboratory of Intelligent Systems (Switzerland)
+              University of Plymouth (UK)
+
+WHERE TO ACCESS THE FULL PDF:
+-----------------------------
+1. SAGE Journals (official): https://journals.sagepub.com/doi/10.1177/0278364910391996
+2. EPFL Infoscience:         https://infoscience.epfl.ch/record/154985
+3. Semantic Scholar:         https://www.semanticscholar.org/paper/Reynolds-flocking-in-reality-with-fixed-wing-robots-Hauert-Leven/
+4. Google Scholar:           Search "Hauert Reynolds Flocking Fixed-Wing 2011"
+5. ResearchGate:             https://www.researchgate.net/publication/227618855
+
+ABSTRACT (paraphrased):
+-----------------------
+This paper presents the first physical demonstration of Reynolds flocking
+rules with real fixed-wing aircraft flying outdoors. The work adapts the
+classic separation, alignment, and cohesion rules to handle fixed-wing
+constraints: minimum airspeed, limited turn rate, no hovering, and wind
+disturbances. Up to 5 autonomous aircraft flew in coordinated flocks,
+exhibiting emergent behaviors including circular orbiting, dynamic leader
+switching, and elastic deformation. The platform used SwingletCAM flying
+wings with XBee radio communication at 5 Hz.
+
+NOTE: To add the original PDF to this folder, download from one of the
+links above and save it here as "hauert_2011_fixed_wing_flocking.pdf"

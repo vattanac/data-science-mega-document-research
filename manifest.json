@@ -1236,6 +1236,29 @@
         "category": "Swarm Drone Research"
       },
       {
+        "name": "swarm-drone-14-hauert-fixed-wing-swarm",
+        "type": "folder",
+        "children": [
+          {
+            "name": "hauert_fixed_wing_swarm_guide.docx",
+            "displayName": "hauert_fixed_wing_swarm_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14935,
+            "path": "swarm-drone-14-hauert-fixed-wing-swarm/hauert_fixed_wing_swarm_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-14-hauert-fixed-wing-swarm",
+            "type": "file",
+            "ext": "html",
+            "size": 31883,
+            "path": "swarm-drone-14-hauert-fixed-wing-swarm/index.html"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
         "name": "swarm-drone-complete-guide",
         "type": "folder",
         "children": [
