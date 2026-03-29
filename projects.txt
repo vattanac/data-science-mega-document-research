@@ -54,6 +54,7 @@ swarm-drone-14-hauert-fixed-wing-swarm
 swarm-drone-15-coppola-swarm-localization
 swarm-drone-16-vasarhelyi-outdoor-flocking
 swarm-drone-17-kushleyev-nano-quadrotor
+swarm-drone-18-weinstein-swarm-vs-swarm
 swarm-drone-complete-guide
 time-series-analysis
 variance-and-standard-deviation

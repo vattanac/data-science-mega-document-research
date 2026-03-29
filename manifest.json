@@ -1328,6 +1328,29 @@
         "category": "Swarm Drone Research"
       },
       {
+        "name": "swarm-drone-18-weinstein-swarm-vs-swarm",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-18-weinstein-swarm-vs-swarm",
+            "type": "file",
+            "ext": "html",
+            "size": 36575,
+            "path": "swarm-drone-18-weinstein-swarm-vs-swarm/index.html"
+          },
+          {
+            "name": "weinstein_swarm_vs_swarm_guide.docx",
+            "displayName": "weinstein_swarm_vs_swarm_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14708,
+            "path": "swarm-drone-18-weinstein-swarm-vs-swarm/weinstein_swarm_vs_swarm_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
         "name": "swarm-drone-complete-guide",
         "type": "folder",
         "children": [

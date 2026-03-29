@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weinstein - Swarm vs Swarm | Swarm Drone Research #18</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131f;--bg-card:#1a1b2e;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warning:#fbbf24;--accent-danger:#f87171;--border-color:#2a2b3e;--glow-primary:rgba(167,139,250,0.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:1200px;margin:0 auto;padding:0 2rem}
+header{background:linear-gradient(135deg,#0a0b14 0%,#2d1020 50%,#0d1a2d 100%);padding:3rem 0;text-align:center;border-bottom:2px solid var(--accent-danger);position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 50% 50%,rgba(248,113,113,0.08) 0%,transparent 60%);pointer-events:none}
+h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-danger),var(--accent-warning));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem}
+.subtitle{color:var(--text-secondary);font-size:1.1rem}
+.paper-badge{display:inline-block;background:var(--accent-danger);color:#fff;padding:0.3rem 1rem;border-radius:20px;font-size:0.85rem;margin-top:1rem}
+nav{background:var(--bg-secondary);padding:1rem 0;border-bottom:1px solid var(--border-color);position:sticky;top:0;z-index:100}
+.nav-grid{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center}
+.nav-grid a{color:var(--text-secondary);text-decoration:none;padding:0.3rem 0.8rem;border-radius:6px;font-size:0.8rem;transition:all 0.2s}
+.nav-grid a:hover{color:var(--accent-danger);background:rgba(248,113,113,0.1)}
+section{padding:3rem 0;border-bottom:1px solid var(--border-color)}
+h2{font-size:1.6rem;color:var(--accent-danger);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem}
+h3{font-size:1.2rem;color:var(--accent-warning);margin:1.5rem 0 0.8rem}
+p{margin-bottom:1rem;color:var(--text-secondary)}
+ul,ol{margin:1rem 0 1rem 2rem;color:var(--text-secondary)}
+li{margin-bottom:0.5rem}
+strong{color:var(--text-primary)}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin:1.5rem 0}
+.info-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;transition:border-color 0.3s}
+.info-card:hover{border-color:var(--accent-danger)}
+.info-card h4{color:var(--accent-warning);font-size:1rem;margin-bottom:0.8rem}
+table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:0.95rem}
+th{background:var(--bg-card);color:var(--accent-danger);padding:0.8rem 1rem;text-align:left;border:1px solid var(--border-color)}
+td{padding:0.8rem 1rem;border:1px solid var(--border-color);color:var(--text-secondary)}
+tr:hover td{background:rgba(248,113,113,0.05)}
+.formula{background:var(--bg-card);border-left:3px solid var(--accent-warning);padding:1rem 1.5rem;margin:1rem 0;font-family:'Courier New',monospace;color:var(--accent-warning);border-radius:0 8px 8px 0;overflow-x:auto}
+.demo-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0}
+.demo-container h3{color:var(--accent-danger);margin-top:0}
+canvas{width:100%;border-radius:8px;background:#000;display:block;margin:1rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:0.8rem;margin:1rem 0;align-items:center}
+.controls label{color:var(--text-secondary);font-size:0.85rem}
+.controls input[type=range]{width:120px;accent-color:var(--accent-danger)}
+.controls select,.controls button{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.85rem}
+.controls button{background:var(--accent-danger);color:#fff;border:none;font-weight:600}
+.controls button:hover{opacity:0.9}
+.controls button.blue{background:var(--accent-primary)}
+.stat-bar{display:flex;gap:1.5rem;flex-wrap:wrap;margin:1rem 0}
+.stat-item{background:var(--bg-secondary);padding:0.5rem 1rem;border-radius:8px;font-size:0.85rem}
+.stat-item span{font-weight:700}
+.stat-item .red{color:var(--accent-danger)}
+.stat-item .blue{color:var(--accent-primary)}
+.stat-item .yellow{color:var(--accent-warning)}
+.highlight-box{background:linear-gradient(135deg,rgba(248,113,113,0.1),rgba(251,191,36,0.1));border:1px solid var(--accent-danger);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+footer{background:var(--bg-secondary);padding:2rem 0;text-align:center;color:var(--text-secondary);font-size:0.9rem}
+@media(max-width:768px){h1{font-size:1.6rem}.container{padding:0 1rem}.info-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<div class="container">
+<h1>Visual Intelligence & Swarm-vs-Swarm Engagement Strategies</h1>
+<p class="subtitle">Weinstein & Schumacher (2017) — Game-Theoretic Adversarial Swarm Combat</p>
+<div class="paper-badge">Swarm Drone Research Paper #18 — AIAA / Air Force Research Lab</div>
+</div>
+</header>
+
+<nav>
+<div class="container">
+<div class="nav-grid">
+<a href="#overview">Overview</a>
+<a href="#problem">Problem</a>
+<a href="#game-theory">Game Theory</a>
+<a href="#strategies">Strategies</a>
+<a href="#demo1">Demo: Swarm Battle</a>
+<a href="#offense">Offensive Tactics</a>
+<a href="#defense">Defensive Tactics</a>
+<a href="#demo2">Demo: Strategy Tuner</a>
+<a href="#attrition">Attrition Models</a>
+<a href="#counter">Counter-Swarm</a>
+<a href="#demo3">Demo: War Game</a>
+<a href="#comparison">Analysis</a>
+<a href="#applications">Applications</a>
+<a href="#takeaways">Key Takeaways</a>
+</div>
+</div>
+</nav>
+
+<!-- Section 1 -->
+<section id="overview">
+<div class="container">
+<h2>⚔️ Section 1: Paper Overview</h2>
+<p>What happens when one drone swarm fights another? This question, once the domain of science fiction, became a serious military research problem in the 2010s. Weinstein and Schumacher from the <strong>Air Force Research Laboratory (AFRL)</strong> applied game theory to model adversarial swarm-on-swarm engagements, analyzing optimal attack and defense strategies when two autonomous drone swarms clash.</p>
+<div class="info-grid">
+<div class="info-card">
+<h4>Paper Details</h4>
+<p><strong>Published by:</strong> AIAA (American Institute of Aeronautics and Astronautics)</p>
+<p><strong>Year:</strong> 2017</p>
+<p><strong>Conference:</strong> AIAA SciTech Forum / Infotech@Aerospace</p>
+</div>
+<div class="info-card">
+<h4>Institution</h4>
+<p><strong>Air Force Research Laboratory (AFRL)</strong></p>
+<p>Munitions Directorate, Eglin Air Force Base, Florida, USA</p>
+</div>
+<div class="info-card">
+<h4>Key Contribution</h4>
+<p>Game-theoretic framework for analyzing swarm-vs-swarm combat. Identifies optimal strategies for <strong>force allocation</strong>, <strong>concentration vs. dispersal</strong>, and <strong>attrition dynamics</strong> in multi-agent adversarial scenarios.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 2 -->
+<section id="problem">
+<div class="container">
+<h2>🎯 Section 2: The Swarm Combat Problem</h2>
+<p>Traditional military engagements involve individual platforms (aircraft, ships, tanks) with known capabilities. Swarm combat is fundamentally different:</p>
+<ul>
+<li><strong>Numbers over capability:</strong> Each drone is expendable and cheap. The swarm's power comes from quantity, coordination, and the ability to absorb losses.</li>
+<li><strong>No single point of failure:</strong> Destroying one drone has negligible impact. The swarm degrades gracefully as members are lost.</li>
+<li><strong>Combinatorial complexity:</strong> With 100 attackers vs. 100 defenders, there are astronomical numbers of possible engagement patterns.</li>
+<li><strong>Decentralized decisions:</strong> Each drone must decide independently what to target, when to engage, and when to retreat.</li>
+<li><strong>Asymmetric roles:</strong> Attackers try to reach targets; defenders try to intercept. The optimal strategy differs for each side.</li>
+</ul>
+<div class="highlight-box">
+<strong>The core question:</strong> Given N attacking drones and M defending drones, how should each side allocate its forces? Should the attacker concentrate all forces on one target or spread across many? Should the defender spread evenly or concentrate to protect the highest-value targets?
+</div>
+</div>
+</section>
+
+<!-- Section 3 -->
+<section id="game-theory">
+<div class="container">
+<h2>🧠 Section 3: Game-Theoretic Framework</h2>
+<p>The paper models swarm combat as a <strong>two-player zero-sum game</strong>: what one side gains, the other loses. The key concepts:</p>
+<h3>Players</h3>
+<p><strong>Attacker (Red):</strong> Controls N_a drones trying to reach and destroy targets. <strong>Defender (Blue):</strong> Controls N_d drones trying to intercept and destroy attackers before they reach targets.</p>
+<h3>Strategy Space</h3>
+<div class="formula">Attacker strategy: allocation vector a = (a₁, a₂, ..., aₖ) where Σaᵢ = N_a</div>
+<div class="formula">Defender strategy: allocation vector d = (d₁, d₂, ..., dₖ) where Σdᵢ = N_d</div>
+<p>Each side decides how many drones to allocate to each of K sectors or targets. The strategies are chosen simultaneously (neither side knows the other's allocation in advance).</p>
+<h3>Payoff Function</h3>
+<div class="formula">V(a, d) = Σᵢ f(aᵢ, dᵢ) · value(target_i)</div>
+<p>The payoff depends on the local engagement outcome f(aᵢ, dᵢ) in each sector — how many attackers survive past the defenders — multiplied by the value of each target. The attacker maximizes V; the defender minimizes V.</p>
+<h3>Nash Equilibrium</h3>
+<p>The solution is a <strong>Nash equilibrium</strong>: a pair of strategies where neither side can improve by unilaterally changing their allocation. This represents the optimal play for both sides assuming rational adversaries.</p>
+</div>
+</section>
+
+<!-- Section 4 -->
+<section id="strategies">
+<div class="container">
+<h2>📋 Section 4: Core Strategies</h2>
+<table>
+<tr><th>Strategy</th><th>Description</th><th>Best When</th></tr>
+<tr><td>Concentrate (attacker)</td><td>Mass all drones at one target</td><td>Defender is spread thin</td></tr>
+<tr><td>Distribute (attacker)</td><td>Spread evenly across all targets</td><td>All targets are equally valuable</td></tr>
+<tr><td>Weighted (attacker)</td><td>Allocate proportional to target value</td><td>Targets have unequal value</td></tr>
+<tr><td>Concentrate (defender)</td><td>Mass all defenders at highest-value target</td><td>One target is far more valuable</td></tr>
+<tr><td>Distribute (defender)</td><td>Spread defenders evenly</td><td>Attacker strategy is unknown</td></tr>
+<tr><td>Reactive (defender)</td><td>Wait and respond to attacker movement</td><td>Defender has speed advantage</td></tr>
+</table>
+<p>The fundamental tension is <strong>concentration vs. dispersal</strong>. Concentrating forces gives local superiority but leaves other areas undefended. Dispersing forces covers everything but may be too weak everywhere. The Nash equilibrium often involves <strong>mixed strategies</strong> — randomizing between concentrating and dispersing to remain unpredictable.</p>
+</div>
+</section>
+
+<!-- Section 5: Demo 1 -->
+<section id="demo1">
+<div class="container">
+<h2>🎮 Section 5: Interactive Demo — Swarm Battle Simulator</h2>
+<div class="demo-container">
+<h3>Red vs Blue Swarm Engagement</h3>
+<p>Red (left) attacks Blue (right) targets. Each side uses its selected strategy. Watch attrition in real-time. Press Start to begin the engagement.</p>
+<canvas id="canvas1" width="900" height="500"></canvas>
+<div class="controls">
+<label>Red Strategy:</label>
+<select id="redStrat">
+<option value="concentrate">Concentrate</option>
+<option value="distribute">Distribute</option>
+<option value="flank">Flank (split)</option>
+</select>
+<label>Blue Strategy:</label>
+<select id="blueStrat">
+<option value="distribute">Distribute</option>
+<option value="concentrate">Concentrate Center</option>
+<option value="layered">Layered Defense</option>
+</select>
+<label>Red: <span id="redCountVal">40</span></label>
+<input type="range" id="redCount" min="10" max="80" value="40" step="5">
+<label>Blue: <span id="blueCountVal">30</span></label>
+<input type="range" id="blueCount" min="10" max="80" value="30" step="5">
+<button onclick="startBattle()">Start</button>
+<button class="blue" onclick="resetDemo1()">Reset</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Red Alive: <span class="red" id="stat1Red">40</span></div>
+<div class="stat-item">Blue Alive: <span class="blue" id="stat1Blue">30</span></div>
+<div class="stat-item">Targets Hit: <span class="yellow" id="stat1Hit">0</span>/3</div>
+<div class="stat-item">Time: <span id="stat1Time">0</span>s</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 6 -->
+<section id="offense">
+<div class="container">
+<h2>🔴 Section 6: Offensive Swarm Tactics</h2>
+<h3>1. Saturation Attack</h3>
+<p>Overwhelm defenses by sending more attackers than the defense can handle simultaneously. If each defender can engage one attacker at a time, sending N+1 attackers against N defenders guarantees at least one gets through.</p>
+<div class="formula">P(penetration) = 1 - (N_d / N_a)  when N_a > N_d</div>
+<h3>2. Sequential Waves</h3>
+<p>Send attackers in waves. The first wave absorbs defensive fire and depletes defender ammunition/energy. Subsequent waves face weakened defenses.</p>
+<h3>3. Diversionary Attack</h3>
+<p>Send a visible group toward a decoy target to draw defenders, then redirect the main force to the real target. Exploits the defender's information disadvantage.</p>
+<h3>4. Envelopment</h3>
+<p>Attack from multiple directions simultaneously. Forces the defender to split attention and prevents concentration of defensive fire.</p>
+<h3>5. Swarming</h3>
+<p>Converge on a single target from all directions. No matter which way the defender turns, attackers approach from behind. Requires coordination but is extremely difficult to defend against.</p>
+</div>
+</section>
+
+<!-- Section 7 -->
+<section id="defense">
+<div class="container">
+<h2>🔵 Section 7: Defensive Swarm Tactics</h2>
+<h3>1. Perimeter Defense</h3>
+<p>Form a defensive shell around protected targets. Simple but spreads forces thin across the entire perimeter.</p>
+<h3>2. Layered Defense (Defense in Depth)</h3>
+<p>Multiple concentric rings of defenders. Outer layers attrit attackers; inner layers catch any that penetrate. More robust than a single perimeter.</p>
+<h3>3. Mobile Reserve</h3>
+<p>Keep a reserve force uncommitted, deploying it to reinforce whichever sector is under heaviest attack. Requires fast detection and response.</p>
+<h3>4. Counter-Swarm</h3>
+<p>Instead of passive defense, actively seek and destroy the attacking swarm before it reaches targets. Offensive defense — take the fight to the enemy.</p>
+<h3>5. Area Denial</h3>
+<p>Create zones that are dangerous for attackers (electronic jamming, kinetic interdiction). Channel attackers into predictable corridors where concentrated fire can destroy them.</p>
+</div>
+</section>
+
+<!-- Section 8: Demo 2 -->
+<section id="demo2">
+<div class="container">
+<h2>🎮 Section 8: Interactive Demo — Strategy Tuner</h2>
+<div class="demo-container">
+<h3>Force Allocation Explorer</h3>
+<p>Distribute your forces (Blue defenders) across 3 sectors. Red will attack with a fixed allocation. See how your distribution affects engagement outcomes.</p>
+<canvas id="canvas2" width="900" height="500"></canvas>
+<div class="controls">
+<label>Sector 1: <span id="s1Val">10</span></label>
+<input type="range" id="sec1" min="0" max="30" value="10" step="1">
+<label>Sector 2: <span id="s2Val">10</span></label>
+<input type="range" id="sec2" min="0" max="30" value="10" step="1">
+<label>Sector 3: <span id="s3Val">10</span></label>
+<input type="range" id="sec3" min="0" max="30" value="10" step="1">
+<button onclick="resetDemo2()">Reset</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Total Blue: <span class="blue" id="stat2Total">30</span></div>
+<div class="stat-item">Red Penetrations: <span class="red" id="stat2Pen">0</span></div>
+<div class="stat-item">Score: <span class="yellow" id="stat2Score">0</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 9 -->
+<section id="attrition">
+<div class="container">
+<h2>📉 Section 9: Attrition Models</h2>
+<p>How do drones destroy each other in combat? The paper uses variants of <strong>Lanchester's Laws</strong>, originally developed for WWI combat:</p>
+<h3>Lanchester's Linear Law (Guerrilla Warfare)</h3>
+<div class="formula">dR/dt = -β·B    dB/dt = -α·R</div>
+<p>Each side inflicts casualties proportional to its own numbers. Applies when engagements are one-on-one (each drone fights one opponent at a time).</p>
+<h3>Lanchester's Square Law (Concentrated Fire)</h3>
+<div class="formula">dR/dt = -β·B    dB/dt = -α·R</div>
+<div class="formula">R(0)² · α = B(0)² · β  (at parity)</div>
+<p>Under the Square Law, having twice the numbers gives <strong>four times</strong> the combat power. This creates a powerful incentive for concentration — massing forces at a single point gives disproportionate advantage.</p>
+<h3>Implications for Swarm Combat</h3>
+<table>
+<tr><th>Law</th><th>Applies When</th><th>Implication</th></tr>
+<tr><td>Linear</td><td>1-on-1 dogfights, limited sensors</td><td>Numbers advantage is linear; spreading forces is less costly</td></tr>
+<tr><td>Square</td><td>All drones can fire at nearest enemy</td><td>Numbers advantage is quadratic; concentration is critical</td></tr>
+<tr><td>Mixed</td><td>Realistic swarm combat</td><td>Engagement rules determine which law applies in each sector</td></tr>
+</table>
+</div>
+</section>
+
+<!-- Section 10 -->
+<section id="counter">
+<div class="container">
+<h2>🛡️ Section 10: Counter-Swarm Technologies</h2>
+<div class="info-grid">
+<div class="info-card">
+<h4>Electronic Warfare</h4>
+<p>Jam communication links to break swarm coordination. Without communication, the swarm degrades to individual uncoordinated drones — far less effective.</p>
+</div>
+<div class="info-card">
+<h4>Directed Energy</h4>
+<p>High-powered microwave or laser systems can disable electronics in many drones simultaneously. Cost-per-kill is extremely low (electricity vs. expensive missiles).</p>
+</div>
+<div class="info-card">
+<h4>Counter-Swarm Drones</h4>
+<p>Fight swarm with swarm. Defensive drones intercept attacking drones kinetically. Advantage: scalable to match any threat size.</p>
+</div>
+<div class="info-card">
+<h4>Cyber Attack</h4>
+<p>Hack the swarm's communication protocol or GPS. Inject false position data to cause collisions, or false commands to redirect the swarm away from targets.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 11: Demo 3 -->
+<section id="demo3">
+<div class="container">
+<h2>🎮 Section 11: Interactive Demo — War Game Simulator</h2>
+<div class="demo-container">
+<h3>Multi-Round Swarm War Game</h3>
+<p>Play as Blue (defender). Each round, Red attacks with a random strategy. Allocate your 30 defenders across 3 targets. Score points for each target successfully defended.</p>
+<canvas id="canvas3" width="900" height="500"></canvas>
+<div class="controls">
+<label>Target A: <span id="wgAVal">10</span></label>
+<input type="range" id="wgA" min="0" max="30" value="10" step="1">
+<label>Target B: <span id="wgBVal">10</span></label>
+<input type="range" id="wgB" min="0" max="30" value="10" step="1">
+<label>Target C: <span id="wgCVal">10</span></label>
+<input type="range" id="wgC" min="0" max="30" value="10" step="1">
+<button onclick="playRound()">Play Round</button>
+<button class="blue" onclick="resetDemo3()">New Game</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Round: <span class="yellow" id="stat3Rnd">0</span>/5</div>
+<div class="stat-item">Your Score: <span class="blue" id="stat3Score">0</span></div>
+<div class="stat-item">Red Hits: <span class="red" id="stat3Hits">0</span></div>
+<div class="stat-item">Blue Left: <span class="blue" id="stat3Left">30</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 12 -->
+<section id="comparison">
+<div class="container">
+<h2>📊 Section 12: Strategic Analysis</h2>
+<table>
+<tr><th>Factor</th><th>Favors Attacker</th><th>Favors Defender</th></tr>
+<tr><td>Numbers</td><td>Numerical superiority (saturation)</td><td>Fortified positions (force multiplier)</td></tr>
+<tr><td>Information</td><td>Surprise, deception, feints</td><td>Early warning, sensor networks</td></tr>
+<tr><td>Speed</td><td>Faster than defensive reaction time</td><td>Faster reallocation of reserves</td></tr>
+<tr><td>Coordination</td><td>Synchronized multi-axis attack</td><td>Coordinated layered response</td></tr>
+<tr><td>Attrition tolerance</td><td>Willingness to accept losses</td><td>High kill ratio per engagement</td></tr>
+<tr><td>Cost</td><td>Cheap expendable drones</td><td>Expensive high-capability interceptors</td></tr>
+</table>
+<p>The paper's key finding is that <strong>the defender generally needs fewer drones than the attacker</strong> because defenders can choose their engagement conditions (range, timing, geometry). However, a sufficiently large attacking swarm will always overwhelm any fixed defense — the question is the exchange ratio.</p>
+</div>
+</section>
+
+<!-- Section 13 -->
+<section id="applications">
+<div class="container">
+<h2>🌍 Section 13: Applications</h2>
+<div class="info-grid">
+<div class="info-card">
+<h4>Military Base Defense</h4>
+<p>Protecting airfields, ports, and installations from coordinated drone swarm attacks. Requires layered defense combining electronic warfare, counter-swarm drones, and directed energy.</p>
+</div>
+<div class="info-card">
+<h4>Naval Fleet Protection</h4>
+<p>Defending ships from swarm attacks. The maritime environment adds complexity: radar clutter from waves, salt air degrading electronics, and limited escape options.</p>
+</div>
+<div class="info-card">
+<h4>Critical Infrastructure</h4>
+<p>Protecting power plants, water systems, and communication towers from drone threats. Civilian infrastructure defense requires non-kinetic options to avoid collateral damage.</p>
+</div>
+<div class="info-card">
+<h4>Game-Theoretic AI</h4>
+<p>The mathematical framework applies beyond military: autonomous vehicle intersection negotiation, competitive multi-agent systems, resource allocation under adversarial conditions.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 14 -->
+<section id="takeaways">
+<div class="container">
+<h2>🎯 Section 14: Key Takeaways</h2>
+<ol>
+<li><strong>Swarm combat follows game theory:</strong> Optimal strategies emerge from Nash equilibria where neither side can improve by changing their allocation unilaterally.</li>
+<li><strong>Concentration vs. dispersal is the fundamental dilemma:</strong> Concentrating gives local superiority but leaves gaps. Dispersing covers everything but may be weak everywhere.</li>
+<li><strong>Lanchester's Square Law magnifies numbers advantage:</strong> Twice the drones gives four times the combat power under concentrated fire conditions, creating a powerful incentive to mass forces.</li>
+<li><strong>Mixed strategies (randomization) are often optimal:</strong> Predictable allocation is exploitable. The Nash equilibrium typically involves probabilistic allocation to remain unpredictable.</li>
+<li><strong>Defense has structural advantages:</strong> Defenders choose engagement conditions and need fewer drones, but can be overwhelmed by sufficiently large attacks.</li>
+<li><strong>Information is the decisive factor:</strong> Knowing the enemy's allocation before committing forces is the single greatest advantage. Deception, reconnaissance, and surprise dominate pure numbers.</li>
+<li><strong>Counter-swarm is the future:</strong> The most effective defense against a drone swarm is another drone swarm — scalable, adaptable, and cost-effective.</li>
+</ol>
+</div>
+</section>
+
+<footer>
+<div class="container">
+<p>Data Science Mega Document Research — Swarm Drone Research Paper #18</p>
+<p>Weinstein & Schumacher (2017) — AIAA — Swarm-vs-Swarm Engagement Strategies</p>
+</div>
+</footer>
+
+<script>
+// ===== DEMO 1: Swarm Battle Simulator =====
+(function(){
+const c=document.getElementById('canvas1'),ctx=c.getContext('2d');
+let W,H,reds=[],blues=[],targets=[],running=false,animId,time=0,targetsHit=0;
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+
+function initUnits(){
+  const nr=parseInt(document.getElementById('redCount').value);
+  const nb=parseInt(document.getElementById('blueCount').value);
+  reds=[];blues=[];targets=[];running=false;time=0;targetsHit=0;
+  // Targets on right
+  targets=[{x:W-80,y:H*0.2,alive:true,val:3},{x:W-80,y:H*0.5,alive:true,val:5},{x:W-80,y:H*0.8,alive:true,val:2}];
+  // Red spawn left
+  const rs=document.getElementById('redStrat').value;
+  for(let i=0;i<nr;i++){
+    let ty;
+    if(rs==='concentrate')ty=H*0.5+(Math.random()-0.5)*60;
+    else if(rs==='flank')ty=i<nr/2?H*0.15+Math.random()*40:H*0.85-Math.random()*40;
+    else ty=H*(0.15+0.7*i/nr)+(Math.random()-0.5)*20;
+    reds.push({x:30+Math.random()*40,y:ty,vx:0,vy:0,alive:true,hp:1});
+  }
+  // Blue spawn right-center
+  const bs=document.getElementById('blueStrat').value;
+  for(let i=0;i<nb;i++){
+    let bx,by;
+    if(bs==='concentrate'){bx=W*0.6+Math.random()*30;by=H*0.5+(Math.random()-0.5)*80;}
+    else if(bs==='layered'){bx=W*(0.4+0.15*Math.floor(i/(nb/3)))+Math.random()*20;by=H*(0.15+0.7*(i%(nb/3))/(nb/3))+(Math.random()-0.5)*20;}
+    else{bx=W*0.55+Math.random()*40;by=H*(0.1+0.8*i/nb)+(Math.random()-0.5)*15;}
+    blues.push({x:bx,y:by,vx:0,vy:0,alive:true,hp:1});
+  }
+}
+
+function step(){
+  if(!running)return;
+  time+=1/60;
+  // Red: move toward nearest alive target
+  for(const r of reds){
+    if(!r.alive)continue;
+    let bestT=null,bestD=Infinity;
+    for(const t of targets){if(!t.alive)continue;const d=Math.hypot(t.x-r.x,t.y-r.y);if(d<bestD){bestD=d;bestT=t;}}
+    if(!bestT){running=false;return;}
+    // But first, avoid nearby blues or engage
+    let nearB=null,nearBD=Infinity;
+    for(const b of blues){if(!b.alive)continue;const d=Math.hypot(b.x-r.x,b.y-r.y);if(d<nearBD){nearBD=d;nearB=b;}}
+    if(nearB&&nearBD<50){
+      // Fight
+      if(Math.random()<0.02)nearB.hp-=0.5;
+      if(nearB.hp<=0)nearB.alive=false;
+      // slight avoidance
+      const dx=nearB.x-r.x,dy=nearB.y-r.y,d=Math.hypot(dx,dy)+1;
+      r.vx+=-dx/d*0.1+((bestT.x-r.x)/bestD)*0.3;
+      r.vy+=-dy/d*0.1+((bestT.y-r.y)/bestD)*0.3;
+    }else{
+      r.vx+=(bestT.x-r.x)/bestD*0.4;r.vy+=(bestT.y-r.y)/bestD*0.4;
+    }
+    r.vx*=0.9;r.vy*=0.9;const v=Math.hypot(r.vx,r.vy);if(v>3){r.vx*=3/v;r.vy*=3/v;}
+    r.x+=r.vx;r.y+=r.vy;
+    // Check target hit
+    if(bestT&&Math.hypot(bestT.x-r.x,bestT.y-r.y)<20){bestT.alive=false;r.alive=false;targetsHit++;}
+  }
+  // Blue: move toward nearest alive red
+  for(const b of blues){
+    if(!b.alive)continue;
+    let nearR=null,nearRD=Infinity;
+    for(const r of reds){if(!r.alive)continue;const d=Math.hypot(r.x-b.x,r.y-b.y);if(d<nearRD){nearRD=d;nearR=r;}}
+    if(!nearR)continue;
+    b.vx+=(nearR.x-b.x)/nearRD*0.35;b.vy+=(nearR.y-b.y)/nearRD*0.35;
+    b.vx*=0.88;b.vy*=0.88;const v=Math.hypot(b.vx,b.vy);if(v>2.5){b.vx*=2.5/v;b.vy*=2.5/v;}
+    b.x+=b.vx;b.y+=b.vy;
+    if(nearRD<40&&Math.random()<0.025){nearR.hp-=0.5;if(nearR.hp<=0)nearR.alive=false;}
+  }
+  // Check end
+  if(!reds.some(r=>r.alive)||!targets.some(t=>t.alive))running=false;
+  document.getElementById('stat1Red').textContent=reds.filter(r=>r.alive).length;
+  document.getElementById('stat1Blue').textContent=blues.filter(b=>b.alive).length;
+  document.getElementById('stat1Hit').textContent=targetsHit+'/3';
+  document.getElementById('stat1Time').textContent=time.toFixed(1);
+}
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.03)';for(let x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  // Targets
+  targets.forEach((t,i)=>{
+    ctx.beginPath();ctx.arc(t.x,t.y,15,0,Math.PI*2);
+    ctx.fillStyle=t.alive?'rgba(251,191,36,0.2)':'rgba(100,100,100,0.1)';ctx.fill();
+    ctx.strokeStyle=t.alive?'#fbbf24':'#444';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle=t.alive?'#fbbf24':'#666';ctx.font='bold 11px sans-serif';
+    ctx.fillText(['A','B','C'][i],t.x-4,t.y+4);
+  });
+  // Reds
+  reds.forEach(r=>{if(!r.alive)return;
+    ctx.beginPath();ctx.arc(r.x,r.y,4,0,Math.PI*2);ctx.fillStyle='#f87171';ctx.fill();
+    const g=ctx.createRadialGradient(r.x,r.y,0,r.x,r.y,8);g.addColorStop(0,'rgba(248,113,113,0.15)');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(r.x-8,r.y-8,16,16);
+  });
+  // Blues
+  blues.forEach(b=>{if(!b.alive)return;
+    ctx.beginPath();ctx.arc(b.x,b.y,4,0,Math.PI*2);ctx.fillStyle='#a78bfa';ctx.fill();
+    const g=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,8);g.addColorStop(0,'rgba(167,139,250,0.15)');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(b.x-8,b.y-8,16,16);
+  });
+  // Labels
+  ctx.fillStyle='rgba(248,113,113,0.4)';ctx.font='11px sans-serif';ctx.fillText('RED (Attacker)',10,20);
+  ctx.fillStyle='rgba(167,139,250,0.4)';ctx.fillText('BLUE (Defender)',W-120,20);
+}
+
+function loop(){step();draw();animId=requestAnimationFrame(loop);}
+window.startBattle=function(){running=true;};
+window.resetDemo1=function(){cancelAnimationFrame(animId);initUnits();loop();};
+['redCount','blueCount'].forEach(id=>{document.getElementById(id).addEventListener('input',e=>{document.getElementById(id+'Val').textContent=e.target.value;});});
+initUnits();loop();
+})();
+
+// ===== DEMO 2: Strategy Tuner =====
+(function(){
+const c=document.getElementById('canvas2'),ctx=c.getContext('2d');
+let W,H;
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+
+const redAlloc=[15,20,5]; // fixed red allocation
+const targetValues=[3,5,2];
+const targetNames=['Alpha','Bravo','Charlie'];
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  const s1=parseInt(document.getElementById('sec1').value);
+  const s2=parseInt(document.getElementById('sec2').value);
+  const s3=parseInt(document.getElementById('sec3').value);
+  const blueAlloc=[s1,s2,s3];
+  const total=s1+s2+s3;
+  document.getElementById('s1Val').textContent=s1;
+  document.getElementById('s2Val').textContent=s2;
+  document.getElementById('s3Val').textContent=s3;
+  document.getElementById('stat2Total').textContent=total;
+
+  let totalPen=0,score=0;
+  const sectorH=H/3;
+
+  for(let i=0;i<3;i++){
+    const y=i*sectorH;
+    // Sector background
+    ctx.fillStyle=i%2===0?'rgba(20,20,40,0.5)':'rgba(15,15,35,0.5)';
+    ctx.fillRect(0,y,W,sectorH);
+    // Sector label
+    ctx.fillStyle='rgba(251,191,36,0.6)';ctx.font='bold 14px sans-serif';
+    ctx.fillText(`Sector ${targetNames[i]} (Value: ${targetValues[i]})`,10,y+25);
+    // Red bar
+    const maxUnits=40;
+    const redW=(redAlloc[i]/maxUnits)*W*0.35;
+    ctx.fillStyle='rgba(248,113,113,0.3)';ctx.fillRect(50,y+50,redW,40);
+    ctx.strokeStyle='#f87171';ctx.lineWidth=2;ctx.strokeRect(50,y+50,redW,40);
+    ctx.fillStyle='#f87171';ctx.font='12px sans-serif';ctx.fillText(`Red: ${redAlloc[i]}`,55,y+75);
+    // Blue bar
+    const blueW=(blueAlloc[i]/maxUnits)*W*0.35;
+    ctx.fillStyle='rgba(167,139,250,0.3)';ctx.fillRect(W*0.5,y+50,blueW,40);
+    ctx.strokeStyle='#a78bfa';ctx.strokeRect(W*0.5,y+50,blueW,40);
+    ctx.fillStyle='#a78bfa';ctx.fillText(`Blue: ${blueAlloc[i]}`,W*0.5+5,y+75);
+    // Outcome
+    const pen=Math.max(0,redAlloc[i]-blueAlloc[i]);
+    totalPen+=pen;
+    const defended=pen===0;
+    ctx.fillStyle=defended?'#5eead4':'#f87171';
+    ctx.font='bold 13px sans-serif';
+    ctx.fillText(defended?`DEFENDED ✓`:`${pen} penetrations → ${pen*targetValues[i]} damage`,W*0.5+blueW+20,y+75);
+    if(defended)score+=targetValues[i];
+    // Divider
+    ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.beginPath();ctx.moveTo(0,y+sectorH);ctx.lineTo(W,y+sectorH);ctx.stroke();
+  }
+  document.getElementById('stat2Pen').textContent=totalPen;
+  document.getElementById('stat2Score').textContent=score+'/10';
+  // Info
+  ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font='11px sans-serif';
+  ctx.fillText('Red allocation is fixed: [15, 20, 5]. Adjust Blue to minimize penetrations.',10,H-10);
+}
+
+function loop(){draw();requestAnimationFrame(loop);}
+window.resetDemo2=function(){document.getElementById('sec1').value=10;document.getElementById('sec2').value=10;document.getElementById('sec3').value=10;};
+['sec1','sec2','sec3'].forEach(id=>{document.getElementById(id).addEventListener('input',draw);});
+loop();
+})();
+
+// ===== DEMO 3: War Game =====
+(function(){
+const c=document.getElementById('canvas3'),ctx=c.getContext('2d');
+let W,H,round=0,score=0,redHits=0,history=[];
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+
+const targetValues=[3,5,2];
+const targetNames=['Alpha','Bravo','Charlie'];
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='bold 16px sans-serif';
+  ctx.fillText('Swarm War Game — Defend the Targets',W/2-160,30);
+  ctx.font='12px sans-serif';ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.fillText('Allocate 30 Blue defenders across 3 targets. Red attacks randomly each round.',W/2-230,50);
+
+  // Target icons
+  for(let i=0;i<3;i++){
+    const x=W*(0.2+0.3*i),y=120;
+    ctx.beginPath();ctx.arc(x,y,25,0,Math.PI*2);
+    ctx.fillStyle='rgba(251,191,36,0.15)';ctx.fill();
+    ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='#fbbf24';ctx.font='bold 14px sans-serif';
+    ctx.fillText(targetNames[i],x-18,y+5);
+    ctx.font='11px sans-serif';ctx.fillStyle='rgba(251,191,36,0.6)';
+    ctx.fillText(`Value: ${targetValues[i]}`,x-20,y+40);
+  }
+
+  // History
+  const startY=180;
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='bold 12px sans-serif';
+  ctx.fillText('Round',20,startY);ctx.fillText('Red Attack',100,startY);ctx.fillText('Your Defense',250,startY);ctx.fillText('Result',420,startY);
+
+  history.forEach((h,i)=>{
+    const y=startY+20+i*25;
+    ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='12px sans-serif';
+    ctx.fillText(`#${i+1}`,30,y);
+    ctx.fillStyle='#f87171';ctx.fillText(`[${h.red.join(', ')}]`,100,y);
+    ctx.fillStyle='#a78bfa';ctx.fillText(`[${h.blue.join(', ')}]`,250,y);
+    ctx.fillStyle=h.pen>0?'#f87171':'#5eead4';
+    ctx.fillText(h.pen>0?`${h.pen} penetrations (−${h.damage} pts)`:'All defended! (+' +h.defended+')',420,y);
+  });
+
+  if(round>=5){
+    ctx.fillStyle='rgba(251,191,36,0.8)';ctx.font='bold 20px sans-serif';
+    ctx.fillText(`Game Over! Final Score: ${score}`,W/2-130,H-30);
+  }
+
+  document.getElementById('stat3Rnd').textContent=round;
+  document.getElementById('stat3Score').textContent=score;
+  document.getElementById('stat3Hits').textContent=redHits;
+}
+
+window.playRound=function(){
+  if(round>=5)return;
+  const a=parseInt(document.getElementById('wgA').value);
+  const b=parseInt(document.getElementById('wgB').value);
+  const cc=parseInt(document.getElementById('wgC').value);
+  const blue=[a,b,cc];
+  // Random red strategy
+  const strategies=[
+    [20,15,5],[5,25,10],[15,5,20],[10,10,20],[25,10,5],[10,20,10],[30,5,5],[5,5,30]
+  ];
+  const red=strategies[Math.floor(Math.random()*strategies.length)];
+  let pen=0,damage=0,defended=0;
+  for(let i=0;i<3;i++){
+    const p=Math.max(0,red[i]-blue[i]);
+    pen+=p;damage+=p*targetValues[i];
+    if(p===0)defended+=targetValues[i];
+  }
+  score+=defended;score-=damage;redHits+=pen;round++;
+  history.push({red,blue:[...blue],pen,damage,defended});
+  document.getElementById('stat3Left').textContent=Math.max(0,30-pen);
+  draw();
+};
+
+window.resetDemo3=function(){round=0;score=0;redHits=0;history=[];draw();};
+['wgA','wgB','wgC'].forEach(id=>{document.getElementById(id).addEventListener('input',e=>{document.getElementById(id.replace('wg','wg')+'Val').textContent=e.target.value;});});
+document.getElementById('wgA').addEventListener('input',e=>{document.getElementById('wgAVal').textContent=e.target.value;});
+document.getElementById('wgB').addEventListener('input',e=>{document.getElementById('wgBVal').textContent=e.target.value;});
+document.getElementById('wgC').addEventListener('input',e=>{document.getElementById('wgCVal').textContent=e.target.value;});
+draw();
+})();
+</script>
+</body>
+</html>

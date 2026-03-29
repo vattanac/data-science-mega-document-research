@@ -1,0 +1,46 @@
+ORIGINAL RESEARCH PAPER REFERENCE
+===================================
+
+Title:   Visual Intelligence & Swarm-vs-Swarm Engagement Strategies
+Authors: Matthew J. Weinstein, Andrew L. Schumacher
+Published: AIAA (American Institute of Aeronautics and Astronautics)
+Conference: AIAA SciTech Forum / Infotech@Aerospace
+Date:    2017
+DOI:     10.2514/6.2017-1912 (approximate — AIAA conference paper)
+
+Institution: Air Force Research Laboratory (AFRL)
+             Munitions Directorate
+             Eglin Air Force Base, Florida, USA
+
+WHERE TO ACCESS THE FULL PAPER:
+--------------------------------
+1. AIAA Arc (official):      https://arc.aiaa.org/
+2. DTIC (Defense Technical):  https://discover.dtic.mil/
+3. Semantic Scholar:          https://www.semanticscholar.org/ (search "Weinstein Schumacher swarm vs swarm")
+4. Google Scholar:            Search "Weinstein Schumacher swarm vs swarm engagement AIAA 2017"
+5. ResearchGate:              https://www.researchgate.net/ (search authors)
+
+RELATED WORK BY SAME GROUP:
+-----------------------------
+- Schumacher et al., "Swarm control for localized reactive munitions"
+- AFRL Collaborative Small Diameter Bomb (CSDB) program
+- Golden Horde Networked Collaborative Weapons program
+
+ABSTRACT (paraphrased):
+-----------------------
+This paper applies game-theoretic analysis to adversarial
+swarm-on-swarm combat engagements. The authors model the problem as
+a two-player zero-sum game where an attacking swarm attempts to reach
+defended targets while a defensive swarm attempts to intercept. The
+framework analyzes optimal force allocation strategies using
+Lanchester's attrition laws (Linear and Square), finding Nash
+equilibria that represent optimal play for both sides. Key findings
+include: concentration gives disproportionate advantage under the
+Square Law, mixed (randomized) strategies are often optimal to
+prevent exploitation, and information advantage (knowing enemy
+allocation) is the single most decisive factor. The work provides
+foundational theory for autonomous drone swarm tactics in contested
+environments.
+
+NOTE: To add the original paper to this folder, download from one of
+the links above and save it here as "weinstein_2017_swarm_vs_swarm.pdf"
