@@ -612,6 +612,29 @@
         "category": "Linear Algebra"
       },
       {
+        "name": "natural-language-processing",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "natural-language-processing",
+            "type": "file",
+            "ext": "html",
+            "size": 26307,
+            "path": "natural-language-processing/index.html"
+          },
+          {
+            "name": "natural_language_processing_guide.docx",
+            "displayName": "natural_language_processing_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 15279,
+            "path": "natural-language-processing/natural_language_processing_guide.docx"
+          }
+        ],
+        "category": "Deep Learning"
+      },
+      {
         "name": "neural-network-backpropagation",
         "type": "folder",
         "children": [

@@ -96,6 +96,7 @@ FOLDER_CATEGORIES = {
     "neural-network-backpropagation":    "Deep Learning",
     "activation-functions":              "Deep Learning",
     "loss-functions":                    "Deep Learning",
+    "natural-language-processing":       "Deep Learning",
     # Data Processing
     "feature-scaling":                   "Data Processing",
     "handling-missing-data":             "Data Processing",

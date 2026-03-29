@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Natural Language Processing — Data Science Mega Document Research</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131f;--bg-card:#181926;--bg-card-hover:#1e1f33;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-tertiary:#f472b6;--border-color:#262840;--success:#34d399;--warning:#fbbf24;--error:#f87171}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:960px;margin:0 auto;padding:2rem 1.5rem}
+a{color:var(--accent-primary);text-decoration:none}a:hover{text-decoration:underline}
+.hero{text-align:center;padding:4rem 0 3rem}
+.hero h1{font-size:2.8rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.hero .subtitle{color:var(--text-secondary);font-size:1.15rem}
+.hero .tags{margin-top:1rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.tag{background:var(--bg-card);border:1px solid var(--border-color);padding:.25rem .75rem;border-radius:999px;font-size:.8rem;color:var(--accent-secondary)}
+section{margin-bottom:3rem}
+section h2{font-size:1.6rem;color:var(--accent-primary);margin-bottom:1rem;padding-bottom:.4rem;border-bottom:2px solid var(--border-color)}
+section h3{font-size:1.15rem;color:var(--accent-secondary);margin:1.2rem 0 .5rem}
+p,li{color:var(--text-secondary);margin-bottom:.6rem}
+ul,ol{padding-left:1.5rem;margin-bottom:1rem}
+code{background:var(--bg-card);padding:.15rem .4rem;border-radius:4px;font-size:.9em;color:var(--accent-tertiary)}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;transition:border-color .3s}.card:hover{border-color:var(--accent-primary)}
+.formula{background:var(--bg-secondary);border-left:3px solid var(--accent-primary);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1rem 0;font-family:'Courier New',monospace;font-size:.95rem;color:var(--accent-secondary);overflow-x:auto}
+.demo-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.demo-container h3{margin-top:0}
+canvas{display:block;margin:1rem auto;border-radius:8px;background:#0f1021}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin:.75rem 0}
+.controls label{color:var(--text-secondary);font-size:.85rem}
+.controls select,.controls input[type=range],.controls input[type=text]{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:6px;padding:.35rem .5rem;font-size:.85rem}
+.controls input[type=range]{width:140px}
+.controls input[type=text]{width:300px}
+button{background:linear-gradient(135deg,var(--accent-primary),#8b5cf6);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:opacity .2s}button:hover{opacity:.85}
+.btn-secondary{background:linear-gradient(135deg,var(--accent-secondary),#2dd4bf)}
+.btn-tertiary{background:linear-gradient(135deg,var(--accent-tertiary),#ec4899)}
+.info-text{font-size:.82rem;color:var(--text-muted);margin-top:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:.6rem .8rem;border:1px solid var(--border-color);text-align:left;font-size:.9rem}
+th{background:var(--bg-secondary);color:var(--accent-primary)}td{color:var(--text-secondary)}
+.back-link{display:inline-block;margin-bottom:1.5rem;color:var(--accent-secondary);font-size:.9rem}
+.token-display{display:flex;flex-wrap:wrap;gap:4px;margin:1rem 0;min-height:40px}
+.token{padding:4px 10px;border-radius:6px;font-size:.85rem;font-family:'Courier New',monospace;border:1px solid var(--border-color)}
+.embed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:2px;margin:1rem 0}
+.embed-cell{height:24px;border-radius:3px}
+.attn-canvas-wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">← Back to Playbook</a>
+
+<header class="hero">
+  <h1>Natural Language Processing</h1>
+  <p class="subtitle">From tokens to transformers — how machines understand human language</p>
+  <div class="tags">
+    <span class="tag">Deep Learning</span>
+    <span class="tag">Tokenization</span>
+    <span class="tag">Embeddings</span>
+    <span class="tag">Attention</span>
+    <span class="tag">Transformers</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="what-is-nlp">
+  <h2>1. What Is NLP?</h2>
+  <p><strong>Natural Language Processing</strong> is the field at the intersection of linguistics, computer science, and machine learning that gives computers the ability to understand, interpret, and generate human language.</p>
+  <h3>Core NLP Tasks</h3>
+  <ul>
+    <li><strong>Text Classification:</strong> Spam detection, sentiment analysis, topic labelling</li>
+    <li><strong>Named Entity Recognition (NER):</strong> Identifying people, places, organisations in text</li>
+    <li><strong>Machine Translation:</strong> Translating between languages</li>
+    <li><strong>Question Answering:</strong> Extracting answers from context passages</li>
+    <li><strong>Text Generation:</strong> Producing coherent text (chatbots, summaries, stories)</li>
+    <li><strong>Semantic Similarity:</strong> Measuring how similar two texts are in meaning</li>
+  </ul>
+</section>
+
+<!-- 2 -->
+<section id="tokenization">
+  <h2>2. Tokenization</h2>
+  <p>Tokenization is the first step — breaking raw text into discrete units (tokens) that a model can process.</p>
+  <div class="card">
+    <h3>Word-level</h3>
+    <p>Split on whitespace and punctuation. Simple but creates huge vocabularies and can't handle unseen words (OOV problem).</p>
+  </div>
+  <div class="card">
+    <h3>Character-level</h3>
+    <p>Each character is a token. Tiny vocabulary (~100) but sequences become very long, making it hard for models to learn long-range dependencies.</p>
+  </div>
+  <div class="card">
+    <h3>Subword (BPE / WordPiece / Unigram)</h3>
+    <p>The sweet spot. Common words stay whole; rare words are split into meaningful subword units. "unhappiness" → ["un", "##happiness"]. Used by GPT (BPE), BERT (WordPiece), and T5 (Unigram).</p>
+  </div>
+</section>
+
+<!-- 3 — DEMO 1 -->
+<section id="demo-tokenizer">
+  <h2>3. Interactive Demo — Tokenizer Playground</h2>
+  <div class="demo-container">
+    <h3>🔤 See How Text Gets Tokenized</h3>
+    <p>Type any text and see it split into tokens using different strategies. Colours distinguish individual tokens.</p>
+    <div class="controls">
+      <input type="text" id="tokenInput" value="The transformer architecture revolutionized natural language processing!" placeholder="Type your text here...">
+      <label>Method:
+        <select id="tokenMethod">
+          <option value="word">Word-level</option>
+          <option value="char">Character-level</option>
+          <option value="bpe" selected>Subword (BPE-like)</option>
+        </select>
+      </label>
+      <button onclick="tokenize()">Tokenize</button>
+    </div>
+    <div id="tokenOutput" class="token-display"></div>
+    <p class="info-text" id="tokenCount"></p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="embeddings">
+  <h2>4. Word Embeddings</h2>
+  <p>Embeddings map tokens to dense vectors in a continuous space where semantic relationships are preserved.</p>
+  <div class="card">
+    <h3>Word2Vec (2013)</h3>
+    <p>Two architectures: <strong>Skip-gram</strong> (predict context from word) and <strong>CBOW</strong> (predict word from context). Captures relationships like king − man + woman ≈ queen.</p>
+  </div>
+  <div class="card">
+    <h3>GloVe (2014)</h3>
+    <p>Global Vectors — learns embeddings from word co-occurrence statistics across the entire corpus. Combines the benefits of global matrix factorisation and local context windows.</p>
+  </div>
+  <div class="card">
+    <h3>Contextual Embeddings (ELMo, BERT)</h3>
+    <p>Unlike static embeddings, contextual embeddings produce <em>different</em> vectors for the same word depending on context. "Bank" in "river bank" vs "bank account" gets different representations.</p>
+  </div>
+  <div class="formula">Embedding dimension typically: 100–768
+Word2Vec/GloVe: static, one vector per word
+ELMo/BERT: contextual, vector depends on surrounding words</div>
+</section>
+
+<!-- 5 -->
+<section id="bow-tfidf">
+  <h2>5. Classical Representations: BoW & TF-IDF</h2>
+  <p>Before deep learning, text was represented using count-based methods:</p>
+  <h3>Bag of Words (BoW)</h3>
+  <p>Each document is a vector of word counts. Ignores word order entirely — "dog bites man" and "man bites dog" get the same representation.</p>
+  <h3>TF-IDF</h3>
+  <div class="formula">TF-IDF(t, d) = TF(t, d) × IDF(t)
+TF(t, d) = count of term t in document d / total terms in d
+IDF(t) = log(N / df(t))   where df(t) = docs containing t</div>
+  <p>TF-IDF downweights common words ("the", "is") and upweights distinctive words. Still widely used as a baseline and for feature engineering.</p>
+</section>
+
+<!-- 6 -->
+<section id="rnns">
+  <h2>6. Recurrent Neural Networks for NLP</h2>
+  <p>RNNs process sequences token by token, maintaining a hidden state that captures context:</p>
+  <div class="formula">h(t) = tanh(W_h · h(t−1) + W_x · x(t) + b)</div>
+  <p>The hidden state h(t) is a compressed summary of all tokens seen so far. However, vanilla RNNs suffer from the <strong>vanishing gradient problem</strong> — they struggle to learn long-range dependencies.</p>
+  <h3>LSTM & GRU</h3>
+  <p><strong>LSTM</strong> (Long Short-Term Memory) adds gates — forget, input, output — that control information flow. <strong>GRU</strong> (Gated Recurrent Unit) simplifies to two gates — reset and update. Both solve the vanishing gradient problem.</p>
+  <p>Bidirectional variants process text in both directions, capturing both left and right context.</p>
+</section>
+
+<!-- 7 -->
+<section id="attention">
+  <h2>7. The Attention Mechanism</h2>
+  <p>Attention allows a model to focus on different parts of the input when producing each output. Instead of compressing everything into a fixed-size vector, attention computes a weighted sum over all input positions.</p>
+  <div class="formula">Attention(Q, K, V) = softmax(Q K^T / √d_k) V
+
+Q = queries,  K = keys,  V = values
+d_k = dimension of keys (scaling factor)</div>
+  <p>The <strong>softmax(QK^T/√d_k)</strong> produces an attention weight matrix — each entry says "how much should position i attend to position j?"</p>
+  <h3>Self-Attention</h3>
+  <p>When Q, K, and V all come from the same sequence, it's called <strong>self-attention</strong>. Every token attends to every other token, capturing relationships regardless of distance.</p>
+</section>
+
+<!-- 8 — DEMO 2 -->
+<section id="demo-attention">
+  <h2>8. Interactive Demo — Attention Heatmap</h2>
+  <div class="demo-container">
+    <h3>🔍 Visualise Self-Attention Weights</h3>
+    <p>Enter a sentence and see a simulated self-attention heatmap. Brighter cells mean stronger attention between token pairs.</p>
+    <div class="controls">
+      <input type="text" id="attnInput" value="The cat sat on the mat because it was tired" placeholder="Enter a sentence...">
+      <button onclick="drawAttention()">Compute Attention</button>
+    </div>
+    <div class="attn-canvas-wrap">
+      <canvas id="canvasAttn" width="700" height="700"></canvas>
+    </div>
+    <p class="info-text">This is a simulated attention pattern based on positional and semantic heuristics. Real transformer attention is learned from data.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="transformer">
+  <h2>9. The Transformer Architecture</h2>
+  <p>The Transformer (Vaswani et al., 2017) replaced RNNs with pure attention. It processes all tokens in parallel, making it vastly more efficient for training on GPUs.</p>
+  <div class="card">
+    <h3>Encoder</h3>
+    <p>Stack of N identical layers, each with: (1) Multi-Head Self-Attention, (2) Feed-Forward Network. Plus residual connections and layer normalisation. Used by BERT.</p>
+  </div>
+  <div class="card">
+    <h3>Decoder</h3>
+    <p>Similar to encoder but with masked self-attention (can only attend to previous positions) and cross-attention to encoder output. Used by GPT (decoder-only) and T5 (encoder-decoder).</p>
+  </div>
+  <div class="card">
+    <h3>Multi-Head Attention</h3>
+    <p>Instead of one attention function, split Q/K/V into h heads, each attending to different aspects. Concatenate and project. Typical: h=8 or 12 heads.</p>
+  </div>
+  <h3>Positional Encoding</h3>
+  <p>Since transformers have no inherent notion of order, positional information is injected:</p>
+  <div class="formula">PE(pos, 2i)   = sin(pos / 10000^(2i/d_model))
+PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))</div>
+</section>
+
+<!-- 10 -->
+<section id="pretrained">
+  <h2>10. Pre-trained Language Models</h2>
+  <table>
+    <tr><th>Model</th><th>Architecture</th><th>Pre-training Task</th><th>Key Innovation</th></tr>
+    <tr><td>BERT</td><td>Encoder-only</td><td>Masked LM + Next Sentence</td><td>Bidirectional context</td></tr>
+    <tr><td>GPT-2/3/4</td><td>Decoder-only</td><td>Causal LM (next token)</td><td>Scale + in-context learning</td></tr>
+    <tr><td>T5</td><td>Encoder-Decoder</td><td>Text-to-text</td><td>Unified framework for all tasks</td></tr>
+    <tr><td>RoBERTa</td><td>Encoder-only</td><td>Masked LM (optimised)</td><td>Better training recipe</td></tr>
+    <tr><td>LLaMA</td><td>Decoder-only</td><td>Causal LM</td><td>Efficient open-source</td></tr>
+  </table>
+  <h3>Fine-Tuning vs Prompting</h3>
+  <p><strong>Fine-tuning:</strong> Train the pre-trained model further on your specific task with labelled data. Best for specialised tasks.</p>
+  <p><strong>Prompting / In-Context Learning:</strong> Give the model examples in the prompt without updating weights. Powerful for large models (GPT-4, Claude).</p>
+</section>
+
+<!-- 11 -->
+<section id="text-classification">
+  <h2>11. Text Classification Pipeline</h2>
+  <p>A typical modern text classification pipeline:</p>
+  <ol>
+    <li><strong>Tokenize</strong> — Convert text to token IDs using the model's tokenizer</li>
+    <li><strong>Encode</strong> — Pass through pre-trained model to get contextual embeddings</li>
+    <li><strong>Pool</strong> — Extract a single vector (e.g., [CLS] token for BERT, last token for GPT)</li>
+    <li><strong>Classify</strong> — Pass through a linear layer + softmax for class probabilities</li>
+    <li><strong>Fine-tune</strong> — Train end-to-end on labelled examples with cross-entropy loss</li>
+  </ol>
+  <div class="formula">Input: "This movie was fantastic!"
+→ Tokens: [CLS] this movie was fantastic ! [SEP]
+→ BERT Encoder → [CLS] embedding (768-d vector)
+→ Linear(768, 2) → softmax → [0.02, 0.98]
+→ Prediction: Positive (98%)</div>
+</section>
+
+<!-- 12 — DEMO 3 -->
+<section id="demo-embeddings">
+  <h2>12. Interactive Demo — Word Similarity Explorer</h2>
+  <div class="demo-container">
+    <h3>📐 Explore Embedding Distances</h3>
+    <p>See how words cluster in a simulated 2D embedding space. Words with similar meanings appear closer together.</p>
+    <div class="controls">
+      <label>Category:
+        <select id="embedCategory" onchange="drawEmbeddings()">
+          <option value="animals">Animals & Nature</option>
+          <option value="tech">Technology</option>
+          <option value="emotions">Emotions</option>
+          <option value="mixed">Mixed</option>
+        </select>
+      </label>
+      <button class="btn-secondary" onclick="drawEmbeddings()">Refresh</button>
+    </div>
+    <canvas id="canvasEmbed" width="900" height="450"></canvas>
+    <p class="info-text">Positions are simulated to demonstrate how embeddings capture semantic similarity. Real embeddings are learned from billions of words of text.</p>
+  </div>
+</section>
+
+<!-- 13 -->
+<section id="challenges">
+  <h2>13. Challenges & Frontiers</h2>
+  <div class="card">
+    <h3>Long Context</h3>
+    <p>Standard self-attention is O(n²) in sequence length. Solutions: sparse attention, linear attention, FlashAttention, and sliding window approaches.</p>
+  </div>
+  <div class="card">
+    <h3>Hallucination</h3>
+    <p>Language models can generate plausible but factually incorrect text. Retrieval-Augmented Generation (RAG) grounds outputs in retrieved documents.</p>
+  </div>
+  <div class="card">
+    <h3>Multilingual NLP</h3>
+    <p>Models like mBERT and XLM-R handle 100+ languages. Zero-shot cross-lingual transfer: train on English, test on other languages.</p>
+  </div>
+  <div class="card">
+    <h3>Efficiency</h3>
+    <p>Large models are expensive. Techniques: knowledge distillation, quantisation (INT8/INT4), pruning, LoRA and QLoRA for parameter-efficient fine-tuning.</p>
+  </div>
+</section>
+
+<!-- 14 -->
+<section id="summary">
+  <h2>14. Quick Reference & Summary</h2>
+  <table>
+    <tr><th>Concept</th><th>Key Idea</th></tr>
+    <tr><td>Tokenization</td><td>Break text into tokens — subword (BPE) is the modern standard</td></tr>
+    <tr><td>Embeddings</td><td>Dense vectors capturing semantic meaning; contextual > static</td></tr>
+    <tr><td>TF-IDF</td><td>Classical weighting: upweight distinctive terms, downweight common ones</td></tr>
+    <tr><td>Attention</td><td>Weighted focus on relevant parts: softmax(QK^T/√d)V</td></tr>
+    <tr><td>Transformer</td><td>Parallel attention-based architecture replacing RNNs</td></tr>
+    <tr><td>BERT</td><td>Bidirectional encoder; masked language model pre-training</td></tr>
+    <tr><td>GPT</td><td>Autoregressive decoder; next-token prediction at scale</td></tr>
+    <tr><td>Fine-tuning</td><td>Adapt pre-trained models to specific tasks with labelled data</td></tr>
+    <tr><td>RAG</td><td>Retrieve documents to ground generation and reduce hallucination</td></tr>
+  </table>
+  <p style="margin-top:1.5rem;color:var(--text-muted);font-size:.85rem;text-align:center;">Natural Language Processing — Data Science Mega Document Research</p>
+</section>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   DEMO 1 — TOKENIZER PLAYGROUND
+   ═══════════════════════════════════════════════ */
+const COLORS=['#a78bfa','#5eead4','#f472b6','#fbbf24','#34d399','#f87171','#38bdf8','#fb923c','#c084fc','#22d3ee','#e879f9','#a3e635'];
+
+// Simple BPE-like merge table (simulated)
+const BPE_MERGES={'th':'th','he':'he','in':'in','er':'er','an':'an','re':'re','on':'on','at':'at','en':'en','ed':'ed','ti':'ti','es':'es','or':'or','te':'te','of':'of','ar':'ar','is':'is','al':'al','it':'it','ng':'ng','io':'io','le':'le','ou':'ou','se':'se','st':'st','tion':'tion','ing':'ing','the':'the','and':'and','ent':'ent','ion':'ion','ter':'ter','ize':'ize','ized':'ized','ment':'ment','ness':'ness','able':'able','ful':'ful','ous':'ous','ive':'ive','trans':'trans','form':'form','former':'former','process':'process','revolut':'revolut','natural':'natural','language':'language','architect':'architect','ure':'ure'};
+
+function tokenize(){
+  const text=document.getElementById('tokenInput').value;
+  const method=document.getElementById('tokenMethod').value;
+  const out=document.getElementById('tokenOutput');
+  const countEl=document.getElementById('tokenCount');
+  out.innerHTML='';
+  let tokens=[];
+
+  if(method==='word'){
+    tokens=text.match(/\w+|[^\w\s]/g)||[];
+  }else if(method==='char'){
+    tokens=text.split('');
+  }else{
+    // Simulated BPE: split into words, then greedily match subwords
+    const words=text.match(/\w+|[^\w\s]/g)||[];
+    words.forEach(w=>{
+      let remaining=w.toLowerCase();
+      while(remaining.length>0){
+        let found=false;
+        for(let len=Math.min(remaining.length,8);len>=2;len--){
+          const sub=remaining.substring(0,len);
+          if(BPE_MERGES[sub]||remaining.length===len){
+            tokens.push(remaining===w.toLowerCase()&&remaining.substring(0,len)===remaining?sub:'##'+sub);
+            remaining=remaining.substring(len);
+            found=true;break;
+          }
+        }
+        if(!found){tokens.push(remaining[0]);remaining=remaining.substring(1);}
+      }
+    });
+  }
+
+  tokens.forEach((t,i)=>{
+    const span=document.createElement('span');
+    span.className='token';
+    span.textContent=t;
+    const c=COLORS[i%COLORS.length];
+    span.style.background=c+'22';span.style.borderColor=c;span.style.color=c;
+    out.appendChild(span);
+  });
+  countEl.textContent=`${tokens.length} tokens from ${text.length} characters (ratio: ${(tokens.length/Math.max(1,text.length)).toFixed(2)})`;
+}
+
+/* ═══════════════════════════════════════════════
+   DEMO 2 — ATTENTION HEATMAP
+   ═══════════════════════════════════════════════ */
+function drawAttention(){
+  const text=document.getElementById('attnInput').value;
+  const tokens=text.match(/\w+|[^\w\s]/g)||[];
+  const n=tokens.length;
+  const c=document.getElementById('canvasAttn');
+  const size=Math.max(400,Math.min(700,n*50+80));
+  c.width=size;c.height=size;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,size,size);
+
+  const margin=80;const cellSize=(size-margin)/n;
+
+  // Generate simulated attention weights
+  const attn=[];
+  for(let i=0;i<n;i++){
+    attn[i]=[];
+    let sum=0;
+    for(let j=0;j<n;j++){
+      // Heuristics: nearby tokens, same words, pronouns→nouns
+      let w=Math.exp(-Math.abs(i-j)*0.3);
+      if(tokens[i].toLowerCase()===tokens[j].toLowerCase()&&i!==j) w+=2;
+      if(['it','he','she','they','this','that'].includes(tokens[i].toLowerCase())&&j<i) w+=0.5;
+      if(['the','a','an'].includes(tokens[j].toLowerCase())) w*=0.4;
+      if(i===j) w+=1.5;
+      w+=Math.random()*0.3;
+      attn[i][j]=w;sum+=w;
+    }
+    for(let j=0;j<n;j++) attn[i][j]/=sum;
+  }
+
+  // Draw heatmap
+  for(let i=0;i<n;i++){
+    for(let j=0;j<n;j++){
+      const v=Math.min(1,attn[i][j]*3);
+      const r=Math.floor(15+v*152);
+      const g=Math.floor(11+v*128);
+      const b=Math.floor(20+v*230);
+      ctx.fillStyle=`rgb(${r},${g},${b})`;
+      ctx.fillRect(margin+j*cellSize,margin+i*cellSize,cellSize-1,cellSize-1);
+    }
+  }
+
+  // Labels
+  ctx.fillStyle='#94a3b8';ctx.font=`${Math.min(12,cellSize*0.7)}px sans-serif`;
+  ctx.textAlign='right';
+  for(let i=0;i<n;i++) ctx.fillText(tokens[i],margin-4,margin+i*cellSize+cellSize*0.7);
+  ctx.save();
+  for(let j=0;j<n;j++){
+    ctx.save();
+    ctx.translate(margin+j*cellSize+cellSize*0.7,margin-4);
+    ctx.rotate(-Math.PI/4);
+    ctx.textAlign='left';
+    ctx.fillText(tokens[j],0,0);
+    ctx.restore();
+  }
+  ctx.restore();
+
+  // Legend
+  ctx.fillStyle='#64748b';ctx.font='11px sans-serif';ctx.textAlign='left';
+  ctx.fillText('← Query tokens',4,size-8);
+  ctx.textAlign='right';ctx.fillText('Key tokens →',size-4,margin-30);
+}
+
+/* ═══════════════════════════════════════════════
+   DEMO 3 — WORD SIMILARITY / EMBEDDING SPACE
+   ═══════════════════════════════════════════════ */
+const WORD_SETS={
+  animals:{words:['cat','dog','kitten','puppy','fish','shark','whale','dolphin','eagle','sparrow','tree','flower','river','ocean','forest','mountain'],
+    clusters:[[0,1,2,3],[4,5,6,7],[8,9],[10,11],[12,13],[14,15]]},
+  tech:{words:['python','javascript','java','rust','database','sql','mongodb','server','cloud','aws','azure','docker','react','vue','angular','svelte'],
+    clusters:[[0,1,2,3],[4,5,6],[7,8,9,10,11],[12,13,14,15]]},
+  emotions:{words:['happy','joyful','ecstatic','sad','depressed','gloomy','angry','furious','calm','peaceful','serene','anxious','nervous','excited','love','hate'],
+    clusters:[[0,1,2],[3,4,5],[6,7],[8,9,10],[11,12],[13],[14],[15]]},
+  mixed:{words:['king','queen','man','woman','paris','france','berlin','germany','computer','laptop','phone','tablet','happy','sad','good','bad'],
+    clusters:[[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]]}
+};
+
+function drawEmbeddings(){
+  const cat=document.getElementById('embedCategory').value;
+  const data=WORD_SETS[cat];
+  const c=document.getElementById('canvasEmbed');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+
+  // Generate 2D positions based on clusters
+  const positions=[];
+  const clusterCenters=data.clusters.map((_,i)=>({
+    x:150+Math.cos(i*Math.PI*2/data.clusters.length+0.5)*(W*0.3)+Math.random()*60,
+    y:H/2+Math.sin(i*Math.PI*2/data.clusters.length+0.5)*(H*0.3)+Math.random()*40
+  }));
+
+  data.words.forEach((w,wi)=>{
+    let ci=0;
+    data.clusters.forEach((cl,i)=>{if(cl.includes(wi)) ci=i;});
+    const center=clusterCenters[ci];
+    positions.push({x:center.x+(Math.random()-0.5)*80,y:center.y+(Math.random()-0.5)*60,cluster:ci});
+  });
+
+  // Draw connections within clusters
+  data.clusters.forEach((cl,ci)=>{
+    ctx.strokeStyle=COLORS[ci%COLORS.length]+'33';ctx.lineWidth=1;
+    for(let i=0;i<cl.length;i++){
+      for(let j=i+1;j<cl.length;j++){
+        const a=positions[cl[i]],b=positions[cl[j]];
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+      }
+    }
+  });
+
+  // Draw words
+  data.words.forEach((w,i)=>{
+    const p=positions[i];
+    const col=COLORS[p.cluster%COLORS.length];
+    ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);
+    ctx.fillStyle=col;ctx.fill();
+    ctx.strokeStyle='#0a0b14';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle=col;ctx.font='13px sans-serif';ctx.textAlign='center';
+    ctx.fillText(w,p.x,p.y-10);
+  });
+}
+
+// Init
+window.addEventListener('DOMContentLoaded',()=>{tokenize();drawAttention();drawEmbeddings();});
+</script>
+</body>
+</html>
