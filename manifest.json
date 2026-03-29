@@ -765,6 +765,29 @@
         "category": "Linear Algebra"
       },
       {
+        "name": "support-vector-machines",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "support-vector-machines",
+            "type": "file",
+            "ext": "html",
+            "size": 28040,
+            "path": "support-vector-machines/index.html"
+          },
+          {
+            "name": "support_vector_machines_guide.docx",
+            "displayName": "support_vector_machines_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 13922,
+            "path": "support-vector-machines/support_vector_machines_guide.docx"
+          }
+        ],
+        "category": "Machine Learning"
+      },
+      {
         "name": "swarm-drone-01-reynolds-boids",
         "type": "folder",
         "children": [

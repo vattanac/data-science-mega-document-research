@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Vector Machines — Workspace Playbook</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131f;--bg-card:#181926;--bg-card-hover:#1e1f33;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-tertiary:#f472b6;--border-color:#262840;--success:#34d399;--warning:#fbbf24;--error:#f87171}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:960px;margin:0 auto;padding:2rem 1.5rem}
+a{color:var(--accent-primary);text-decoration:none}a:hover{text-decoration:underline}
+.hero{text-align:center;padding:4rem 0 3rem}
+.hero h1{font-size:2.8rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.hero .subtitle{color:var(--text-secondary);font-size:1.15rem}
+.hero .tags{margin-top:1rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.tag{background:var(--bg-card);border:1px solid var(--border-color);padding:.25rem .75rem;border-radius:999px;font-size:.8rem;color:var(--accent-secondary)}
+section{margin-bottom:3rem}
+section h2{font-size:1.6rem;color:var(--accent-primary);margin-bottom:1rem;padding-bottom:.4rem;border-bottom:2px solid var(--border-color)}
+section h3{font-size:1.15rem;color:var(--accent-secondary);margin:1.2rem 0 .5rem}
+p,li{color:var(--text-secondary);margin-bottom:.6rem}
+ul,ol{padding-left:1.5rem;margin-bottom:1rem}
+code{background:var(--bg-card);padding:.15rem .4rem;border-radius:4px;font-size:.9em;color:var(--accent-tertiary)}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;transition:border-color .3s}.card:hover{border-color:var(--accent-primary)}
+.formula{background:var(--bg-secondary);border-left:3px solid var(--accent-primary);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1rem 0;font-family:'Courier New',monospace;font-size:.95rem;color:var(--accent-secondary);overflow-x:auto}
+.demo-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.demo-container h3{margin-top:0}
+canvas{display:block;margin:1rem auto;border-radius:8px;background:#0f1021;cursor:crosshair}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin:.75rem 0}
+.controls label{color:var(--text-secondary);font-size:.85rem}
+.controls select,.controls input[type=range]{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:6px;padding:.35rem .5rem;font-size:.85rem}
+.controls input[type=range]{width:140px}
+button{background:linear-gradient(135deg,var(--accent-primary),#8b5cf6);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:opacity .2s}button:hover{opacity:.85}
+.btn-secondary{background:linear-gradient(135deg,var(--accent-secondary),#2dd4bf)}
+.btn-tertiary{background:linear-gradient(135deg,var(--accent-tertiary),#ec4899)}
+.info-text{font-size:.82rem;color:var(--text-muted);margin-top:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:.6rem .8rem;border:1px solid var(--border-color);text-align:left;font-size:.9rem}
+th{background:var(--bg-secondary);color:var(--accent-primary)}td{color:var(--text-secondary)}
+.back-link{display:inline-block;margin-bottom:1.5rem;color:var(--accent-secondary);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">← Back to Playbook</a>
+
+<header class="hero">
+  <h1>Support Vector Machines</h1>
+  <p class="subtitle">Maximum-margin classifiers, the kernel trick & beyond</p>
+  <div class="tags">
+    <span class="tag">Machine Learning</span>
+    <span class="tag">Classification</span>
+    <span class="tag">Kernels</span>
+    <span class="tag">Margin</span>
+    <span class="tag">Hyperplanes</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="intuition">
+  <h2>1. The Big Idea</h2>
+  <p>A <strong>Support Vector Machine</strong> finds the hyperplane that separates two classes with the <em>maximum margin</em> — the widest possible gap between the closest points of each class. Those closest points are the <strong>support vectors</strong>.</p>
+  <p>Why maximum margin? A wider margin means better generalisation — the classifier is less sensitive to small perturbations in the data. This is one of the most elegant ideas in machine learning.</p>
+  <p>SVMs are effective in high-dimensional spaces, work well with clear margins of separation, and remain robust when the number of features exceeds the number of samples.</p>
+</section>
+
+<!-- 2 -->
+<section id="linear-svm">
+  <h2>2. Linear SVM — Hard Margin</h2>
+  <p>For linearly separable data, we seek a hyperplane <code>w·x + b = 0</code> such that:</p>
+  <div class="formula">y_i (w · x_i + b) ≥ 1   for all i</div>
+  <p>The margin width is <code>2/‖w‖</code>. Maximising the margin is equivalent to minimising <code>‖w‖²</code>:</p>
+  <div class="formula">minimise   ½ ‖w‖²
+subject to  y_i (w · x_i + b) ≥ 1  ∀i</div>
+  <p>This is a convex quadratic program. The solution depends only on the support vectors — all other points can be removed without changing the decision boundary.</p>
+</section>
+
+<!-- 3 -->
+<section id="soft-margin">
+  <h2>3. Soft Margin — Handling Noise</h2>
+  <p>Real data is rarely perfectly separable. The <strong>soft margin</strong> SVM introduces slack variables ξ_i to allow some misclassifications:</p>
+  <div class="formula">minimise   ½ ‖w‖² + C Σ ξ_i
+subject to  y_i (w · x_i + b) ≥ 1 − ξ_i,  ξ_i ≥ 0</div>
+  <ul>
+    <li><strong>C is large:</strong> Small margin, fewer misclassifications (risk of overfitting)</li>
+    <li><strong>C is small:</strong> Wide margin, more misclassifications allowed (risk of underfitting)</li>
+  </ul>
+  <p>C controls the bias-variance trade-off. It's the most important hyperparameter for a linear SVM.</p>
+</section>
+
+<!-- 4 — DEMO 1 -->
+<section id="demo-linear">
+  <h2>4. Interactive Demo — Linear SVM Classifier</h2>
+  <div class="demo-container">
+    <h3>🎯 Click to Place Points & Find the Maximum Margin</h3>
+    <p>Left-click to add <span style="color:#a78bfa">Class +1</span> points, right-click (or Shift+click) for <span style="color:#f472b6">Class −1</span>. The SVM finds the optimal separating hyperplane.</p>
+    <div class="controls">
+      <label>C: <input type="range" id="svmC" min="-2" max="3" step="0.1" value="1"> <span id="svmCVal">10.0</span></label>
+      <button onclick="trainLinearSVM()">Train SVM</button>
+      <button class="btn-secondary" onclick="clearSVM()">Clear</button>
+      <button class="btn-tertiary" onclick="loadPreset()">Load Preset</button>
+    </div>
+    <canvas id="canvasLinear" width="900" height="450"></canvas>
+    <p class="info-text">Dashed lines show the margin boundaries. Support vectors are circled. The margin width adapts to C — try moving the slider and retraining.</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="dual-form">
+  <h2>5. The Dual Formulation</h2>
+  <p>Using Lagrange multipliers α_i, the SVM can be reformulated as the <strong>dual problem</strong>:</p>
+  <div class="formula">maximise   Σ α_i − ½ ΣΣ α_i α_j y_i y_j (x_i · x_j)
+subject to  0 ≤ α_i ≤ C,  Σ α_i y_i = 0</div>
+  <p>Key insight: the data only appears as <strong>dot products</strong> x_i · x_j. This is what enables the kernel trick.</p>
+  <p>Points with α_i > 0 are the support vectors. Points with α_i = C are on the wrong side of the margin (misclassified or within the margin).</p>
+</section>
+
+<!-- 6 -->
+<section id="kernel-trick">
+  <h2>6. The Kernel Trick</h2>
+  <p>What if data isn't linearly separable? Map it to a higher-dimensional space where it is! A <strong>kernel function</strong> K(x_i, x_j) = φ(x_i) · φ(x_j) computes the dot product in the high-dimensional space <em>without ever computing the mapping φ explicitly</em>.</p>
+  <table>
+    <tr><th>Kernel</th><th>K(x, z)</th><th>When to Use</th></tr>
+    <tr><td>Linear</td><td>x · z</td><td>Linearly separable data, high-dimensional text</td></tr>
+    <tr><td>Polynomial</td><td>(γ x·z + r)^d</td><td>Feature interactions up to degree d</td></tr>
+    <tr><td>RBF (Gaussian)</td><td>exp(−γ ‖x−z‖²)</td><td>Default choice; handles most nonlinear patterns</td></tr>
+    <tr><td>Sigmoid</td><td>tanh(γ x·z + r)</td><td>Neural-network-like behaviour (rarely used)</td></tr>
+  </table>
+  <p>The RBF kernel maps data to an <em>infinite-dimensional</em> space. The parameter γ controls the "reach" of each training point — high γ means tight, complex boundaries.</p>
+</section>
+
+<!-- 7 — DEMO 2 -->
+<section id="demo-kernel">
+  <h2>7. Interactive Demo — Kernel Comparison</h2>
+  <div class="demo-container">
+    <h3>🔮 See How Kernels Transform Decision Boundaries</h3>
+    <p>Choose a dataset and kernel to see how the decision boundary changes. The RBF kernel can handle complex nonlinear patterns that linear SVMs cannot.</p>
+    <div class="controls">
+      <label>Dataset:
+        <select id="kernelDataset">
+          <option value="circles">Concentric Circles</option>
+          <option value="moons">Two Moons</option>
+          <option value="xor">XOR Pattern</option>
+          <option value="spiral">Spiral</option>
+        </select>
+      </label>
+      <label>Kernel:
+        <select id="kernelType">
+          <option value="linear">Linear</option>
+          <option value="poly">Polynomial (d=3)</option>
+          <option value="rbf" selected>RBF (Gaussian)</option>
+        </select>
+      </label>
+      <label>γ: <input type="range" id="kernelGamma" min="-2" max="2" step="0.1" value="0"> <span id="gammaVal">1.0</span></label>
+      <button onclick="trainKernel()">Train</button>
+    </div>
+    <canvas id="canvasKernel" width="900" height="450"></canvas>
+    <p class="info-text">Background colours show the decision regions. Try switching from Linear to RBF on the Circles dataset to see the kernel trick in action.</p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="hyperparameters">
+  <h2>8. Hyperparameter Tuning</h2>
+  <div class="card">
+    <h3>C — Regularisation</h3>
+    <p>Controls the penalty for misclassification. Large C = hard margin (low bias, high variance). Small C = soft margin (high bias, low variance). Typical search: [0.01, 0.1, 1, 10, 100].</p>
+  </div>
+  <div class="card">
+    <h3>γ (gamma) — RBF Kernel Width</h3>
+    <p>Controls how far the influence of a single training point reaches. Large γ = tight, complex boundaries (overfitting risk). Small γ = smooth, simple boundaries (underfitting risk). Often search: [0.001, 0.01, 0.1, 1, 10].</p>
+  </div>
+  <div class="card">
+    <h3>Degree (d) — Polynomial Kernel</h3>
+    <p>The degree of the polynomial. Higher = more flexible but slower and prone to overfitting. Common values: 2, 3, 4.</p>
+  </div>
+  <p>Use <strong>grid search with cross-validation</strong> to find optimal (C, γ) pairs. Scikit-learn's <code>GridSearchCV</code> automates this.</p>
+</section>
+
+<!-- 9 -->
+<section id="multiclass">
+  <h2>9. Multi-Class SVM</h2>
+  <p>SVMs are inherently binary classifiers. Two strategies extend them to K classes:</p>
+  <div class="card">
+    <h3>One-vs-Rest (OvR)</h3>
+    <p>Train K binary classifiers, each separating one class from all others. Assign the class whose classifier gives the highest confidence. Requires K classifiers.</p>
+  </div>
+  <div class="card">
+    <h3>One-vs-One (OvO)</h3>
+    <p>Train K(K−1)/2 classifiers, one for each pair of classes. Use majority voting. More classifiers but each trains on a smaller subset.</p>
+  </div>
+  <p>Scikit-learn uses OvO by default for SVC (faster for large K) and OvR for LinearSVC.</p>
+</section>
+
+<!-- 10 -->
+<section id="svr">
+  <h2>10. Support Vector Regression (SVR)</h2>
+  <p>SVMs can also perform regression. SVR fits a tube of width ε around the data and only penalises points outside the tube:</p>
+  <div class="formula">minimise   ½ ‖w‖² + C Σ (ξ_i + ξ*_i)
+subject to  y_i − (w·x_i + b) ≤ ε + ξ_i
+            (w·x_i + b) − y_i ≤ ε + ξ*_i
+            ξ_i, ξ*_i ≥ 0</div>
+  <p>The ε parameter defines an "insensitivity zone" — errors within this zone are ignored. Points outside become the support vectors.</p>
+</section>
+
+<!-- 11 — DEMO 3 -->
+<section id="demo-cvsigma">
+  <h2>11. Interactive Demo — C vs γ Landscape</h2>
+  <div class="demo-container">
+    <h3>🗺️ Explore the C–γ Accuracy Landscape</h3>
+    <p>This heatmap shows training accuracy across a grid of C and γ values on the selected dataset. Bright = high accuracy, dark = low.</p>
+    <div class="controls">
+      <label>Dataset:
+        <select id="heatDataset">
+          <option value="circles">Concentric Circles</option>
+          <option value="moons">Two Moons</option>
+          <option value="xor">XOR Pattern</option>
+        </select>
+      </label>
+      <button onclick="drawHeatmap()">Generate Heatmap</button>
+    </div>
+    <canvas id="canvasHeat" width="900" height="420"></canvas>
+    <p class="info-text">Each cell trains an RBF SVM with that (C, γ) pair and computes accuracy. Notice the "sweet spot" region — too low C or γ underfits, too high overfits.</p>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="pros-cons">
+  <h2>12. SVM — Strengths & Limitations</h2>
+  <table>
+    <tr><th>Strengths</th><th>Limitations</th></tr>
+    <tr><td>Effective in high-dimensional spaces</td><td>Slow on large datasets (O(n²) to O(n³) training)</td></tr>
+    <tr><td>Memory-efficient (only stores support vectors)</td><td>Sensitive to feature scaling</td></tr>
+    <tr><td>Robust with proper regularisation</td><td>No direct probability estimates (need Platt scaling)</td></tr>
+    <tr><td>Kernel trick handles nonlinearity elegantly</td><td>Choice of kernel & hyperparameters is non-trivial</td></tr>
+    <tr><td>Strong theoretical guarantees (margin theory)</td><td>Not ideal for very noisy data with overlapping classes</td></tr>
+  </table>
+</section>
+
+<!-- 13 -->
+<section id="practical">
+  <h2>13. Practical Tips</h2>
+  <ul>
+    <li><strong>Always scale features</strong> — SVMs are sensitive to feature magnitudes. Use StandardScaler or MinMaxScaler.</li>
+    <li><strong>Start with RBF kernel</strong> — it's the most versatile. Try linear only if you have very high-dimensional data (text, genomics).</li>
+    <li><strong>Use grid search</strong> — search C and γ in log-scale (e.g., 10⁻³ to 10³).</li>
+    <li><strong>For large datasets</strong> — consider LinearSVC (uses liblinear, scales better) or SGDClassifier with hinge loss.</li>
+    <li><strong>For probability estimates</strong> — set <code>probability=True</code> in SVC (adds Platt scaling, slower).</li>
+    <li><strong>Imbalanced classes</strong> — use <code>class_weight='balanced'</code> to adjust C per class.</li>
+  </ul>
+</section>
+
+<!-- 14 -->
+<section id="summary">
+  <h2>14. Quick Reference & Summary</h2>
+  <table>
+    <tr><th>Concept</th><th>Key Idea</th></tr>
+    <tr><td>Maximum Margin</td><td>Find the widest separating hyperplane between classes</td></tr>
+    <tr><td>Support Vectors</td><td>The critical training points that define the margin</td></tr>
+    <tr><td>Soft Margin (C)</td><td>Allow misclassifications; C trades off margin width vs errors</td></tr>
+    <tr><td>Kernel Trick</td><td>Compute dot products in high-D space without explicit mapping</td></tr>
+    <tr><td>RBF Kernel (γ)</td><td>Infinite-D mapping; γ controls boundary complexity</td></tr>
+    <tr><td>Dual Form</td><td>Data appears only as dot products → enables kernels</td></tr>
+    <tr><td>SVR</td><td>Regression variant with ε-insensitive loss tube</td></tr>
+    <tr><td>Multi-class</td><td>One-vs-Rest or One-vs-One for K > 2 classes</td></tr>
+  </table>
+  <p style="margin-top:1.5rem;color:var(--text-muted);font-size:.85rem;text-align:center;">Support Vector Machines — Workspace Playbook</p>
+</section>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════════════ */
+function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+function generateDataset(type, n=80){
+  const pts=[];
+  if(type==='circles'){
+    for(let i=0;i<n;i++){
+      const a=Math.random()*Math.PI*2;
+      if(i<n/2){const r=1+randn()*0.15;pts.push({x:Math.cos(a)*r,y:Math.sin(a)*r,label:1});}
+      else{const r=3+randn()*0.3;pts.push({x:Math.cos(a)*r,y:Math.sin(a)*r,label:-1});}
+    }
+  }else if(type==='moons'){
+    for(let i=0;i<n;i++){
+      const a=Math.PI*i/(n/2);
+      if(i<n/2) pts.push({x:Math.cos(a)+randn()*0.15,y:Math.sin(a)+randn()*0.15,label:1});
+      else pts.push({x:1-Math.cos(a-Math.PI)+randn()*0.15,y:1-Math.sin(a-Math.PI)-0.5+randn()*0.15,label:-1});
+    }
+  }else if(type==='xor'){
+    for(let i=0;i<n;i++){
+      const x=Math.random()*4-2,y=Math.random()*4-2;
+      pts.push({x:x+randn()*0.2,y:y+randn()*0.2,label:(x*y>0)?1:-1});
+    }
+  }else if(type==='spiral'){
+    for(let i=0;i<n;i++){
+      const t=i/(n/2)*Math.PI*1.5;
+      if(i<n/2){pts.push({x:t*Math.cos(t)*0.4+randn()*0.2,y:t*Math.sin(t)*0.4+randn()*0.2,label:1});}
+      else{pts.push({x:-t*Math.cos(t)*0.4+randn()*0.2,y:-t*Math.sin(t)*0.4+randn()*0.2,label:-1});}
+    }
+  }
+  return pts;
+}
+
+/* Simple SVM via SMO-like coordinate ascent (simplified) */
+function trainSVM(pts, C, kernel, maxIter=500){
+  const n=pts.length;
+  const alpha=new Float64Array(n);
+  let b=0;
+  // Precompute kernel matrix
+  const K=[];
+  for(let i=0;i<n;i++){K[i]=[];for(let j=0;j<n;j++) K[i][j]=kernel(pts[i],pts[j]);}
+
+  for(let iter=0;iter<maxIter;iter++){
+    let changed=0;
+    for(let i=0;i<n;i++){
+      let fi=b;for(let j=0;j<n;j++) fi+=alpha[j]*pts[j].label*K[i][j];
+      const Ei=fi-pts[i].label;
+      if((pts[i].label*Ei<-0.01&&alpha[i]<C)||(pts[i].label*Ei>0.01&&alpha[i]>0)){
+        // Pick random j
+        let j=i;while(j===i) j=Math.floor(Math.random()*n);
+        let fj=b;for(let k=0;k<n;k++) fj+=alpha[k]*pts[k].label*K[j][k];
+        const Ej=fj-pts[j].label;
+        const ai_old=alpha[i],aj_old=alpha[j];
+        let L,H;
+        if(pts[i].label!==pts[j].label){L=Math.max(0,alpha[j]-alpha[i]);H=Math.min(C,C+alpha[j]-alpha[i]);}
+        else{L=Math.max(0,alpha[i]+alpha[j]-C);H=Math.min(C,alpha[i]+alpha[j]);}
+        if(L>=H) continue;
+        const eta=2*K[i][j]-K[i][i]-K[j][j];
+        if(eta>=0) continue;
+        alpha[j]-=pts[j].label*(Ei-Ej)/eta;
+        alpha[j]=Math.min(H,Math.max(L,alpha[j]));
+        if(Math.abs(alpha[j]-aj_old)<1e-5) continue;
+        alpha[i]+=pts[i].label*pts[j].label*(aj_old-alpha[j]);
+        const b1=b-Ei-pts[i].label*(alpha[i]-ai_old)*K[i][i]-pts[j].label*(alpha[j]-aj_old)*K[i][j];
+        const b2=b-Ej-pts[i].label*(alpha[i]-ai_old)*K[i][j]-pts[j].label*(alpha[j]-aj_old)*K[j][j];
+        if(alpha[i]>0&&alpha[i]<C) b=b1;
+        else if(alpha[j]>0&&alpha[j]<C) b=b2;
+        else b=(b1+b2)/2;
+        changed++;
+      }
+    }
+    if(changed===0) break;
+  }
+  return {alpha,b,pts,kernel,K};
+}
+
+function predict(model,x,y){
+  let f=model.b;
+  for(let i=0;i<model.pts.length;i++){
+    if(model.alpha[i]>1e-8) f+=model.alpha[i]*model.pts[i].label*model.kernel({x,y},model.pts[i]);
+  }
+  return f;
+}
+
+function linearKernel(a,b_){return a.x*b_.x+a.y*b_.y;}
+function polyKernel(a,b_,g,d){return Math.pow(g*(a.x*b_.x+a.y*b_.y)+1,d);}
+function rbfKernel(a,b_,g){const dx=a.x-b_.x,dy=a.y-b_.y;return Math.exp(-g*(dx*dx+dy*dy));}
+
+/* ═══════════════════════════════════════════════
+   DEMO 1 — LINEAR SVM
+   ═══════════════════════════════════════════════ */
+let linearPts=[];
+const canvasL=document.getElementById('canvasLinear');
+const ctxL=canvasL.getContext('2d');
+
+canvasL.addEventListener('click',e=>{
+  const r=canvasL.getBoundingClientRect();
+  const cx=(e.clientX-r.left-canvasL.width/2)/80;
+  const cy=(canvasL.height/2-(e.clientY-r.top))/80;
+  linearPts.push({x:cx,y:cy,label:e.shiftKey?-1:1});
+  drawLinearSVM(null);
+});
+canvasL.addEventListener('contextmenu',e=>{
+  e.preventDefault();
+  const r=canvasL.getBoundingClientRect();
+  const cx=(e.clientX-r.left-canvasL.width/2)/80;
+  const cy=(canvasL.height/2-(e.clientY-r.top))/80;
+  linearPts.push({x:cx,y:cy,label:-1});
+  drawLinearSVM(null);
+});
+
+document.getElementById('svmC').addEventListener('input',e=>{
+  document.getElementById('svmCVal').textContent=Math.pow(10,parseFloat(e.target.value)).toFixed(1);
+});
+
+function clearSVM(){linearPts=[];ctxL.clearRect(0,0,canvasL.width,canvasL.height);}
+
+function loadPreset(){
+  clearSVM();
+  for(let i=0;i<20;i++) linearPts.push({x:-2+randn()*0.6,y:1+randn()*0.6,label:1});
+  for(let i=0;i<20;i++) linearPts.push({x:2+randn()*0.6,y:-1+randn()*0.6,label:-1});
+  trainLinearSVM();
+}
+
+function trainLinearSVM(){
+  if(linearPts.length<3) return;
+  const C=Math.pow(10,parseFloat(document.getElementById('svmC').value));
+  const model=trainSVM(linearPts,C,linearKernel,800);
+  drawLinearSVM(model);
+}
+
+function drawLinearSVM(model){
+  const W=canvasL.width,H=canvasL.height;
+  ctxL.clearRect(0,0,W,H);
+  // Grid axes
+  ctxL.strokeStyle='#262840';ctxL.lineWidth=1;
+  ctxL.beginPath();ctxL.moveTo(W/2,0);ctxL.lineTo(W/2,H);ctxL.stroke();
+  ctxL.beginPath();ctxL.moveTo(0,H/2);ctxL.lineTo(W,H/2);ctxL.stroke();
+
+  if(model){
+    // Decision regions
+    const step=6;
+    for(let px=0;px<W;px+=step){
+      for(let py=0;py<H;py+=step){
+        const x=(px-W/2)/80,y=(H/2-py)/80;
+        const f=predict(model,x,y);
+        ctxL.fillStyle=f>0?'rgba(167,139,250,0.08)':'rgba(244,114,182,0.08)';
+        ctxL.fillRect(px,py,step,step);
+      }
+    }
+    // Decision boundary + margins
+    const res=3;
+    for(let px=0;px<W;px+=res){
+      for(let py=0;py<H;py+=res){
+        const x=(px-W/2)/80,y=(H/2-py)/80;
+        const f=predict(model,x,y);
+        if(Math.abs(f)<0.06){ctxL.fillStyle='#5eead4';ctxL.fillRect(px,py,res,res);}
+        else if(Math.abs(f-1)<0.08||Math.abs(f+1)<0.08){ctxL.fillStyle='rgba(94,234,212,0.3)';ctxL.fillRect(px,py,res,res);}
+      }
+    }
+  }
+
+  // Points
+  linearPts.forEach((p,i)=>{
+    const px=p.x*80+W/2,py=H/2-p.y*80;
+    ctxL.beginPath();ctxL.arc(px,py,5,0,Math.PI*2);
+    ctxL.fillStyle=p.label===1?'#a78bfa':'#f472b6';ctxL.fill();
+    ctxL.strokeStyle='#e2e8f0';ctxL.lineWidth=1;ctxL.stroke();
+    // SV circle
+    if(model&&model.alpha[i]>1e-5){
+      ctxL.beginPath();ctxL.arc(px,py,9,0,Math.PI*2);
+      ctxL.strokeStyle='#fbbf24';ctxL.lineWidth=2;ctxL.stroke();
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   DEMO 2 — KERNEL COMPARISON
+   ═══════════════════════════════════════════════ */
+document.getElementById('kernelGamma').addEventListener('input',e=>{
+  document.getElementById('gammaVal').textContent=Math.pow(10,parseFloat(e.target.value)).toFixed(2);
+});
+
+function trainKernel(){
+  const dataset=document.getElementById('kernelDataset').value;
+  const ktype=document.getElementById('kernelType').value;
+  const gamma=Math.pow(10,parseFloat(document.getElementById('kernelGamma').value));
+  const pts=generateDataset(dataset,80);
+  let kern;
+  if(ktype==='linear') kern=linearKernel;
+  else if(ktype==='poly') kern=(a,b_)=>polyKernel(a,b_,gamma,3);
+  else kern=(a,b_)=>rbfKernel(a,b_,gamma);
+
+  const model=trainSVM(pts,10,kern,600);
+  const c=document.getElementById('canvasKernel');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+
+  // Find data bounds
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  pts.forEach(p=>{if(p.x<minX)minX=p.x;if(p.x>maxX)maxX=p.x;if(p.y<minY)minY=p.y;if(p.y>maxY)maxY=p.y;});
+  const pad=1;minX-=pad;maxX+=pad;minY-=pad;maxY+=pad;
+  const sx=v=>(v-minX)/(maxX-minX)*W;
+  const sy=v=>H-(v-minY)/(maxY-minY)*H;
+
+  // Decision regions
+  const step=5;
+  for(let px=0;px<W;px+=step){
+    for(let py=0;py<H;py+=step){
+      const x=minX+px/W*(maxX-minX);
+      const y=maxY-py/H*(maxY-minY);
+      const f=predict(model,x,y);
+      ctx.fillStyle=f>0?'rgba(167,139,250,0.15)':'rgba(244,114,182,0.15)';
+      ctx.fillRect(px,py,step,step);
+    }
+  }
+  // Decision boundary
+  const res=3;
+  for(let px=0;px<W;px+=res){
+    for(let py=0;py<H;py+=res){
+      const x=minX+px/W*(maxX-minX),y=maxY-py/H*(maxY-minY);
+      const f=predict(model,x,y);
+      if(Math.abs(f)<0.1){ctx.fillStyle='#5eead4';ctx.fillRect(px,py,res,res);}
+    }
+  }
+  // Points
+  pts.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(sx(p.x),sy(p.y),4,0,Math.PI*2);
+    ctx.fillStyle=p.label===1?'#a78bfa':'#f472b6';ctx.fill();
+    ctx.strokeStyle='#0a0b14';ctx.lineWidth=1;ctx.stroke();
+    if(model.alpha[i]>1e-5){
+      ctx.beginPath();ctx.arc(sx(p.x),sy(p.y),8,0,Math.PI*2);
+      ctx.strokeStyle='#fbbf24';ctx.lineWidth=1.5;ctx.stroke();
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   DEMO 3 — C vs γ HEATMAP
+   ═══════════════════════════════════════════════ */
+function drawHeatmap(){
+  const dataset=document.getElementById('heatDataset').value;
+  const pts=generateDataset(dataset,60);
+  const c=document.getElementById('canvasHeat');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+
+  const cVals=[-2,-1.5,-1,-0.5,0,0.5,1,1.5,2,2.5,3];
+  const gVals=[-2,-1.5,-1,-0.5,0,0.5,1,1.5,2];
+  const nC=cVals.length,nG=gVals.length;
+  const cellW=(W-80)/nC,cellH=(H-70)/nG;
+  const acc=[];
+
+  for(let gi=0;gi<nG;gi++){
+    acc[gi]=[];
+    for(let ci=0;ci<nC;ci++){
+      const C=Math.pow(10,cVals[ci]);
+      const gamma=Math.pow(10,gVals[gi]);
+      const kern=(a,b_)=>rbfKernel(a,b_,gamma);
+      const model=trainSVM(pts,C,kern,200);
+      let correct=0;
+      pts.forEach(p=>{if(predict(model,p.x,p.y)*p.label>0) correct++;});
+      acc[gi][ci]=correct/pts.length;
+    }
+  }
+
+  // Draw cells
+  for(let gi=0;gi<nG;gi++){
+    for(let ci=0;ci<nC;ci++){
+      const v=acc[gi][ci];
+      const r=Math.floor(50+v*180);
+      const g=Math.floor(20+v*100);
+      const b=Math.floor(100+v*155);
+      ctx.fillStyle=`rgb(${r},${g},${b})`;
+      ctx.fillRect(60+ci*cellW,10+gi*cellH,cellW-1,cellH-1);
+      // Label
+      ctx.fillStyle=v>0.7?'#fff':'#94a3b8';
+      ctx.font='11px sans-serif';ctx.textAlign='center';
+      ctx.fillText((v*100).toFixed(0)+'%',60+ci*cellW+cellW/2,10+gi*cellH+cellH/2+4);
+    }
+  }
+  // Axes labels
+  ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='center';
+  cVals.forEach((v,i)=>{ctx.fillText('10^'+v,60+i*cellW+cellW/2,H-8);});
+  ctx.fillText('log₁₀(C)',W/2,H);
+  ctx.textAlign='right';
+  gVals.forEach((v,i)=>{ctx.fillText('10^'+v,55,10+i*cellH+cellH/2+4);});
+  ctx.save();ctx.translate(12,H/2-30);ctx.rotate(-Math.PI/2);ctx.textAlign='center';
+  ctx.fillText('log₁₀(γ)',0,0);ctx.restore();
+}
+
+// Init
+window.addEventListener('DOMContentLoaded',()=>{loadPreset();trainKernel();drawHeatmap();});
+</script>
+</body>
+</html>
