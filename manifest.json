@@ -305,6 +305,29 @@
         "category": "Data Processing"
       },
       {
+        "name": "gradient-descent-deep-dive",
+        "type": "folder",
+        "children": [
+          {
+            "name": "gradient_descent_guide.docx",
+            "displayName": "gradient_descent_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14274,
+            "path": "gradient-descent-deep-dive/gradient_descent_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "gradient-descent-deep-dive",
+            "type": "file",
+            "ext": "html",
+            "size": 39829,
+            "path": "gradient-descent-deep-dive/index.html"
+          }
+        ],
+        "category": "Machine Learning"
+      },
+      {
         "name": "gradient-descent-react",
         "type": "folder",
         "children": [
