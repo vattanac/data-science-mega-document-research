@@ -236,6 +236,29 @@
         "category": "Linear Algebra"
       },
       {
+        "name": "eigenvalues-and-eigenvectors",
+        "type": "folder",
+        "children": [
+          {
+            "name": "eigenvalues_and_eigenvectors_guide.docx",
+            "displayName": "eigenvalues_and_eigenvectors_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 15890,
+            "path": "eigenvalues-and-eigenvectors/eigenvalues_and_eigenvectors_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "eigenvalues-and-eigenvectors",
+            "type": "file",
+            "ext": "html",
+            "size": 54967,
+            "path": "eigenvalues-and-eigenvectors/index.html"
+          }
+        ],
+        "category": "Linear Algebra"
+      },
+      {
         "name": "expected-value-vs-mean",
         "type": "folder",
         "children": [
