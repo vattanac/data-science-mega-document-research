@@ -440,12 +440,85 @@
     [data-theme="light"] .preview-bar { background: var(--bg-card); }
     [data-theme="light"] .sidebar-header .logo { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
 
+    /* ── Mobile Hamburger Button ─────────────────────── */
+    .mobile-hamburger {
+      display: none;
+      position: fixed;
+      top: 12px; left: 12px;
+      z-index: 200;
+      width: 42px; height: 42px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--accent);
+      font-size: 1.3rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      transition: all .2s;
+    }
+    .mobile-hamburger:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ── Mobile Overlay ───────────────────────────────── */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 150;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .mobile-overlay.visible { opacity: 1; }
+
     /* ── Responsive ───────────────────────────────────── */
     @media (max-width: 768px) {
-      :root { --sidebar-w: 100vw; }
+      .mobile-hamburger { display: flex; }
+      .resize-handle { display: none !important; }
+
       body { flex-direction: column; }
-      .sidebar { height: auto; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
-      .main { min-height: 50vh; }
+
+      .sidebar {
+        position: fixed !important;
+        top: 0; left: 0;
+        width: 85vw !important;
+        max-width: 360px;
+        min-width: 0 !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        z-index: 180;
+        transform: translateX(-105%);
+        transition: transform .3s cubic-bezier(.4,0,.2,1);
+        border-right: 1px solid var(--border);
+        border-bottom: none;
+        background: var(--bg);
+        opacity: 1;
+      }
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+
+      .sidebar-toggle-btn { display: none !important; }
+      .sidebar-open-btn { display: none !important; }
+      .mobile-overlay { display: block; }
+
+      .main {
+        width: 100vw;
+        min-height: 100vh;
+        padding-top: 56px; /* space for hamburger */
+      }
+
+      .preview-bar {
+        flex-wrap: wrap;
+        padding: 10px 14px;
+        gap: 6px;
+      }
+      .preview-bar .file-path { width: 100%; order: 3; }
+      .preview-bar .spacer { display: none; }
+      .preview-bar .btn { font-size: .72rem; padding: 5px 10px; }
+
+      .empty-state { padding-top: 0; }
     }
 
     /* ── Background gradient ──────────────────────────── */
@@ -458,20 +531,23 @@
       pointer-events: none;
       z-index: 0;
     }
-    .sidebar, .main { position: relative; z-index: 1; }
+    .main { position: relative; z-index: 1; }
 
-    /* ── Sidebar Toggle ────────────────────────────────── */
-    .sidebar {
-      transition: width .3s cubic-bezier(.4,0,.2,1),
-                  min-width .3s cubic-bezier(.4,0,.2,1),
-                  opacity .25s ease;
-    }
-    .sidebar.collapsed {
-      width: 0 !important;
-      min-width: 0 !important;
-      opacity: 0;
-      overflow: hidden;
-      pointer-events: none;
+    /* ── Sidebar Toggle (desktop) ─────────────────────── */
+    @media (min-width: 769px) {
+      .sidebar { position: relative; z-index: 1; }
+      .sidebar {
+        transition: width .3s cubic-bezier(.4,0,.2,1),
+                    min-width .3s cubic-bezier(.4,0,.2,1),
+                    opacity .25s ease;
+      }
+      .sidebar.collapsed {
+        width: 0 !important;
+        min-width: 0 !important;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
     }
     .resize-handle.hidden { display: none; }
 
@@ -547,6 +623,10 @@
   </style>
 </head>
 <body>
+
+<!-- ═══ Mobile Hamburger ═══ -->
+<button class="mobile-hamburger" id="mobileHamburger" onclick="toggleMobileSidebar()" title="Menu">☰</button>
+<div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobileSidebar()"></div>
 
 <!-- ═══ Sidebar ═══ -->
 <aside class="sidebar">
@@ -720,6 +800,9 @@ function selectFile(node, element) {
   element.classList.add('active');
 
   currentFile = node;
+
+  // Close mobile sidebar when a file is selected
+  closeMobileOnSelect();
 
   document.getElementById('emptyState').style.display = 'none';
   const frame = document.getElementById('previewFrame');
@@ -1064,6 +1147,41 @@ function toggleSidebar() {
     sidebar.classList.add('collapsed');
     handle.classList.add('hidden');
     openBtn.classList.add('visible');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE SIDEBAR TOGGLE
+   ═══════════════════════════════════════════════════════════ */
+function toggleMobileSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('mobileOverlay');
+  const hamburger = document.getElementById('mobileHamburger');
+  const isOpen = sidebar.classList.contains('mobile-open');
+
+  if (isOpen) {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('visible');
+    hamburger.innerHTML = '☰';
+    setTimeout(() => { overlay.style.display = 'none'; }, 300);
+  } else {
+    overlay.style.display = 'block';
+    // Force reflow before adding class for transition
+    overlay.offsetHeight;
+    sidebar.classList.add('mobile-open');
+    sidebar.classList.remove('collapsed');
+    overlay.classList.add('visible');
+    hamburger.innerHTML = '✕';
+  }
+}
+
+// Close mobile sidebar when a file is clicked (on mobile)
+function closeMobileOnSelect() {
+  if (window.innerWidth <= 768) {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar.classList.contains('mobile-open')) {
+      toggleMobileSidebar();
+    }
   }
 }
 
