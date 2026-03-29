@@ -90,6 +90,7 @@ FOLDER_CATEGORIES = {
     "clustering-algorithms":             "Machine Learning",
     "decision-trees-and-random-forests": "Machine Learning",
     "support-vector-machines":           "Machine Learning",
+    "ensemble-methods":                  "Machine Learning",
     # Deep Learning
     "neural-networks-fundamentals":      "Deep Learning",
     "convolutional-neural-networks":     "Deep Learning",

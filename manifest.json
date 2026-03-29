@@ -374,6 +374,29 @@
         "category": "Linear Algebra"
       },
       {
+        "name": "ensemble-methods",
+        "type": "folder",
+        "children": [
+          {
+            "name": "ensemble_methods_guide.docx",
+            "displayName": "ensemble_methods_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 15105,
+            "path": "ensemble-methods/ensemble_methods_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "ensemble-methods",
+            "type": "file",
+            "ext": "html",
+            "size": 30186,
+            "path": "ensemble-methods/index.html"
+          }
+        ],
+        "category": "Machine Learning"
+      },
+      {
         "name": "expected-value-vs-mean",
         "type": "folder",
         "children": [

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ensemble Methods — Data Science Mega Document Research</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131f;--bg-card:#181926;--bg-card-hover:#1e1f33;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-tertiary:#f472b6;--border-color:#262840;--success:#34d399;--warning:#fbbf24;--error:#f87171}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:960px;margin:0 auto;padding:2rem 1.5rem}
+a{color:var(--accent-primary);text-decoration:none}a:hover{text-decoration:underline}
+.hero{text-align:center;padding:4rem 0 3rem}
+.hero h1{font-size:2.8rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.hero .subtitle{color:var(--text-secondary);font-size:1.15rem}
+.hero .tags{margin-top:1rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.tag{background:var(--bg-card);border:1px solid var(--border-color);padding:.25rem .75rem;border-radius:999px;font-size:.8rem;color:var(--accent-secondary)}
+section{margin-bottom:3rem}
+section h2{font-size:1.6rem;color:var(--accent-primary);margin-bottom:1rem;padding-bottom:.4rem;border-bottom:2px solid var(--border-color)}
+section h3{font-size:1.15rem;color:var(--accent-secondary);margin:1.2rem 0 .5rem}
+p,li{color:var(--text-secondary);margin-bottom:.6rem}
+ul,ol{padding-left:1.5rem;margin-bottom:1rem}
+code{background:var(--bg-card);padding:.15rem .4rem;border-radius:4px;font-size:.9em;color:var(--accent-tertiary)}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;transition:border-color .3s}.card:hover{border-color:var(--accent-primary)}
+.formula{background:var(--bg-secondary);border-left:3px solid var(--accent-primary);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1rem 0;font-family:'Courier New',monospace;font-size:.95rem;color:var(--accent-secondary);overflow-x:auto}
+.demo-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.demo-container h3{margin-top:0}
+canvas{display:block;margin:1rem auto;border-radius:8px;background:#0f1021}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin:.75rem 0}
+.controls label{color:var(--text-secondary);font-size:.85rem}
+.controls select,.controls input[type=range]{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:6px;padding:.35rem .5rem;font-size:.85rem}
+.controls input[type=range]{width:140px}
+button{background:linear-gradient(135deg,var(--accent-primary),#8b5cf6);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:opacity .2s}button:hover{opacity:.85}
+.btn-secondary{background:linear-gradient(135deg,var(--accent-secondary),#2dd4bf)}
+.btn-tertiary{background:linear-gradient(135deg,var(--accent-tertiary),#ec4899)}
+.info-text{font-size:.82rem;color:var(--text-muted);margin-top:.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:.6rem .8rem;border:1px solid var(--border-color);text-align:left;font-size:.9rem}
+th{background:var(--bg-secondary);color:var(--accent-primary)}td{color:var(--text-secondary)}
+.back-link{display:inline-block;margin-bottom:1.5rem;color:var(--accent-secondary);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">← Back to Explorer</a>
+
+<header class="hero">
+  <h1>Ensemble Methods</h1>
+  <p class="subtitle">Combining models for superior performance — bagging, boosting, stacking & beyond</p>
+  <div class="tags">
+    <span class="tag">Machine Learning</span>
+    <span class="tag">Bagging</span>
+    <span class="tag">Boosting</span>
+    <span class="tag">XGBoost</span>
+    <span class="tag">Stacking</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="why-ensembles">
+  <h2>1. Why Ensembles Work</h2>
+  <p>A single model has its weaknesses — it might overfit, underfit, or be biased in specific regions of the data. <strong>Ensemble methods</strong> combine multiple models to produce predictions that are more accurate and robust than any individual model.</p>
+  <p>The key insight: if individual models make <em>different</em> errors (they're "diverse"), their mistakes cancel out when aggregated. This is the "wisdom of crowds" for machine learning.</p>
+  <div class="formula">Bias-Variance Decomposition:
+  Error = Bias² + Variance + Irreducible Noise
+
+Bagging  → reduces Variance (averaging uncorrelated models)
+Boosting → reduces Bias (sequentially fixing errors)</div>
+</section>
+
+<!-- 2 -->
+<section id="bagging">
+  <h2>2. Bagging (Bootstrap Aggregating)</h2>
+  <p>Bagging trains multiple models on different <strong>bootstrap samples</strong> (random samples with replacement) and aggregates their predictions:</p>
+  <ol>
+    <li>Draw B bootstrap samples from the training data</li>
+    <li>Train one model on each sample independently</li>
+    <li>Aggregate: majority vote (classification) or average (regression)</li>
+  </ol>
+  <div class="formula">f_bag(x) = (1/B) Σ f_b(x)    (regression)
+f_bag(x) = mode{f_b(x)}      (classification)</div>
+  <p>Each bootstrap sample contains ~63.2% of unique training examples (the rest are duplicates). The ~36.8% left out form the <strong>out-of-bag (OOB)</strong> samples — a free validation set!</p>
+  <h3>Random Forest = Bagging + Feature Randomness</h3>
+  <p>Random Forest adds another layer of diversity: at each split, only a random subset of features is considered (typically √p for classification, p/3 for regression). This decorrelates the trees, making the ensemble even more powerful.</p>
+</section>
+
+<!-- 3 -->
+<section id="boosting">
+  <h2>3. Boosting — The Big Idea</h2>
+  <p>Boosting trains models <strong>sequentially</strong>, where each new model focuses on the mistakes of the previous ones. The final prediction is a weighted combination of all models.</p>
+  <p>Unlike bagging (which reduces variance), boosting primarily <strong>reduces bias</strong> — it turns weak learners (slightly better than random) into a strong learner.</p>
+  <div class="card">
+    <h3>AdaBoost (Adaptive Boosting)</h3>
+    <p>Adjusts sample weights: misclassified examples get higher weight so the next model pays more attention to them. Final prediction is a weighted vote, where better models get more influence.</p>
+  </div>
+  <div class="card">
+    <h3>Gradient Boosting</h3>
+    <p>Instead of reweighting samples, each new model fits the <strong>residuals</strong> (errors) of the current ensemble. Equivalent to gradient descent in function space — hence the name.</p>
+  </div>
+</section>
+
+<!-- 4 — DEMO 1 -->
+<section id="demo-bagging-boosting">
+  <h2>4. Interactive Demo — Bagging vs Boosting</h2>
+  <div class="demo-container">
+    <h3>⚔️ Compare Bagging and Boosting Side by Side</h3>
+    <p>See how bagging (left) and boosting (right) build their decision boundaries differently as you add more models.</p>
+    <div class="controls">
+      <label>Dataset:
+        <select id="ensDataset">
+          <option value="moons">Two Moons</option>
+          <option value="circles">Circles</option>
+          <option value="xor">XOR</option>
+        </select>
+      </label>
+      <label>Models: <input type="range" id="numModels" min="1" max="30" step="1" value="10"> <span id="modelsVal">10</span></label>
+      <button onclick="runComparison()">Run</button>
+    </div>
+    <canvas id="canvasCompare" width="900" height="400"></canvas>
+    <p class="info-text">Left = Bagging (independent trees averaged). Right = Boosting (sequential error correction). Notice how boosting creates sharper boundaries.</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="adaboost">
+  <h2>5. AdaBoost in Detail</h2>
+  <div class="formula">For m = 1, 2, ..., M:
+  1. Train weak learner h_m on weighted data
+  2. Compute weighted error: ε_m = Σ w_i · I(h_m(x_i) ≠ y_i)
+  3. Compute model weight: α_m = ½ ln((1 − ε_m) / ε_m)
+  4. Update sample weights: w_i ← w_i · exp(−α_m · y_i · h_m(x_i))
+  5. Normalise weights
+
+Final: H(x) = sign(Σ α_m · h_m(x))</div>
+  <p>Models with lower error get higher α (more influence). Misclassified samples get higher weight for the next round. The algorithm is sensitive to outliers (they accumulate ever-increasing weight).</p>
+</section>
+
+<!-- 6 -->
+<section id="gradient-boosting">
+  <h2>6. Gradient Boosting</h2>
+  <p>Gradient Boosting generalises AdaBoost by fitting residuals using any differentiable loss function:</p>
+  <div class="formula">For m = 1, 2, ..., M:
+  1. Compute pseudo-residuals: r_i = −∂L(y_i, F_{m-1}(x_i)) / ∂F_{m-1}(x_i)
+  2. Fit a tree h_m to the residuals r_i
+  3. Update: F_m(x) = F_{m-1}(x) + η · h_m(x)
+
+η = learning rate (shrinkage, typically 0.01–0.3)</div>
+  <p>The learning rate η controls how much each tree contributes. Lower η needs more trees but generalises better — the classic trade-off.</p>
+</section>
+
+<!-- 7 -->
+<section id="xgboost">
+  <h2>7. XGBoost, LightGBM & CatBoost</h2>
+  <div class="card">
+    <h3>XGBoost (Extreme Gradient Boosting)</h3>
+    <p>Adds L1/L2 regularisation on leaf weights, uses second-order Taylor expansion of the loss, histogram-based split finding, and built-in handling of missing values. The Kaggle champion for years.</p>
+  </div>
+  <div class="card">
+    <h3>LightGBM</h3>
+    <p>Microsoft's implementation using leaf-wise tree growth (vs XGBoost's level-wise), gradient-based one-side sampling (GOSS), and exclusive feature bundling (EFB). Much faster on large datasets.</p>
+  </div>
+  <div class="card">
+    <h3>CatBoost</h3>
+    <p>Yandex's implementation with native categorical feature handling (ordered target encoding), ordered boosting to prevent target leakage, and symmetric tree structure for faster inference.</p>
+  </div>
+  <table>
+    <tr><th>Feature</th><th>XGBoost</th><th>LightGBM</th><th>CatBoost</th></tr>
+    <tr><td>Tree Growth</td><td>Level-wise</td><td>Leaf-wise</td><td>Symmetric</td></tr>
+    <tr><td>Speed</td><td>Fast</td><td>Fastest</td><td>Moderate</td></tr>
+    <tr><td>Categoricals</td><td>Manual encoding</td><td>Basic support</td><td>Native (best)</td></tr>
+    <tr><td>GPU Support</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+  </table>
+</section>
+
+<!-- 8 — DEMO 2 -->
+<section id="demo-boosting-rounds">
+  <h2>8. Interactive Demo — Boosting Rounds</h2>
+  <div class="demo-container">
+    <h3>📈 Watch Boosting Learn Step by Step</h3>
+    <p>See how the ensemble prediction improves as more weak learners (stumps) are added. The residuals shrink with each round.</p>
+    <div class="controls">
+      <label>Rounds: <input type="range" id="boostRounds" min="1" max="50" step="1" value="1"> <span id="roundsVal">1</span></label>
+      <label>Learning rate: <input type="range" id="boostLR" min="0.05" max="1" step="0.05" value="0.3"> <span id="boostLRVal">0.30</span></label>
+      <button onclick="animateBoosting()">Animate</button>
+      <button class="btn-secondary" onclick="stopBoosting()">Stop</button>
+    </div>
+    <canvas id="canvasBoost" width="900" height="380"></canvas>
+    <p class="info-text">Blue dots = data. Purple line = ensemble prediction. Grey dashed = true function. Bottom bar shows residuals (errors) — they should shrink as rounds increase.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="stacking">
+  <h2>9. Stacking (Stacked Generalisation)</h2>
+  <p>Stacking uses a <strong>meta-learner</strong> to combine predictions from multiple diverse base models:</p>
+  <ol>
+    <li>Train K diverse base models (e.g., Random Forest, SVM, Neural Net, XGBoost)</li>
+    <li>Generate out-of-fold predictions from each base model</li>
+    <li>Train a meta-learner (often logistic regression or linear model) on these predictions</li>
+    <li>Final prediction = meta-learner(base_model_predictions)</li>
+  </ol>
+  <p>The meta-learner learns the optimal way to combine base models — which to trust and when. Cross-validation is critical to avoid overfitting the meta-learner to the training set.</p>
+</section>
+
+<!-- 10 -->
+<section id="voting">
+  <h2>10. Voting Ensembles</h2>
+  <div class="card">
+    <h3>Hard Voting</h3>
+    <p>Each model casts a vote; the majority wins. Simple but effective when models have similar accuracy.</p>
+  </div>
+  <div class="card">
+    <h3>Soft Voting</h3>
+    <p>Average the predicted probabilities, then pick the class with highest average probability. Usually better than hard voting because it uses confidence information.</p>
+  </div>
+  <div class="formula">Hard: ŷ = mode(h₁(x), h₂(x), ..., hₖ(x))
+Soft: ŷ = argmax_c  (1/K) Σ P_k(y=c|x)</div>
+</section>
+
+<!-- 11 — DEMO 3 -->
+<section id="demo-diversity">
+  <h2>11. Interactive Demo — Model Diversity & Ensemble Accuracy</h2>
+  <div class="demo-container">
+    <h3>🎯 Why Diversity Matters</h3>
+    <p>Simulate an ensemble of models with adjustable individual accuracy and correlation. See how diversity (low correlation) improves ensemble performance.</p>
+    <div class="controls">
+      <label>Individual accuracy: <input type="range" id="indivAcc" min="0.5" max="0.9" step="0.01" value="0.65"> <span id="accVal">0.65</span></label>
+      <label>Model correlation: <input type="range" id="modelCorr" min="0" max="0.95" step="0.05" value="0.3"> <span id="corrVal">0.30</span></label>
+      <label>Ensemble size: <input type="range" id="ensSize" min="3" max="50" step="1" value="15"> <span id="sizeVal">15</span></label>
+      <button onclick="drawDiversity()">Simulate</button>
+    </div>
+    <canvas id="canvasDiversity" width="900" height="350"></canvas>
+    <p class="info-text">Left: ensemble accuracy vs number of models. Right: accuracy gain at different correlation levels. Low correlation = high diversity = better ensembles.</p>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="hyperparams">
+  <h2>12. Key Hyperparameters</h2>
+  <table>
+    <tr><th>Parameter</th><th>Bagging</th><th>Boosting</th></tr>
+    <tr><td>n_estimators</td><td>More is usually better (no overfitting)</td><td>More can overfit; use early stopping</td></tr>
+    <tr><td>max_depth</td><td>Full trees (deep)</td><td>Shallow trees (3–8)</td></tr>
+    <tr><td>learning_rate</td><td>N/A</td><td>Lower = more trees needed, better generalisation</td></tr>
+    <tr><td>subsample</td><td>Bootstrap (default ~63%)</td><td>Row subsampling (0.5–0.8 typical)</td></tr>
+    <tr><td>colsample</td><td>√p or p/3</td><td>Feature subsampling per tree/level</td></tr>
+    <tr><td>min_samples_leaf</td><td>1 (full trees)</td><td>Higher to prevent overfitting</td></tr>
+    <tr><td>reg_alpha/lambda</td><td>N/A</td><td>L1/L2 regularisation on leaf weights</td></tr>
+  </table>
+</section>
+
+<!-- 13 -->
+<section id="when-to-use">
+  <h2>13. When to Use What</h2>
+  <ul>
+    <li><strong>Random Forest:</strong> Great default. Low tuning effort, resistant to overfitting, handles mixed feature types well.</li>
+    <li><strong>XGBoost/LightGBM:</strong> When you need maximum accuracy and are willing to tune. Kaggle competitions, tabular data, production ML pipelines.</li>
+    <li><strong>CatBoost:</strong> When you have many categorical features and want minimal preprocessing.</li>
+    <li><strong>AdaBoost:</strong> Simple baseline for boosting; works well with decision stumps.</li>
+    <li><strong>Stacking:</strong> When you have diverse strong models and want to squeeze out the last bit of accuracy.</li>
+    <li><strong>Voting:</strong> Quick win when you already have multiple trained models.</li>
+  </ul>
+</section>
+
+<!-- 14 -->
+<section id="summary">
+  <h2>14. Quick Reference & Summary</h2>
+  <table>
+    <tr><th>Concept</th><th>Key Idea</th></tr>
+    <tr><td>Bagging</td><td>Bootstrap samples + averaging; reduces variance</td></tr>
+    <tr><td>Random Forest</td><td>Bagging + random feature subsets; decorrelates trees</td></tr>
+    <tr><td>AdaBoost</td><td>Reweight misclassified samples; weighted model vote</td></tr>
+    <tr><td>Gradient Boosting</td><td>Fit residuals sequentially; gradient descent in function space</td></tr>
+    <tr><td>XGBoost</td><td>Regularised gradient boosting; 2nd-order approximation</td></tr>
+    <tr><td>LightGBM</td><td>Leaf-wise growth + GOSS + EFB; fastest on large data</td></tr>
+    <tr><td>CatBoost</td><td>Native categorical features; ordered boosting</td></tr>
+    <tr><td>Stacking</td><td>Meta-learner combines diverse base models</td></tr>
+    <tr><td>Diversity</td><td>Uncorrelated errors → better ensemble accuracy</td></tr>
+  </table>
+  <p style="margin-top:1.5rem;color:var(--text-muted);font-size:.85rem;text-align:center;">Ensemble Methods — Data Science Mega Document Research</p>
+</section>
+
+</div>
+
+<script>
+/* ═══ UTILITIES ═══ */
+function randn(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+function generateData(type,n=100){
+  const pts=[];
+  if(type==='moons'){
+    for(let i=0;i<n;i++){
+      const a=Math.PI*i/(n/2);
+      if(i<n/2) pts.push({x:Math.cos(a)+randn()*0.15,y:Math.sin(a)+randn()*0.15,label:1});
+      else pts.push({x:1-Math.cos(a-Math.PI)+randn()*0.15,y:1-Math.sin(a-Math.PI)-0.5+randn()*0.15,label:-1});
+    }
+  }else if(type==='circles'){
+    for(let i=0;i<n;i++){
+      const a=Math.random()*Math.PI*2;
+      if(i<n/2){const r=0.8+randn()*0.12;pts.push({x:Math.cos(a)*r,y:Math.sin(a)*r,label:1});}
+      else{const r=2.2+randn()*0.2;pts.push({x:Math.cos(a)*r,y:Math.sin(a)*r,label:-1});}
+    }
+  }else{
+    for(let i=0;i<n;i++){
+      const x=Math.random()*4-2,y=Math.random()*4-2;
+      pts.push({x:x+randn()*0.15,y:y+randn()*0.15,label:(x*y>0)?1:-1});
+    }
+  }
+  return pts;
+}
+
+// Simple decision stump
+function trainStump(pts,weights){
+  const n=pts.length;let bestErr=Infinity,bestFeat='x',bestThresh=0,bestPol=1;
+  for(const feat of ['x','y']){
+    const vals=[...new Set(pts.map(p=>p[feat]))].sort((a,b)=>a-b);
+    for(let i=0;i<vals.length-1;i++){
+      const thresh=(vals[i]+vals[i+1])/2;
+      for(const pol of [1,-1]){
+        let err=0;
+        for(let j=0;j<n;j++){
+          const pred=pts[j][feat]>thresh?pol:-pol;
+          if(pred!==pts[j].label) err+=(weights?weights[j]:1/n);
+        }
+        if(err<bestErr){bestErr=err;bestFeat=feat;bestThresh=thresh;bestPol=pol;}
+      }
+    }
+  }
+  return {feat:bestFeat,thresh:bestThresh,pol:bestPol,err:bestErr,predict:(p)=>p[bestFeat]>bestThresh?bestPol:-bestPol};
+}
+
+/* ═══ DEMO 1 — BAGGING VS BOOSTING ═══ */
+document.getElementById('numModels').addEventListener('input',e=>{document.getElementById('modelsVal').textContent=e.target.value;});
+
+function runComparison(){
+  const dataset=document.getElementById('ensDataset').value;
+  const M=parseInt(document.getElementById('numModels').value);
+  const pts=generateData(dataset,80);
+  const c=document.getElementById('canvasCompare');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+  const halfW=W/2-10;
+
+  // Bounds
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  pts.forEach(p=>{if(p.x<minX)minX=p.x;if(p.x>maxX)maxX=p.x;if(p.y<minY)minY=p.y;if(p.y>maxY)maxY=p.y;});
+  const pad=0.8;minX-=pad;maxX+=pad;minY-=pad;maxY+=pad;
+  const sx=(v,ox)=>ox+(v-minX)/(maxX-minX)*halfW;
+  const sy=v=>H-(v-minY)/(maxY-minY)*H;
+
+  // Train bagging stumps
+  const bagModels=[];
+  for(let m=0;m<M;m++){
+    const sample=[];for(let i=0;i<pts.length;i++) sample.push(pts[Math.floor(Math.random()*pts.length)]);
+    bagModels.push(trainStump(sample));
+  }
+  // Train boosting stumps
+  const boostModels=[];const boostAlphas=[];
+  let weights=new Array(pts.length).fill(1/pts.length);
+  for(let m=0;m<M;m++){
+    const stump=trainStump(pts,weights);
+    const eps=Math.max(stump.err,1e-10);
+    const alpha=0.5*Math.log((1-eps)/eps);
+    boostModels.push(stump);boostAlphas.push(alpha);
+    const newW=[];
+    for(let i=0;i<pts.length;i++){
+      const pred=stump.predict(pts[i]);
+      newW.push(weights[i]*Math.exp(-alpha*pts[i].label*pred));
+    }
+    const wSum=newW.reduce((a,b)=>a+b);
+    weights=newW.map(w=>w/wSum);
+  }
+
+  // Draw decision regions
+  const step=4;
+  for(let px=0;px<halfW;px+=step){
+    for(let py=0;py<H;py+=step){
+      const x=minX+px/halfW*(maxX-minX);
+      const y=maxY-py/H*(maxY-minY);
+      // Bagging
+      let bagSum=0;bagModels.forEach(m=>{bagSum+=m.predict({x,y});});
+      ctx.fillStyle=bagSum>0?'rgba(167,139,250,0.12)':'rgba(244,114,182,0.12)';
+      ctx.fillRect(px,py,step,step);
+      // Boosting
+      let boostSum=0;boostModels.forEach((m,i)=>{boostSum+=boostAlphas[i]*m.predict({x,y});});
+      ctx.fillStyle=boostSum>0?'rgba(167,139,250,0.12)':'rgba(244,114,182,0.12)';
+      ctx.fillRect(halfW+20+px,py,step,step);
+    }
+  }
+
+  // Divider
+  ctx.strokeStyle='#262840';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(halfW+10,0);ctx.lineTo(halfW+10,H);ctx.stroke();
+
+  // Points
+  [0,halfW+20].forEach(ox=>{
+    pts.forEach(p=>{
+      ctx.beginPath();ctx.arc(sx(p.x,ox),sy(p.y),3.5,0,Math.PI*2);
+      ctx.fillStyle=p.label===1?'#a78bfa':'#f472b6';ctx.fill();
+    });
+  });
+
+  // Labels
+  ctx.fillStyle='#94a3b8';ctx.font='bold 13px sans-serif';ctx.textAlign='center';
+  ctx.fillText(`Bagging (${M} stumps)`,halfW/2,18);
+  ctx.fillText(`Boosting (${M} stumps)`,halfW+20+halfW/2,18);
+}
+
+/* ═══ DEMO 2 — BOOSTING ROUNDS ═══ */
+document.getElementById('boostRounds').addEventListener('input',e=>{document.getElementById('roundsVal').textContent=e.target.value;});
+document.getElementById('boostLR').addEventListener('input',e=>{document.getElementById('boostLRVal').textContent=parseFloat(e.target.value).toFixed(2);});
+
+let boostAnim=null;
+function stopBoosting(){if(boostAnim){clearInterval(boostAnim);boostAnim=null;}}
+
+function animateBoosting(){
+  stopBoosting();
+  const lr=parseFloat(document.getElementById('boostLR').value);
+  const c=document.getElementById('canvasBoost');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
+  // Generate regression data
+  const n=40;const data=[];
+  for(let i=0;i<n;i++){
+    const x=i/n*6-3;
+    const y=Math.sin(x)*2+0.5*x+randn()*0.4;
+    data.push({x,y});
+  }
+  const trueF=x=>Math.sin(x)*2+0.5*x;
+
+  // Boosting
+  const predictions=new Float64Array(n);
+  const stumps=[];
+  let round=0;const maxR=50;
+
+  function step(){
+    if(round>=maxR){stopBoosting();return;}
+    round++;
+    document.getElementById('boostRounds').value=round;
+    document.getElementById('roundsVal').textContent=round;
+    // Compute residuals
+    const residuals=data.map((d,i)=>d.y-predictions[i]);
+    // Fit stump to residuals (best split)
+    let bestSSE=Infinity,bestFeat=0,bestThresh=0,bestLeft=0,bestRight=0;
+    const xs=data.map(d=>d.x).sort((a,b)=>a-b);
+    for(let i=0;i<xs.length-1;i++){
+      const thresh=(xs[i]+xs[i+1])/2;
+      let lSum=0,lCnt=0,rSum=0,rCnt=0;
+      data.forEach((d,j)=>{
+        if(d.x<=thresh){lSum+=residuals[j];lCnt++;}
+        else{rSum+=residuals[j];rCnt++;}
+      });
+      if(!lCnt||!rCnt) continue;
+      const lMean=lSum/lCnt,rMean=rSum/rCnt;
+      let sse=0;
+      data.forEach((d,j)=>{
+        const pred=d.x<=thresh?lMean:rMean;
+        sse+=(residuals[j]-pred)**2;
+      });
+      if(sse<bestSSE){bestSSE=sse;bestThresh=thresh;bestLeft=lSum/lCnt;bestRight=rSum/rCnt;}
+    }
+    stumps.push({thresh:bestThresh,left:bestLeft,right:bestRight});
+    data.forEach((d,i)=>{
+      predictions[i]+=lr*(d.x<=bestThresh?bestLeft:bestRight);
+    });
+
+    // Draw
+    ctx.clearRect(0,0,W,H);
+    const plotH=H*0.7;const resH=H*0.25;const gap=H*0.05;
+    const px=d=>(d.x+3)/6*(W-80)+50;
+    const py=(v,minV,maxV,h,oy)=>oy+h-(v-minV)/(maxV-minV)*h;
+
+    // Main plot
+    const allY=[...data.map(d=>d.y),...data.map((_,i)=>predictions[i])];
+    const minY=Math.min(...allY)-0.5,maxY=Math.max(...allY)+0.5;
+    // True function
+    ctx.strokeStyle='#64748b44';ctx.setLineDash([4,4]);ctx.lineWidth=1;ctx.beginPath();
+    for(let i=0;i<100;i++){const x=-3+i/100*6;const y=trueF(x);
+      i===0?ctx.moveTo(px({x}),py(y,minY,maxY,plotH,0)):ctx.lineTo(px({x}),py(y,minY,maxY,plotH,0));}
+    ctx.stroke();ctx.setLineDash([]);
+    // Ensemble prediction
+    ctx.strokeStyle='#a78bfa';ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<100;i++){
+      const x=-3+i/100*6;let pred=0;
+      stumps.forEach(s=>{pred+=lr*(x<=s.thresh?s.left:s.right);});
+      const yy=py(pred,minY,maxY,plotH,0);
+      i===0?ctx.moveTo(px({x}),yy):ctx.lineTo(px({x}),yy);
+    }
+    ctx.stroke();
+    // Data points
+    data.forEach(d=>{
+      ctx.beginPath();ctx.arc(px(d),py(d.y,minY,maxY,plotH,0),4,0,Math.PI*2);
+      ctx.fillStyle='#5eead4';ctx.fill();
+    });
+
+    // Residual bar
+    const resOy=plotH+gap;
+    ctx.strokeStyle='#262840';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(50,resOy+resH/2);ctx.lineTo(W-30,resOy+resH/2);ctx.stroke();
+    const residuals2=data.map((d,i)=>d.y-predictions[i]);
+    const maxR2=Math.max(...residuals2.map(Math.abs),0.5);
+    data.forEach((d,i)=>{
+      const bh=(residuals2[i]/maxR2)*(resH/2);
+      ctx.fillStyle=residuals2[i]>0?'rgba(94,234,212,0.5)':'rgba(244,114,182,0.5)';
+      ctx.fillRect(px(d)-3,resOy+resH/2,6,-bh);
+    });
+
+    // Labels
+    ctx.fillStyle='#94a3b8';ctx.font='12px sans-serif';ctx.textAlign='left';
+    ctx.fillText(`Round ${round} / ${maxR}  |  MSE: ${(residuals2.reduce((a,v)=>a+v*v,0)/n).toFixed(3)}`,55,16);
+    ctx.fillStyle='#64748b';ctx.font='10px sans-serif';
+    ctx.fillText('Residuals',55,resOy+12);
+  }
+
+  boostAnim=setInterval(step,150);
+}
+
+/* ═══ DEMO 3 — DIVERSITY SIMULATION ═══ */
+document.getElementById('indivAcc').addEventListener('input',e=>{document.getElementById('accVal').textContent=parseFloat(e.target.value).toFixed(2);});
+document.getElementById('modelCorr').addEventListener('input',e=>{document.getElementById('corrVal').textContent=parseFloat(e.target.value).toFixed(2);});
+document.getElementById('ensSize').addEventListener('input',e=>{document.getElementById('sizeVal').textContent=e.target.value;});
+
+function drawDiversity(){
+  const acc=parseFloat(document.getElementById('indivAcc').value);
+  const corr=parseFloat(document.getElementById('modelCorr').value);
+  const maxK=parseInt(document.getElementById('ensSize').value);
+  const c=document.getElementById('canvasDiversity');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+  const halfW=W/2-20;
+
+  // Simulate ensemble accuracy via Condorcet-like formula
+  // For correlated models: effective ensemble size ≈ K / (1 + (K-1)*corr)
+  function ensembleAcc(K,p,rho){
+    const effK=K/(1+(K-1)*rho);
+    // Use normal approximation for majority vote
+    const mu=effK*p;
+    const sigma=Math.sqrt(effK*p*(1-p));
+    const z=(effK/2-mu)/sigma;
+    // CDF approximation
+    const t=1/(1+0.2316419*Math.abs(z));
+    const d=0.3989422802*Math.exp(-z*z/2);
+    const pz=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));
+    return z>0?1-pz:pz;
+  }
+
+  // Left: accuracy vs K
+  const pad={t:35,b:40,l:55,r:10};
+  const accs=[];
+  for(let k=1;k<=maxK;k++) accs.push(ensembleAcc(k,acc,corr));
+  const minA=Math.min(acc-0.02,...accs),maxA=Math.min(1,Math.max(...accs)+0.03);
+  const px=k=>pad.l+(k-1)/(maxK-1)*(halfW-pad.l-pad.r);
+  const py=a=>pad.t+(1-(a-minA)/(maxA-minA))*(H-pad.t-pad.b);
+
+  ctx.strokeStyle='#a78bfa';ctx.lineWidth=2;ctx.beginPath();
+  for(let k=1;k<=maxK;k++){const x=px(k);const y=py(accs[k-1]);k===1?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.stroke();
+  // Individual accuracy line
+  ctx.strokeStyle='#f472b666';ctx.setLineDash([4,4]);ctx.beginPath();
+  ctx.moveTo(pad.l,py(acc));ctx.lineTo(halfW-pad.r,py(acc));ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#f472b6';ctx.font='10px sans-serif';ctx.textAlign='left';
+  ctx.fillText(`Individual: ${acc.toFixed(2)}`,pad.l+5,py(acc)-5);
+  // Axes
+  ctx.strokeStyle='#262840';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(halfW-pad.r,H-pad.b);ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Ensemble Accuracy vs Size',halfW/2,16);
+  ctx.fillText('Number of Models',halfW/2,H-8);
+  ctx.save();ctx.translate(14,H/2);ctx.rotate(-Math.PI/2);ctx.fillText('Accuracy',0,0);ctx.restore();
+  // Tick labels
+  ctx.fillStyle='#64748b';ctx.font='9px sans-serif';ctx.textAlign='center';
+  for(let k=1;k<=maxK;k+=Math.max(1,Math.floor(maxK/6))) ctx.fillText(k,px(k),H-pad.b+14);
+  ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const a=minA+i*(maxA-minA)/4;ctx.fillText(a.toFixed(2),pad.l-5,py(a)+3);}
+
+  // Right: accuracy gain at different correlations
+  const ox=halfW+30;
+  const corrLevels=[0,0.1,0.3,0.5,0.8];
+  const colors=['#34d399','#5eead4','#a78bfa','#fbbf24','#f87171'];
+  corrLevels.forEach((rho,ci)=>{
+    ctx.strokeStyle=colors[ci];ctx.lineWidth=1.5;ctx.beginPath();
+    for(let k=1;k<=maxK;k++){
+      const x=ox+pad.l+(k-1)/(maxK-1)*(halfW-pad.l-pad.r);
+      const y=pad.t+(1-(ensembleAcc(k,acc,rho)-minA)/(maxA-minA))*(H-pad.t-pad.b);
+      k===1?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    // Legend
+    ctx.fillStyle=colors[ci];ctx.font='10px sans-serif';ctx.textAlign='left';
+    ctx.fillText(`ρ=${rho.toFixed(1)}`,ox+halfW-pad.r-50,pad.t+14+ci*14);
+  });
+  ctx.strokeStyle='#262840';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(ox+pad.l,pad.t);ctx.lineTo(ox+pad.l,H-pad.b);ctx.lineTo(ox+halfW-pad.r,H-pad.b);ctx.stroke();
+  ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Effect of Correlation (ρ)',ox+halfW/2,16);
+  ctx.fillText('Number of Models',ox+halfW/2,H-8);
+}
+
+// Init
+window.addEventListener('DOMContentLoaded',()=>{runComparison();drawDiversity();});
+</script>
+</body>
+</html>
