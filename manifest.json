@@ -520,6 +520,29 @@
         "category": "Statistics & Probability"
       },
       {
+        "name": "probability-distributions",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "probability-distributions",
+            "type": "file",
+            "ext": "html",
+            "size": 49490,
+            "path": "probability-distributions/index.html"
+          },
+          {
+            "name": "probability_distributions_guide.docx",
+            "displayName": "probability_distributions_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14833,
+            "path": "probability-distributions/probability_distributions_guide.docx"
+          }
+        ],
+        "category": "Statistics & Probability"
+      },
+      {
         "name": "Regression-Models-Explained",
         "type": "folder",
         "children": [

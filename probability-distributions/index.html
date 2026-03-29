@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probability Distributions — Every Distribution a Data Scientist Must Know</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg-primary:#0a0b14;--bg-card:#12142a;--bg-card-hover:#181a36;--border-color:#1e2045;--text-primary:#c8cad8;--text-dim:#6b6e8a;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warm:#f9a825;--accent-pink:#f472b6;--accent-blue:#60a5fa;--accent-red:#f87171;--accent-green:#34d399;--accent-orange:#fb923c}
+        body{background:var(--bg-primary);color:var(--text-primary);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.8;padding:2rem}
+        .container{max-width:1200px;margin:0 auto}
+        header{margin-bottom:3rem;border-bottom:1px solid var(--border-color);padding-bottom:2rem}
+        h1{font-size:2.5rem;margin-bottom:.5rem;color:var(--accent-primary);line-height:1.2}
+        .subtitle{font-size:1.1rem;color:var(--text-dim);margin-bottom:1rem}
+        .tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+        .tag{display:inline-block;background:var(--border-color);color:var(--accent-secondary);padding:.25rem .75rem;border-radius:999px;font-size:.85rem;font-weight:500}
+        .section{margin-bottom:4rem}
+        h2{font-size:1.75rem;color:var(--accent-secondary);margin-bottom:1.5rem;display:flex;align-items:center;gap:.5rem}
+        h3{font-size:1.25rem;color:var(--accent-primary);margin-bottom:1rem;margin-top:2rem}
+        p{margin-bottom:1rem;max-width:80ch}
+        .card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+        .card:hover{background:var(--bg-card-hover)}
+        .formula-box{background:linear-gradient(135deg,#12142a,#1a1c3a);border:1px solid var(--accent-primary);border-radius:12px;padding:1.25rem 2rem;margin:1.5rem 0;text-align:center;font-size:1.2rem;color:var(--accent-warm);font-family:'Courier New',monospace;position:relative;overflow:hidden}
+        .formula-box::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 20% 50%,rgba(167,139,250,.08),transparent 60%);pointer-events:none}
+        .formula-label{font-size:.8rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
+        .analogy-box{background:linear-gradient(135deg,#0d1a0d,#12142a);border-left:4px solid var(--accent-green);border-radius:0 12px 12px 0;padding:1.25rem 1.5rem;margin:1.5rem 0}
+        .analogy-box .label{color:var(--accent-green);font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+        .key-insight{background:linear-gradient(135deg,#1a0d1a,#12142a);border-left:4px solid var(--accent-pink);border-radius:0 12px 12px 0;padding:1.25rem 1.5rem;margin:1.5rem 0}
+        .key-insight .label{color:var(--accent-pink);font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+        .canvas-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0;text-align:center}
+        .canvas-container canvas{border-radius:8px;display:block;margin:0 auto;max-width:100%}
+        .canvas-title{color:var(--accent-secondary);font-weight:600;margin-bottom:1rem;font-size:1.05rem}
+        .canvas-controls{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
+        .canvas-controls button,.canvas-controls select,.canvas-controls label{background:var(--border-color);color:var(--text-primary);border:1px solid #2a2d55;padding:.4rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:background .2s}
+        .canvas-controls button:hover{background:#2a2d55}
+        .canvas-controls button.active{background:var(--accent-primary);color:#fff;border-color:var(--accent-primary)}
+        .canvas-controls select{appearance:none;-webkit-appearance:none;padding-right:2rem;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6e8a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .6rem center}
+        .slider-group{display:flex;align-items:center;gap:.5rem;background:var(--border-color);padding:.3rem .8rem;border-radius:8px;border:1px solid #2a2d55}
+        .slider-group label{background:none;border:none;padding:0;font-size:.82rem;color:var(--text-dim)}
+        .slider-group input[type=range]{width:100px;accent-color:var(--accent-primary)}
+        .slider-group .val{color:var(--accent-warm);font-weight:600;min-width:2.5em;text-align:right;font-size:.85rem}
+        .example-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin:1.5rem 0}
+        .toc{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin-bottom:3rem}
+        .toc-title{color:var(--accent-primary);font-weight:700;margin-bottom:1rem;font-size:1.1rem}
+        .toc a{color:var(--text-primary);text-decoration:none;display:block;padding:.3rem 0;transition:color .2s}
+        .toc a:hover{color:var(--accent-secondary)}
+        .toc a::before{content:'→ ';color:var(--accent-primary)}
+        code{background:rgba(167,139,250,.12);color:var(--accent-primary);padding:.15rem .4rem;border-radius:4px;font-size:.9em}
+        .highlight{color:var(--accent-warm);font-weight:600}
+        .dist-type{display:inline-block;padding:.15rem .5rem;border-radius:6px;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+        .dist-type.discrete{background:rgba(96,165,250,.15);color:var(--accent-blue)}
+        .dist-type.continuous{background:rgba(244,114,182,.15);color:var(--accent-pink)}
+        .comparison-table{width:100%;border-collapse:collapse;margin:1.5rem 0}
+        .comparison-table th,.comparison-table td{border:1px solid var(--border-color);padding:.65rem .85rem;text-align:left;font-size:.9rem}
+        .comparison-table th{background:var(--bg-card);color:var(--accent-primary);font-weight:600}
+        .comparison-table tr:nth-child(even) td{background:rgba(18,20,42,.5)}
+        @media(max-width:768px){body{padding:1rem}h1{font-size:1.75rem}h2{font-size:1.35rem}.formula-box{font-size:1rem;padding:1rem}}
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>Probability Distributions</h1>
+        <p class="subtitle">Every Distribution a Data Scientist Must Know — Interactive PDF/CDF Plots, Intuition & Real Use Cases</p>
+        <div class="tags">
+            <span class="tag">Statistics</span>
+            <span class="tag">Probability</span>
+            <span class="tag">Data Science</span>
+            <span class="tag">Normal</span>
+            <span class="tag">Binomial</span>
+            <span class="tag">Poisson</span>
+            <span class="tag">Exponential</span>
+            <span class="tag">Beta</span>
+        </div>
+    </header>
+
+    <div class="toc">
+        <div class="toc-title">Table of Contents</div>
+        <a href="#intuition">1. What Is a Probability Distribution?</a>
+        <a href="#discrete-vs-continuous">2. Discrete vs Continuous</a>
+        <a href="#interactive-explorer">3. Interactive: Distribution Explorer</a>
+        <a href="#uniform">4. Uniform Distribution</a>
+        <a href="#bernoulli-binomial">5. Bernoulli & Binomial</a>
+        <a href="#poisson">6. Poisson Distribution</a>
+        <a href="#geometric">7. Geometric & Negative Binomial</a>
+        <a href="#normal">8. Normal (Gaussian) Distribution</a>
+        <a href="#interactive-normal">9. Interactive: Normal & The 68-95-99.7 Rule</a>
+        <a href="#exponential">10. Exponential Distribution</a>
+        <a href="#beta">11. Beta Distribution</a>
+        <a href="#interactive-beta">12. Interactive: Beta Distribution Explorer</a>
+        <a href="#gamma-chi2">13. Gamma & Chi-Squared</a>
+        <a href="#choosing">14. How to Choose the Right Distribution</a>
+        <a href="#summary">15. Cheat Sheet & Summary</a>
+    </div>
+
+    <!-- ============ 1. INTUITION ============ -->
+    <div class="section" id="intuition">
+        <h2>1. What Is a Probability Distribution?</h2>
+        <p>A <span class="highlight">probability distribution</span> describes how likely each possible outcome is. It's a complete "recipe" for randomness — it tells you the probability of every possible event.</p>
+
+        <div class="analogy-box">
+            <div class="label">Analogy: A Loaded Die</div>
+            <p>A fair die has a uniform distribution: each face (1-6) has probability 1/6. A loaded die has a different distribution — maybe face 6 has probability 1/3 while others share the rest. The distribution is the complete description of "how unfair" the die is. Once you know the distribution, you know everything about the randomness.</p>
+        </div>
+
+        <p>Every distribution has key properties:</p>
+        <div class="example-grid">
+            <div class="card">
+                <h3 style="margin-top:0">Mean (μ)</h3>
+                <p>The "center of gravity" — the expected average outcome if you repeated the experiment forever.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Variance (σ²)</h3>
+                <p>How spread out the outcomes are. Low variance = clustered around the mean. High variance = wide spread.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">PDF / PMF</h3>
+                <p><strong>PDF</strong> (continuous) or <strong>PMF</strong> (discrete): the function that gives the probability (or density) at each point.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">CDF</h3>
+                <p><strong>Cumulative Distribution Function</strong>: P(X ≤ x). Starts at 0, ends at 1. Answers "what's the probability of getting at most x?"</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 2. DISCRETE vs CONTINUOUS ============ -->
+    <div class="section" id="discrete-vs-continuous">
+        <h2>2. Discrete vs Continuous</h2>
+        <div class="example-grid">
+            <div class="card">
+                <h3 style="margin-top:0"><span class="dist-type discrete">Discrete</span></h3>
+                <p>Countable outcomes (0, 1, 2, 3, ...). Uses a <strong>PMF</strong> (probability mass function). Probabilities are actual numbers that sum to 1.</p>
+                <p>Examples: coin flips, dice rolls, number of website visits, defect counts.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0"><span class="dist-type continuous">Continuous</span></h3>
+                <p>Uncountably many outcomes on a continuum. Uses a <strong>PDF</strong> (probability density function). Individual point probabilities are 0; only intervals have nonzero probability.</p>
+                <p>Examples: height, temperature, time between events, stock prices.</p>
+            </div>
+        </div>
+
+        <div class="key-insight">
+            <div class="label">Key Distinction</div>
+            <p>For discrete distributions, P(X = 5) can be 0.3 (a real number). For continuous distributions, P(X = 5.000...) = 0 always — you must ask P(4.9 < X < 5.1) instead. The PDF gives <em>density</em>, not probability; you must integrate to get probability.</p>
+        </div>
+    </div>
+
+    <!-- ============ 3. INTERACTIVE EXPLORER ============ -->
+    <div class="section" id="interactive-explorer">
+        <h2>3. Interactive: Distribution Explorer</h2>
+        <p>Choose a distribution and adjust its parameters to see the PDF/PMF and CDF change in real time.</p>
+
+        <div class="canvas-container">
+            <div class="canvas-title">PDF / PMF Plot</div>
+            <canvas id="pdfCanvas" width="700" height="340"></canvas>
+            <div class="canvas-controls" id="distControls">
+                <select id="distSelect" onchange="updateDist()">
+                    <option value="normal">Normal (Gaussian)</option>
+                    <option value="binomial">Binomial</option>
+                    <option value="poisson">Poisson</option>
+                    <option value="exponential">Exponential</option>
+                    <option value="uniform">Uniform</option>
+                    <option value="beta">Beta</option>
+                </select>
+                <div class="slider-group" id="param1Group">
+                    <label id="param1Label">μ</label>
+                    <input type="range" id="param1" min="-3" max="3" step="0.1" value="0" oninput="updateDist()">
+                    <span class="val" id="param1Val">0</span>
+                </div>
+                <div class="slider-group" id="param2Group">
+                    <label id="param2Label">σ</label>
+                    <input type="range" id="param2" min="0.2" max="3" step="0.1" value="1" oninput="updateDist()">
+                    <span class="val" id="param2Val">1</span>
+                </div>
+            </div>
+            <p style="color:var(--text-dim);font-size:.85rem;margin-top:.75rem" id="distInfo"></p>
+        </div>
+
+        <div class="canvas-container">
+            <div class="canvas-title">CDF Plot</div>
+            <canvas id="cdfCanvas" width="700" height="260"></canvas>
+        </div>
+    </div>
+
+    <!-- ============ 4. UNIFORM ============ -->
+    <div class="section" id="uniform">
+        <h2>4. Uniform Distribution</h2>
+        <div class="example-grid">
+            <div class="card">
+                <h3 style="margin-top:0"><span class="dist-type discrete">Discrete Uniform</span></h3>
+                <p>Each of n outcomes equally likely. P(X = k) = 1/n.</p>
+                <p><strong>Example:</strong> Rolling a fair die (n=6), each face has P = 1/6.</p>
+                <p><strong>Mean:</strong> (a+b)/2 &nbsp; <strong>Var:</strong> (n²−1)/12</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0"><span class="dist-type continuous">Continuous Uniform</span></h3>
+                <p>Constant density on interval [a, b]. PDF = 1/(b−a).</p>
+                <p><strong>Example:</strong> Random number generators, bus arrival within a window.</p>
+                <p><strong>Mean:</strong> (a+b)/2 &nbsp; <strong>Var:</strong> (b−a)²/12</p>
+            </div>
+        </div>
+        <div class="analogy-box">
+            <div class="label">When to Use</div>
+            <p>Use uniform when you have <strong>no reason to prefer any outcome over another</strong>. It's the "maximum ignorance" distribution — the mathematical way of saying "I have absolutely no idea, any value is equally likely."</p>
+        </div>
+    </div>
+
+    <!-- ============ 5. BERNOULLI & BINOMIAL ============ -->
+    <div class="section" id="bernoulli-binomial">
+        <h2>5. Bernoulli & Binomial</h2>
+        <h3><span class="dist-type discrete">Bernoulli(p)</span> — A Single Yes/No Trial</h3>
+        <p>The simplest distribution: one trial, two outcomes (success with probability p, failure with probability 1−p).</p>
+        <div class="formula-box">
+            <div class="formula-label">Bernoulli PMF</div>
+            P(X = 1) = p, &nbsp; P(X = 0) = 1 − p &nbsp;&nbsp;|&nbsp;&nbsp; Mean = p, &nbsp; Var = p(1−p)
+        </div>
+
+        <h3><span class="dist-type discrete">Binomial(n, p)</span> — Count of Successes in n Trials</h3>
+        <p>Repeat n independent Bernoulli trials. X = total number of successes.</p>
+        <div class="formula-box">
+            <div class="formula-label">Binomial PMF</div>
+            P(X = k) = C(n,k) · p^k · (1−p)^(n−k) &nbsp;&nbsp;|&nbsp;&nbsp; Mean = np, &nbsp; Var = np(1−p)
+        </div>
+
+        <div class="analogy-box">
+            <div class="label">Real-World Examples</div>
+            <p><strong>A/B testing:</strong> n=1000 visitors, p=0.05 conversion rate. How many conversions? Binomial!<br>
+            <strong>Quality control:</strong> n=100 items, p=0.02 defect rate. How many defects? Binomial!<br>
+            <strong>Surveys:</strong> n=500 respondents, p = proportion who say "yes". Count of "yes" answers is Binomial.</p>
+        </div>
+    </div>
+
+    <!-- ============ 6. POISSON ============ -->
+    <div class="section" id="poisson">
+        <h2>6. Poisson Distribution</h2>
+        <h3><span class="dist-type discrete">Poisson(λ)</span> — Count of Events in a Fixed Interval</h3>
+        <p>Models the number of events occurring in a fixed time/space interval, when events happen independently at a constant average rate λ.</p>
+        <div class="formula-box">
+            <div class="formula-label">Poisson PMF</div>
+            P(X = k) = (λ^k · e^(−λ)) / k! &nbsp;&nbsp;|&nbsp;&nbsp; Mean = λ, &nbsp; Var = λ
+        </div>
+        <p>A special property: the <strong>mean equals the variance</strong>. If your count data has mean ≈ variance, Poisson is a good fit.</p>
+
+        <div class="analogy-box">
+            <div class="label">Real-World Examples</div>
+            <p><strong>Website traffic:</strong> Average 50 visits/hour → Poisson(λ=50).<br>
+            <strong>Rare diseases:</strong> 3 cases per year in a city → Poisson(λ=3).<br>
+            <strong>Typos:</strong> Average 2 typos per page → how many typos on a given page?<br>
+            <strong>Call center:</strong> 10 calls per minute → how many in the next minute?</p>
+        </div>
+
+        <div class="key-insight">
+            <div class="label">Poisson as Binomial Limit</div>
+            <p>When n is large and p is small (many trials, rare events), Binomial(n,p) ≈ Poisson(λ=np). This is why Poisson is called the "law of rare events."</p>
+        </div>
+    </div>
+
+    <!-- ============ 7. GEOMETRIC ============ -->
+    <div class="section" id="geometric">
+        <h2>7. Geometric & Negative Binomial</h2>
+        <h3><span class="dist-type discrete">Geometric(p)</span> — Trials Until First Success</h3>
+        <p>Keep flipping a coin until you get heads. X = number of trials needed.</p>
+        <div class="formula-box">
+            <div class="formula-label">Geometric PMF</div>
+            P(X = k) = (1−p)^(k−1) · p &nbsp;&nbsp;|&nbsp;&nbsp; Mean = 1/p, &nbsp; Var = (1−p)/p²
+        </div>
+        <p><strong>Memoryless property:</strong> Geometric is the only discrete distribution with this. No matter how many failures so far, the probability of success on the next trial is still p. "The coin doesn't remember."</p>
+
+        <h3><span class="dist-type discrete">Negative Binomial(r, p)</span> — Trials Until r Successes</h3>
+        <p>Generalization: wait for r-th success instead of 1st. Mean = r/p.</p>
+        <p><strong>Use case:</strong> Modeling overdispersed count data (when variance > mean, unlike Poisson where they're equal).</p>
+    </div>
+
+    <!-- ============ 8. NORMAL ============ -->
+    <div class="section" id="normal">
+        <h2>8. Normal (Gaussian) Distribution</h2>
+        <h3><span class="dist-type continuous">Normal(μ, σ²)</span> — The "Bell Curve"</h3>
+        <p>The most important distribution in all of statistics. Appears everywhere due to the Central Limit Theorem.</p>
+        <div class="formula-box">
+            <div class="formula-label">Normal PDF</div>
+            f(x) = (1 / σ√(2π)) · exp(−(x−μ)² / 2σ²)
+        </div>
+
+        <div class="analogy-box">
+            <div class="label">Why It's Everywhere</div>
+            <p><strong>Central Limit Theorem:</strong> The average of many independent random variables (regardless of their individual distributions) tends toward a normal distribution. This is why heights, test scores, measurement errors, stock returns, and countless natural phenomena follow bell curves — they're the sum of many small random effects.</p>
+        </div>
+
+        <h3>The 68-95-99.7 Rule (Empirical Rule)</h3>
+        <div class="card">
+            <p>• <strong>68%</strong> of data falls within <strong>±1σ</strong> of the mean</p>
+            <p>• <strong>95%</strong> of data falls within <strong>±2σ</strong> of the mean</p>
+            <p>• <strong>99.7%</strong> of data falls within <strong>±3σ</strong> of the mean</p>
+        </div>
+
+        <h3>Standard Normal Z ~ N(0,1)</h3>
+        <p>Any normal can be standardized: <code>Z = (X − μ) / σ</code>. Z-scores tell you "how many standard deviations away from the mean." This is how p-values, confidence intervals, and hypothesis tests work.</p>
+    </div>
+
+    <!-- ============ 9. INTERACTIVE NORMAL ============ -->
+    <div class="section" id="interactive-normal">
+        <h2>9. Interactive: Normal & The 68-95-99.7 Rule</h2>
+        <p>Adjust μ and σ to see how the bell curve changes. Shaded regions show the 68-95-99.7 bands.</p>
+
+        <div class="canvas-container">
+            <div class="canvas-title">Normal Distribution — Empirical Rule Visualizer</div>
+            <canvas id="normalCanvas" width="700" height="380"></canvas>
+            <div class="canvas-controls">
+                <div class="slider-group">
+                    <label>μ</label>
+                    <input type="range" id="normMu" min="-3" max="3" step="0.1" value="0" oninput="drawNormal()">
+                    <span class="val" id="normMuVal">0</span>
+                </div>
+                <div class="slider-group">
+                    <label>σ</label>
+                    <input type="range" id="normSigma" min="0.3" max="2.5" step="0.1" value="1" oninput="drawNormal()">
+                    <span class="val" id="normSigmaVal">1</span>
+                </div>
+                <button class="active" id="band3" onclick="setNormBand(3,this)">±3σ (99.7%)</button>
+                <button id="band2" onclick="setNormBand(2,this)">±2σ (95%)</button>
+                <button id="band1" onclick="setNormBand(1,this)">±1σ (68%)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 10. EXPONENTIAL ============ -->
+    <div class="section" id="exponential">
+        <h2>10. Exponential Distribution</h2>
+        <h3><span class="dist-type continuous">Exponential(λ)</span> — Time Between Events</h3>
+        <p>If events occur at a Poisson rate λ, the <em>time between</em> consecutive events follows an Exponential distribution. It's the continuous counterpart of the Geometric distribution.</p>
+        <div class="formula-box">
+            <div class="formula-label">Exponential PDF</div>
+            f(x) = λ · e^(−λx) for x ≥ 0 &nbsp;&nbsp;|&nbsp;&nbsp; Mean = 1/λ, &nbsp; Var = 1/λ²
+        </div>
+        <p><strong>Memoryless property:</strong> P(X > s+t | X > s) = P(X > t). The remaining wait time doesn't depend on how long you've already waited. This makes it ideal for modeling lifetimes of "ageless" components.</p>
+
+        <div class="analogy-box">
+            <div class="label">Real-World Examples</div>
+            <p><strong>Time between customer arrivals</strong> (λ = 5 per hour → mean wait = 12 min).<br>
+            <strong>Radioactive decay</strong> (time until next emission).<br>
+            <strong>Server requests</strong> (time between API calls).<br>
+            <strong>Light bulb lifetime</strong> (memoryless = no "wear out").</p>
+        </div>
+    </div>
+
+    <!-- ============ 11. BETA ============ -->
+    <div class="section" id="beta">
+        <h2>11. Beta Distribution</h2>
+        <h3><span class="dist-type continuous">Beta(α, β)</span> — Distribution of Probabilities</h3>
+        <p>Defined on [0, 1] — perfect for modeling probabilities, proportions, and rates. It's the "distribution over distributions."</p>
+        <div class="formula-box">
+            <div class="formula-label">Beta PDF</div>
+            f(x) = x^(α−1) · (1−x)^(β−1) / B(α,β) &nbsp;&nbsp;|&nbsp;&nbsp; Mean = α/(α+β)
+        </div>
+
+        <p>The shape depends entirely on α and β:</p>
+        <div class="card">
+            <p>• <strong>α = β = 1:</strong> Uniform on [0,1] (no information)</p>
+            <p>• <strong>α = β > 1:</strong> Symmetric bell curve centered at 0.5</p>
+            <p>• <strong>α > β:</strong> Skewed right (favors higher values)</p>
+            <p>• <strong>α < β:</strong> Skewed left (favors lower values)</p>
+            <p>• <strong>α, β < 1:</strong> U-shaped (extreme values more likely)</p>
+        </div>
+
+        <div class="analogy-box">
+            <div class="label">The Bayesian Superpower</div>
+            <p>Beta is the <strong>conjugate prior</strong> for the Binomial. Start with Beta(α, β) as your prior belief about a probability. Observe s successes and f failures. Your posterior is Beta(α+s, β+f). This makes Bayesian updating trivially easy!<br><br>
+            <strong>Example:</strong> You think a coin is fair → Beta(10, 10). You flip 7 heads, 3 tails. Posterior: Beta(17, 13). Mean shifts from 0.5 to 0.567 — slightly toward heads.</p>
+        </div>
+    </div>
+
+    <!-- ============ 12. INTERACTIVE BETA ============ -->
+    <div class="section" id="interactive-beta">
+        <h2>12. Interactive: Beta Distribution Explorer</h2>
+        <p>Adjust α and β to see how the Beta shape transforms. Watch the Bayesian update: your prior + observed data = posterior.</p>
+
+        <div class="canvas-container">
+            <div class="canvas-title">Beta Distribution — Shape Explorer & Bayesian Update</div>
+            <canvas id="betaCanvas" width="700" height="360"></canvas>
+            <div class="canvas-controls">
+                <div class="slider-group">
+                    <label>α</label>
+                    <input type="range" id="betaA" min="0.1" max="20" step="0.1" value="2" oninput="drawBeta()">
+                    <span class="val" id="betaAVal">2</span>
+                </div>
+                <div class="slider-group">
+                    <label>β</label>
+                    <input type="range" id="betaB" min="0.1" max="20" step="0.1" value="5" oninput="drawBeta()">
+                    <span class="val" id="betaBVal">5</span>
+                </div>
+                <div class="slider-group">
+                    <label>+Successes</label>
+                    <input type="range" id="betaS" min="0" max="30" step="1" value="0" oninput="drawBeta()">
+                    <span class="val" id="betaSVal">0</span>
+                </div>
+                <div class="slider-group">
+                    <label>+Failures</label>
+                    <input type="range" id="betaF" min="0" max="30" step="1" value="0" oninput="drawBeta()">
+                    <span class="val" id="betaFVal">0</span>
+                </div>
+            </div>
+            <p style="color:var(--text-dim);font-size:.85rem;margin-top:.75rem" id="betaInfo"></p>
+        </div>
+    </div>
+
+    <!-- ============ 13. GAMMA & CHI-SQUARED ============ -->
+    <div class="section" id="gamma-chi2">
+        <h2>13. Gamma & Chi-Squared</h2>
+        <div class="example-grid">
+            <div class="card">
+                <h3 style="margin-top:0"><span class="dist-type continuous">Gamma(α, β)</span></h3>
+                <p>Generalizes the Exponential. Models the <strong>time until the α-th event</strong> in a Poisson process. When α=1, it's Exponential.</p>
+                <p><strong>Mean:</strong> α/β &nbsp; <strong>Var:</strong> α/β²</p>
+                <p><strong>Use:</strong> Insurance claims, rainfall amounts, queuing times.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0"><span class="dist-type continuous">Chi-Squared(k)</span></h3>
+                <p>Sum of k squared standard normals: χ² = Z₁² + Z₂² + ... + Zₖ². It's a special case of Gamma(k/2, 1/2).</p>
+                <p><strong>Mean:</strong> k &nbsp; <strong>Var:</strong> 2k</p>
+                <p><strong>Use:</strong> Goodness-of-fit tests, confidence intervals for variance, contingency tables.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 14. CHOOSING ============ -->
+    <div class="section" id="choosing">
+        <h2>14. How to Choose the Right Distribution</h2>
+        <table class="comparison-table">
+            <tr><th>Your Data Type</th><th>Question You're Asking</th><th>Distribution</th></tr>
+            <tr><td>Yes/No outcome</td><td>Probability of success?</td><td>Bernoulli(p)</td></tr>
+            <tr><td>Count of successes in n trials</td><td>How many successes?</td><td>Binomial(n, p)</td></tr>
+            <tr><td>Count of events in interval</td><td>How many events?</td><td>Poisson(λ)</td></tr>
+            <tr><td>Trials until first success</td><td>How long until success?</td><td>Geometric(p)</td></tr>
+            <tr><td>Continuous measurement</td><td>Sum of many small effects?</td><td>Normal(μ, σ²)</td></tr>
+            <tr><td>Time between events</td><td>How long until next event?</td><td>Exponential(λ)</td></tr>
+            <tr><td>Probability/proportion</td><td>What's the true rate?</td><td>Beta(α, β)</td></tr>
+            <tr><td>Time until k-th event</td><td>Total wait for k events?</td><td>Gamma(α, β)</td></tr>
+            <tr><td>Sum of squared normals</td><td>Goodness of fit?</td><td>Chi-Squared(k)</td></tr>
+            <tr><td>No preference</td><td>Equally likely outcomes?</td><td>Uniform</td></tr>
+        </table>
+
+        <div class="key-insight">
+            <div class="label">Quick Decision Flowchart</div>
+            <p><strong>Is your data discrete or continuous?</strong><br>
+            → Discrete: Is it binary? (Bernoulli/Binomial) Is it count data? (Poisson if mean≈var, Negative Binomial if var>mean)<br>
+            → Continuous: Is it always positive? (Exponential/Gamma) Is it on [0,1]? (Beta) Could it be negative? (Normal)</p>
+        </div>
+    </div>
+
+    <!-- ============ 15. SUMMARY ============ -->
+    <div class="section" id="summary">
+        <h2>15. Cheat Sheet & Summary</h2>
+        <table class="comparison-table">
+            <tr><th>Distribution</th><th>Type</th><th>Parameters</th><th>Mean</th><th>Variance</th><th>Key Use</th></tr>
+            <tr><td>Bernoulli</td><td>Discrete</td><td>p</td><td>p</td><td>p(1−p)</td><td>Single yes/no trial</td></tr>
+            <tr><td>Binomial</td><td>Discrete</td><td>n, p</td><td>np</td><td>np(1−p)</td><td>Count of successes</td></tr>
+            <tr><td>Poisson</td><td>Discrete</td><td>λ</td><td>λ</td><td>λ</td><td>Event counts (rare)</td></tr>
+            <tr><td>Geometric</td><td>Discrete</td><td>p</td><td>1/p</td><td>(1−p)/p²</td><td>Trials to first success</td></tr>
+            <tr><td>Uniform</td><td>Both</td><td>a, b</td><td>(a+b)/2</td><td>(b−a)²/12</td><td>Equal likelihood</td></tr>
+            <tr><td>Normal</td><td>Continuous</td><td>μ, σ</td><td>μ</td><td>σ²</td><td>Bell curve, CLT</td></tr>
+            <tr><td>Exponential</td><td>Continuous</td><td>λ</td><td>1/λ</td><td>1/λ²</td><td>Time between events</td></tr>
+            <tr><td>Beta</td><td>Continuous</td><td>α, β</td><td>α/(α+β)</td><td>αβ/((α+β)²(α+β+1))</td><td>Probabilities, Bayesian</td></tr>
+            <tr><td>Gamma</td><td>Continuous</td><td>α, β</td><td>α/β</td><td>α/β²</td><td>Wait for k-th event</td></tr>
+            <tr><td>Chi-Squared</td><td>Continuous</td><td>k</td><td>k</td><td>2k</td><td>Goodness of fit</td></tr>
+        </table>
+
+        <div class="key-insight" style="margin-top:2rem">
+            <div class="label">The Big Picture</div>
+            <p>These distributions are the building blocks of all statistical modeling. Every ML model, every hypothesis test, every confidence interval assumes some distribution. Understanding which distribution to use — and why — is one of the most valuable skills in data science.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ============================================================
+// UTILITY: Math helpers
+// ============================================================
+function factorial(n) { if(n<=1) return 1; let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
+function lnGamma(z) { // Stirling approximation for Gamma function
+    if(z<0.5) return Math.log(Math.PI/Math.sin(Math.PI*z)) - lnGamma(1-z);
+    z-=1;
+    const g=7, c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+    let x=c[0]; for(let i=1;i<g+2;i++) x+=c[i]/(z+i);
+    const t=z+g+0.5;
+    return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);
+}
+function betaFn(a,b){ return Math.exp(lnGamma(a)+lnGamma(b)-lnGamma(a+b)); }
+function choose(n,k){ if(k<0||k>n) return 0; let r=1; for(let i=0;i<k;i++) r*=(n-i)/(i+1); return r; }
+function normalPDF(x,mu,sig){ const z=(x-mu)/sig; return Math.exp(-0.5*z*z)/(sig*Math.sqrt(2*Math.PI)); }
+function normalCDF(x,mu,sig){ const z=(x-mu)/sig; return 0.5*(1+erf(z/Math.sqrt(2))); }
+function erf(x){ const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+    const s=x<0?-1:1; x=Math.abs(x); const t=1/(1+p*x); return s*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x)); }
+
+// ============================================================
+// DEMO 1: Distribution Explorer (PDF + CDF)
+// ============================================================
+const pdfCanvas = document.getElementById('pdfCanvas');
+const cdfCanvas = document.getElementById('cdfCanvas');
+const pdfCtx = pdfCanvas.getContext('2d');
+const cdfCtx = cdfCanvas.getContext('2d');
+
+function getDistConfig() {
+    const dist = document.getElementById('distSelect').value;
+    const p1 = document.getElementById('param1');
+    const p2 = document.getElementById('param2');
+    const p1L = document.getElementById('param1Label');
+    const p2L = document.getElementById('param2Label');
+    const p2G = document.getElementById('param2Group');
+
+    p2G.style.display = '';
+
+    switch(dist) {
+        case 'normal':
+            p1.min=-3; p1.max=3; p1.step=0.1; p1.value=p1.value||0; p1L.textContent='μ';
+            p2.min=0.2; p2.max=3; p2.step=0.1; p2.value=p2.value||1; p2L.textContent='σ';
+            return { type:'cont', range:[-6,6], pdf:(x)=>normalPDF(x,+p1.value,+p2.value), cdf:(x)=>normalCDF(x,+p1.value,+p2.value), info:`Normal(μ=${p1.value}, σ=${p2.value})` };
+        case 'binomial':
+            p1.min=1; p1.max=40; p1.step=1; if(+p1.value<1||+p1.value>40) p1.value=10; p1L.textContent='n';
+            p2.min=0.01; p2.max=0.99; p2.step=0.01; if(+p2.value<0.01||+p2.value>0.99) p2.value=0.5; p2L.textContent='p';
+            const n=+p1.value, pr=+p2.value;
+            return { type:'disc', range:[0,n], pmf:(k)=>choose(n,k)*Math.pow(pr,k)*Math.pow(1-pr,n-k),
+                cdf:(k)=>{ let s=0; for(let i=0;i<=k;i++) s+=choose(n,i)*Math.pow(pr,i)*Math.pow(1-pr,n-i); return s; },
+                info:`Binomial(n=${n}, p=${pr}) | Mean=${(n*pr).toFixed(1)}, Var=${(n*pr*(1-pr)).toFixed(1)}` };
+        case 'poisson':
+            p1.min=0.5; p1.max=20; p1.step=0.5; if(+p1.value<0.5) p1.value=4; p1L.textContent='λ';
+            p2G.style.display='none';
+            const lam=+p1.value; const maxK=Math.ceil(lam+4*Math.sqrt(lam)+5);
+            return { type:'disc', range:[0,maxK], pmf:(k)=>Math.exp(-lam+k*Math.log(lam)-lnGamma(k+1)),
+                cdf:(k)=>{ let s=0; for(let i=0;i<=k;i++) s+=Math.exp(-lam+i*Math.log(lam)-lnGamma(i+1)); return s; },
+                info:`Poisson(λ=${lam}) | Mean=Var=${lam}` };
+        case 'exponential':
+            p1.min=0.2; p1.max=5; p1.step=0.1; if(+p1.value<0.2) p1.value=1; p1L.textContent='λ';
+            p2G.style.display='none';
+            const el=+p1.value;
+            return { type:'cont', range:[0,6/el+1], pdf:(x)=>x<0?0:el*Math.exp(-el*x), cdf:(x)=>x<0?0:1-Math.exp(-el*x),
+                info:`Exponential(λ=${el}) | Mean=${(1/el).toFixed(2)}, Var=${(1/(el*el)).toFixed(2)}` };
+        case 'uniform':
+            p1.min=-3; p1.max=2; p1.step=0.1; if(+p1.value<-3) p1.value=0; p1L.textContent='a';
+            p2.min=-2; p2.max=5; p2.step=0.1; if(+p2.value<-2) p2.value=3; p2L.textContent='b';
+            let a=+p1.value, b=+p2.value; if(b<=a) b=a+0.5;
+            return { type:'cont', range:[a-1,b+1], pdf:(x)=>(x>=a&&x<=b)?1/(b-a):0, cdf:(x)=>x<a?0:x>b?1:(x-a)/(b-a),
+                info:`Uniform(a=${a}, b=${b}) | Mean=${((a+b)/2).toFixed(2)}` };
+        case 'beta':
+            p1.min=0.1; p1.max=10; p1.step=0.1; if(+p1.value<0.1) p1.value=2; p1L.textContent='α';
+            p2.min=0.1; p2.max=10; p2.step=0.1; if(+p2.value<0.1) p2.value=5; p2L.textContent='β';
+            const ba=+p1.value, bb=+p2.value, B=betaFn(ba,bb);
+            return { type:'cont', range:[0,1], pdf:(x)=>(x<=0||x>=1)?0:Math.pow(x,ba-1)*Math.pow(1-x,bb-1)/B,
+                cdf:null, // we'll approximate
+                info:`Beta(α=${ba}, β=${bb}) | Mean=${(ba/(ba+bb)).toFixed(3)}` };
+    }
+}
+
+function drawPlot(canvas, ctx, cfg, isCDF) {
+    const W=canvas.width, H=canvas.height;
+    const pad={l:60,r:20,t:20,b:40};
+    const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#0a0b14'; ctx.fillRect(0,0,W,H);
+
+    // Axes
+    ctx.strokeStyle='#2a2d55'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,H-pad.b); ctx.lineTo(W-pad.r,H-pad.b); ctx.stroke();
+
+    const [xMin,xMax] = cfg.range;
+
+    function toX(v){ return pad.l + (v-xMin)/(xMax-xMin)*pw; }
+    function toY(v,maxV){ return pad.t + ph - (v/maxV)*ph; }
+
+    if(cfg.type === 'cont') {
+        // Sample PDF/CDF
+        const fn = isCDF ? cfg.cdf : cfg.pdf;
+        if(!fn) { ctx.fillStyle='#6b6e8a'; ctx.font='14px Inter'; ctx.fillText('CDF not available for this configuration',W/2-100,H/2); return; }
+        const pts=[]; let maxY=0.01;
+        const steps=400;
+        for(let i=0;i<=steps;i++){
+            const x=xMin+(xMax-xMin)*i/steps;
+            const y=fn(x);
+            if(isFinite(y)&&y>=0){ pts.push([x,y]); if(y>maxY) maxY=y; }
+        }
+        if(isCDF) maxY=1.05;
+        else maxY*=1.1;
+
+        // Y ticks
+        ctx.fillStyle='#6b6e8a'; ctx.font='11px Inter'; ctx.textAlign='right';
+        for(let i=0;i<=4;i++){
+            const v=maxY*i/4;
+            const y=toY(v,maxY);
+            ctx.fillText(v.toFixed(2),pad.l-8,y+4);
+            ctx.strokeStyle='#1e2045'; ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+        }
+
+        // Fill area
+        ctx.beginPath();
+        ctx.moveTo(toX(pts[0][0]),toY(0,maxY));
+        pts.forEach(([x,y])=>ctx.lineTo(toX(x),toY(y,maxY)));
+        ctx.lineTo(toX(pts[pts.length-1][0]),toY(0,maxY));
+        ctx.closePath();
+        ctx.fillStyle=isCDF?'rgba(94,234,212,.12)':'rgba(167,139,250,.12)';
+        ctx.fill();
+
+        // Line
+        ctx.beginPath();
+        pts.forEach(([x,y],i)=>{ const sx=toX(x),sy=toY(y,maxY); i===0?ctx.moveTo(sx,sy):ctx.lineTo(sx,sy); });
+        ctx.strokeStyle=isCDF?'#5eead4':'#a78bfa'; ctx.lineWidth=2.5; ctx.stroke();
+
+    } else {
+        // Discrete bars
+        const fn = isCDF ? cfg.cdf : cfg.pmf;
+        const [kMin,kMax] = cfg.range;
+        const vals=[]; let maxY=0.01;
+        for(let k=kMin;k<=kMax;k++){
+            const v=fn(k);
+            if(isFinite(v)&&v>=0){ vals.push([k,v]); if(v>maxY) maxY=v; }
+        }
+        if(isCDF) maxY=1.05; else maxY*=1.15;
+
+        ctx.fillStyle='#6b6e8a'; ctx.font='11px Inter'; ctx.textAlign='right';
+        for(let i=0;i<=4;i++){
+            const v=maxY*i/4; const y=toY(v,maxY);
+            ctx.fillText(v.toFixed(2),pad.l-8,y+4);
+            ctx.strokeStyle='#1e2045'; ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+        }
+
+        const barW = Math.max(2, Math.min(30, pw/(kMax-kMin+1)*0.7));
+        vals.forEach(([k,v])=>{
+            const sx=toX(k)-barW/2, sy=toY(v,maxY), sh=toY(0,maxY)-sy;
+            ctx.fillStyle=isCDF?'rgba(94,234,212,.6)':'rgba(167,139,250,.6)';
+            ctx.fillRect(sx,sy,barW,sh);
+            ctx.strokeStyle=isCDF?'#5eead4':'#a78bfa'; ctx.lineWidth=1;
+            ctx.strokeRect(sx,sy,barW,sh);
+        });
+    }
+
+    // X ticks
+    ctx.fillStyle='#6b6e8a'; ctx.font='11px Inter'; ctx.textAlign='center';
+    const xSteps = cfg.type==='disc' ? Math.min(xMax-xMin, 20) : 8;
+    for(let i=0;i<=xSteps;i++){
+        const v = cfg.type==='disc' ? Math.round(xMin+i*(xMax-xMin)/xSteps) : xMin+(xMax-xMin)*i/xSteps;
+        ctx.fillText(cfg.type==='disc'?v:v.toFixed(1), toX(v), H-pad.b+18);
+    }
+
+    // Label
+    ctx.fillStyle='#6b6e8a'; ctx.font='12px Inter'; ctx.textAlign='left';
+    ctx.fillText(isCDF?'CDF':'PDF/PMF', pad.l+5, pad.t+15);
+}
+
+function updateDist() {
+    const cfg = getDistConfig();
+    document.getElementById('param1Val').textContent = document.getElementById('param1').value;
+    document.getElementById('param2Val').textContent = document.getElementById('param2').value;
+    document.getElementById('distInfo').textContent = cfg.info;
+    drawPlot(pdfCanvas, pdfCtx, cfg, false);
+    drawPlot(cdfCanvas, cdfCtx, cfg, true);
+}
+updateDist();
+
+// ============================================================
+// DEMO 2: Normal 68-95-99.7
+// ============================================================
+let normBandK = 3;
+function setNormBand(k, btn) {
+    normBandK = k;
+    document.querySelectorAll('#band1,#band2,#band3').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    drawNormal();
+}
+
+function drawNormal() {
+    const canvas = document.getElementById('normalCanvas');
+    const ctx = canvas.getContext('2d');
+    const W=canvas.width, H=canvas.height;
+    const pad={l:60,r:20,t:30,b:50};
+    const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+
+    const mu = +document.getElementById('normMu').value;
+    const sig = +document.getElementById('normSigma').value;
+    document.getElementById('normMuVal').textContent = mu;
+    document.getElementById('normSigmaVal').textContent = sig;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#0a0b14'; ctx.fillRect(0,0,W,H);
+
+    const xMin=mu-4.5*sig, xMax=mu+4.5*sig;
+    let maxY = normalPDF(mu,mu,sig)*1.15;
+
+    function toX(v){ return pad.l+(v-xMin)/(xMax-xMin)*pw; }
+    function toY(v){ return pad.t+ph-(v/maxY)*ph; }
+
+    // Grid
+    ctx.strokeStyle='#1e2045'; ctx.lineWidth=1;
+    for(let i=0;i<=4;i++){ const y=pad.t+ph*i/4; ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke(); }
+
+    // Shaded bands
+    const bandColors = ['rgba(167,139,250,.25)','rgba(94,234,212,.18)','rgba(249,168,37,.12)'];
+    const bandLabels = ['68%','95%','99.7%'];
+
+    for(let k=3;k>=1;k--){
+        if(k>normBandK) continue;
+        const lo=mu-k*sig, hi=mu+k*sig;
+        ctx.beginPath();
+        ctx.moveTo(toX(lo),toY(0));
+        for(let px=toX(lo);px<=toX(hi);px++){
+            const x=xMin+(px-pad.l)/pw*(xMax-xMin);
+            ctx.lineTo(px,toY(normalPDF(x,mu,sig)));
+        }
+        ctx.lineTo(toX(hi),toY(0));
+        ctx.closePath();
+        ctx.fillStyle=bandColors[k-1];
+        ctx.fill();
+    }
+
+    // Curve
+    ctx.beginPath();
+    for(let i=0;i<=pw;i++){
+        const x=xMin+i/pw*(xMax-xMin);
+        const y=normalPDF(x,mu,sig);
+        i===0?ctx.moveTo(pad.l+i,toY(y)):ctx.lineTo(pad.l+i,toY(y));
+    }
+    ctx.strokeStyle='#a78bfa'; ctx.lineWidth=2.5; ctx.stroke();
+
+    // Band markers
+    ctx.setLineDash([5,4]);
+    for(let k=1;k<=normBandK;k++){
+        const colors=['#a78bfa','#5eead4','#f9a825'];
+        ctx.strokeStyle=colors[k-1]; ctx.lineWidth=1.5;
+        [mu-k*sig, mu+k*sig].forEach(v=>{
+            ctx.beginPath(); ctx.moveTo(toX(v),toY(0)); ctx.lineTo(toX(v),toY(normalPDF(v,mu,sig))); ctx.stroke();
+        });
+        // Label
+        ctx.fillStyle=colors[k-1]; ctx.font='bold 12px Inter'; ctx.textAlign='center';
+        ctx.fillText(`±${k}σ (${bandLabels[k-1]})`, toX(mu), toY(normalPDF(mu,mu,sig))-15*(normBandK-k+1));
+    }
+    ctx.setLineDash([]);
+
+    // Axes
+    ctx.strokeStyle='#2a2d55'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(pad.l,H-pad.b); ctx.lineTo(W-pad.r,H-pad.b); ctx.stroke();
+
+    // X labels
+    ctx.fillStyle='#6b6e8a'; ctx.font='11px Inter'; ctx.textAlign='center';
+    for(let k=-4;k<=4;k++){
+        const v=mu+k*sig;
+        ctx.fillText(v.toFixed(1), toX(v), H-pad.b+18);
+        if(k!==0){
+            ctx.fillStyle='#3a3d65'; ctx.fillText(`${k>0?'+':''}${k}σ`, toX(v), H-pad.b+32);
+            ctx.fillStyle='#6b6e8a';
+        }
+    }
+    // Mean marker
+    ctx.fillStyle='#f472b6'; ctx.font='bold 12px Inter';
+    ctx.fillText(`μ=${mu}`, toX(mu), H-pad.b+32);
+}
+drawNormal();
+
+// ============================================================
+// DEMO 3: Beta Explorer
+// ============================================================
+function drawBeta() {
+    const canvas = document.getElementById('betaCanvas');
+    const ctx = canvas.getContext('2d');
+    const W=canvas.width, H=canvas.height;
+    const pad={l:60,r:20,t:30,b:40};
+    const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+
+    const a = +document.getElementById('betaA').value;
+    const b = +document.getElementById('betaB').value;
+    const s = +document.getElementById('betaS').value;
+    const f = +document.getElementById('betaF').value;
+    document.getElementById('betaAVal').textContent = a;
+    document.getElementById('betaBVal').textContent = b;
+    document.getElementById('betaSVal').textContent = s;
+    document.getElementById('betaFVal').textContent = f;
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#0a0b14'; ctx.fillRect(0,0,W,H);
+
+    function toX(v){ return pad.l+v*pw; }
+    function toY(v,maxV){ return pad.t+ph-(v/maxV)*ph; }
+
+    // Compute prior and posterior
+    const B1 = betaFn(a,b);
+    const a2=a+s, b2=b+f;
+    const B2 = betaFn(a2,b2);
+
+    const steps=300;
+    let priorPts=[], postPts=[], maxY=0.01;
+    for(let i=1;i<steps;i++){
+        const x=i/steps;
+        const yPrior = Math.pow(x,a-1)*Math.pow(1-x,b-1)/B1;
+        const yPost = Math.pow(x,a2-1)*Math.pow(1-x,b2-1)/B2;
+        if(isFinite(yPrior)) priorPts.push([x,yPrior]);
+        if(isFinite(yPost)) postPts.push([x,yPost]);
+        if(isFinite(yPrior)&&yPrior>maxY) maxY=yPrior;
+        if(isFinite(yPost)&&yPost>maxY) maxY=yPost;
+    }
+    maxY*=1.1;
+
+    // Grid
+    ctx.strokeStyle='#1e2045'; ctx.lineWidth=1;
+    for(let i=0;i<=4;i++){
+        const y=pad.t+ph*i/4;
+        ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+        ctx.fillStyle='#6b6e8a'; ctx.font='11px Inter'; ctx.textAlign='right';
+        ctx.fillText((maxY*(4-i)/4).toFixed(1),pad.l-8,y+4);
+    }
+
+    // Prior (filled)
+    ctx.beginPath();
+    ctx.moveTo(toX(priorPts[0][0]),toY(0,maxY));
+    priorPts.forEach(([x,y])=>ctx.lineTo(toX(x),toY(y,maxY)));
+    ctx.lineTo(toX(priorPts[priorPts.length-1][0]),toY(0,maxY));
+    ctx.closePath();
+    ctx.fillStyle='rgba(167,139,250,.15)'; ctx.fill();
+
+    // Prior line
+    ctx.beginPath();
+    priorPts.forEach(([x,y],i)=>{ i===0?ctx.moveTo(toX(x),toY(y,maxY)):ctx.lineTo(toX(x),toY(y,maxY)); });
+    ctx.strokeStyle='#a78bfa'; ctx.lineWidth=2; ctx.stroke();
+
+    // Posterior (if data added)
+    if(s>0||f>0){
+        ctx.beginPath();
+        ctx.moveTo(toX(postPts[0][0]),toY(0,maxY));
+        postPts.forEach(([x,y])=>ctx.lineTo(toX(x),toY(y,maxY)));
+        ctx.lineTo(toX(postPts[postPts.length-1][0]),toY(0,maxY));
+        ctx.closePath();
+        ctx.fillStyle='rgba(94,234,212,.12)'; ctx.fill();
+
+        ctx.beginPath();
+        postPts.forEach(([x,y],i)=>{ i===0?ctx.moveTo(toX(x),toY(y,maxY)):ctx.lineTo(toX(x),toY(y,maxY)); });
+        ctx.strokeStyle='#5eead4'; ctx.lineWidth=2.5; ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle='#2a2d55'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(pad.l,H-pad.b); ctx.lineTo(W-pad.r,H-pad.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,H-pad.b); ctx.stroke();
+
+    // X labels
+    ctx.fillStyle='#6b6e8a'; ctx.font='11px Inter'; ctx.textAlign='center';
+    for(let i=0;i<=10;i++) ctx.fillText((i/10).toFixed(1), toX(i/10), H-pad.b+18);
+
+    // Legend
+    ctx.fillStyle='#a78bfa'; ctx.font='13px Inter'; ctx.textAlign='left';
+    ctx.fillText(`Prior: Beta(${a}, ${b})`, pad.l+10, pad.t+18);
+    if(s>0||f>0){
+        ctx.fillStyle='#5eead4';
+        ctx.fillText(`Posterior: Beta(${a2.toFixed(1)}, ${b2.toFixed(1)}) [+${s}S, +${f}F]`, pad.l+10, pad.t+36);
+    }
+
+    // Mean markers
+    const priorMean = a/(a+b);
+    ctx.setLineDash([5,4]); ctx.strokeStyle='#a78bfa'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(toX(priorMean),toY(0,maxY)); ctx.lineTo(toX(priorMean),pad.t); ctx.stroke();
+    if(s>0||f>0){
+        const postMean=a2/(a2+b2);
+        ctx.strokeStyle='#5eead4';
+        ctx.beginPath(); ctx.moveTo(toX(postMean),toY(0,maxY)); ctx.lineTo(toX(postMean),pad.t); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    document.getElementById('betaInfo').textContent =
+        `Prior mean: ${(a/(a+b)).toFixed(3)}` + (s>0||f>0 ? ` → Posterior mean: ${(a2/(a2+b2)).toFixed(3)} (shifted by data)` : ' | Add successes/failures to see Bayesian update');
+}
+drawBeta();
+
+// Visibility handler
+document.addEventListener('visibilitychange', () => {});
+</script>
+</body>
+</html>

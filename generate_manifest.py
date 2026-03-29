@@ -65,6 +65,7 @@ FOLDER_CATEGORIES = {
     "correlation-vs-causation":         "Statistics & Probability",
     "why_start_with_iris":              "Statistics & Probability",
     "kdd_process":                      "Statistics & Probability",
+    "probability-distributions":         "Statistics & Probability",
     # Linear Algebra
     "matrix-transformations":                       "Linear Algebra",
     "dot-product-and-cosine-similarity":            "Linear Algebra",
