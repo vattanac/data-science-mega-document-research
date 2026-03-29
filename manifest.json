@@ -175,6 +175,29 @@
         "category": "Machine Learning"
       },
       {
+        "name": "dimensionality-reduction",
+        "type": "folder",
+        "children": [
+          {
+            "name": "dimensionality_reduction_guide.docx",
+            "displayName": "dimensionality_reduction_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 16409,
+            "path": "dimensionality-reduction/dimensionality_reduction_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "dimensionality-reduction",
+            "type": "file",
+            "ext": "html",
+            "size": 42614,
+            "path": "dimensionality-reduction/index.html"
+          }
+        ],
+        "category": "Machine Learning"
+      },
+      {
         "name": "dot-product-and-cosine-similarity",
         "type": "folder",
         "children": [

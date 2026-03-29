@@ -83,6 +83,7 @@ FOLDER_CATEGORIES = {
     "gradient-descent-saas":             "Machine Learning",
     "gradient-descent-react":            "Machine Learning",
     "gradient-descent-deep-dive":        "Machine Learning",
+    "dimensionality-reduction":          "Machine Learning",
     # Deep Learning
     "neural-network-backpropagation":    "Deep Learning",
     "activation-functions":              "Deep Learning",

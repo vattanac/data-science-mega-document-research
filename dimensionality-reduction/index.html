@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dimensionality Reduction — PCA, t-SNE & UMAP</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--bg-primary:#0a0b14;--bg-card:#12142a;--bg-card-hover:#181a36;--border-color:#1e2045;--text-primary:#c8cad8;--text-dim:#6b6e8a;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warm:#f9a825;--accent-pink:#f472b6;--accent-blue:#60a5fa;--accent-red:#f87171;--accent-green:#34d399;--accent-orange:#fb923c}
+        body{background:var(--bg-primary);color:var(--text-primary);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.8;padding:2rem}
+        .container{max-width:1200px;margin:0 auto}
+        header{margin-bottom:3rem;border-bottom:1px solid var(--border-color);padding-bottom:2rem}
+        h1{font-size:2.5rem;margin-bottom:.5rem;color:var(--accent-primary);line-height:1.2}
+        .subtitle{font-size:1.1rem;color:var(--text-dim);margin-bottom:1rem}
+        .tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+        .tag{display:inline-block;background:var(--border-color);color:var(--accent-secondary);padding:.25rem .75rem;border-radius:999px;font-size:.85rem;font-weight:500}
+        .section{margin-bottom:4rem} h2{font-size:1.75rem;color:var(--accent-secondary);margin-bottom:1.5rem}
+        h3{font-size:1.25rem;color:var(--accent-primary);margin-bottom:1rem;margin-top:2rem}
+        p{margin-bottom:1rem;max-width:80ch}
+        .card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+        .card:hover{background:var(--bg-card-hover)}
+        .formula-box{background:linear-gradient(135deg,#12142a,#1a1c3a);border:1px solid var(--accent-primary);border-radius:12px;padding:1.25rem 2rem;margin:1.5rem 0;text-align:center;font-size:1.2rem;color:var(--accent-warm);font-family:'Courier New',monospace;position:relative;overflow:hidden}
+        .formula-box::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 20% 50%,rgba(167,139,250,.08),transparent 60%);pointer-events:none}
+        .formula-label{font-size:.8rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
+        .analogy-box{background:linear-gradient(135deg,#0d1a0d,#12142a);border-left:4px solid var(--accent-green);border-radius:0 12px 12px 0;padding:1.25rem 1.5rem;margin:1.5rem 0}
+        .analogy-box .label{color:var(--accent-green);font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+        .key-insight{background:linear-gradient(135deg,#1a0d1a,#12142a);border-left:4px solid var(--accent-pink);border-radius:0 12px 12px 0;padding:1.25rem 1.5rem;margin:1.5rem 0}
+        .key-insight .label{color:var(--accent-pink);font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+        .canvas-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0;text-align:center}
+        .canvas-container canvas{border-radius:8px;display:block;margin:0 auto;max-width:100%}
+        .canvas-title{color:var(--accent-secondary);font-weight:600;margin-bottom:1rem;font-size:1.05rem}
+        .canvas-controls{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
+        .canvas-controls button,.canvas-controls select{background:var(--border-color);color:var(--text-primary);border:1px solid #2a2d55;padding:.4rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:background .2s}
+        .canvas-controls button:hover{background:#2a2d55}
+        .canvas-controls button.active{background:var(--accent-primary);color:#fff;border-color:var(--accent-primary)}
+        .slider-group{display:flex;align-items:center;gap:.5rem;background:var(--border-color);padding:.3rem .8rem;border-radius:8px;border:1px solid #2a2d55}
+        .slider-group label{font-size:.82rem;color:var(--text-dim)}
+        .slider-group input[type=range]{width:90px;accent-color:var(--accent-primary)}
+        .slider-group .val{color:var(--accent-warm);font-weight:600;min-width:2.5em;text-align:right;font-size:.85rem}
+        .example-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin:1.5rem 0}
+        .toc{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin-bottom:3rem}
+        .toc-title{color:var(--accent-primary);font-weight:700;margin-bottom:1rem;font-size:1.1rem}
+        .toc a{color:var(--text-primary);text-decoration:none;display:block;padding:.3rem 0;transition:color .2s}
+        .toc a:hover{color:var(--accent-secondary)} .toc a::before{content:'→ ';color:var(--accent-primary)}
+        code{background:rgba(167,139,250,.12);color:var(--accent-primary);padding:.15rem .4rem;border-radius:4px;font-size:.9em}
+        .highlight{color:var(--accent-warm);font-weight:600}
+        .comparison-table{width:100%;border-collapse:collapse;margin:1.5rem 0}
+        .comparison-table th,.comparison-table td{border:1px solid var(--border-color);padding:.65rem .85rem;text-align:left;font-size:.9rem}
+        .comparison-table th{background:var(--bg-card);color:var(--accent-primary);font-weight:600}
+        .comparison-table tr:nth-child(even) td{background:rgba(18,20,42,.5)}
+        .step-list{counter-reset:sc;list-style:none;padding:0}
+        .step-list li{counter-increment:sc;padding:1rem 1rem 1rem 3.5rem;position:relative;margin-bottom:.75rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px}
+        .step-list li::before{content:counter(sc);position:absolute;left:1rem;top:1rem;width:1.8rem;height:1.8rem;background:var(--accent-primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+        @media(max-width:768px){body{padding:1rem}h1{font-size:1.75rem}h2{font-size:1.35rem}}
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>Dimensionality Reduction</h1>
+        <p class="subtitle">PCA, t-SNE & UMAP — Compressing and Visualizing High-Dimensional Data</p>
+        <div class="tags">
+            <span class="tag">Data Science</span>
+            <span class="tag">PCA</span>
+            <span class="tag">t-SNE</span>
+            <span class="tag">UMAP</span>
+            <span class="tag">Visualization</span>
+            <span class="tag">Feature Extraction</span>
+            <span class="tag">Unsupervised Learning</span>
+        </div>
+    </header>
+
+    <div class="toc">
+        <div class="toc-title">Table of Contents</div>
+        <a href="#why">1. Why Reduce Dimensions?</a>
+        <a href="#curse">2. The Curse of Dimensionality</a>
+        <a href="#pca">3. PCA — Principal Component Analysis</a>
+        <a href="#pca-steps">4. PCA Step by Step</a>
+        <a href="#interactive-pca">5. Interactive: PCA Projection</a>
+        <a href="#tsne">6. t-SNE — Seeing Clusters</a>
+        <a href="#interactive-tsne">7. Interactive: t-SNE Simulation</a>
+        <a href="#umap">8. UMAP — The Best of Both Worlds</a>
+        <a href="#comparison">9. PCA vs t-SNE vs UMAP</a>
+        <a href="#interactive-compare">10. Interactive: Method Comparison</a>
+        <a href="#other">11. Other Methods (LDA, Autoencoders, Random Projection)</a>
+        <a href="#practical">12. Practical Guide — When to Use What</a>
+        <a href="#summary">13. Cheat Sheet & Summary</a>
+    </div>
+
+    <!-- ============ 1 ============ -->
+    <div class="section" id="why">
+        <h2>1. Why Reduce Dimensions?</h2>
+        <p>Real-world data is high-dimensional: images have thousands of pixels, text has thousands of words, genomics has thousands of genes. Working directly in high dimensions is slow, memory-intensive, and often impossible to visualize.</p>
+
+        <div class="analogy-box">
+            <div class="label">Analogy: Shadow Casting</div>
+            <p>Imagine a complex 3D sculpture. You can't see the whole thing at once, but shining a light casts a 2D shadow on the wall that captures the shape's essence. Dimensionality reduction is like choosing the best angle to shine the light — keeping the most informative "shadow" of your high-dimensional data.</p>
+        </div>
+
+        <div class="example-grid">
+            <div class="card">
+                <h3 style="margin-top:0">Visualization</h3>
+                <p>We can only see in 2D/3D. Reducing 100 features to 2 lets us plot and see clusters, outliers, and patterns.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Speed</h3>
+                <p>Fewer features = faster training. Going from 10,000 to 50 features can make models 100x faster.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Noise Removal</h3>
+                <p>Many features are noise. Keeping only the most important dimensions removes noise and can improve model accuracy.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Curse of Dimensionality</h3>
+                <p>In high dimensions, distances become meaningless, data becomes sparse, and models need exponentially more data.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 2 ============ -->
+    <div class="section" id="curse">
+        <h2>2. The Curse of Dimensionality</h2>
+        <p>As dimensions grow, counterintuitive things happen:</p>
+        <div class="card">
+            <p>• In 1D, 10 evenly-spaced points cover a line well. In 100D, you'd need <strong>10¹⁰⁰</strong> points for the same coverage.</p>
+            <p>• In high dimensions, <strong>all points become roughly equidistant</strong> — distances lose meaning.</p>
+            <p>• The volume of a hypersphere shrinks to near-zero compared to the hypercube around it.</p>
+            <p>• Most data points end up on the "surface" — there's no interior.</p>
+        </div>
+
+        <div class="key-insight">
+            <div class="label">The Good News</div>
+            <p>Real data rarely actually lives in all its dimensions. A dataset with 1000 features often truly varies along only 10-50 directions — the rest is noise or redundancy. Dimensionality reduction finds those true underlying directions. This is called the <strong>intrinsic dimensionality</strong> of the data.</p>
+        </div>
+    </div>
+
+    <!-- ============ 3 ============ -->
+    <div class="section" id="pca">
+        <h2>3. PCA — Principal Component Analysis</h2>
+        <p>PCA is the most widely used dimensionality reduction method. It finds the directions (principal components) along which the data varies the most, then projects the data onto those directions.</p>
+
+        <div class="formula-box">
+            <div class="formula-label">PCA Core Idea</div>
+            Find eigenvectors of the covariance matrix → these are the principal components → project data onto top-k
+        </div>
+
+        <div class="analogy-box">
+            <div class="label">Analogy: Pancake Stack</div>
+            <p>Imagine your data is a pancake stack (flat disk in 3D). PCA notices that most variation is in two directions (the flat surface) and almost none in the third (thickness). It says "just keep the flat directions" and compresses your 3D pancake into a 2D circle — losing almost nothing.</p>
+        </div>
+
+        <h3>Key Properties of PCA</h3>
+        <div class="card">
+            <p>• <strong>Linear method:</strong> only finds straight axes (can't capture curved structures)</p>
+            <p>• <strong>Orthogonal:</strong> principal components are perpendicular to each other</p>
+            <p>• <strong>Ordered by variance:</strong> PC1 captures most variance, PC2 second-most, etc.</p>
+            <p>• <strong>Deterministic:</strong> same data always gives the same result</p>
+            <p>• <strong>Invertible:</strong> you can reconstruct (approximately) from reduced dimensions</p>
+            <p>• <strong>Fast:</strong> O(min(n²d, nd²)) — handles large datasets well</p>
+        </div>
+    </div>
+
+    <!-- ============ 4 ============ -->
+    <div class="section" id="pca-steps">
+        <h2>4. PCA Step by Step</h2>
+        <ol class="step-list">
+            <li><strong>Center the data:</strong> Subtract the mean of each feature. Now the data is centered at the origin. (Optionally standardize if features have different scales.)</li>
+            <li><strong>Compute covariance matrix:</strong> C = (1/n) Xᵀ X. This n×n matrix captures how each pair of features varies together.</li>
+            <li><strong>Find eigenvalues & eigenvectors:</strong> Solve C·v = λ·v. The eigenvectors are the principal component directions. The eigenvalues tell you how much variance each direction captures.</li>
+            <li><strong>Sort by eigenvalue:</strong> Rank eigenvectors from largest λ (most variance) to smallest.</li>
+            <li><strong>Choose k components:</strong> Keep top-k eigenvectors. Common rule: keep enough to explain 90-95% of total variance.</li>
+            <li><strong>Project:</strong> Multiply data by the k eigenvectors: X_reduced = X · V_k. Your data is now k-dimensional.</li>
+        </ol>
+
+        <h3>How Many Components to Keep?</h3>
+        <div class="card">
+            <p>• <strong>Explained variance ratio:</strong> Plot cumulative variance vs. number of components. Pick the "elbow" where adding more components barely helps.</p>
+            <p>• <strong>Kaiser rule:</strong> Keep components with eigenvalue > 1 (above average variance).</p>
+            <p>• <strong>90-95% threshold:</strong> Keep enough to explain 90-95% of total variance.</p>
+        </div>
+    </div>
+
+    <!-- ============ 5 ============ -->
+    <div class="section" id="interactive-pca">
+        <h2>5. Interactive: PCA Projection</h2>
+        <p>2D data projected onto its principal components. Drag the data to change its shape and see how PC1 (pink) and PC2 (green) adapt. The bar chart shows explained variance.</p>
+
+        <div class="canvas-container">
+            <div class="canvas-title">PCA — Finding Directions of Maximum Variance</div>
+            <canvas id="pcaCanvas" width="700" height="420"></canvas>
+            <div class="canvas-controls">
+                <button onclick="pcaNewData('ellipse')" class="active" id="pcaEllipse">Elongated Cluster</button>
+                <button onclick="pcaNewData('two')" id="pcaTwo">Two Clusters</button>
+                <button onclick="pcaNewData('circle')" id="pcaCircle">Circular (equal var)</button>
+                <button onclick="pcaNewData('angled')" id="pcaAngled">Angled Spread</button>
+            </div>
+            <p style="color:var(--text-dim);font-size:.85rem;margin-top:.75rem" id="pcaInfo"></p>
+        </div>
+    </div>
+
+    <!-- ============ 6 ============ -->
+    <div class="section" id="tsne">
+        <h2>6. t-SNE — Seeing Clusters</h2>
+        <p><strong>t-Distributed Stochastic Neighbor Embedding</strong> is a nonlinear method designed specifically for visualization (typically to 2D).</p>
+
+        <div class="formula-box">
+            <div class="formula-label">t-SNE Core Idea</div>
+            Preserve "neighborhood" probabilities: nearby points in high-D should stay nearby in low-D
+        </div>
+
+        <h3>How It Works (Simplified)</h3>
+        <ol class="step-list">
+            <li><strong>Compute pairwise similarities in high-D:</strong> For each point, compute Gaussian probabilities over neighbors (nearby = high probability). The perplexity parameter controls effective neighborhood size.</li>
+            <li><strong>Initialize random low-D embedding:</strong> Place points randomly in 2D.</li>
+            <li><strong>Compute pairwise similarities in low-D:</strong> Use a Student-t distribution (heavier tails than Gaussian).</li>
+            <li><strong>Minimize KL divergence:</strong> Use gradient descent to make the low-D probabilities match the high-D ones. Points that were neighbors in high-D get pulled together in 2D.</li>
+        </ol>
+
+        <div class="key-insight">
+            <div class="label">Why Student-t in Low-D?</div>
+            <p>The "crowding problem": in 2D there's less room to place points than in high-D. The heavy-tailed t-distribution allows distant points to be even further apart in 2D, making room for nearby points to stay close. This is the genius of t-SNE over older SNE.</p>
+        </div>
+
+        <h3>t-SNE Caveats</h3>
+        <div class="card" style="border-color:var(--accent-warm)">
+            <p>• <strong>Perplexity matters:</strong> Try 5-50. Different values can give very different plots.</p>
+            <p>• <strong>Cluster sizes are meaningless:</strong> t-SNE distorts distances. A big cluster isn't necessarily more spread out.</p>
+            <p>• <strong>Distances between clusters are meaningless:</strong> Only local structure is preserved.</p>
+            <p>• <strong>Non-deterministic:</strong> Different random seeds give different layouts.</p>
+            <p>• <strong>Slow for large data:</strong> O(n²) — use PCA first to reduce to 50 dims, then t-SNE.</p>
+            <p>• <strong>Only for visualization:</strong> Not suitable as preprocessing for ML models.</p>
+        </div>
+    </div>
+
+    <!-- ============ 7 ============ -->
+    <div class="section" id="interactive-tsne">
+        <h2>7. Interactive: t-SNE Simulation</h2>
+        <p>Watch t-SNE separate clusters in real-time. Points start randomly and gradually organize into groups as the algorithm iterates.</p>
+
+        <div class="canvas-container">
+            <div class="canvas-title">t-SNE — Watch Clusters Emerge</div>
+            <canvas id="tsneCanvas" width="700" height="450"></canvas>
+            <div class="canvas-controls">
+                <button onclick="tsneRun()">Run t-SNE</button>
+                <button onclick="tsneReset()">Reset</button>
+                <div class="slider-group">
+                    <label>Perplexity</label>
+                    <input type="range" id="tsnePerp" min="5" max="50" step="5" value="20" oninput="document.getElementById('tsnePerpVal').textContent=this.value">
+                    <span class="val" id="tsnePerpVal">20</span>
+                </div>
+            </div>
+            <p style="color:var(--text-dim);font-size:.85rem;margin-top:.75rem" id="tsneInfo">Click "Run" to watch clusters separate</p>
+        </div>
+    </div>
+
+    <!-- ============ 8 ============ -->
+    <div class="section" id="umap">
+        <h2>8. UMAP — The Best of Both Worlds</h2>
+        <p><strong>Uniform Manifold Approximation and Projection</strong> is the modern alternative to t-SNE. It's faster, preserves more global structure, and can be used for both visualization AND as preprocessing for ML.</p>
+
+        <div class="example-grid">
+            <div class="card" style="border-color:var(--accent-green)">
+                <h3 style="margin-top:0;color:var(--accent-green)">Advantages over t-SNE</h3>
+                <p>• Much faster (minutes vs hours on large datasets)</p>
+                <p>• Preserves global structure better (cluster distances are more meaningful)</p>
+                <p>• Can embed into any number of dimensions (not just 2)</p>
+                <p>• Supports supervised and semi-supervised modes</p>
+                <p>• More stable across runs with the same parameters</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">How It Works (Simplified)</h3>
+                <p>1. Build a weighted k-nearest-neighbor graph in high-D</p>
+                <p>2. Construct a fuzzy topological representation (simplicial complex)</p>
+                <p>3. Optimize a low-D layout to match this topology</p>
+                <p>4. Uses cross-entropy loss (vs KL divergence in t-SNE)</p>
+            </div>
+        </div>
+
+        <h3>Key Parameters</h3>
+        <div class="card">
+            <p>• <code>n_neighbors</code> (default 15): Controls local vs global focus. Small = fine local structure. Large = preserves more global structure.</p>
+            <p>• <code>min_dist</code> (default 0.1): How tightly points can cluster. Small = denser clusters. Large = more spread out.</p>
+            <p>• <code>n_components</code> (default 2): Output dimensions. Can be >2 for ML preprocessing.</p>
+        </div>
+    </div>
+
+    <!-- ============ 9 ============ -->
+    <div class="section" id="comparison">
+        <h2>9. PCA vs t-SNE vs UMAP</h2>
+        <table class="comparison-table">
+            <tr><th>Feature</th><th>PCA</th><th>t-SNE</th><th>UMAP</th></tr>
+            <tr><td>Type</td><td>Linear</td><td>Nonlinear</td><td>Nonlinear</td></tr>
+            <tr><td>Preserves</td><td>Global variance</td><td>Local neighborhoods</td><td>Local + some global</td></tr>
+            <tr><td>Speed</td><td>Very fast</td><td>Slow (O(n²))</td><td>Fast</td></tr>
+            <tr><td>Deterministic</td><td>Yes</td><td>No</td><td>No (but more stable)</td></tr>
+            <tr><td>Invertible</td><td>Yes</td><td>No</td><td>Sort of (inverse_transform)</td></tr>
+            <tr><td>Good for ML preprocessing</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+            <tr><td>Visualization</td><td>OK (linear structure)</td><td>Excellent clusters</td><td>Excellent clusters</td></tr>
+            <tr><td>Handles new data</td><td>Yes (just project)</td><td>No (must re-run)</td><td>Yes (transform)</td></tr>
+            <tr><td>Typical use</td><td>Preprocessing, denoising</td><td>Visualization only</td><td>Visualization + preprocessing</td></tr>
+        </table>
+    </div>
+
+    <!-- ============ 10 ============ -->
+    <div class="section" id="interactive-compare">
+        <h2>10. Interactive: Method Comparison</h2>
+        <p>See PCA and a neighborhood-based approach (simplified t-SNE/UMAP) side by side on the same data. PCA preserves global spread; the nonlinear method reveals cluster structure.</p>
+
+        <div class="canvas-container">
+            <div class="canvas-title">PCA (left) vs Nonlinear Embedding (right)</div>
+            <canvas id="compareCanvas" width="700" height="360"></canvas>
+            <div class="canvas-controls">
+                <button onclick="compareGen('blobs')" class="active" id="cmpBlobs">3 Blobs</button>
+                <button onclick="compareGen('moons')" id="cmpMoons">Two Moons</button>
+                <button onclick="compareGen('spiral')" id="cmpSpiral">Spirals</button>
+            </div>
+            <p style="color:var(--text-dim);font-size:.85rem;margin-top:.75rem" id="compareInfo"></p>
+        </div>
+    </div>
+
+    <!-- ============ 11 ============ -->
+    <div class="section" id="other">
+        <h2>11. Other Methods</h2>
+        <div class="example-grid">
+            <div class="card">
+                <h3 style="margin-top:0">LDA (Linear Discriminant Analysis)</h3>
+                <p><strong>Supervised</strong> dimensionality reduction. Finds axes that maximize class separation (not just variance). Great when you have labels and want features that help classification.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Autoencoders</h3>
+                <p>Neural networks that learn to compress data into a bottleneck layer, then reconstruct it. Can capture complex nonlinear structure. The bottleneck = reduced representation.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Random Projection</h3>
+                <p>Surprisingly, projecting onto random directions preserves distances well (Johnson-Lindenstrauss lemma). Extremely fast. Good when you just need "approximately lower" dimensions.</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0">Kernel PCA</h3>
+                <p>PCA with the kernel trick — handles nonlinear structure by implicitly mapping to higher dimensions first, then doing PCA there. RBF kernel is most common.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 12 ============ -->
+    <div class="section" id="practical">
+        <h2>12. Practical Guide — When to Use What</h2>
+        <table class="comparison-table">
+            <tr><th>Your Goal</th><th>Method</th><th>Why</th></tr>
+            <tr><td>Speed up training</td><td>PCA (keep 95% variance)</td><td>Fast, linear, works as preprocessing</td></tr>
+            <tr><td>Visualize clusters in 2D</td><td>UMAP or t-SNE</td><td>Reveals nonlinear structure; UMAP is faster</td></tr>
+            <tr><td>Denoise data</td><td>PCA (keep top components)</td><td>Removes low-variance noise dimensions</td></tr>
+            <tr><td>Classification preprocessing</td><td>LDA</td><td>Supervised — maximizes class separation</td></tr>
+            <tr><td>Image compression</td><td>PCA / Autoencoders</td><td>PCA is simple; autoencoders for complex images</td></tr>
+            <tr><td>Embeddings for ML</td><td>UMAP (n_components=10-50)</td><td>Preserves structure, works as features</td></tr>
+            <tr><td>Very large data (millions)</td><td>Random Projection or PCA</td><td>O(n) or O(nd) — scales linearly</td></tr>
+        </table>
+
+        <div class="key-insight">
+            <div class="label">The Standard Pipeline</div>
+            <p><strong>Step 1:</strong> PCA to reduce from thousands of features to 50-100 (fast, removes noise).<br>
+            <strong>Step 2:</strong> UMAP or t-SNE on the PCA output for visualization (avoids O(n²) on raw data).<br>
+            This is the standard workflow used at companies like Google, Spotify, and OpenAI for visualizing embeddings.</p>
+        </div>
+    </div>
+
+    <!-- ============ 13 ============ -->
+    <div class="section" id="summary">
+        <h2>13. Cheat Sheet & Summary</h2>
+        <table class="comparison-table">
+            <tr><th>Method</th><th>Type</th><th>Key Idea</th><th>Speed</th><th>Best For</th></tr>
+            <tr><td>PCA</td><td>Linear</td><td>Maximize variance (eigenvectors of covariance)</td><td>Very fast</td><td>Preprocessing, denoising</td></tr>
+            <tr><td>t-SNE</td><td>Nonlinear</td><td>Preserve local neighborhoods (KL divergence)</td><td>Slow</td><td>2D visualization</td></tr>
+            <tr><td>UMAP</td><td>Nonlinear</td><td>Fuzzy topology matching (cross-entropy)</td><td>Fast</td><td>Visualization + features</td></tr>
+            <tr><td>LDA</td><td>Linear, supervised</td><td>Maximize class separation</td><td>Fast</td><td>Classification</td></tr>
+            <tr><td>Autoencoder</td><td>Nonlinear (neural)</td><td>Learned bottleneck compression</td><td>Varies</td><td>Complex data</td></tr>
+            <tr><td>Random Projection</td><td>Linear, random</td><td>JL lemma preserves distances</td><td>Fastest</td><td>Very large datasets</td></tr>
+        </table>
+
+        <div class="key-insight" style="margin-top:2rem">
+            <div class="label">The Big Picture</div>
+            <p>Dimensionality reduction is about finding the "true shape" of your data hidden in a cloud of noise and redundancy. PCA finds the biggest linear axes, t-SNE and UMAP uncover nonlinear clusters and manifolds. Together they form the essential toolkit for any data scientist working with high-dimensional data — from genomics to NLP embeddings to computer vision.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// UTILITY
+// ============================================================
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+
+// ============================================================
+// DEMO 1: PCA Interactive
+// ============================================================
+(function(){
+    const canvas=document.getElementById('pcaCanvas'),ctx=canvas.getContext('2d');
+    const W=canvas.width,H=canvas.height;
+    let points=[];
+
+    const clusterColors=['#60a5fa','#f472b6','#34d399','#f9a825'];
+
+    function genData(type){
+        points=[];
+        if(type==='ellipse'){for(let i=0;i<120;i++){const a=Math.random()*Math.PI*2;points.push({x:3*Math.cos(a)+randn()*.4,y:.7*Math.sin(a)+randn()*.4,c:0})}}
+        else if(type==='two'){for(let i=0;i<60;i++){points.push({x:-1.5+randn()*.5,y:1+randn()*.5,c:0});points.push({x:1.5+randn()*.5,y:-1+randn()*.5,c:1})}}
+        else if(type==='circle'){for(let i=0;i<120;i++){const a=Math.random()*Math.PI*2,r=1.5*Math.sqrt(Math.random());points.push({x:r*Math.cos(a),y:r*Math.sin(a),c:0})}}
+        else{for(let i=0;i<120;i++){const t=(Math.random()-.5)*6;points.push({x:t+randn()*.5,y:.8*t+randn()*.5,c:0})}}
+    }
+
+    function computePCA(){
+        const n=points.length;let mx=0,my=0;
+        points.forEach(p=>{mx+=p.x;my+=p.y});mx/=n;my/=n;
+        let cxx=0,cxy=0,cyy=0;
+        points.forEach(p=>{const dx=p.x-mx,dy=p.y-my;cxx+=dx*dx;cxy+=dx*dy;cyy+=dy*dy});
+        cxx/=n;cxy/=n;cyy/=n;
+        const tr=cxx+cyy,det=cxx*cyy-cxy*cxy,disc=Math.sqrt(Math.max(0,tr*tr/4-det));
+        const l1=tr/2+disc,l2=tr/2-disc;
+        let v1,v2;
+        if(Math.abs(cxy)>1e-10){v1=[l1-cyy,cxy];v2=[l2-cyy,cxy]}
+        else{v1=cxx>=cyy?[1,0]:[0,1];v2=cxx>=cyy?[0,1]:[1,0]}
+        const len1=Math.hypot(...v1),len2=Math.hypot(...v2);
+        v1=[v1[0]/len1,v1[1]/len1];v2=[v2[0]/len2,v2[1]/len2];
+        return{mean:[mx,my],vals:[l1,l2],vecs:[v1,v2]};
+    }
+
+    function draw(){
+        ctx.clearRect(0,0,W,H);
+        const plotW=480,plotH=H,barW=W-plotW;
+        const cx=plotW/2,cy=plotH/2,sc=45;
+        // Grid
+        ctx.strokeStyle='#1e2045';ctx.lineWidth=1;
+        for(let i=-5;i<=5;i++){ctx.beginPath();ctx.moveTo(cx+i*sc,0);ctx.lineTo(cx+i*sc,plotH);ctx.stroke();ctx.beginPath();ctx.moveTo(0,cy+i*sc);ctx.lineTo(plotW,cy+i*sc);ctx.stroke()}
+        ctx.strokeStyle='#2a2d55';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(plotW,cy);ctx.stroke();ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,plotH);ctx.stroke();
+
+        // Points
+        points.forEach(p=>{ctx.beginPath();ctx.arc(cx+p.x*sc,cy-p.y*sc,3.5,0,Math.PI*2);ctx.fillStyle=clusterColors[p.c]+'88';ctx.fill()});
+
+        if(points.length<3)return;
+        const pca=computePCA();
+        const[mx,my]=pca.mean,[l1,l2]=pca.vals,[v1,v2]=pca.vecs;
+
+        // Draw PCs
+        const drawPC=(v,l,col,label)=>{const mag=Math.sqrt(l)*3;
+            const sx=cx+mx*sc,sy=cy-my*sc;
+            const ex=cx+(mx+v[0]*mag)*sc,ey=cy-(my+v[1]*mag)*sc;
+            ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();
+            const dx=ex-sx,dy=ey-sy,len=Math.hypot(dx,dy);if(len>5){const ux=dx/len,uy=dy/len;ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-12*ux+5*uy,ey-12*uy-5*ux);ctx.lineTo(ex-12*ux-5*uy,ey-12*uy+5*ux);ctx.closePath();ctx.fill()}
+            ctx.globalAlpha=.3;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(cx+(mx-v[0]*mag)*sc,cy-(my-v[1]*mag)*sc);ctx.stroke();ctx.globalAlpha=1;
+            ctx.font='bold 13px Inter';ctx.fillStyle=col;ctx.fillText(label,ex+8,ey-8);
+        };
+        drawPC(v1,l1,'#f472b6','PC1');drawPC(v2,l2,'#34d399','PC2');
+
+        // Variance bar chart
+        const totalVar=l1+l2,pct1=l1/totalVar*100,pct2=l2/totalVar*100;
+        const bx=plotW+20,bw=barW-40,maxBarH=200;
+        ctx.fillStyle='#1e2045';ctx.fillRect(bx-5,40,bw+10,maxBarH+80);
+        ctx.font='bold 13px Inter';ctx.fillStyle='#c8cad8';ctx.textAlign='center';
+        ctx.fillText('Explained Variance',bx+bw/2,65);
+        const bh1=pct1/100*maxBarH,bh2=pct2/100*maxBarH;
+        const by=100+maxBarH;
+        ctx.fillStyle='#f472b6';ctx.fillRect(bx+10,by-bh1,bw/2-15,bh1);
+        ctx.fillStyle='#34d399';ctx.fillRect(bx+bw/2+5,by-bh2,bw/2-15,bh2);
+        ctx.fillStyle='#f472b6';ctx.fillText(`PC1`,bx+10+(bw/2-15)/2,by+18);
+        ctx.fillText(`${pct1.toFixed(1)}%`,bx+10+(bw/2-15)/2,by+34);
+        ctx.fillStyle='#34d399';ctx.fillText(`PC2`,bx+bw/2+5+(bw/2-15)/2,by+18);
+        ctx.fillText(`${pct2.toFixed(1)}%`,bx+bw/2+5+(bw/2-15)/2,by+34);
+        ctx.textAlign='start';
+
+        document.getElementById('pcaInfo').textContent=`λ₁=${l1.toFixed(3)}, λ₂=${l2.toFixed(3)} | PC1 explains ${pct1.toFixed(1)}% of variance`;
+    }
+
+    window.pcaNewData=function(type){
+        genData(type);draw();
+        document.querySelectorAll('#pcaEllipse,#pcaTwo,#pcaCircle,#pcaAngled').forEach(b=>b.classList.remove('active'));
+        document.getElementById({ellipse:'pcaEllipse',two:'pcaTwo',circle:'pcaCircle',angled:'pcaAngled'}[type]).classList.add('active');
+    };
+    genData('ellipse');draw();
+})();
+
+// ============================================================
+// DEMO 2: t-SNE Simulation
+// ============================================================
+(function(){
+    const canvas=document.getElementById('tsneCanvas'),ctx=canvas.getContext('2d');
+    const W=canvas.width,H=canvas.height;
+    const colors=['#60a5fa','#f472b6','#34d399','#f9a825','#fb923c'];
+    const N=80;// total points
+    const K=4;// clusters
+
+    let hiPts=[],loPts=[],labels=[],running=false,iter=0,animId=null;
+
+    function initData(){
+        hiPts=[];loPts=[];labels=[];iter=0;
+        const centers=[[2,2,1],[−2,−1,3],[3,−2,−1],[−1,3,−2]];
+        for(let c=0;c<K;c++){
+            for(let i=0;i<N/K;i++){
+                hiPts.push([centers[c][0]+randn()*.6, centers[c][1]+randn()*.6, centers[c][2]+randn()*.6]);
+                loPts.push([randn()*2,randn()*2]);
+                labels.push(c);
+            }
+        }
+    }
+    // Fix negative sign issue
+    initData=function(){
+        hiPts=[];loPts=[];labels=[];iter=0;
+        const centers=[[2,2,1],[-2,-1,3],[3,-2,-1],[-1,3,-2]];
+        for(let c=0;c<K;c++){for(let i=0;i<N/K;i++){
+            hiPts.push([centers[c][0]+randn()*.6,centers[c][1]+randn()*.6,centers[c][2]+randn()*.6]);
+            loPts.push([randn()*2,randn()*2]);labels.push(c);
+        }}
+    };
+
+    function hiDist2(i,j){let s=0;for(let d=0;d<3;d++){const dx=hiPts[i][d]-hiPts[j][d];s+=dx*dx}return s}
+    function loDist2(i,j){const dx=loPts[i][0]-loPts[j][0],dy=loPts[i][1]-loPts[j][1];return dx*dx+dy*dy}
+
+    function tsneStep(){
+        const n=hiPts.length, perp=+document.getElementById('tsnePerp').value;
+        const sigma=perp/3;
+        // Simplified: attractive/repulsive forces
+        const lr=iter<50?4:1;
+        const forces=loPts.map(()=>[0,0]);
+
+        for(let i=0;i<n;i++){
+            for(let j=i+1;j<n;j++){
+                const hd=hiDist2(i,j), ld=loDist2(i,j);
+                const pij=Math.exp(-hd/(2*sigma*sigma));
+                const qij=1/(1+ld);
+                const attract=(pij-qij)*qij;
+                const dx=loPts[i][0]-loPts[j][0],dy=loPts[i][1]-loPts[j][1];
+                forces[i][0]+=attract*dx*lr;forces[i][1]+=attract*dy*lr;
+                forces[j][0]-=attract*dx*lr;forces[j][1]-=attract*dy*lr;
+            }
+        }
+        for(let i=0;i<n;i++){loPts[i][0]+=forces[i][0]*0.1;loPts[i][1]+=forces[i][1]*0.1}
+        // Center
+        let mx=0,my=0;loPts.forEach(p=>{mx+=p[0];my+=p[1]});mx/=n;my/=n;
+        loPts.forEach(p=>{p[0]-=mx;p[1]-=my});
+        iter++;
+    }
+
+    function draw(){
+        ctx.clearRect(0,0,W,H);
+        ctx.fillStyle='#0d0e1a';ctx.fillRect(0,0,W,H);
+        // Find bounds
+        let xMin=Infinity,xMax=-Infinity,yMin=Infinity,yMax=-Infinity;
+        loPts.forEach(p=>{if(p[0]<xMin)xMin=p[0];if(p[0]>xMax)xMax=p[0];if(p[1]<yMin)yMin=p[1];if(p[1]>yMax)yMax=p[1]});
+        const pad=40,pw=W-2*pad,ph=H-2*pad;
+        const rx=xMax-xMin||1,ry=yMax-yMin||1;
+        loPts.forEach((p,i)=>{
+            const sx=pad+(p[0]-xMin)/rx*pw,sy=pad+(yMax-p[1])/ry*ph;
+            ctx.beginPath();ctx.arc(sx,sy,5,0,Math.PI*2);ctx.fillStyle=colors[labels[i]];ctx.fill();
+        });
+        // Labels
+        ctx.font='13px Inter';ctx.fillStyle='#6b6e8a';
+        ctx.fillText(`Iteration: ${iter}`,10,20);
+        for(let c=0;c<K;c++){ctx.fillStyle=colors[c];ctx.fillText(`Cluster ${c+1}`,10,40+c*18)}
+    }
+
+    window.tsneRun=function(){
+        if(running){running=false;return}
+        running=true;
+        function step(){if(!running)return;tsneStep();draw();
+            document.getElementById('tsneInfo').textContent=`Iteration ${iter} | Perplexity ${document.getElementById('tsnePerp').value}`;
+            if(iter<200)animId=requestAnimationFrame(step);else running=false}
+        step();
+    };
+    window.tsneReset=function(){running=false;if(animId)cancelAnimationFrame(animId);initData();draw();
+        document.getElementById('tsneInfo').textContent='Click "Run" to watch clusters separate'};
+    initData();draw();
+})();
+
+// ============================================================
+// DEMO 3: PCA vs Nonlinear Comparison
+// ============================================================
+(function(){
+    const canvas=document.getElementById('compareCanvas'),ctx=canvas.getContext('2d');
+    const W=canvas.width,H=canvas.height;
+    const halfW=W/2;
+    const colors=['#60a5fa','#f472b6','#34d399'];
+    let points=[],lbls=[];
+
+    function gen(type){
+        points=[];lbls=[];
+        if(type==='blobs'){
+            const ctrs=[[2,2,1],[-2,-1,2],[1,-2,-1]];
+            ctrs.forEach((c,ci)=>{for(let i=0;i<40;i++){points.push([c[0]+randn()*.5,c[1]+randn()*.5,c[2]+randn()*.5]);lbls.push(ci)}})
+        }else if(type==='moons'){
+            for(let i=0;i<60;i++){const a=Math.PI*i/60;points.push([Math.cos(a)+randn()*.1,Math.sin(a)+randn()*.1,randn()*.1]);lbls.push(0);
+                points.push([1-Math.cos(a)+randn()*.1,.5-Math.sin(a)+randn()*.1,randn()*.1]);lbls.push(1)}
+        }else{
+            for(let i=0;i<60;i++){const t=i/60*3;points.push([t*Math.cos(t*2)+randn()*.2,t*Math.sin(t*2)+randn()*.2,t*.3+randn()*.1]);lbls.push(0);
+                points.push([-t*Math.cos(t*2)+randn()*.2,-t*Math.sin(t*2)+randn()*.2,-t*.3+randn()*.1]);lbls.push(1)}
+        }
+    }
+
+    function doPCA(){
+        const n=points.length;let m=[0,0,0];points.forEach(p=>p.forEach((v,i)=>m[i]+=v));m=m.map(v=>v/n);
+        // Project onto top 2 PCs via simplified SVD (use first two dimensions of centered data as approx)
+        const centered=points.map(p=>p.map((v,i)=>v-m[i]));
+        // Covariance 3x3
+        const C=[[0,0,0],[0,0,0],[0,0,0]];
+        centered.forEach(p=>{for(let i=0;i<3;i++)for(let j=0;j<3;j++)C[i][j]+=p[i]*p[j]});
+        C.forEach(r=>r.forEach((v,j,a)=>a[j]=v/n));
+        // Power iteration for top 2 eigenvectors
+        function powerIter(M,deflate){
+            let v=[Math.random(),Math.random(),Math.random()];
+            for(let it=0;it<50;it++){
+                let nv=[0,0,0];for(let i=0;i<3;i++)for(let j=0;j<3;j++)nv[i]+=M[i][j]*v[j];
+                const len=Math.hypot(...nv);v=nv.map(x=>x/len);
+            }
+            let nv=[0,0,0];for(let i=0;i<3;i++)for(let j=0;j<3;j++)nv[i]+=M[i][j]*v[j];
+            const lam=Math.hypot(...nv);
+            if(deflate)for(let i=0;i<3;i++)for(let j=0;j<3;j++)M[i][j]-=lam*v[i]*v[j];
+            return{vec:v,val:lam};
+        }
+        const M=C.map(r=>[...r]);
+        const e1=powerIter(M,true),e2=powerIter(M,false);
+        return centered.map(p=>({x:p[0]*e1.vec[0]+p[1]*e1.vec[1]+p[2]*e1.vec[2],y:p[0]*e2.vec[0]+p[1]*e2.vec[1]+p[2]*e2.vec[2]}));
+    }
+
+    function doNonlinear(){
+        // Simplified force-based layout preserving neighborhoods
+        const n=points.length;
+        let lo=points.map(()=>({x:randn()*2,y:randn()*2}));
+        const k=8;
+        // Build kNN
+        const knn=[];
+        for(let i=0;i<n;i++){
+            const dists=[];for(let j=0;j<n;j++)if(i!==j){let s=0;for(let d=0;d<3;d++){const dx=points[i][d]-points[j][d];s+=dx*dx}dists.push({j,d:s})}
+            dists.sort((a,b)=>a.d-b.d);knn.push(dists.slice(0,k).map(d=>d.j));
+        }
+        // Iterate
+        for(let it=0;it<80;it++){
+            const forces=lo.map(()=>({x:0,y:0}));
+            for(let i=0;i<n;i++){
+                // Attract to neighbors
+                for(const j of knn[i]){const dx=lo[j].x-lo[i].x,dy=lo[j].y-lo[i].y;forces[i].x+=dx*.05;forces[i].y+=dy*.05}
+                // Repel from all (sample)
+                for(let t=0;t<5;t++){const j=Math.floor(Math.random()*n);if(j===i)continue;
+                    const dx=lo[i].x-lo[j].x,dy=lo[i].y-lo[j].y,d2=dx*dx+dy*dy+.01;
+                    forces[i].x+=dx/(d2)*.02;forces[i].y+=dy/(d2)*.02}
+            }
+            for(let i=0;i<n;i++){lo[i].x+=forces[i].x;lo[i].y+=forces[i].y}
+            let mx=0,my=0;lo.forEach(p=>{mx+=p.x;my+=p.y});mx/=n;my/=n;lo.forEach(p=>{p.x-=mx;p.y-=my});
+        }
+        return lo;
+    }
+
+    function drawPoints(pts,ox,oy,w,h,title){
+        let xMin=Infinity,xMax=-Infinity,yMin=Infinity,yMax=-Infinity;
+        pts.forEach(p=>{if(p.x<xMin)xMin=p.x;if(p.x>xMax)xMax=p.x;if(p.y<yMin)yMin=p.y;if(p.y>yMax)yMax=p.y});
+        const pad=30,pw=w-2*pad,ph=h-2*pad,rx=xMax-xMin||1,ry=yMax-yMin||1;
+        // Border
+        ctx.strokeStyle='#1e2045';ctx.lineWidth=1;ctx.strokeRect(ox,oy,w,h);
+        ctx.font='bold 13px Inter';ctx.fillStyle='var(--accent-secondary)';ctx.textAlign='center';
+        ctx.fillStyle='#5eead4';ctx.fillText(title,ox+w/2,oy+18);ctx.textAlign='start';
+        pts.forEach((p,i)=>{
+            const sx=ox+pad+(p.x-xMin)/rx*pw,sy=oy+pad+(yMax-p.y)/ry*ph;
+            ctx.beginPath();ctx.arc(sx,sy,4.5,0,Math.PI*2);ctx.fillStyle=colors[lbls[i]%3];ctx.fill();
+        });
+    }
+
+    function draw(){
+        ctx.clearRect(0,0,W,H);
+        const pcaPts=doPCA();
+        const nlPts=doNonlinear();
+        drawPoints(pcaPts,0,0,halfW,H,'PCA (Linear)');
+        drawPoints(nlPts,halfW,0,halfW,H,'Nonlinear Embedding');
+        document.getElementById('compareInfo').textContent=`${points.length} points in 3D → projected to 2D. PCA preserves global spread; nonlinear reveals cluster shapes.`;
+    }
+
+    window.compareGen=function(type){
+        gen(type);draw();
+        document.querySelectorAll('#cmpBlobs,#cmpMoons,#cmpSpiral').forEach(b=>b.classList.remove('active'));
+        document.getElementById({blobs:'cmpBlobs',moons:'cmpMoons',spiral:'cmpSpiral'}[type]).classList.add('active');
+    };
+    gen('blobs');draw();
+})();
+
+document.addEventListener('visibilitychange',()=>{});
+</script>
+</body>
+</html>
