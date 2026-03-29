@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kushleyev - Nano-Quadrotor Swarm | Swarm Drone Research #17</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131f;--bg-card:#1a1b2e;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warning:#fbbf24;--accent-danger:#f87171;--border-color:#2a2b3e;--glow-primary:rgba(167,139,250,0.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:1200px;margin:0 auto;padding:0 2rem}
+header{background:linear-gradient(135deg,#0a0b14 0%,#1a1040 50%,#0d1a2d 100%);padding:3rem 0;text-align:center;border-bottom:2px solid var(--accent-primary);position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 50% 50%,rgba(94,234,212,0.08) 0%,transparent 60%);pointer-events:none}
+h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem}
+.subtitle{color:var(--text-secondary);font-size:1.1rem}
+.paper-badge{display:inline-block;background:var(--accent-primary);color:#fff;padding:0.3rem 1rem;border-radius:20px;font-size:0.85rem;margin-top:1rem}
+nav{background:var(--bg-secondary);padding:1rem 0;border-bottom:1px solid var(--border-color);position:sticky;top:0;z-index:100}
+.nav-grid{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center}
+.nav-grid a{color:var(--text-secondary);text-decoration:none;padding:0.3rem 0.8rem;border-radius:6px;font-size:0.8rem;transition:all 0.2s}
+.nav-grid a:hover{color:var(--accent-primary);background:rgba(167,139,250,0.1)}
+section{padding:3rem 0;border-bottom:1px solid var(--border-color)}
+h2{font-size:1.6rem;color:var(--accent-primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem}
+h3{font-size:1.2rem;color:var(--accent-secondary);margin:1.5rem 0 0.8rem}
+p{margin-bottom:1rem;color:var(--text-secondary)}
+ul,ol{margin:1rem 0 1rem 2rem;color:var(--text-secondary)}
+li{margin-bottom:0.5rem}
+strong{color:var(--text-primary)}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin:1.5rem 0}
+.info-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;transition:border-color 0.3s}
+.info-card:hover{border-color:var(--accent-primary)}
+.info-card h4{color:var(--accent-secondary);font-size:1rem;margin-bottom:0.8rem}
+table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:0.95rem}
+th{background:var(--bg-card);color:var(--accent-primary);padding:0.8rem 1rem;text-align:left;border:1px solid var(--border-color)}
+td{padding:0.8rem 1rem;border:1px solid var(--border-color);color:var(--text-secondary)}
+tr:hover td{background:rgba(167,139,250,0.05)}
+.formula{background:var(--bg-card);border-left:3px solid var(--accent-secondary);padding:1rem 1.5rem;margin:1rem 0;font-family:'Courier New',monospace;color:var(--accent-secondary);border-radius:0 8px 8px 0;overflow-x:auto}
+.demo-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0}
+.demo-container h3{color:var(--accent-primary);margin-top:0}
+canvas{width:100%;border-radius:8px;background:#000;display:block;margin:1rem 0;cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:0.8rem;margin:1rem 0;align-items:center}
+.controls label{color:var(--text-secondary);font-size:0.85rem}
+.controls input[type=range]{width:120px;accent-color:var(--accent-primary)}
+.controls select,.controls button{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.85rem}
+.controls button{background:var(--accent-primary);color:#fff;border:none;font-weight:600}
+.controls button:hover{opacity:0.9}
+.controls button.reset{background:var(--accent-danger)}
+.stat-bar{display:flex;gap:1.5rem;flex-wrap:wrap;margin:1rem 0}
+.stat-item{background:var(--bg-secondary);padding:0.5rem 1rem;border-radius:8px;font-size:0.85rem}
+.stat-item span{color:var(--accent-secondary);font-weight:700}
+.highlight-box{background:linear-gradient(135deg,rgba(167,139,250,0.1),rgba(94,234,212,0.1));border:1px solid var(--accent-primary);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+footer{background:var(--bg-secondary);padding:2rem 0;text-align:center;color:var(--text-secondary);font-size:0.9rem}
+@media(max-width:768px){h1{font-size:1.6rem}.container{padding:0 1rem}.info-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<div class="container">
+<h1>Towards a Swarm of Agile Micro Quadrotors</h1>
+<p class="subtitle">Kushleyev, Mellinger, Powers & Kumar (2013)</p>
+<div class="paper-badge">Swarm Drone Research Paper #17 — Autonomous Robots / UPenn GRASP Lab</div>
+</div>
+</header>
+
+<nav>
+<div class="container">
+<div class="nav-grid">
+<a href="#overview">Overview</a>
+<a href="#background">Background</a>
+<a href="#platform">Platform</a>
+<a href="#control">Control</a>
+<a href="#demo1">Demo: Nano Swarm</a>
+<a href="#formation">Formations</a>
+<a href="#planning">Trajectory Planning</a>
+<a href="#demo2">Demo: Gap Transit</a>
+<a href="#communication">Communication</a>
+<a href="#experiments">Experiments</a>
+<a href="#demo3">Demo: Formation Builder</a>
+<a href="#comparison">Comparison</a>
+<a href="#applications">Applications</a>
+<a href="#takeaways">Key Takeaways</a>
+</div>
+</div>
+</nav>
+
+<!-- Section 1: Overview -->
+<section id="overview">
+<div class="container">
+<h2>🚁 Section 1: Paper Overview</h2>
+<p>In 2012, a video from UPenn's GRASP Lab went viral: 20 tiny quadrotors flying in tight formations, swooping through narrow gaps, and performing synchronized maneuvers — all autonomously. This paper by Kushleyev et al. describes the engineering behind those <strong>nano-quadrotors</strong>, each weighing just 33 grams, that demonstrated unprecedented agility and coordination in dense swarms.</p>
+<div class="info-grid">
+<div class="info-card">
+<h4>Paper Details</h4>
+<p><strong>Journal:</strong> Autonomous Robots, Vol. 35, pp. 287–300</p>
+<p><strong>Year:</strong> 2013</p>
+<p><strong>DOI:</strong> 10.1007/s10514-013-9349-9</p>
+</div>
+<div class="info-card">
+<h4>Institution</h4>
+<p><strong>University of Pennsylvania</strong></p>
+<p>GRASP Laboratory (General Robotics, Automation, Sensing and Perception)</p>
+<p>PI: Vijay Kumar</p>
+</div>
+<div class="info-card">
+<h4>Key Achievement</h4>
+<p>20 palm-sized (33g) quadrotors flying in tight 3D formations through narrow gaps, with <strong>sub-centimeter position accuracy</strong> using a Vicon motion capture system.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 2: Background -->
+<section id="background">
+<div class="container">
+<h2>📚 Section 2: Why Nano-Quadrotors?</h2>
+<p>The vision behind this work is that <strong>many small robots are better than one big robot</strong> for many tasks. Small drones have fundamental advantages:</p>
+<ul>
+<li><strong>Safety:</strong> A 33-gram drone is inherently safe near humans. A collision causes a bump, not an injury. This enables indoor operation near people.</li>
+<li><strong>Cost:</strong> Tiny drones use inexpensive components. A swarm of 20 costs less than one large professional drone.</li>
+<li><strong>Redundancy:</strong> If one drone fails, the swarm continues. There's no single point of failure.</li>
+<li><strong>Access:</strong> Small drones can fly through narrow gaps, around corners, and into spaces that large drones cannot reach.</li>
+<li><strong>Agility:</strong> Low mass means low inertia — nano-quadrotors can change direction almost instantly, enabling aggressive maneuvers.</li>
+</ul>
+<p>The challenge is that small drones have severe payload and power limitations. Each drone carries no onboard computer — all computation is done off-board, with commands sent via radio at high rates. This creates an engineering challenge: how do you control 20 drones from a single base station with minimal latency?</p>
+<div class="highlight-box">
+<strong>The viral moment:</strong> The GRASP Lab's nano-quadrotor videos accumulated over 20 million views on YouTube, becoming one of the most-watched robotics demonstrations ever. The work demonstrated that swarm robotics wasn't just theory — it could be built, flown, and filmed.
+</div>
+</div>
+</section>
+
+<!-- Section 3: The Platform -->
+<section id="platform">
+<div class="container">
+<h2>⚙️ Section 3: The KMel Robotics Nano-Quadrotor</h2>
+<table>
+<tr><th>Specification</th><th>Value</th></tr>
+<tr><td>Total weight</td><td>33 grams</td></tr>
+<tr><td>Rotor-to-rotor diameter</td><td>21 cm (8.3 inches)</td></tr>
+<tr><td>Flight time</td><td>~10 minutes</td></tr>
+<tr><td>Max speed</td><td>~4 m/s</td></tr>
+<tr><td>Thrust-to-weight ratio</td><td>~1.7:1</td></tr>
+<tr><td>Onboard processor</td><td>ARM Cortex-M3 (attitude control only)</td></tr>
+<tr><td>Sensors</td><td>3-axis gyroscope, 3-axis accelerometer</td></tr>
+<tr><td>Communication</td><td>2.4 GHz radio (custom protocol)</td></tr>
+<tr><td>Position sensing</td><td>External Vicon motion capture (sub-mm accuracy)</td></tr>
+<tr><td>Control rate</td><td>Attitude: 500 Hz onboard, Position: 100 Hz off-board</td></tr>
+</table>
+<p>The drone runs a <strong>two-layer control architecture</strong>: a fast inner loop (500 Hz) on the onboard microcontroller handles attitude stabilization (keeping the drone level), while a slower outer loop (100 Hz) on the ground station computes desired position and sends attitude commands via radio. This split allows the tiny drone to achieve precise position control despite having no onboard computer capable of running the full control stack.</p>
+</div>
+</section>
+
+<!-- Section 4: Control Architecture -->
+<section id="control">
+<div class="container">
+<h2>🎛️ Section 4: Control Architecture</h2>
+<h3>Inner Loop: Attitude Control (Onboard, 500 Hz)</h3>
+<div class="formula">τ = K_p · (q_des - q) + K_d · (ω_des - ω)</div>
+<p>The onboard controller receives desired roll, pitch, yaw rate, and thrust commands from the ground station. It uses the IMU (gyroscope + accelerometer) to estimate current attitude and applies PD control to track the desired orientation. This loop must be fast (500 Hz) because attitude dynamics are inherently unstable — the drone would flip over in ~200ms without correction.</p>
+
+<h3>Outer Loop: Position Control (Off-board, 100 Hz)</h3>
+<div class="formula">a_des = K_p · (p_des - p) + K_d · (v_des - v) + K_i · ∫(p_des - p)dt + g</div>
+<p>The ground station receives position data from the Vicon motion capture system, computes the position error, and generates desired accelerations. These accelerations are converted to desired roll/pitch angles and thrust, then sent to the drone via radio.</p>
+
+<h3>Communication Pipeline</h3>
+<div class="info-grid">
+<div class="info-card">
+<h4>Step 1: Sensing</h4>
+<p>Vicon cameras track reflective markers on each drone at 100 Hz, providing position (x,y,z) with sub-mm accuracy and orientation (roll, pitch, yaw).</p>
+</div>
+<div class="info-card">
+<h4>Step 2: Planning</h4>
+<p>The ground station runs trajectory planning for all 20 drones simultaneously, computing collision-free paths and desired positions at each timestep.</p>
+</div>
+<div class="info-card">
+<h4>Step 3: Control</h4>
+<p>Position controller computes desired attitude commands for each drone. Commands are serialized and transmitted via a single 2.4 GHz radio link using TDMA scheduling.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 5: Demo 1 - Nano Swarm Simulator -->
+<section id="demo1">
+<div class="container">
+<h2>🎮 Section 5: Interactive Demo — Nano Swarm Simulator</h2>
+<div class="demo-container">
+<h3>Nano-Quadrotor Swarm in Formation</h3>
+<p>Watch 20 nano-quadrotors fly in formation. Click anywhere to set a new center point. Use the formation selector to switch patterns. Each drone independently navigates to its assigned position.</p>
+<canvas id="canvas1" width="900" height="500"></canvas>
+<div class="controls">
+<label>Formation:</label>
+<select id="formation1">
+<option value="grid">Grid</option>
+<option value="circle">Circle</option>
+<option value="figure8">Figure-8</option>
+<option value="helix">Helix / Spiral</option>
+</select>
+<label>Drones: <span id="nDronesVal">20</span></label>
+<input type="range" id="nDrones" min="4" max="40" value="20" step="2">
+<label>Spacing: <span id="spacingVal">40</span></label>
+<input type="range" id="spacing" min="20" max="80" value="40" step="5">
+<button onclick="resetDemo1()">Reset</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Avg Error: <span id="stat1Err">0.0</span> px</div>
+<div class="stat-item">Max Speed: <span id="stat1Spd">0.0</span></div>
+<div class="stat-item">Min Dist: <span id="stat1Min">0</span> px</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 6: Formation Flying -->
+<section id="formation">
+<div class="container">
+<h2>🔷 Section 6: Formation Flying</h2>
+<p>The formation flying problem has three sub-problems:</p>
+<h3>1. Shape Definition</h3>
+<p>The desired formation is defined as a set of relative positions in a body-fixed frame. For example, a 4×5 grid with 0.5m spacing, or a circle of radius 1m. The formation can be rotated, translated, and scaled as a rigid body.</p>
+<h3>2. Assignment Problem</h3>
+<p>Given N drones at current positions and N target positions in the formation, which drone goes where? The optimal assignment minimizes total travel distance (or time). This is solved using the <strong>Hungarian algorithm</strong> (O(N³)) which finds the globally optimal assignment.</p>
+<div class="formula">min Σ ||p_i - target_σ(i)||²  over all permutations σ</div>
+<h3>3. Collision-Free Trajectories</h3>
+<p>Once assignments are made, each drone needs a smooth, collision-free trajectory from its current position to its target. The paper uses minimum-snap polynomial trajectories (7th-order polynomials) that minimize the 4th derivative of position, producing smooth, energy-efficient paths.</p>
+<div class="formula">p(t) = c₇t⁷ + c₆t⁶ + c₅t⁵ + c₄t⁴ + c₃t³ + c₂t² + c₁t + c₀</div>
+<p>Collision avoidance between drones is handled by temporal deconfliction — staggering start times or adjusting trajectory timing so drones don't occupy the same space simultaneously.</p>
+</div>
+</section>
+
+<!-- Section 7: Trajectory Planning -->
+<section id="planning">
+<div class="container">
+<h2>📐 Section 7: Minimum-Snap Trajectory Planning</h2>
+<p>The trajectory planner generates smooth paths that minimize <strong>snap</strong> (the 4th derivative of position). Why snap? Because for a quadrotor, snap is proportional to the rate of change of motor commands. Minimizing snap produces trajectories that are smooth, energy-efficient, and easy for the controllers to track.</p>
+<div class="formula">minimize ∫₀ᵀ (d⁴p/dt⁴)² dt</div>
+<p>Subject to constraints:</p>
+<ul>
+<li><strong>Boundary conditions:</strong> Start and end positions, velocities, and accelerations</li>
+<li><strong>Waypoint constraints:</strong> Pass through specific points at specific times</li>
+<li><strong>Corridor constraints:</strong> Stay within safe flight corridors (for gap traversal)</li>
+<li><strong>Dynamic limits:</strong> Maximum velocity, acceleration, and angular rate</li>
+</ul>
+<p>This optimization is solved as a <strong>quadratic program (QP)</strong> — a convex optimization that can be solved efficiently and reliably. For 20 drones with multiple waypoints, the QP solves in under 1 second on the ground station.</p>
+<div class="highlight-box">
+<strong>Gap traversal:</strong> The most dramatic demonstration was drones flying through narrow gaps (barely wider than the drone itself). This requires precise trajectory planning and timing — the drone must be at exactly the right position, orientation, and velocity to thread the gap safely.
+</div>
+</div>
+</section>
+
+<!-- Section 8: Demo 2 - Gap Transit Simulator -->
+<section id="demo2">
+<div class="container">
+<h2>🎮 Section 8: Interactive Demo — Gap Transit</h2>
+<div class="demo-container">
+<h3>Flying Through Narrow Gaps</h3>
+<p>Watch nano-quadrotors navigate through narrow gaps one at a time. Adjust gap width and drone count. Each drone tilts 90° to pass through vertically-oriented openings.</p>
+<canvas id="canvas2" width="900" height="500"></canvas>
+<div class="controls">
+<label>Gap Width: <span id="gapVal">30</span>px</label>
+<input type="range" id="gapWidth" min="15" max="60" value="30" step="5">
+<label>Drones: <span id="gapDronesVal">6</span></label>
+<input type="range" id="gapDrones" min="2" max="12" value="6" step="1">
+<button onclick="resetDemo2()">Reset</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Passed: <span id="stat2Pass">0</span></div>
+<div class="stat-item">In Transit: <span id="stat2Trans">0</span></div>
+<div class="stat-item">Waiting: <span id="stat2Wait">0</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 9: Communication -->
+<section id="communication">
+<div class="container">
+<h2>📡 Section 9: Communication Architecture</h2>
+<p>Controlling 20 drones from a single radio link requires careful bandwidth management:</p>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Radio frequency</td><td>2.4 GHz ISM band</td></tr>
+<tr><td>Data rate</td><td>2 Mbps</td></tr>
+<tr><td>Protocol</td><td>Custom TDMA (Time Division Multiple Access)</td></tr>
+<tr><td>Command packet size</td><td>~10 bytes per drone (roll, pitch, yaw rate, thrust)</td></tr>
+<tr><td>Update rate per drone</td><td>100 Hz</td></tr>
+<tr><td>Total bandwidth for 20 drones</td><td>~160 kbps (well within capacity)</td></tr>
+<tr><td>Latency</td><td>< 5ms (critical for stability)</td></tr>
+</table>
+<p>The TDMA protocol assigns each drone a time slot within each 10ms cycle. The ground station transmits commands to drone 1, then drone 2, and so on. With 20 drones and 10ms cycles, each drone gets a 0.5ms slot — more than enough for a 10-byte command packet at 2 Mbps.</p>
+<p>The critical constraint is <strong>latency</strong>. The position control loop runs at 100 Hz (10ms period). If radio latency exceeds ~5ms, the control loop becomes unstable. The custom protocol achieves < 2ms latency by eliminating the overhead of standard WiFi/Bluetooth protocols.</p>
+</div>
+</section>
+
+<!-- Section 10: Experimental Results -->
+<section id="experiments">
+<div class="container">
+<h2>📊 Section 10: Experimental Results</h2>
+<table>
+<tr><th>Metric</th><th>Result</th></tr>
+<tr><td>Maximum swarm size</td><td>20 drones simultaneously</td></tr>
+<tr><td>Position tracking error</td><td>< 1 cm RMS</td></tr>
+<tr><td>Maximum speed</td><td>~4 m/s</td></tr>
+<tr><td>Minimum formation spacing</td><td>~30 cm (drone diameter + 10 cm margin)</td></tr>
+<tr><td>Gap traversal success rate</td><td>> 95%</td></tr>
+<tr><td>Formation transition time</td><td>2–5 seconds</td></tr>
+<tr><td>Control latency</td><td>< 5 ms end-to-end</td></tr>
+<tr><td>Flight arena</td><td>Indoor, 5m × 5m × 3m</td></tr>
+</table>
+<p>The sub-centimeter tracking accuracy is remarkable for aerial vehicles and enables the tight formations seen in the videos. This precision is only possible because of the Vicon motion capture system (sub-mm accuracy) and the high-rate control loop (100 Hz position, 500 Hz attitude).</p>
+<h3>Formation Transitions</h3>
+<p>The swarm demonstrated smooth transitions between formations: grid → circle → figure-8 → line → V-shape, all while maintaining minimum separation. The Hungarian algorithm ensures optimal drone-to-position assignment, and minimum-snap trajectories provide smooth, collision-free paths.</p>
+</div>
+</section>
+
+<!-- Section 11: Demo 3 - Formation Builder -->
+<section id="demo3">
+<div class="container">
+<h2>🎮 Section 11: Interactive Demo — Formation Builder</h2>
+<div class="demo-container">
+<h3>Custom Formation Designer</h3>
+<p>Click on the canvas to place target positions (green dots). Drones will automatically assign themselves and fly to the targets using smooth trajectories. Press Reset to clear.</p>
+<canvas id="canvas3" width="900" height="500"></canvas>
+<div class="controls">
+<label>Drones: <span id="buildDronesVal">12</span></label>
+<input type="range" id="buildDrones" min="4" max="24" value="12" step="2">
+<label>Speed: <span id="buildSpdVal">3</span></label>
+<input type="range" id="buildSpd" min="1" max="8" value="3" step="0.5">
+<button onclick="clearTargets3()">Clear Targets</button>
+<button class="reset" onclick="resetDemo3()">Reset All</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Targets: <span id="stat3Tgt">0</span></div>
+<div class="stat-item">Assigned: <span id="stat3Asgn">0</span></div>
+<div class="stat-item">Avg Error: <span id="stat3Err">0.0</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 12: Comparison -->
+<section id="comparison">
+<div class="container">
+<h2>🔬 Section 12: Comparison with Other Swarm Systems</h2>
+<table>
+<tr><th>Property</th><th>Kushleyev Nano (This)</th><th>Preiss Crazyswarm</th><th>Rubenstein Kilobot</th><th>Vásárhelyi Outdoor</th></tr>
+<tr><td>Agent weight</td><td>33g</td><td>27g (Crazyflie)</td><td>~33g (ground)</td><td>~1.5 kg</td></tr>
+<tr><td>Swarm size</td><td>20</td><td>49</td><td>1024</td><td>30</td></tr>
+<tr><td>Environment</td><td>Indoor, MoCap</td><td>Indoor, MoCap</td><td>Tabletop</td><td>Outdoor, GPS</td></tr>
+<tr><td>Control</td><td>Centralized</td><td>Centralized</td><td>Decentralized</td><td>Decentralized</td></tr>
+<tr><td>Precision</td><td>< 1 cm</td><td>< 2 cm</td><td>~2 cm</td><td>~2–5 m</td></tr>
+<tr><td>Agility</td><td>Very high</td><td>High</td><td>Very low (ground)</td><td>Moderate</td></tr>
+<tr><td>3D flight</td><td>Yes</td><td>Yes</td><td>No (2D)</td><td>Yes</td></tr>
+<tr><td>Gap traversal</td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr>
+</table>
+<p>The Kushleyev system pioneered the concept of <strong>agile micro-swarms</strong> — many tiny drones performing acrobatic maneuvers in tight spaces. While later work (Crazyswarm) scaled to more drones with similar platforms, the original GRASP Lab demonstrations set the standard for what small drone swarms could achieve.</p>
+</div>
+</section>
+
+<!-- Section 13: Applications -->
+<section id="applications">
+<div class="container">
+<h2>🌍 Section 13: Applications</h2>
+<div class="info-grid">
+<div class="info-card">
+<h4>Indoor Inspection</h4>
+<p>Nano-quadrotor swarms inspecting building interiors — crawl spaces, ventilation ducts, and confined areas too small for larger drones or humans.</p>
+</div>
+<div class="info-card">
+<h4>Search & Rescue</h4>
+<p>Swarms of tiny drones searching collapsed buildings, navigating through rubble gaps that larger robots cannot pass. Their small size and low mass make them safe around survivors.</p>
+</div>
+<div class="info-card">
+<h4>Entertainment</h4>
+<p>Indoor drone light shows with dozens of nano-quadrotors creating dynamic 3D patterns. Their safety (33g) allows performances near audiences.</p>
+</div>
+<div class="info-card">
+<h4>Warehouse Inventory</h4>
+<p>Swarms scanning shelves in narrow warehouse aisles, reading barcodes and checking stock levels simultaneously from multiple angles.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 14: Key Takeaways -->
+<section id="takeaways">
+<div class="container">
+<h2>🎯 Section 14: Key Takeaways</h2>
+<ol>
+<li><strong>Small is powerful:</strong> At 33 grams, these drones are inherently safe, cheap, and agile. The low mass enables instantaneous direction changes and aggressive maneuvers impossible with larger drones.</li>
+<li><strong>Centralized control works at this scale:</strong> With 20 drones in a small arena, a single ground station can run all planning and position control. The trade-off is dependence on motion capture and radio link.</li>
+<li><strong>Minimum-snap trajectories are the gold standard:</strong> Minimizing the 4th derivative of position produces smooth, energy-efficient paths naturally suited to quadrotor dynamics.</li>
+<li><strong>The Hungarian algorithm solves optimal assignment:</strong> For formation transitions, optimally matching drones to target positions minimizes total travel and prevents path conflicts.</li>
+<li><strong>Gap traversal demonstrates precision:</strong> Flying through openings barely wider than the drone itself requires sub-centimeter accuracy — achievable with motion capture and high-rate control.</li>
+<li><strong>Communication bandwidth is not the bottleneck:</strong> 20 drones at 100 Hz need only ~160 kbps. Latency (< 5ms) is the critical constraint for stability.</li>
+<li><strong>This work launched the public imagination:</strong> The viral videos demonstrated that robot swarms were real, inspiring a generation of swarm robotics research and commercial drone swarm companies.</li>
+</ol>
+</div>
+</section>
+
+<footer>
+<div class="container">
+<p>Data Science Mega Document Research — Swarm Drone Research Paper #17</p>
+<p>Kushleyev et al. (2013) — Autonomous Robots — DOI: 10.1007/s10514-013-9349-9</p>
+</div>
+</footer>
+
+<script>
+// ===== DEMO 1: Nano Swarm Formation Simulator =====
+(function(){
+const c=document.getElementById('canvas1'),ctx=c.getContext('2d');
+let W,H,drones=[],targets=[],centerX,centerY,animId,time=0;
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55);centerX=W/2;centerY=H/2}
+resize();
+
+function getFormationTargets(){
+  const n=parseInt(document.getElementById('nDrones').value);
+  const sp=parseInt(document.getElementById('spacing').value);
+  const form=document.getElementById('formation1').value;
+  const t=[];time+=0.005;
+  if(form==='grid'){
+    const cols=Math.ceil(Math.sqrt(n));
+    for(let i=0;i<n;i++){
+      const r=Math.floor(i/cols),col=i%cols;
+      t.push({x:centerX+(col-(cols-1)/2)*sp,y:centerY+(r-Math.floor(n/cols)/2)*sp});
+    }
+  }else if(form==='circle'){
+    for(let i=0;i<n;i++){
+      const a=Math.PI*2*i/n+time*2;
+      t.push({x:centerX+Math.cos(a)*sp*2,y:centerY+Math.sin(a)*sp*2});
+    }
+  }else if(form==='figure8'){
+    for(let i=0;i<n;i++){
+      const a=Math.PI*2*i/n+time;
+      const r=sp*2.5*Math.cos(2*a)*0.5+sp*2;
+      t.push({x:centerX+Math.cos(a)*r*0.7,y:centerY+Math.sin(2*a)*sp*1.5});
+    }
+  }else if(form==='helix'){
+    for(let i=0;i<n;i++){
+      const a=Math.PI*2*i/n+time*1.5;
+      const r=sp*(1+i/n)*1.5;
+      t.push({x:centerX+Math.cos(a)*r,y:centerY+Math.sin(a)*r*0.6});
+    }
+  }
+  return t;
+}
+
+function init(){
+  const n=parseInt(document.getElementById('nDrones').value);
+  drones=[];time=0;
+  for(let i=0;i<n;i++){
+    drones.push({x:W/2+(Math.random()-0.5)*200,y:H/2+(Math.random()-0.5)*200,vx:0,vy:0,trail:[]});
+  }
+}
+
+c.addEventListener('click',e=>{
+  const r=c.getBoundingClientRect();
+  centerX=e.clientX-r.left;centerY=e.clientY-r.top;
+});
+
+function step(){
+  targets=getFormationTargets();
+  while(drones.length<targets.length)drones.push({x:W/2+(Math.random()-0.5)*100,y:H/2+(Math.random()-0.5)*100,vx:0,vy:0,trail:[]});
+  while(drones.length>targets.length)drones.pop();
+  // Simple greedy assignment (not Hungarian but fast)
+  const used=new Set();
+  const assign=[];
+  for(let i=0;i<drones.length;i++){
+    let best=-1,bestD=Infinity;
+    for(let j=0;j<targets.length;j++){
+      if(used.has(j))continue;
+      const dx=targets[j].x-drones[i].x,dy=targets[j].y-drones[i].y,d=dx*dx+dy*dy;
+      if(d<bestD){bestD=d;best=j;}
+    }
+    assign.push(best);used.add(best);
+  }
+  let totalErr=0,minDist=Infinity,maxSpd=0;
+  for(let i=0;i<drones.length;i++){
+    const d=drones[i],t=targets[assign[i]];
+    const dx=t.x-d.x,dy=t.y-d.y,dist=Math.sqrt(dx*dx+dy*dy);
+    totalErr+=dist;
+    const kp=0.08,kd=0.4;
+    d.vx+=(dx*kp-d.vx*kd)*0.5;d.vy+=(dy*kp-d.vy*kd)*0.5;
+    const spd=Math.sqrt(d.vx*d.vx+d.vy*d.vy);
+    if(spd>5){d.vx*=5/spd;d.vy*=5/spd;}
+    if(spd>maxSpd)maxSpd=spd;
+    d.x+=d.vx;d.y+=d.vy;
+    d.trail.push({x:d.x,y:d.y});if(d.trail.length>15)d.trail.shift();
+    for(let j=i+1;j<drones.length;j++){
+      const ddx=drones[j].x-d.x,ddy=drones[j].y-d.y,dd=Math.sqrt(ddx*ddx+ddy*ddy);
+      if(dd<minDist)minDist=dd;
+    }
+  }
+  document.getElementById('stat1Err').textContent=(totalErr/drones.length).toFixed(1);
+  document.getElementById('stat1Spd').textContent=maxSpd.toFixed(1);
+  document.getElementById('stat1Min').textContent=minDist===Infinity?'--':Math.round(minDist);
+}
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  // Grid
+  ctx.strokeStyle='rgba(167,139,250,0.04)';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  // Target positions
+  targets.forEach(t=>{
+    ctx.beginPath();ctx.arc(t.x,t.y,4,0,Math.PI*2);
+    ctx.fillStyle='rgba(94,234,212,0.2)';ctx.fill();
+    ctx.strokeStyle='rgba(94,234,212,0.3)';ctx.lineWidth=1;ctx.stroke();
+  });
+  // Drones
+  drones.forEach(d=>{
+    // Trail
+    ctx.beginPath();d.trail.forEach((p,i)=>{ctx.globalAlpha=(i/d.trail.length)*0.25;if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});
+    ctx.strokeStyle='#a78bfa';ctx.lineWidth=1.5;ctx.stroke();ctx.globalAlpha=1;
+    // Drone body (top-down quadrotor)
+    ctx.save();ctx.translate(d.x,d.y);
+    // Arms
+    for(let a=0;a<4;a++){
+      ctx.save();ctx.rotate(a*Math.PI/2+Math.PI/4);
+      ctx.strokeStyle='rgba(167,139,250,0.6)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(7,0);ctx.stroke();
+      // Rotor
+      ctx.beginPath();ctx.arc(8,0,4,0,Math.PI*2);ctx.fillStyle='rgba(167,139,250,0.3)';ctx.fill();
+      ctx.restore();
+    }
+    // Center
+    ctx.beginPath();ctx.arc(0,0,2.5,0,Math.PI*2);ctx.fillStyle='#a78bfa';ctx.fill();
+    ctx.restore();
+    // Glow
+    const g=ctx.createRadialGradient(d.x,d.y,0,d.x,d.y,12);
+    g.addColorStop(0,'rgba(167,139,250,0.1)');g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fillRect(d.x-12,d.y-12,24,24);
+  });
+  // Center marker
+  ctx.beginPath();ctx.arc(centerX,centerY,6,0,Math.PI*2);
+  ctx.strokeStyle='rgba(251,191,36,0.4)';ctx.lineWidth=1;ctx.stroke();
+}
+
+function loop(){step();draw();animId=requestAnimationFrame(loop);}
+window.resetDemo1=function(){cancelAnimationFrame(animId);centerX=W/2;centerY=H/2;init();loop();};
+['nDrones','spacing'].forEach(id=>{document.getElementById(id).addEventListener('input',e=>{document.getElementById(id+'Val').textContent=e.target.value;if(id==='nDrones'){cancelAnimationFrame(animId);init();loop();}});});
+document.getElementById('formation1').addEventListener('change',()=>{});
+init();loop();
+})();
+
+// ===== DEMO 2: Gap Transit =====
+(function(){
+const c=document.getElementById('canvas2'),ctx=c.getContext('2d');
+let W,H,drones=[],animId;
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+
+function init(){
+  const n=parseInt(document.getElementById('gapDrones').value);
+  drones=[];
+  for(let i=0;i<n;i++){
+    drones.push({
+      x:80+i*35,y:H/2+(i%2===0?-1:1)*20,
+      vx:0,vy:0,
+      phase:'wait', // wait, approach, transit, done
+      order:i,
+      tilt:0
+    });
+  }
+}
+
+function step(){
+  const gapW=parseInt(document.getElementById('gapWidth').value);
+  const gapX=W*0.5;
+  const gapTop=H/2-gapW*2;
+  const gapBot=H/2+gapW*2;
+  let passed=0,transit=0,waiting=0;
+
+  // Determine who's transiting
+  let anyTransit=drones.some(d=>d.phase==='transit'||d.phase==='approach');
+
+  for(let i=0;i<drones.length;i++){
+    const d=drones[i];
+    if(d.phase==='done'){passed++;continue;}
+    if(d.phase==='wait'){
+      waiting++;
+      // Move to staging area
+      const stageX=gapX-120-d.order*40;
+      const stageY=H/2;
+      d.vx+=(stageX-d.x)*0.03-d.vx*0.2;
+      d.vy+=(stageY-d.y)*0.03-d.vy*0.2;
+      // Check if first in line and no one transiting
+      if(!anyTransit && d.order===Math.min(...drones.filter(dd=>dd.phase==='wait').map(dd=>dd.order))){
+        d.phase='approach';waiting--;
+      }
+    }else if(d.phase==='approach'){
+      transit++;
+      const apX=gapX-30,apY=H/2;
+      d.vx+=(apX-d.x)*0.05-d.vx*0.15;
+      d.vy+=(apY-d.y)*0.05-d.vy*0.15;
+      d.tilt=Math.min(d.tilt+0.05,1);
+      if(Math.abs(d.x-apX)<5&&Math.abs(d.y-apY)<5)d.phase='transit';
+    }else if(d.phase==='transit'){
+      transit++;
+      d.vx+=(gapX+80-d.x)*0.04-d.vx*0.1;
+      d.vy+=(H/2-d.y)*0.08-d.vy*0.2;
+      d.tilt=1;
+      if(d.x>gapX+60){d.phase='done';d.tilt=0;passed++;}
+    }
+    d.x+=d.vx;d.y+=d.vy;
+  }
+  document.getElementById('stat2Pass').textContent=passed;
+  document.getElementById('stat2Trans').textContent=transit;
+  document.getElementById('stat2Wait').textContent=waiting;
+}
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  const gapW=parseInt(document.getElementById('gapWidth').value);
+  const gapX=W*0.5;
+  // Wall
+  ctx.fillStyle='#1a1b2e';
+  ctx.fillRect(gapX-8,0,16,H/2-gapW*2);
+  ctx.fillRect(gapX-8,H/2+gapW*2,16,H);
+  ctx.strokeStyle='var(--accent-secondary)';ctx.lineWidth=2;
+  ctx.strokeStyle='#5eead4';
+  ctx.beginPath();ctx.moveTo(gapX,0);ctx.lineTo(gapX,H/2-gapW*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(gapX,H/2+gapW*2);ctx.lineTo(gapX,H);ctx.stroke();
+  // Gap indicator
+  ctx.fillStyle='rgba(94,234,212,0.05)';
+  ctx.fillRect(gapX-8,H/2-gapW*2,16,gapW*4);
+  // Labels
+  ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='11px sans-serif';
+  ctx.fillText('Staging',80,30);ctx.fillText('Gap',gapX-10,25);ctx.fillText('Clear',gapX+70,30);
+  // Drones
+  drones.forEach(d=>{
+    ctx.save();ctx.translate(d.x,d.y);
+    // Tilt effect: scale X based on tilt (1 = 90° rotated = thin)
+    const scaleX=1-d.tilt*0.7;
+    ctx.scale(scaleX,1);
+    // Draw quadrotor top-down
+    for(let a=0;a<4;a++){
+      ctx.save();ctx.rotate(a*Math.PI/2+Math.PI/4+Date.now()*0.01);
+      ctx.strokeStyle='rgba(167,139,250,0.5)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(8,0);ctx.stroke();
+      ctx.beginPath();ctx.arc(9,0,4,0,Math.PI*2);ctx.fillStyle='rgba(167,139,250,0.25)';ctx.fill();
+      ctx.restore();
+    }
+    ctx.beginPath();ctx.arc(0,0,3,0,Math.PI*2);
+    ctx.fillStyle=d.phase==='done'?'#5eead4':d.phase==='transit'?'#fbbf24':'#a78bfa';
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function loop(){step();draw();animId=requestAnimationFrame(loop);}
+window.resetDemo2=function(){cancelAnimationFrame(animId);init();loop();};
+['gapWidth','gapDrones'].forEach(id=>{document.getElementById(id).addEventListener('input',e=>{document.getElementById(id==='gapWidth'?'gapVal':'gapDronesVal').textContent=e.target.value;if(id==='gapDrones'){cancelAnimationFrame(animId);init();loop();}});});
+init();loop();
+})();
+
+// ===== DEMO 3: Formation Builder =====
+(function(){
+const c=document.getElementById('canvas3'),ctx=c.getContext('2d');
+let W,H,drones=[],customTargets=[],animId;
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+
+function init(){
+  const n=parseInt(document.getElementById('buildDrones').value);
+  drones=[];customTargets=[];
+  for(let i=0;i<n;i++){
+    drones.push({x:60+(i%6)*50,y:60+Math.floor(i/6)*50,vx:0,vy:0,target:-1,trail:[]});
+  }
+}
+
+c.addEventListener('click',e=>{
+  const r=c.getBoundingClientRect();
+  customTargets.push({x:e.clientX-r.left,y:e.clientY-r.top});
+  assignTargets();
+});
+
+function assignTargets(){
+  // Greedy assignment
+  const avail=new Set(drones.map((_,i)=>i));
+  for(let t=0;t<customTargets.length&&avail.size>0;t++){
+    let bestI=-1,bestD=Infinity;
+    for(const i of avail){
+      const dx=customTargets[t].x-drones[i].x,dy=customTargets[t].y-drones[i].y;
+      const d=dx*dx+dy*dy;
+      if(d<bestD){bestD=d;bestI=i;}
+    }
+    if(bestI>=0){drones[bestI].target=t;avail.delete(bestI);}
+  }
+}
+
+function step(){
+  const spd=parseFloat(document.getElementById('buildSpd').value);
+  let totalErr=0,assigned=0;
+  for(const d of drones){
+    if(d.target>=0&&d.target<customTargets.length){
+      assigned++;
+      const t=customTargets[d.target];
+      const dx=t.x-d.x,dy=t.y-d.y,dist=Math.sqrt(dx*dx+dy*dy);
+      totalErr+=dist;
+      d.vx+=(dx*0.06*spd*0.3-d.vx*0.3);
+      d.vy+=(dy*0.06*spd*0.3-d.vy*0.3);
+      const v=Math.sqrt(d.vx*d.vx+d.vy*d.vy);
+      const maxV=spd*1.5;
+      if(v>maxV){d.vx*=maxV/v;d.vy*=maxV/v;}
+    }else{
+      // Idle: gentle hover
+      d.vx*=0.95;d.vy*=0.95;
+      d.vy+=Math.sin(Date.now()*0.003+drones.indexOf(d))*0.02;
+    }
+    d.x+=d.vx;d.y+=d.vy;
+    d.trail.push({x:d.x,y:d.y});if(d.trail.length>12)d.trail.shift();
+  }
+  document.getElementById('stat3Tgt').textContent=customTargets.length;
+  document.getElementById('stat3Asgn').textContent=assigned;
+  document.getElementById('stat3Err').textContent=assigned>0?(totalErr/assigned).toFixed(1):'--';
+}
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font='13px sans-serif';
+  if(customTargets.length===0)ctx.fillText('Click to place target positions for the drones',W/2-160,H/2);
+  // Targets
+  customTargets.forEach((t,i)=>{
+    ctx.beginPath();ctx.arc(t.x,t.y,8,0,Math.PI*2);
+    ctx.fillStyle='rgba(94,234,212,0.15)';ctx.fill();
+    ctx.strokeStyle='rgba(94,234,212,0.5)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='rgba(94,234,212,0.6)';ctx.font='9px sans-serif';ctx.fillText(i+1,t.x-3,t.y+3);
+  });
+  // Assignment lines
+  drones.forEach(d=>{
+    if(d.target>=0&&d.target<customTargets.length){
+      const t=customTargets[d.target];
+      ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(t.x,t.y);
+      ctx.strokeStyle='rgba(167,139,250,0.1)';ctx.lineWidth=1;ctx.stroke();
+    }
+  });
+  // Drones
+  drones.forEach(d=>{
+    ctx.beginPath();d.trail.forEach((p,i)=>{ctx.globalAlpha=(i/d.trail.length)*0.2;if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});
+    ctx.strokeStyle='#a78bfa';ctx.lineWidth=1;ctx.stroke();ctx.globalAlpha=1;
+    ctx.save();ctx.translate(d.x,d.y);
+    for(let a=0;a<4;a++){
+      ctx.save();ctx.rotate(a*Math.PI/2+Math.PI/4+Date.now()*0.008);
+      ctx.strokeStyle='rgba(167,139,250,0.5)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(6,0);ctx.stroke();
+      ctx.beginPath();ctx.arc(7,0,3,0,Math.PI*2);ctx.fillStyle='rgba(167,139,250,0.2)';ctx.fill();
+      ctx.restore();
+    }
+    ctx.beginPath();ctx.arc(0,0,2.5,0,Math.PI*2);
+    ctx.fillStyle=d.target>=0?'#a78bfa':'rgba(167,139,250,0.4)';ctx.fill();
+    ctx.restore();
+  });
+}
+
+function loop(){step();draw();animId=requestAnimationFrame(loop);}
+window.clearTargets3=function(){customTargets=[];drones.forEach(d=>d.target=-1);};
+window.resetDemo3=function(){cancelAnimationFrame(animId);init();loop();};
+document.getElementById('buildDrones').addEventListener('input',e=>{document.getElementById('buildDronesVal').textContent=e.target.value;cancelAnimationFrame(animId);init();loop();});
+document.getElementById('buildSpd').addEventListener('input',e=>{document.getElementById('buildSpdVal').textContent=e.target.value;});
+init();loop();
+})();
+</script>
+</body>
+</html>

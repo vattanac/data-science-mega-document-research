@@ -1305,6 +1305,29 @@
         "category": "Swarm Drone Research"
       },
       {
+        "name": "swarm-drone-17-kushleyev-nano-quadrotor",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-17-kushleyev-nano-quadrotor",
+            "type": "file",
+            "ext": "html",
+            "size": 39229,
+            "path": "swarm-drone-17-kushleyev-nano-quadrotor/index.html"
+          },
+          {
+            "name": "kushleyev_nano_quadrotor_guide.docx",
+            "displayName": "kushleyev_nano_quadrotor_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 15726,
+            "path": "swarm-drone-17-kushleyev-nano-quadrotor/kushleyev_nano_quadrotor_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
         "name": "swarm-drone-complete-guide",
         "type": "folder",
         "children": [

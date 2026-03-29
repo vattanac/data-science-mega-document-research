@@ -121,6 +121,7 @@ FOLDER_CATEGORIES = {
     "swarm-drone-14-hauert-fixed-wing-swarm":     "Swarm Drone Research",
     "swarm-drone-15-coppola-swarm-localization":  "Swarm Drone Research",
     "swarm-drone-16-vasarhelyi-outdoor-flocking": "Swarm Drone Research",
+    "swarm-drone-17-kushleyev-nano-quadrotor":    "Swarm Drone Research",
     # Swarm Drone Complete Guide
     "swarm-drone-complete-guide":              "Swarm Drone Research",
 }

@@ -1,0 +1,44 @@
+ORIGINAL RESEARCH PAPER REFERENCE
+===================================
+
+Title:   Towards a Swarm of Agile Micro Quadrotors
+Authors: Alex Kushleyev, Daniel Mellinger, Caitlin Powers, Vijay Kumar
+Journal: Autonomous Robots
+Volume:  Vol. 35, Issue 4, pp. 287–300
+Date:    2013
+DOI:     10.1007/s10514-013-9349-9
+
+Institution: University of Pennsylvania
+             GRASP Laboratory (General Robotics, Automation, Sensing
+             and Perception)
+             Philadelphia, PA, USA
+
+WHERE TO ACCESS THE FULL PDF:
+-----------------------------
+1. Springer (official):      https://link.springer.com/article/10.1007/s10514-013-9349-9
+2. UPenn GRASP Lab:          https://www.grasp.upenn.edu/
+3. Semantic Scholar:          https://www.semanticscholar.org/paper/Towards-a-swarm-of-agile-micro-quadrotors-Kushleyev-Mellinger/
+4. Google Scholar:            Search "Kushleyev Mellinger agile micro quadrotors swarm 2013"
+5. ResearchGate:              https://www.researchgate.net/publication/257553559
+
+VIDEO: The iconic GRASP Lab nano-quadrotor swarm:
+       https://www.youtube.com/watch?v=YQIMGV5vtd4 (20+ million views)
+
+ABSTRACT (paraphrased):
+-----------------------
+This paper describes a system for controlling swarms of agile micro
+quadrotors weighing only 33 grams. The platform uses a two-layer
+control architecture: a fast 500 Hz onboard attitude controller and
+a 100 Hz off-board position controller using Vicon motion capture.
+Minimum-snap polynomial trajectories are generated for smooth,
+collision-free flight paths. The Hungarian algorithm provides optimal
+assignment for formation transitions. The system demonstrated 20
+drones flying simultaneously in tight 3D formations, performing
+coordinated gap traversal maneuvers, and transitioning smoothly
+between formation shapes — all with sub-centimeter position accuracy.
+This work from UPenn's GRASP Lab became one of the most viral
+robotics demonstrations in history, showcasing the potential of
+nano-scale aerial robot swarms.
+
+NOTE: To add the original PDF to this folder, download from one of the
+links above and save it here as "kushleyev_2013_nano_quadrotor.pdf"
