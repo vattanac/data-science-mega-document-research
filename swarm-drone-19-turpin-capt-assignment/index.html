@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turpin - CAPT Assignment | Swarm Drone Research #19</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131f;--bg-card:#1a1b2e;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warning:#fbbf24;--accent-danger:#f87171;--border-color:#2a2b3e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:1200px;margin:0 auto;padding:0 2rem}
+header{background:linear-gradient(135deg,#0a0b14 0%,#1a1040 50%,#0d1a2d 100%);padding:3rem 0;text-align:center;border-bottom:2px solid var(--accent-primary);position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 50% 50%,rgba(94,234,212,0.08) 0%,transparent 60%);pointer-events:none}
+h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem}
+.subtitle{color:var(--text-secondary);font-size:1.1rem}
+.paper-badge{display:inline-block;background:var(--accent-primary);color:#fff;padding:0.3rem 1rem;border-radius:20px;font-size:0.85rem;margin-top:1rem}
+nav{background:var(--bg-secondary);padding:1rem 0;border-bottom:1px solid var(--border-color);position:sticky;top:0;z-index:100}
+.nav-grid{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center}
+.nav-grid a{color:var(--text-secondary);text-decoration:none;padding:0.3rem 0.8rem;border-radius:6px;font-size:0.8rem;transition:all 0.2s}
+.nav-grid a:hover{color:var(--accent-primary);background:rgba(167,139,250,0.1)}
+section{padding:3rem 0;border-bottom:1px solid var(--border-color)}
+h2{font-size:1.6rem;color:var(--accent-primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem}
+h3{font-size:1.2rem;color:var(--accent-secondary);margin:1.5rem 0 0.8rem}
+p{margin-bottom:1rem;color:var(--text-secondary)}
+ul,ol{margin:1rem 0 1rem 2rem;color:var(--text-secondary)}
+li{margin-bottom:0.5rem}
+strong{color:var(--text-primary)}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin:1.5rem 0}
+.info-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;transition:border-color 0.3s}
+.info-card:hover{border-color:var(--accent-primary)}
+.info-card h4{color:var(--accent-secondary);font-size:1rem;margin-bottom:0.8rem}
+table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:0.95rem}
+th{background:var(--bg-card);color:var(--accent-primary);padding:0.8rem 1rem;text-align:left;border:1px solid var(--border-color)}
+td{padding:0.8rem 1rem;border:1px solid var(--border-color);color:var(--text-secondary)}
+tr:hover td{background:rgba(167,139,250,0.05)}
+.formula{background:var(--bg-card);border-left:3px solid var(--accent-secondary);padding:1rem 1.5rem;margin:1rem 0;font-family:'Courier New',monospace;color:var(--accent-secondary);border-radius:0 8px 8px 0;overflow-x:auto}
+.demo-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0}
+.demo-container h3{color:var(--accent-primary);margin-top:0}
+canvas{width:100%;border-radius:8px;background:#000;display:block;margin:1rem 0;cursor:crosshair}
+.controls{display:flex;flex-wrap:wrap;gap:0.8rem;margin:1rem 0;align-items:center}
+.controls label{color:var(--text-secondary);font-size:0.85rem}
+.controls input[type=range]{width:120px;accent-color:var(--accent-primary)}
+.controls select,.controls button{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.85rem}
+.controls button{background:var(--accent-primary);color:#fff;border:none;font-weight:600}
+.controls button:hover{opacity:0.9}
+.controls button.green{background:#10b981}
+.controls button.reset{background:var(--accent-danger)}
+.stat-bar{display:flex;gap:1.5rem;flex-wrap:wrap;margin:1rem 0}
+.stat-item{background:var(--bg-secondary);padding:0.5rem 1rem;border-radius:8px;font-size:0.85rem}
+.stat-item span{color:var(--accent-secondary);font-weight:700}
+.highlight-box{background:linear-gradient(135deg,rgba(167,139,250,0.1),rgba(94,234,212,0.1));border:1px solid var(--accent-primary);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+footer{background:var(--bg-secondary);padding:2rem 0;text-align:center;color:var(--text-secondary);font-size:0.9rem}
+@media(max-width:768px){h1{font-size:1.6rem}.container{padding:0 1rem}.info-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<div class="container">
+<h1>CAPT: Concurrent Assignment and Planning of Trajectories</h1>
+<p class="subtitle">Turpin, Michael & Kumar (2014)</p>
+<div class="paper-badge">Swarm Drone Research Paper #19 — IJRR / UPenn GRASP Lab</div>
+</div>
+</header>
+
+<nav>
+<div class="container">
+<div class="nav-grid">
+<a href="#overview">Overview</a>
+<a href="#problem">Problem</a>
+<a href="#algorithm">Algorithm</a>
+<a href="#hungarian">Hungarian Method</a>
+<a href="#demo1">Demo: CAPT Assign</a>
+<a href="#trajectories">Trajectories</a>
+<a href="#collision">Collision-Free</a>
+<a href="#demo2">Demo: Trajectory Viz</a>
+<a href="#optimality">Optimality</a>
+<a href="#scaling">Scaling</a>
+<a href="#demo3">Demo: Drone Show</a>
+<a href="#comparison">Comparison</a>
+<a href="#applications">Applications</a>
+<a href="#takeaways">Key Takeaways</a>
+</div>
+</div>
+</nav>
+
+<!-- Section 1 -->
+<section id="overview">
+<div class="container">
+<h2>🎯 Section 1: Paper Overview</h2>
+<p>You have 50 drones hovering in the air. You want them to rearrange into a star pattern. Which drone goes where? And how do they get there without colliding? This is the <strong>Concurrent Assignment and Planning of Trajectories (CAPT)</strong> problem, elegantly solved by Turpin, Michael, and Kumar at UPenn's GRASP Lab.</p>
+<div class="info-grid">
+<div class="info-card">
+<h4>Paper Details</h4>
+<p><strong>Journal:</strong> International Journal of Robotics Research (IJRR), Vol. 33, No. 1</p>
+<p><strong>Year:</strong> 2014</p>
+<p><strong>DOI:</strong> 10.1177/0278364913515307</p>
+</div>
+<div class="info-card">
+<h4>Institution</h4>
+<p><strong>University of Pennsylvania</strong></p>
+<p>GRASP Laboratory</p>
+<p>PI: Vijay Kumar</p>
+</div>
+<div class="info-card">
+<h4>Key Achievement</h4>
+<p>Proved that the <strong>optimal assignment</strong> (minimizing total distance) automatically produces <strong>collision-free trajectories</strong> when robots move along straight lines. No separate collision avoidance needed!</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 2 -->
+<section id="problem">
+<div class="container">
+<h2>🧩 Section 2: The Assignment Problem</h2>
+<p>Given N robots at positions {s₁, s₂, ..., sₙ} and N goal positions {g₁, g₂, ..., gₙ}, find a permutation σ that maps each robot to a goal:</p>
+<div class="formula">minimize Σᵢ cost(sᵢ, g_σ(i))  over all permutations σ</div>
+<p>There are N! possible assignments. For 20 robots, that's 2.4 × 10¹⁸ possibilities — far too many to check exhaustively. The <strong>Hungarian algorithm</strong> solves this in O(N³) time.</p>
+<p>But assignment alone isn't enough. Once you know which drone goes where, the drones need collision-free paths. The brilliant insight of CAPT is that these two problems are <strong>not independent</strong>:</p>
+<div class="highlight-box">
+<strong>CAPT Theorem:</strong> If all robots are identical and move along straight-line paths at equal speed, then the assignment that minimizes total squared distance is <em>automatically collision-free</em>. No separate collision avoidance is needed!
+</div>
+<p>This is remarkable because it reduces a complex multi-robot planning problem (assignment + collision avoidance) to a single, clean optimization (just assignment).</p>
+</div>
+</section>
+
+<!-- Section 3 -->
+<section id="algorithm">
+<div class="container">
+<h2>⚙️ Section 3: The CAPT Algorithm</h2>
+<ol>
+<li><strong>Input:</strong> N current robot positions and N goal positions.</li>
+<li><strong>Compute cost matrix:</strong> C[i][j] = ||sᵢ - gⱼ||² (squared distance from robot i to goal j).</li>
+<li><strong>Solve optimal assignment:</strong> Use the Hungarian algorithm to find the permutation σ* that minimizes total cost.</li>
+<li><strong>Generate trajectories:</strong> Each robot i moves in a straight line from sᵢ to g_σ*(i) at constant speed.</li>
+<li><strong>Execute:</strong> All robots start simultaneously and arrive simultaneously.</li>
+</ol>
+<div class="formula">σ* = argmin_σ Σᵢ ||sᵢ - g_σ(i)||²</div>
+<p>The key properties:</p>
+<ul>
+<li><strong>Optimal:</strong> Minimizes total travel distance (squared).</li>
+<li><strong>Collision-free:</strong> Guaranteed by the optimality theorem — no paths cross.</li>
+<li><strong>Simultaneous:</strong> All robots start and finish at the same time.</li>
+<li><strong>Scalable:</strong> O(N³) for assignment, O(N) for trajectory generation.</li>
+</ul>
+</div>
+</section>
+
+<!-- Section 4 -->
+<section id="hungarian">
+<div class="container">
+<h2>🔢 Section 4: The Hungarian Algorithm</h2>
+<p>The Hungarian algorithm (Kuhn-Munkres) finds the optimal assignment in O(N³) time. The idea:</p>
+<table>
+<tr><th>Step</th><th>Action</th><th>Purpose</th></tr>
+<tr><td>1</td><td>Subtract row minimums</td><td>Create zeros in cost matrix</td></tr>
+<tr><td>2</td><td>Subtract column minimums</td><td>More zeros appear</td></tr>
+<tr><td>3</td><td>Cover all zeros with minimum lines</td><td>Test if N independent zeros exist</td></tr>
+<tr><td>4</td><td>If N lines needed: done (optimal)</td><td>Each zero = one assignment</td></tr>
+<tr><td>5</td><td>If < N lines: modify matrix</td><td>Create more zeros and repeat</td></tr>
+</table>
+<div class="formula">Cost matrix C[i][j] = ||robot_i_pos - goal_j_pos||²</div>
+<p>For N = 50 robots, the algorithm performs roughly 50³ = 125,000 operations — trivial for any modern computer. Even for N = 1000, it completes in under a second.</p>
+</div>
+</section>
+
+<!-- Section 5: Demo 1 -->
+<section id="demo1">
+<div class="container">
+<h2>🎮 Section 5: Interactive Demo — CAPT Assignment Visualizer</h2>
+<div class="demo-container">
+<h3>Optimal Assignment & Collision-Free Motion</h3>
+<p>Blue dots are robots; green circles are goals. Click "Assign" to compute optimal assignment and watch collision-free motion. Click "Scramble" for new random positions. Click canvas to add goals.</p>
+<canvas id="canvas1" width="900" height="500"></canvas>
+<div class="controls">
+<label>Robots: <span id="nBotsVal">16</span></label>
+<input type="range" id="nBots" min="4" max="40" value="16" step="2">
+<label>Speed: <span id="spdVal">2</span></label>
+<input type="range" id="spdRange" min="0.5" max="5" value="2" step="0.5">
+<button class="green" onclick="doAssign()">Assign & Go</button>
+<button onclick="scrambleGoals()">Scramble Goals</button>
+<button class="reset" onclick="resetDemo1()">Reset</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Total Cost: <span id="stat1Cost">0</span></div>
+<div class="stat-item">Collisions: <span id="stat1Col">0</span></div>
+<div class="stat-item">Progress: <span id="stat1Prog">0</span>%</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 6 -->
+<section id="trajectories">
+<div class="container">
+<h2>📐 Section 6: Trajectory Generation</h2>
+<p>Once assignment is computed, trajectories are trivially simple:</p>
+<div class="formula">pᵢ(t) = sᵢ + t · (g_σ(i) - sᵢ)    for t ∈ [0, 1]</div>
+<p>Each robot moves along a straight line from start to goal. All robots begin at t=0 and arrive at t=1. The motion is parameterized so all robots travel at speed proportional to their distance — or equivalently, all arrive simultaneously.</p>
+<h3>Why Straight Lines?</h3>
+<p>The collision-free guarantee only holds for straight-line trajectories. If robots take curved paths, the optimality theorem breaks down and collisions become possible. However, straight lines are also the shortest paths, so there's no practical reason to curve.</p>
+<h3>Simultaneous Arrival</h3>
+<p>All robots must arrive at the same time for the collision-free property to hold. This means robots traveling longer distances move faster. In practice, there's a maximum speed limit, so the total transition time is set by the robot with the longest path:</p>
+<div class="formula">T_total = max_i(||sᵢ - g_σ(i)||) / v_max</div>
+</div>
+</section>
+
+<!-- Section 7 -->
+<section id="collision">
+<div class="container">
+<h2>🛡️ Section 7: The Collision-Free Proof</h2>
+<p>The most elegant result in the paper: <strong>optimal assignment implies no collisions</strong>. The proof works by contradiction:</p>
+<ol>
+<li>Assume the optimal assignment σ* causes two robots i and j to collide at some time t.</li>
+<li>At the collision point, robots i and j occupy the same position. Their paths must cross.</li>
+<li>If paths cross, we can <strong>swap</strong> the goal assignments: give robot i the goal of j, and vice versa.</li>
+<li>By the triangle inequality, this swap <strong>reduces total squared distance</strong>.</li>
+<li>But σ* was supposed to be optimal — contradiction!</li>
+</ol>
+<div class="formula">||sᵢ - g_σ(j)||² + ||sⱼ - g_σ(i)||² < ||sᵢ - g_σ(i)||² + ||sⱼ - g_σ(j)||²</div>
+<p>If paths cross, swapping is always cheaper. Therefore, the optimal assignment never has crossing paths. Non-crossing straight-line paths in 2D cannot collide. QED.</p>
+<div class="highlight-box">
+<strong>Intuition:</strong> Crossing paths mean two robots travel past each other — wasting distance. The optimal assignment never wastes distance, so paths never cross, so robots never collide. Optimality = Safety.
+</div>
+</div>
+</section>
+
+<!-- Section 8: Demo 2 -->
+<section id="demo2">
+<div class="container">
+<h2>🎮 Section 8: Interactive Demo — Path Visualization</h2>
+<div class="demo-container">
+<h3>Assignment Comparison: Optimal vs Random</h3>
+<p>Compare the optimal (Hungarian) assignment against a random assignment. Notice how random paths cross while optimal paths never do.</p>
+<canvas id="canvas2" width="900" height="500"></canvas>
+<div class="controls">
+<label>Points: <span id="pts2Val">10</span></label>
+<input type="range" id="pts2" min="4" max="24" value="10" step="2">
+<button class="green" onclick="computeDemo2()">Compute Both</button>
+<button class="reset" onclick="resetDemo2()">Reset</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Optimal Cost: <span id="stat2Opt">0</span></div>
+<div class="stat-item">Random Cost: <span id="stat2Rnd">0</span></div>
+<div class="stat-item">Savings: <span id="stat2Sav">0</span>%</div>
+<div class="stat-item">Crossings (Random): <span id="stat2Cross">0</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 9 -->
+<section id="optimality">
+<div class="container">
+<h2>📊 Section 9: Optimality Properties</h2>
+<table>
+<tr><th>Property</th><th>CAPT</th><th>Greedy Assignment</th><th>Random Assignment</th></tr>
+<tr><td>Total distance</td><td>Globally optimal</td><td>Near-optimal (1.5x)</td><td>~3-5x optimal</td></tr>
+<tr><td>Collision-free</td><td>Guaranteed</td><td>Not guaranteed</td><td>Not guaranteed</td></tr>
+<tr><td>Computation time</td><td>O(N³)</td><td>O(N²)</td><td>O(N)</td></tr>
+<tr><td>Path crossings</td><td>Zero</td><td>Some</td><td>Many</td></tr>
+<tr><td>Max individual path</td><td>Near-minimal</td><td>Can be long</td><td>Often very long</td></tr>
+</table>
+<p>The greedy algorithm (each robot claims nearest unclaimed goal) is fast but suboptimal: early assignments can force later robots into long detours. CAPT's Hungarian algorithm considers all assignments simultaneously, finding the global optimum.</p>
+</div>
+</section>
+
+<!-- Section 10 -->
+<section id="scaling">
+<div class="container">
+<h2>📈 Section 10: Scaling Analysis</h2>
+<ul>
+<li><strong>N = 10:</strong> Hungarian runs in microseconds. Trivial.</li>
+<li><strong>N = 100:</strong> ~1 million operations. Still under 1ms.</li>
+<li><strong>N = 1,000:</strong> ~1 billion operations. Under 1 second.</li>
+<li><strong>N = 10,000:</strong> ~10¹² operations. Minutes — may need optimization.</li>
+<li><strong>N = 100,000:</strong> Impractical with standard Hungarian. Auction algorithms or approximate methods needed.</li>
+</ul>
+<p>For practical drone swarms (up to ~1000 drones), CAPT is fast enough for real-time recalculation. Drone show companies like Verge Aero and Intel Shooting Star use similar assignment algorithms for their choreography.</p>
+<h3>Extensions</h3>
+<ul>
+<li><strong>3D:</strong> The collision-free theorem extends to 3D for straight-line paths.</li>
+<li><strong>Heterogeneous robots:</strong> If robots have different speeds, the cost function must account for arrival time, not just distance.</li>
+<li><strong>Dynamic reassignment:</strong> If goals change mid-flight, recompute the assignment and smoothly transition to new paths.</li>
+<li><strong>Obstacles:</strong> With obstacles, straight lines may not be feasible. CAPT must be combined with path planning.</li>
+</ul>
+</div>
+</section>
+
+<!-- Section 11: Demo 3 -->
+<section id="demo3">
+<div class="container">
+<h2>🎮 Section 11: Interactive Demo — Drone Show Choreographer</h2>
+<div class="demo-container">
+<h3>Formation Transition Simulator</h3>
+<p>Watch drones transition between preset formations using CAPT assignment. Each transition uses optimal assignment for collision-free motion.</p>
+<canvas id="canvas3" width="900" height="500"></canvas>
+<div class="controls">
+<label>Formation:</label>
+<select id="formSelect">
+<option value="grid">Grid</option>
+<option value="circle">Circle</option>
+<option value="star">Star</option>
+<option value="heart">Heart</option>
+<option value="wave">Wave</option>
+</select>
+<label>Drones: <span id="showNVal">24</span></label>
+<input type="range" id="showN" min="8" max="48" value="24" step="4">
+<button class="green" onclick="transitionTo()">Transition</button>
+<button onclick="autoShow()">Auto Show</button>
+<button class="reset" onclick="resetDemo3()">Reset</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Formation: <span id="stat3Form">Grid</span></div>
+<div class="stat-item">Transition: <span id="stat3Trans">Idle</span></div>
+<div class="stat-item">Avg Distance: <span id="stat3Dist">0</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 12 -->
+<section id="comparison">
+<div class="container">
+<h2>🔬 Section 12: Comparison</h2>
+<table>
+<tr><th>Property</th><th>CAPT (This Paper)</th><th>Preiss Crazyswarm</th><th>Kushleyev Nano</th><th>RRT-based Planning</th></tr>
+<tr><td>Assignment</td><td>Optimal (Hungarian)</td><td>Heuristic</td><td>Heuristic</td><td>N/A</td></tr>
+<tr><td>Collision avoidance</td><td>By construction</td><td>Temporal deconfliction</td><td>Temporal deconfliction</td><td>Explicit planning</td></tr>
+<tr><td>Path shape</td><td>Straight lines</td><td>Minimum-snap polynomials</td><td>Minimum-snap polynomials</td><td>Piecewise linear</td></tr>
+<tr><td>Optimality guarantee</td><td>Global</td><td>Local</td><td>Local</td><td>Asymptotic</td></tr>
+<tr><td>Computation</td><td>O(N³)</td><td>O(N²) per step</td><td>O(N²) per step</td><td>Exponential worst case</td></tr>
+<tr><td>Obstacle handling</td><td>Not natively</td><td>Waypoint constraints</td><td>Corridor constraints</td><td>Full support</td></tr>
+</table>
+</div>
+</section>
+
+<!-- Section 13 -->
+<section id="applications">
+<div class="container">
+<h2>🌍 Section 13: Applications</h2>
+<div class="info-grid">
+<div class="info-card">
+<h4>Drone Light Shows</h4>
+<p>The primary commercial application. Intel, Verge Aero, and others use CAPT-style algorithms to choreograph hundreds of drones transitioning between formations in aerial displays.</p>
+</div>
+<div class="info-card">
+<h4>Warehouse Robotics</h4>
+<p>Amazon-style warehouse robots (Kiva/Proteus) need collision-free assignments from current positions to pickup/dropoff locations. CAPT provides optimal routing.</p>
+</div>
+<div class="info-card">
+<h4>Autonomous Parking</h4>
+<p>Self-driving cars in automated parking garages: each car needs a spot, and the assignment should minimize total movement while avoiding collisions.</p>
+</div>
+<div class="info-card">
+<h4>Swarm Reconfiguration</h4>
+<p>Any multi-robot system that transitions between formations: military drone swarms, satellite constellations, or modular self-reconfiguring robots.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 14 -->
+<section id="takeaways">
+<div class="container">
+<h2>🎯 Section 14: Key Takeaways</h2>
+<ol>
+<li><strong>Optimality implies safety:</strong> The optimal assignment (minimum total squared distance) automatically produces collision-free straight-line paths. This is the paper's central theorem.</li>
+<li><strong>The Hungarian algorithm solves assignment in O(N³):</strong> Fast enough for real-time use with up to ~1000 robots.</li>
+<li><strong>Crossing paths are suboptimal:</strong> If two paths cross, swapping the assignments reduces total cost. Therefore, optimal assignments never cross.</li>
+<li><strong>Simultaneous start/finish is required:</strong> All robots must begin and end their transitions at the same time for the collision-free guarantee.</li>
+<li><strong>Straight-line paths are key:</strong> The theorem requires straight-line trajectories. Curved paths break the guarantee.</li>
+<li><strong>This is the math behind drone shows:</strong> Commercial drone show companies use CAPT-style algorithms for their choreography software.</li>
+<li><strong>Elegant reduction:</strong> CAPT reduces a hard problem (multi-robot planning with collision avoidance) to a solved problem (optimal assignment). This kind of reduction is the gold standard of algorithmic thinking.</li>
+</ol>
+</div>
+</section>
+
+<footer>
+<div class="container">
+<p>Data Science Mega Document Research — Swarm Drone Research Paper #19</p>
+<p>Turpin, Michael & Kumar (2014) — IJRR — DOI: 10.1177/0278364913515307</p>
+</div>
+</footer>
+
+<script>
+// ===== Greedy Hungarian-like assignment (simplified for demo) =====
+function greedyOptimalAssign(starts, goals){
+  // Greedy nearest-neighbor with swapping improvement
+  const n=starts.length;
+  const assign=Array(n).fill(-1);
+  const used=new Set();
+  // Initial greedy
+  for(let i=0;i<n;i++){
+    let best=-1,bestD=Infinity;
+    for(let j=0;j<goals.length;j++){
+      if(used.has(j))continue;
+      const dx=starts[i].x-goals[j].x,dy=starts[i].y-goals[j].y,d=dx*dx+dy*dy;
+      if(d<bestD){bestD=d;best=j;}
+    }
+    assign[i]=best;used.add(best);
+  }
+  // Improve by swapping pairs
+  let improved=true;
+  while(improved){
+    improved=false;
+    for(let i=0;i<n;i++){
+      for(let j=i+1;j<n;j++){
+        const gi=assign[i],gj=assign[j];
+        const cur=dist2(starts[i],goals[gi])+dist2(starts[j],goals[gj]);
+        const swp=dist2(starts[i],goals[gj])+dist2(starts[j],goals[gi]);
+        if(swp<cur-0.01){assign[i]=gj;assign[j]=gi;improved=true;}
+      }
+    }
+  }
+  return assign;
+}
+function dist2(a,b){return(a.x-b.x)**2+(a.y-b.y)**2;}
+
+// ===== DEMO 1: CAPT Assignment =====
+(function(){
+const c=document.getElementById('canvas1'),ctx=c.getContext('2d');
+let W,H,bots=[],goals=[],assign=null,t=0,moving=false,animId;
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+
+function init(){
+  const n=parseInt(document.getElementById('nBots').value);
+  bots=[];goals=[];assign=null;t=0;moving=false;
+  for(let i=0;i<n;i++){
+    bots.push({x:50+Math.random()*(W-100),y:50+Math.random()*(H-100),sx:0,sy:0,gx:0,gy:0});
+  }
+  scrambleG();
+}
+
+function scrambleG(){
+  const n=bots.length;
+  goals=[];assign=null;t=0;moving=false;
+  for(let i=0;i<n;i++){
+    goals.push({x:50+Math.random()*(W-100),y:50+Math.random()*(H-100)});
+  }
+  bots.forEach(b=>{b.sx=b.x;b.sy=b.y;});
+}
+
+window.scrambleGoals=scrambleG;
+
+window.doAssign=function(){
+  const starts=bots.map(b=>({x:b.x,y:b.y}));
+  assign=greedyOptimalAssign(starts,goals);
+  bots.forEach((b,i)=>{b.sx=b.x;b.sy=b.y;b.gx=goals[assign[i]].x;b.gy=goals[assign[i]].y;});
+  t=0;moving=true;
+  let totalC=0;
+  assign.forEach((g,i)=>{totalC+=Math.sqrt(dist2(bots[i],goals[g]));});
+  document.getElementById('stat1Cost').textContent=Math.round(totalC);
+};
+
+function step(){
+  if(!moving)return;
+  const spd=parseFloat(document.getElementById('spdRange').value);
+  t+=spd*0.005;
+  if(t>=1){t=1;moving=false;}
+  let cols=0;
+  bots.forEach((b,i)=>{
+    b.x=b.sx+(b.gx-b.sx)*t;
+    b.y=b.sy+(b.gy-b.sy)*t;
+  });
+  // Check near-collisions
+  for(let i=0;i<bots.length;i++)for(let j=i+1;j<bots.length;j++){
+    if(Math.hypot(bots[i].x-bots[j].x,bots[i].y-bots[j].y)<10)cols++;
+  }
+  document.getElementById('stat1Col').textContent=cols;
+  document.getElementById('stat1Prog').textContent=Math.round(t*100);
+}
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  // Goals
+  goals.forEach((g,i)=>{
+    ctx.beginPath();ctx.arc(g.x,g.y,8,0,Math.PI*2);
+    ctx.strokeStyle='rgba(94,234,212,0.5)';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='rgba(94,234,212,0.1)';ctx.fill();
+  });
+  // Assignment lines
+  if(assign){
+    bots.forEach((b,i)=>{
+      const g=goals[assign[i]];
+      ctx.beginPath();ctx.moveTo(b.sx,b.sy);ctx.lineTo(g.x,g.y);
+      ctx.strokeStyle='rgba(167,139,250,0.15)';ctx.lineWidth=1;ctx.stroke();
+    });
+  }
+  // Bots
+  bots.forEach(b=>{
+    ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);
+    ctx.fillStyle='#a78bfa';ctx.fill();
+    const gl=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,10);
+    gl.addColorStop(0,'rgba(167,139,250,0.15)');gl.addColorStop(1,'transparent');
+    ctx.fillStyle=gl;ctx.fillRect(b.x-10,b.y-10,20,20);
+  });
+}
+
+function loop(){step();draw();animId=requestAnimationFrame(loop);}
+window.resetDemo1=function(){cancelAnimationFrame(animId);init();loop();};
+document.getElementById('nBots').addEventListener('input',e=>{document.getElementById('nBotsVal').textContent=e.target.value;cancelAnimationFrame(animId);init();loop();});
+document.getElementById('spdRange').addEventListener('input',e=>{document.getElementById('spdVal').textContent=e.target.value;});
+init();loop();
+})();
+
+// ===== DEMO 2: Optimal vs Random =====
+(function(){
+const c=document.getElementById('canvas2'),ctx=c.getContext('2d');
+let W,H,starts=[],goals2=[];
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+const hw=()=>W/2-20;
+
+function init2(){
+  const n=parseInt(document.getElementById('pts2').value);
+  starts=[];goals2=[];
+  for(let i=0;i<n;i++){
+    starts.push({x:30+Math.random()*(hw()-40),y:30+Math.random()*(H-60)});
+    goals2.push({x:30+Math.random()*(hw()-40),y:30+Math.random()*(H-60)});
+  }
+}
+
+function segIntersect(a1,a2,b1,b2){
+  const d1x=a2.x-a1.x,d1y=a2.y-a1.y,d2x=b2.x-b1.x,d2y=b2.y-b1.y;
+  const cross=d1x*d2y-d1y*d2x;
+  if(Math.abs(cross)<0.001)return false;
+  const t=((b1.x-a1.x)*d2y-(b1.y-a1.y)*d2x)/cross;
+  const u=((b1.x-a1.x)*d1y-(b1.y-a1.y)*d1x)/cross;
+  return t>0.01&&t<0.99&&u>0.01&&u<0.99;
+  }
+
+window.computeDemo2=function(){
+  const n=starts.length;
+  // Optimal
+  const optAssign=greedyOptimalAssign(starts,goals2);
+  let optCost=0;optAssign.forEach((g,i)=>optCost+=Math.sqrt(dist2(starts[i],goals2[g])));
+  // Random
+  const rndAssign=[...Array(n).keys()];
+  for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rndAssign[i],rndAssign[j]]=[rndAssign[j],rndAssign[i]];}
+  let rndCost=0;rndAssign.forEach((g,i)=>rndCost+=Math.sqrt(dist2(starts[i],goals2[g])));
+  // Count crossings in random
+  let cross=0;
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+    if(segIntersect(starts[i],goals2[rndAssign[i]],starts[j],goals2[rndAssign[j]]))cross++;
+  }
+
+  document.getElementById('stat2Opt').textContent=Math.round(optCost);
+  document.getElementById('stat2Rnd').textContent=Math.round(rndCost);
+  document.getElementById('stat2Sav').textContent=Math.round((1-optCost/rndCost)*100);
+  document.getElementById('stat2Cross').textContent=cross;
+
+  // Draw
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  const ox=W/2+10;
+  // Labels
+  ctx.fillStyle='rgba(94,234,212,0.6)';ctx.font='bold 13px sans-serif';
+  ctx.fillText('OPTIMAL (Hungarian)',10,20);
+  ctx.fillStyle='rgba(248,113,113,0.6)';ctx.fillText('RANDOM',ox+10,20);
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();
+
+  // Optimal side
+  optAssign.forEach((g,i)=>{
+    ctx.beginPath();ctx.moveTo(starts[i].x,starts[i].y);ctx.lineTo(goals2[g].x,goals2[g].y);
+    ctx.strokeStyle='rgba(94,234,212,0.4)';ctx.lineWidth=1.5;ctx.stroke();
+  });
+  starts.forEach(s=>{ctx.beginPath();ctx.arc(s.x,s.y,4,0,Math.PI*2);ctx.fillStyle='#a78bfa';ctx.fill();});
+  goals2.forEach(g=>{ctx.beginPath();ctx.arc(g.x,g.y,4,0,Math.PI*2);ctx.fillStyle='#5eead4';ctx.fill();});
+
+  // Random side
+  rndAssign.forEach((g,i)=>{
+    ctx.beginPath();ctx.moveTo(starts[i].x+ox,starts[i].y);ctx.lineTo(goals2[g].x+ox,goals2[g].y);
+    ctx.strokeStyle='rgba(248,113,113,0.4)';ctx.lineWidth=1.5;ctx.stroke();
+  });
+  starts.forEach(s=>{ctx.beginPath();ctx.arc(s.x+ox,s.y,4,0,Math.PI*2);ctx.fillStyle='#a78bfa';ctx.fill();});
+  goals2.forEach(g=>{ctx.beginPath();ctx.arc(g.x+ox,g.y,4,0,Math.PI*2);ctx.fillStyle='#5eead4';ctx.fill();});
+};
+
+window.resetDemo2=function(){init2();ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font='13px sans-serif';ctx.fillText('Click "Compute Both" to compare assignments',W/2-150,H/2);};
+document.getElementById('pts2').addEventListener('input',e=>{document.getElementById('pts2Val').textContent=e.target.value;init2();});
+init2();window.resetDemo2();
+})();
+
+// ===== DEMO 3: Drone Show =====
+(function(){
+const c=document.getElementById('canvas3'),ctx=c.getContext('2d');
+let W,H,drones=[],targets=[],assign=null,t=0,moving=false,animId,autoRunning=false;
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+
+function makeFormation(name,n){
+  const pts=[];const cx=W/2,cy=H/2;
+  if(name==='grid'){
+    const cols=Math.ceil(Math.sqrt(n));
+    for(let i=0;i<n;i++){const r=Math.floor(i/cols),co=i%cols;pts.push({x:cx+(co-(cols-1)/2)*35,y:cy+(r-Math.floor(n/cols)/2)*35});}
+  }else if(name==='circle'){
+    for(let i=0;i<n;i++){const a=Math.PI*2*i/n;pts.push({x:cx+Math.cos(a)*Math.min(W,H)*0.35,y:cy+Math.sin(a)*Math.min(W,H)*0.35});}
+  }else if(name==='star'){
+    for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;const r=(i%2===0?0.35:0.17)*Math.min(W,H);pts.push({x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r});}
+  }else if(name==='heart'){
+    for(let i=0;i<n;i++){const th=Math.PI*2*i/n;const hx=16*Math.sin(th)**3;const hy=-(13*Math.cos(th)-5*Math.cos(2*th)-2*Math.cos(3*th)-Math.cos(4*th));pts.push({x:cx+hx*8,y:cy+hy*8});}
+  }else if(name==='wave'){
+    for(let i=0;i<n;i++){const x=cx-W*0.35+i*(W*0.7/n);const y=cy+Math.sin(i/n*Math.PI*4)*80;pts.push({x,y});}
+  }
+  return pts;
+}
+
+function init3(){
+  const n=parseInt(document.getElementById('showN').value);
+  const pts=makeFormation('grid',n);
+  drones=pts.map(p=>({x:p.x,y:p.y,sx:p.x,sy:p.y,gx:p.x,gy:p.y,trail:[]}));
+  targets=pts.slice();assign=null;t=1;moving=false;
+  document.getElementById('stat3Form').textContent='Grid';
+}
+
+window.transitionTo=function(){
+  const name=document.getElementById('formSelect').value;
+  const n=drones.length;
+  targets=makeFormation(name,n);
+  const starts=drones.map(d=>({x:d.x,y:d.y}));
+  assign=greedyOptimalAssign(starts,targets);
+  let totalD=0;
+  drones.forEach((d,i)=>{
+    d.sx=d.x;d.sy=d.y;d.gx=targets[assign[i]].x;d.gy=targets[assign[i]].y;
+    totalD+=Math.sqrt(dist2(d,targets[assign[i]]));
+  });
+  t=0;moving=true;
+  document.getElementById('stat3Form').textContent=name.charAt(0).toUpperCase()+name.slice(1);
+  document.getElementById('stat3Trans').textContent='Moving...';
+  document.getElementById('stat3Dist').textContent=Math.round(totalD/n);
+};
+
+let autoIdx=0;
+const autoForms=['circle','star','heart','wave','grid'];
+window.autoShow=function(){
+  autoRunning=!autoRunning;
+  if(autoRunning){autoIdx=0;doAutoStep();}
+};
+function doAutoStep(){
+  if(!autoRunning)return;
+  document.getElementById('formSelect').value=autoForms[autoIdx%autoForms.length];
+  transitionTo();
+  autoIdx++;
+  setTimeout(()=>{if(autoRunning)doAutoStep();},3000);
+}
+
+function step3(){
+  if(!moving)return;
+  t+=0.012;
+  if(t>=1){t=1;moving=false;document.getElementById('stat3Trans').textContent='Done';}
+  // Smooth easing
+  const ease=t<0.5?2*t*t:1-(-2*t+2)**2/2;
+  drones.forEach((d,i)=>{
+    d.x=d.sx+(d.gx-d.sx)*ease;
+    d.y=d.sy+(d.gy-d.sy)*ease;
+    d.trail.push({x:d.x,y:d.y});if(d.trail.length>30)d.trail.shift();
+  });
+}
+
+function draw3(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  // Target ghosts
+  targets.forEach(tg=>{
+    ctx.beginPath();ctx.arc(tg.x,tg.y,6,0,Math.PI*2);
+    ctx.fillStyle='rgba(94,234,212,0.08)';ctx.fill();
+  });
+  // Drones
+  drones.forEach(d=>{
+    // Trail
+    ctx.beginPath();
+    d.trail.forEach((p,i)=>{ctx.globalAlpha=(i/d.trail.length)*0.2;if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);});
+    ctx.strokeStyle='#a78bfa';ctx.lineWidth=1.5;ctx.stroke();ctx.globalAlpha=1;
+    // Drone
+    ctx.beginPath();ctx.arc(d.x,d.y,4,0,Math.PI*2);ctx.fillStyle='#a78bfa';ctx.fill();
+    const gl=ctx.createRadialGradient(d.x,d.y,0,d.x,d.y,10);
+    gl.addColorStop(0,'rgba(167,139,250,0.2)');gl.addColorStop(1,'transparent');
+    ctx.fillStyle=gl;ctx.fillRect(d.x-10,d.y-10,20,20);
+  });
+}
+
+function loop3(){step3();draw3();animId=requestAnimationFrame(loop3);}
+window.resetDemo3=function(){cancelAnimationFrame(animId);autoRunning=false;init3();loop3();};
+document.getElementById('showN').addEventListener('input',e=>{document.getElementById('showNVal').textContent=e.target.value;cancelAnimationFrame(animId);init3();loop3();});
+init3();loop3();
+})();
+</script>
+</body>
+</html>

@@ -123,6 +123,7 @@ FOLDER_CATEGORIES = {
     "swarm-drone-16-vasarhelyi-outdoor-flocking": "Swarm Drone Research",
     "swarm-drone-17-kushleyev-nano-quadrotor":    "Swarm Drone Research",
     "swarm-drone-18-weinstein-swarm-vs-swarm":    "Swarm Drone Research",
+    "swarm-drone-19-turpin-capt-assignment":      "Swarm Drone Research",
     # Swarm Drone Complete Guide
     "swarm-drone-complete-guide":              "Swarm Drone Research",
 }

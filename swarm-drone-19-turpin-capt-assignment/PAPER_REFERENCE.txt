@@ -1,0 +1,49 @@
+ORIGINAL RESEARCH PAPER REFERENCE
+===================================
+
+Title:   Concurrent Assignment and Planning of Trajectories for
+         Multiple Robots
+Authors: Matthew Turpin, Nathan Michael, Vijay Kumar
+Journal: International Journal of Robotics Research (IJRR)
+Volume:  Vol. 33, No. 1, pp. 98–112
+Date:    January 2014
+DOI:     10.1177/0278364913515307
+
+Institution: University of Pennsylvania
+             GRASP Laboratory (General Robotics, Automation, Sensing
+             and Perception)
+             Philadelphia, PA, USA
+
+WHERE TO ACCESS THE FULL PDF:
+-----------------------------
+1. SAGE (official):           https://journals.sagepub.com/doi/10.1177/0278364913515307
+2. UPenn GRASP Lab:           https://www.grasp.upenn.edu/
+3. Semantic Scholar:          https://www.semanticscholar.org/paper/Concurrent-Assignment-and-Planning-of-Trajectories-Turpin-Michael/
+4. Google Scholar:            Search "Turpin Michael Kumar concurrent assignment planning trajectories IJRR 2014"
+5. ResearchGate:              https://www.researchgate.net/publication/258169393
+
+RELATED WORK:
+-------------
+- Turpin et al., "Trajectory planning and assignment in multirobot
+  systems" (RSS 2013 workshop paper — earlier version)
+- Mellinger et al., "Minimum snap trajectory generation and control
+  for quadrotors" (ICRA 2011)
+- Kuhn, "The Hungarian method for the assignment problem" (1955)
+
+ABSTRACT (paraphrased):
+-----------------------
+This paper addresses the problem of assigning goals to robots and
+planning collision-free trajectories simultaneously. The authors prove
+a remarkable theorem: when robots are identical and move along
+straight-line paths at proportional speeds, the optimal assignment
+(minimizing total squared distance) is automatically collision-free.
+This eliminates the need for separate collision avoidance planning.
+The optimal assignment is computed using the Hungarian algorithm in
+O(N³) time. The result extends to 2D and 3D environments and is
+demonstrated on teams of quadrotor UAVs performing formation
+transitions. This work is foundational for commercial drone show
+choreography, warehouse robotics, and any multi-robot system
+requiring collision-free reconfiguration.
+
+NOTE: To add the original PDF to this folder, download from one of the
+links above and save it here as "turpin_2014_capt_assignment.pdf"

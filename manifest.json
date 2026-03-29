@@ -1351,6 +1351,29 @@
         "category": "Swarm Drone Research"
       },
       {
+        "name": "swarm-drone-19-turpin-capt-assignment",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-19-turpin-capt-assignment",
+            "type": "file",
+            "ext": "html",
+            "size": 34105,
+            "path": "swarm-drone-19-turpin-capt-assignment/index.html"
+          },
+          {
+            "name": "turpin_capt_assignment_guide.docx",
+            "displayName": "turpin_capt_assignment_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 15085,
+            "path": "swarm-drone-19-turpin-capt-assignment/turpin_capt_assignment_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
         "name": "swarm-drone-complete-guide",
         "type": "folder",
         "children": [
