@@ -1,0 +1,43 @@
+ORIGINAL RESEARCH PAPER REFERENCE
+===================================
+
+Title:   Optimized Flocking of Autonomous Drones in the Real World
+Authors: Gábor Vásárhelyi, Csaba Virágh, Gergő Somorjai, Tamás Nepusz,
+         Agoston E. Eiben, Tamás Vicsek
+Journal: Science Robotics
+Volume:  Vol. 3, Issue 20, eaat3536
+Date:    July 18, 2018
+DOI:     10.1126/scirobotics.aat3536
+
+Institution: Eötvös Loránd University (ELTE), Budapest, Hungary
+             MTA-ELTE Statistical and Biological Physics Research Group
+             Department of Biological Physics
+
+WHERE TO ACCESS THE FULL PDF:
+-----------------------------
+1. Science Robotics (official): https://www.science.org/doi/10.1126/scirobotics.aat3536
+2. arXiv preprint:              https://arxiv.org/abs/1806.09140
+3. Semantic Scholar:            https://www.semanticscholar.org/paper/Optimized-flocking-of-autonomous-drones-in-the-real-V%C3%A1s%C3%A1rhelyi-Vir%C3%A1gh/
+4. Google Scholar:              Search "Vásárhelyi optimized flocking autonomous drones real world 2018"
+5. ResearchGate:                https://www.researchgate.net/publication/326493919
+
+VIDEO: The ELTE drone swarm in action:
+       https://www.youtube.com/watch?v=E4XbpA2mGEI
+
+ABSTRACT (paraphrased):
+-----------------------
+This paper demonstrates optimized autonomous flocking with up to 30
+drones in outdoor conditions, using only onboard GPS and local
+communication — no external infrastructure. The key innovation is
+evolutionary optimization of flocking parameters in a realistic
+simulator that models GPS noise, communication delays, and physical
+constraints. The optimized parameters transfer directly to real drones
+without additional tuning, achieving zero collisions across all test
+flights. The flocking model uses four local interaction rules
+(repulsion, alignment, cohesion, self-propulsion) inspired by the
+Vicsek model of collective motion. This represents the largest
+outdoor autonomous drone flock demonstrated at the time of publication,
+bridging statistical physics theory with practical swarm engineering.
+
+NOTE: To add the original PDF to this folder, download from one of the
+links above and save it here as "vasarhelyi_2018_outdoor_flocking.pdf"

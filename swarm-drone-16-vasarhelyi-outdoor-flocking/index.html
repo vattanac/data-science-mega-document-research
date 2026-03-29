@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vásárhelyi - Outdoor Flocking | Swarm Drone Research #16</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131f;--bg-card:#1a1b2e;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warning:#fbbf24;--accent-danger:#f87171;--border-color:#2a2b3e;--glow-primary:rgba(167,139,250,0.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:1200px;margin:0 auto;padding:0 2rem}
+header{background:linear-gradient(135deg,#0a0b14 0%,#1a1040 50%,#0d1a2d 100%);padding:3rem 0;text-align:center;border-bottom:2px solid var(--accent-primary);position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 50% 50%,rgba(94,234,212,0.08) 0%,transparent 60%);pointer-events:none}
+h1{font-size:2.2rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem}
+.subtitle{color:var(--text-secondary);font-size:1.1rem}
+.paper-badge{display:inline-block;background:var(--accent-primary);color:#fff;padding:0.3rem 1rem;border-radius:20px;font-size:0.85rem;margin-top:1rem}
+nav{background:var(--bg-secondary);padding:1rem 0;border-bottom:1px solid var(--border-color);position:sticky;top:0;z-index:100}
+.nav-grid{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center}
+.nav-grid a{color:var(--text-secondary);text-decoration:none;padding:0.3rem 0.8rem;border-radius:6px;font-size:0.8rem;transition:all 0.2s}
+.nav-grid a:hover{color:var(--accent-primary);background:rgba(167,139,250,0.1)}
+section{padding:3rem 0;border-bottom:1px solid var(--border-color)}
+h2{font-size:1.6rem;color:var(--accent-primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem}
+h3{font-size:1.2rem;color:var(--accent-secondary);margin:1.5rem 0 0.8rem}
+p{margin-bottom:1rem;color:var(--text-secondary)}
+ul,ol{margin:1rem 0 1rem 2rem;color:var(--text-secondary)}
+li{margin-bottom:0.5rem}
+strong{color:var(--text-primary)}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin:1.5rem 0}
+.info-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;transition:border-color 0.3s}
+.info-card:hover{border-color:var(--accent-primary)}
+.info-card h4{color:var(--accent-secondary);font-size:1rem;margin-bottom:0.8rem}
+table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:0.95rem}
+th{background:var(--bg-card);color:var(--accent-primary);padding:0.8rem 1rem;text-align:left;border:1px solid var(--border-color)}
+td{padding:0.8rem 1rem;border:1px solid var(--border-color);color:var(--text-secondary)}
+tr:hover td{background:rgba(167,139,250,0.05)}
+.formula{background:var(--bg-card);border-left:3px solid var(--accent-secondary);padding:1rem 1.5rem;margin:1rem 0;font-family:'Courier New',monospace;color:var(--accent-secondary);border-radius:0 8px 8px 0;overflow-x:auto}
+.demo-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0}
+.demo-container h3{color:var(--accent-primary);margin-top:0}
+canvas{width:100%;border-radius:8px;background:#000;display:block;margin:1rem 0;cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:0.8rem;margin:1rem 0;align-items:center}
+.controls label{color:var(--text-secondary);font-size:0.85rem}
+.controls input[type=range]{width:120px;accent-color:var(--accent-primary)}
+.controls select,.controls button{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.85rem}
+.controls button{background:var(--accent-primary);color:#fff;border:none;font-weight:600}
+.controls button:hover{opacity:0.9}
+.controls button.reset{background:var(--accent-danger)}
+.stat-bar{display:flex;gap:1.5rem;flex-wrap:wrap;margin:1rem 0}
+.stat-item{background:var(--bg-secondary);padding:0.5rem 1rem;border-radius:8px;font-size:0.85rem}
+.stat-item span{color:var(--accent-secondary);font-weight:700}
+.highlight-box{background:linear-gradient(135deg,rgba(167,139,250,0.1),rgba(94,234,212,0.1));border:1px solid var(--accent-primary);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+footer{background:var(--bg-secondary);padding:2rem 0;text-align:center;color:var(--text-secondary);font-size:0.9rem}
+@media(max-width:768px){h1{font-size:1.6rem}.container{padding:0 1rem}.info-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<div class="container">
+<h1>Optimized Flocking of Autonomous Drones in the Real World</h1>
+<p class="subtitle">Vásárhelyi, Virágh, Somorjai, Nepusz, Eiben & Vicsek (2018)</p>
+<div class="paper-badge">Swarm Drone Research Paper #16 — Science Robotics</div>
+</div>
+</header>
+
+<nav>
+<div class="container">
+<div class="nav-grid">
+<a href="#overview">Overview</a>
+<a href="#background">Background</a>
+<a href="#model">Flocking Model</a>
+<a href="#optimization">Evolutionary Optimization</a>
+<a href="#demo1">Demo: Outdoor Flock</a>
+<a href="#gps">GPS-Based Sensing</a>
+<a href="#results">Results</a>
+<a href="#demo2">Demo: Parameter Tuner</a>
+<a href="#scalability">Scalability</a>
+<a href="#safety">Safety</a>
+<a href="#demo3">Demo: Metrics</a>
+<a href="#comparison">Comparison</a>
+<a href="#applications">Applications</a>
+<a href="#takeaways">Key Takeaways</a>
+</div>
+</div>
+</nav>
+
+<!-- Section 1: Overview -->
+<section id="overview">
+<div class="container">
+<h2>📡 Section 1: Paper Overview</h2>
+<p>What happens when you try to fly 30 autonomous drones in a coordinated flock outdoors, with no central controller, no motion capture, and no human pilots? This 2018 paper in <strong>Science Robotics</strong> answers that question. Vásárhelyi et al. from Eötvös Loránd University (ELTE) in Budapest achieved the <strong>first large-scale outdoor autonomous flocking</strong> of drones using only GPS and local communication.</p>
+<div class="info-grid">
+<div class="info-card">
+<h4>Paper Details</h4>
+<p><strong>Journal:</strong> Science Robotics, Vol. 3, eaat3536</p>
+<p><strong>Year:</strong> 2018</p>
+<p><strong>DOI:</strong> 10.1126/scirobotics.aat3536</p>
+</div>
+<div class="info-card">
+<h4>Institution</h4>
+<p><strong>Eötvös Loránd University (ELTE)</strong>, Budapest, Hungary</p>
+<p>Department of Biological Physics & MTA-ELTE Statistical and Biological Physics Research Group</p>
+</div>
+<div class="info-card">
+<h4>Key Achievement</h4>
+<p>30 drones flying in coherent outdoor flocks with <strong>no central control</strong>, using evolutionarily optimized local interaction rules and GPS-based neighbor sensing.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 2: Background -->
+<section id="background">
+<div class="container">
+<h2>📚 Section 2: From Boids to Real Birds</h2>
+<p>The dream of artificial flocking began with Craig Reynolds' 1987 Boids model — three simple rules (separation, alignment, cohesion) that produce realistic-looking flocks in simulation. But translating simulated flocking to <strong>real physical drones outdoors</strong> is enormously harder:</p>
+<ul>
+<li><strong>Noise:</strong> GPS positions have 2–5 meter errors. Wind gusts push drones off course. Sensor readings fluctuate.</li>
+<li><strong>Delays:</strong> Communication takes time. GPS updates arrive at 5–10 Hz. Control loops have latency.</li>
+<li><strong>Dynamics:</strong> Real drones have mass, inertia, speed limits, and can't change direction instantaneously.</li>
+<li><strong>Safety:</strong> A collision between two drones at 10 m/s can destroy both. There are no second chances.</li>
+<li><strong>Scale:</strong> With 30 drones, there are 435 pairwise interactions to manage simultaneously.</li>
+</ul>
+<p>Previous work (including Vásárhelyi's own 2014 paper) demonstrated outdoor flocking with up to 10 drones. This paper scaled to <strong>30 drones</strong> by using evolutionary optimization to tune the flocking parameters, producing behaviors that are robust to real-world noise and constraints.</p>
+<div class="highlight-box">
+<strong>Core insight:</strong> The same flocking rules that work in simulation fail in reality because simulation parameters don't account for noise, delays, and physical constraints. The solution is to optimize parameters <em>in a realistic simulation</em> that includes all these imperfections, then transfer the optimized parameters directly to real drones.
+</div>
+</div>
+</section>
+
+<!-- Section 3: Flocking Model -->
+<section id="model">
+<div class="container">
+<h2>🔧 Section 3: The Flocking Model</h2>
+<p>Each drone computes a desired velocity based on four interaction terms, all calculated from the positions and velocities of nearby neighbors:</p>
+
+<h3>1. Repulsion (Collision Avoidance)</h3>
+<div class="formula">F_rep = Σ p_rep · max(0, r₀ - dᵢⱼ) · n̂ᵢⱼ</div>
+<p>When a neighbor is closer than the equilibrium distance r₀, a strong repulsive force pushes the drone away. The strength increases linearly as drones get closer.</p>
+
+<h3>2. Velocity Alignment</h3>
+<div class="formula">F_align = C_frict · (vⱼ - vᵢ) for neighbors within interaction range</div>
+<p>Drones try to match the velocity (speed and direction) of their neighbors. This creates coherent group motion where the flock moves together.</p>
+
+<h3>3. Attraction / Cohesion</h3>
+<div class="formula">F_attract = p_att · max(0, dᵢⱼ - r₀) · n̂ᵢⱼ (toward neighbor)</div>
+<p>Beyond the equilibrium distance, a gentle attraction pulls drones toward distant neighbors, preventing the flock from fragmenting.</p>
+
+<h3>4. Self-Propulsion</h3>
+<div class="formula">F_drive = C_drive · (v_desired - |vᵢ|) · v̂ᵢ</div>
+<p>Each drone maintains a preferred cruising speed. Without this term, the flock would eventually slow to a stop due to friction-like alignment forces.</p>
+
+<table>
+<tr><th>Parameter</th><th>Symbol</th><th>Role</th><th>Typical Range</th></tr>
+<tr><td>Repulsion gain</td><td>p_rep</td><td>How hard drones push apart</td><td>5–50</td></tr>
+<tr><td>Equilibrium distance</td><td>r₀</td><td>Preferred spacing between drones</td><td>3–10 m</td></tr>
+<tr><td>Friction coefficient</td><td>C_frict</td><td>Velocity matching strength</td><td>0.1–2.0</td></tr>
+<tr><td>Attraction gain</td><td>p_att</td><td>How strongly drones pull together</td><td>0.01–0.5</td></tr>
+<tr><td>Desired speed</td><td>v_desired</td><td>Target cruising speed</td><td>2–8 m/s</td></tr>
+<tr><td>Interaction range</td><td>R_interact</td><td>Max distance to consider neighbors</td><td>20–50 m</td></tr>
+</table>
+</div>
+</section>
+
+<!-- Section 4: Evolutionary Optimization -->
+<section id="optimization">
+<div class="container">
+<h2>🧬 Section 4: Evolutionary Optimization of Parameters</h2>
+<p>The key innovation is using an <strong>evolutionary algorithm</strong> to find optimal parameter values. Instead of hand-tuning (which fails at scale), the authors:</p>
+<ol>
+<li><strong>Built a realistic simulator</strong> that includes GPS noise (Gaussian, σ = 2m), communication delays (100ms), velocity limits, wind disturbances, and drone dynamics.</li>
+<li><strong>Defined a fitness function</strong> measuring flock quality: group cohesion, velocity correlation (alignment), collision rate, and target speed maintenance.</li>
+<li><strong>Ran evolutionary optimization</strong> over the parameter space, evolving populations of parameter sets across hundreds of generations.</li>
+<li><strong>Transferred the best parameters</strong> directly to real drones — no further tuning needed.</li>
+</ol>
+<div class="formula">fitness = w₁·correlation + w₂·(1/spread) + w₃·(1/collisions) + w₄·speed_match</div>
+<p>The fitness function balances multiple objectives: the flock should be aligned (high velocity correlation), compact (low spread), safe (zero collisions), and fast (matching target speed). The evolutionary algorithm finds parameter combinations that satisfy all criteria simultaneously.</p>
+<div class="highlight-box">
+<strong>Why evolution works here:</strong> The parameter landscape is complex with many local optima. Hand-tuning finds parameters that work for 5 drones but fail at 30. Evolution explores broadly and finds robust solutions that generalize across swarm sizes.
+</div>
+</div>
+</section>
+
+<!-- Section 5: Demo 1 - Outdoor Flock Simulator -->
+<section id="demo1">
+<div class="container">
+<h2>🎮 Section 5: Interactive Demo — Outdoor Flock Simulator</h2>
+<div class="demo-container">
+<h3>GPS-Based Outdoor Flocking</h3>
+<p>Simulate 30 drones flocking outdoors with GPS noise and wind. Click to place an attraction waypoint. Watch how the flock self-organizes into coherent motion.</p>
+<canvas id="canvas1" width="900" height="500"></canvas>
+<div class="controls">
+<label>Drones: <span id="droneCountVal">30</span></label>
+<input type="range" id="droneCount" min="5" max="60" value="30" step="5">
+<label>GPS Noise: <span id="gpsNoiseVal">2.0</span>m</label>
+<input type="range" id="gpsNoise" min="0" max="8" value="2" step="0.5">
+<label>Wind: <span id="windVal">0.5</span></label>
+<input type="range" id="windStr" min="0" max="3" value="0.5" step="0.1">
+<button onclick="resetDemo1()">Reset</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Correlation: <span id="stat1Corr">0.00</span></div>
+<div class="stat-item">Avg Speed: <span id="stat1Speed">0.0</span> m/s</div>
+<div class="stat-item">Spread: <span id="stat1Spread">0</span> m</div>
+<div class="stat-item">Collisions: <span id="stat1Col">0</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 6: GPS-Based Sensing -->
+<section id="gps">
+<div class="container">
+<h2>📍 Section 6: GPS-Based Neighbor Sensing</h2>
+<p>Unlike lab-based swarm experiments that use motion capture, this system relies entirely on <strong>GPS for position</strong> and <strong>local broadcast for sharing state</strong>:</p>
+<div class="info-grid">
+<div class="info-card">
+<h4>Position Sensing</h4>
+<p>Each drone runs an onboard GPS receiver providing position at 5–10 Hz. Accuracy is ±2–5 meters, which is poor compared to motion capture (sub-mm) but sufficient for outdoor flocking where inter-drone spacing is 5–15 meters.</p>
+</div>
+<div class="info-card">
+<h4>State Broadcasting</h4>
+<p>Each drone broadcasts its GPS position and velocity via WiFi at 10 Hz. All drones within radio range (~100m) receive these broadcasts and compute relative positions to neighbors.</p>
+</div>
+<div class="info-card">
+<h4>Relative Computation</h4>
+<p>Drone i computes the relative position of drone j as: <code>r_ij = GPS_j - GPS_i</code>. Both measurements have noise, so the relative error is √2 × individual GPS error — approximately 3–7 meters.</p>
+</div>
+</div>
+<p>The key insight is that <strong>flocking doesn't need precise positions</strong>. The behavioral rules are soft: attraction and alignment are gradual forces, not binary decisions. GPS noise adds jitter to the forces but doesn't fundamentally break the flocking behavior — provided the parameters are tuned for this noise level (which the evolutionary optimizer handles).</p>
+</div>
+</section>
+
+<!-- Section 7: Results -->
+<section id="results">
+<div class="container">
+<h2>📊 Section 7: Experimental Results</h2>
+<table>
+<tr><th>Metric</th><th>Result</th></tr>
+<tr><td>Maximum swarm size tested</td><td>30 drones simultaneously</td></tr>
+<tr><td>Velocity correlation</td><td>> 0.9 (highly aligned flock)</td></tr>
+<tr><td>Collision rate</td><td>0 (no collisions in all outdoor flights)</td></tr>
+<tr><td>Average inter-drone distance</td><td>~8 meters</td></tr>
+<tr><td>Cruising speed</td><td>4–6 m/s</td></tr>
+<tr><td>Flock coherence</td><td>Maintained for entire flight duration (5+ minutes)</td></tr>
+<tr><td>Wind tolerance</td><td>Up to 5 m/s sustained wind</td></tr>
+<tr><td>GPS-only navigation</td><td>No external infrastructure required</td></tr>
+</table>
+<p>The most impressive result is the <strong>sim-to-real transfer</strong>: parameters optimized in simulation worked directly on real drones without any additional tuning. This validates their simulation model and demonstrates that evolutionary optimization in a realistic simulator is a viable path to real-world swarm behavior.</p>
+<h3>Scaling Behavior</h3>
+<p>The paper tested swarms of 10, 20, and 30 drones. Flock quality (correlation, cohesion) remained high across all sizes. Parameters optimized for 30 drones also worked well for 10, suggesting the approach generalizes across scales.</p>
+</div>
+</section>
+
+<!-- Section 8: Demo 2 - Parameter Tuner -->
+<section id="demo2">
+<div class="container">
+<h2>🎮 Section 8: Interactive Demo — Parameter Tuner</h2>
+<div class="demo-container">
+<h3>Flocking Rule Weight Explorer</h3>
+<p>Adjust the four flocking forces and see how the swarm behavior changes in real time. Find the balance that produces coherent flocking.</p>
+<canvas id="canvas2" width="900" height="500"></canvas>
+<div class="controls">
+<label>Repulsion: <span id="repVal">15</span></label>
+<input type="range" id="repSlider" min="0" max="50" value="15" step="1">
+<label>Alignment: <span id="alignVal">1.0</span></label>
+<input type="range" id="alignSlider" min="0" max="3" value="1.0" step="0.1">
+<label>Cohesion: <span id="cohVal">0.1</span></label>
+<input type="range" id="cohSlider" min="0" max="1" value="0.1" step="0.01">
+<label>Speed: <span id="spdVal">4.0</span></label>
+<input type="range" id="spdSlider" min="1" max="10" value="4" step="0.5">
+<button onclick="resetDemo2()">Reset</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Correlation: <span id="stat2Corr">0.00</span></div>
+<div class="stat-item">Min Dist: <span id="stat2Min">0.0</span> m</div>
+<div class="stat-item">Flock Radius: <span id="stat2Rad">0</span> m</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 9: Scalability -->
+<section id="scalability">
+<div class="container">
+<h2>📈 Section 9: Scalability Analysis</h2>
+<p>How does the Vásárhelyi flocking model scale?</p>
+<ul>
+<li><strong>Communication:</strong> Each drone broadcasts its state. With N drones, total bandwidth scales as O(N). At 10 Hz with ~50-byte packets and 100 drones, bandwidth is ~50 kB/s — easily within WiFi capacity.</li>
+<li><strong>Computation:</strong> Each drone computes forces from all neighbors within range. In a dense flock, this is O(N) per drone, O(N²) total. For 100 drones, each processing ~99 neighbors at 10 Hz, this is trivial for modern processors.</li>
+<li><strong>Behavior:</strong> The flocking model uses only local interactions with a finite range. This means behavior scales naturally — a drone at the front of a 1000-drone flock doesn't directly interact with drones at the back, enabling natural scaling.</li>
+<li><strong>GPS channel:</strong> GPS receivers are independent; scaling to thousands doesn't saturate the GPS signal. Communication bandwidth is the actual bottleneck.</li>
+</ul>
+<p>The theoretical limit is approximately <strong>100–200 drones</strong> before WiFi broadcast congestion becomes problematic. Using dedicated communication protocols (TDMA, mesh networks) could push this to 500+.</p>
+</div>
+</section>
+
+<!-- Section 10: Safety -->
+<section id="safety">
+<div class="container">
+<h2>🛡️ Section 10: Safety Mechanisms</h2>
+<p>Flying 30 drones in close proximity demands multiple safety layers:</p>
+<div class="info-grid">
+<div class="info-card">
+<h4>Hard Repulsion Zone</h4>
+<p>Below a critical distance (≈2m), repulsion becomes extremely strong — essentially an emergency brake. This overrides all other behaviors to prevent collision.</p>
+</div>
+<div class="info-card">
+<h4>Speed Limiting</h4>
+<p>Maximum velocity is capped to give the collision avoidance system enough reaction time. At 6 m/s with 10 Hz updates, a drone travels 0.6m between decisions — well within the safety margin.</p>
+</div>
+<div class="info-card">
+<h4>Communication Loss Protocol</h4>
+<p>If a drone loses communication with the swarm, it enters a hover-and-descend mode rather than continuing blind. Stale neighbor data (>1s old) is discarded.</p>
+</div>
+<div class="info-card">
+<h4>Geofencing</h4>
+<p>A virtual boundary constrains the flock to the approved flight area. Drones near the boundary receive an additional inward force.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 11: Demo 3 - Flock Metrics Dashboard -->
+<section id="demo3">
+<div class="container">
+<h2>🎮 Section 11: Interactive Demo — Flock Quality Metrics</h2>
+<div class="demo-container">
+<h3>Real-Time Flock Analytics Dashboard</h3>
+<p>Watch a flock evolve and see key metrics plotted in real time: velocity correlation (alignment quality), group spread (cohesion), and nearest-neighbor distance (safety).</p>
+<canvas id="canvas3" width="900" height="500"></canvas>
+<div class="controls">
+<label>Mode:</label>
+<select id="flockMode">
+<option value="flock">Free Flocking</option>
+<option value="circle">Circle Formation</option>
+<option value="migrate">Migration</option>
+</select>
+<button onclick="resetDemo3()">Reset</button>
+</div>
+<div class="stat-bar">
+<div class="stat-item">Time: <span id="stat3Time">0</span>s</div>
+<div class="stat-item">Correlation: <span id="stat3Corr">0.00</span></div>
+<div class="stat-item">Spread: <span id="stat3Spread">0</span> m</div>
+<div class="stat-item">Nearest: <span id="stat3Near">0</span> m</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 12: Comparison -->
+<section id="comparison">
+<div class="container">
+<h2>🔬 Section 12: Comparison with Other Approaches</h2>
+<table>
+<tr><th>Property</th><th>Vásárhelyi (This Paper)</th><th>Preiss Crazyswarm</th><th>Saska Formation</th><th>Hauert Fixed-Wing</th></tr>
+<tr><td>Environment</td><td>Outdoor, GPS</td><td>Indoor, motion capture</td><td>Indoor/Outdoor</td><td>Outdoor, GPS</td></tr>
+<tr><td>Swarm size</td><td>30 drones</td><td>49 drones</td><td>5–10 drones</td><td>~10 drones</td></tr>
+<tr><td>Control</td><td>Fully decentralized</td><td>Centralized trajectory</td><td>Leader-follower</td><td>Decentralized</td></tr>
+<tr><td>Coordination</td><td>Emergent flocking</td><td>Planned trajectories</td><td>Formation control</td><td>Emergent flocking</td></tr>
+<tr><td>Infrastructure</td><td>None (GPS only)</td><td>Motion capture system</td><td>Varies</td><td>None (GPS only)</td></tr>
+<tr><td>Parameter tuning</td><td>Evolutionary optimization</td><td>Manual/trajectory planning</td><td>Control theory</td><td>Manual tuning</td></tr>
+<tr><td>Sim-to-real</td><td>Direct transfer</td><td>N/A (planned)</td><td>Partial</td><td>Manual adjustment</td></tr>
+</table>
+<p>The Vásárhelyi approach stands out for its combination of <strong>large scale, outdoor operation, full decentralization, and zero infrastructure requirements</strong>. The evolutionary optimization is the key enabler — it automatically handles the complexity of tuning for real-world conditions.</p>
+</div>
+</section>
+
+<!-- Section 13: Applications -->
+<section id="applications">
+<div class="container">
+<h2>🌍 Section 13: Applications</h2>
+<div class="info-grid">
+<div class="info-card">
+<h4>Environmental Monitoring</h4>
+<p>Flocks of sensor-equipped drones covering large areas for air quality, wildlife tracking, or deforestation monitoring. Flocking keeps the swarm together while covering maximum ground.</p>
+</div>
+<div class="info-card">
+<h4>Search and Rescue</h4>
+<p>Self-organizing aerial search teams that don't need communication infrastructure. GPS-only operation makes them deployable in disaster zones where cell towers are down.</p>
+</div>
+<div class="info-card">
+<h4>Precision Agriculture</h4>
+<p>Coordinated crop spraying or imaging by drone flocks maintaining even spacing across fields. Flocking ensures uniform coverage without gaps or overlaps.</p>
+</div>
+<div class="info-card">
+<h4>Drone Light Shows</h4>
+<p>Scaling to hundreds of drones for entertainment. The decentralized approach means no single point of failure — if one drone fails, the others adapt.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 14: Key Takeaways -->
+<section id="takeaways">
+<div class="container">
+<h2>🎯 Section 14: Key Takeaways</h2>
+<ol>
+<li><strong>Evolutionary optimization bridges the sim-to-real gap:</strong> Parameters tuned in a realistic simulation (with noise, delays, dynamics) transfer directly to real drones.</li>
+<li><strong>30 drones, zero collisions, zero infrastructure:</strong> The largest outdoor autonomous flocking demonstration at the time, using only GPS and local WiFi.</li>
+<li><strong>Noise is a feature, not a bug:</strong> By including realistic GPS noise in the optimization, the evolved parameters are inherently robust to real-world imperfections.</li>
+<li><strong>Simple rules, complex behavior:</strong> Four interaction terms (repulsion, alignment, cohesion, self-propulsion) produce rich collective dynamics when properly tuned.</li>
+<li><strong>Biology-inspired, engineering-validated:</strong> The flocking model draws from Vicsek's statistical physics work on self-propelled particles, grounded by evolutionary optimization for engineering constraints.</li>
+<li><strong>Scalability is natural:</strong> Local interaction rules mean the system scales without architectural changes — just add more drones.</li>
+<li><strong>The Vicsek connection:</strong> Co-author Tamás Vicsek pioneered the statistical physics of flocking. This paper represents his theoretical framework becoming a working engineered system.</li>
+</ol>
+</div>
+</section>
+
+<footer>
+<div class="container">
+<p>Data Science Mega Document Research — Swarm Drone Research Paper #16</p>
+<p>Vásárhelyi et al. (2018) — Science Robotics — DOI: 10.1126/scirobotics.aat3536</p>
+</div>
+</footer>
+
+<script>
+// ===== DEMO 1: Outdoor Flock Simulator =====
+(function(){
+const c=document.getElementById('canvas1'),ctx=c.getContext('2d');
+let W,H,drones=[],collisions=0,waypoint=null,animId;
+const scale=5; // 1 pixel = scale meters conceptually
+
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+
+function getP(id){return{
+  n:parseInt(document.getElementById('droneCount').value),
+  gps:parseFloat(document.getElementById('gpsNoise').value),
+  wind:parseFloat(document.getElementById('windStr').value)
+}}
+
+function initDrones(){
+  const p=getP();
+  drones=[];collisions=0;waypoint=null;
+  for(let i=0;i<p.n;i++){
+    drones.push({
+      x:W/2+(Math.random()-0.5)*W*0.4,
+      y:H/2+(Math.random()-0.5)*H*0.4,
+      vx:(Math.random()-0.5)*2,
+      vy:(Math.random()-0.5)*2,
+      trail:[]
+    });
+  }
+}
+
+c.addEventListener('click',e=>{
+  const r=c.getBoundingClientRect();
+  waypoint={x:e.clientX-r.left,y:e.clientY-r.top};
+});
+
+function step(){
+  const p=getP();
+  const r0=40,rep=15,frict=0.8,att=0.02,drive=3,rng=200;
+  const windAngle=Date.now()*0.0002;
+  const wx=Math.cos(windAngle)*p.wind*0.5,wy=Math.sin(windAngle)*p.wind*0.5;
+
+  for(let i=0;i<drones.length;i++){
+    let d=drones[i],fx=0,fy=0;
+    // GPS noise for sensing
+    const gx=d.x+(Math.random()-0.5)*p.gps*4;
+    const gy=d.y+(Math.random()-0.5)*p.gps*4;
+
+    for(let j=0;j<drones.length;j++){
+      if(i===j)continue;
+      let o=drones[j];
+      const ox=o.x+(Math.random()-0.5)*p.gps*4;
+      const oy=o.y+(Math.random()-0.5)*p.gps*4;
+      let dx=ox-gx,dy=oy-gy,dist=Math.sqrt(dx*dx+dy*dy)+0.1;
+      if(dist>rng)continue;
+      let nx=dx/dist,ny=dy/dist;
+      // Repulsion
+      if(dist<r0){fx-=rep*(r0-dist)*nx/r0;fy-=rep*(r0-dist)*ny/r0;if(dist<8)collisions++;}
+      // Attraction
+      if(dist>r0){fx+=att*(dist-r0)*nx;fy+=att*(dist-r0)*ny;}
+      // Alignment
+      fx+=frict*(o.vx-d.vx)*0.05;fy+=frict*(o.vy-d.vy)*0.05;
+    }
+    // Self-propulsion
+    let spd=Math.sqrt(d.vx*d.vx+d.vy*d.vy)+0.01;
+    fx+=drive*(drive-spd)*(d.vx/spd)*0.1;
+    fy+=drive*(drive-spd)*(d.vy/spd)*0.1;
+    // Waypoint attraction
+    if(waypoint){
+      let dx=waypoint.x-d.x,dy=waypoint.y-d.y,dd=Math.sqrt(dx*dx+dy*dy)+1;
+      fx+=dx/dd*0.5;fy+=dy/dd*0.5;
+    }
+    // Wind
+    fx+=wx;fy+=wy;
+    // Boundary
+    if(d.x<30)fx+=2;if(d.x>W-30)fx-=2;if(d.y<30)fy+=2;if(d.y>H-30)fy-=2;
+    d.vx+=fx*0.1;d.vy+=fy*0.1;
+    let v=Math.sqrt(d.vx*d.vx+d.vy*d.vy);
+    if(v>6){d.vx*=6/v;d.vy*=6/v;}
+    d.x+=d.vx;d.y+=d.vy;
+    d.trail.push({x:d.x,y:d.y});if(d.trail.length>20)d.trail.shift();
+  }
+  // Stats
+  let tvx=0,tvy=0,cx=0,cy=0,ts=0;
+  drones.forEach(d=>{tvx+=d.vx;tvy+=d.vy;cx+=d.x;cy+=d.y;ts+=Math.sqrt(d.vx*d.vx+d.vy*d.vy)});
+  tvx/=drones.length;tvy/=drones.length;cx/=drones.length;cy/=drones.length;
+  let magAvg=Math.sqrt(tvx*tvx+tvy*tvy),corr=0,spread=0;
+  drones.forEach(d=>{
+    let m=Math.sqrt(d.vx*d.vx+d.vy*d.vy)+0.01;
+    corr+=(d.vx*tvx+d.vy*tvy)/(m*magAvg+0.01);
+    spread+=Math.sqrt((d.x-cx)**2+(d.y-cy)**2);
+  });
+  document.getElementById('stat1Corr').textContent=(corr/drones.length).toFixed(2);
+  document.getElementById('stat1Speed').textContent=(ts/drones.length).toFixed(1);
+  document.getElementById('stat1Spread').textContent=Math.round(spread/drones.length);
+  document.getElementById('stat1Col').textContent=Math.floor(collisions/100);
+}
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  // Grid
+  ctx.strokeStyle='rgba(167,139,250,0.05)';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  // Waypoint
+  if(waypoint){
+    ctx.beginPath();ctx.arc(waypoint.x,waypoint.y,15,0,Math.PI*2);
+    ctx.fillStyle='rgba(251,191,36,0.2)';ctx.fill();
+    ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.arc(waypoint.x,waypoint.y,3,0,Math.PI*2);ctx.fillStyle='#fbbf24';ctx.fill();
+  }
+  // Drones
+  drones.forEach(d=>{
+    // Trail
+    ctx.beginPath();
+    d.trail.forEach((p,i)=>{
+      ctx.globalAlpha=(i/d.trail.length)*0.3;
+      if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);
+    });
+    ctx.strokeStyle='#a78bfa';ctx.lineWidth=1.5;ctx.stroke();ctx.globalAlpha=1;
+    // Body
+    let angle=Math.atan2(d.vy,d.vx);
+    ctx.save();ctx.translate(d.x,d.y);ctx.rotate(angle);
+    ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-5,-4);ctx.lineTo(-3,0);ctx.lineTo(-5,4);ctx.closePath();
+    ctx.fillStyle='#a78bfa';ctx.fill();
+    ctx.restore();
+    // Glow
+    const g=ctx.createRadialGradient(d.x,d.y,0,d.x,d.y,15);
+    g.addColorStop(0,'rgba(167,139,250,0.15)');g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fillRect(d.x-15,d.y-15,30,30);
+  });
+  // Wind indicator
+  const p=getP();
+  const wa=Date.now()*0.0002;
+  ctx.save();ctx.translate(W-50,30);ctx.rotate(wa);
+  ctx.strokeStyle='rgba(94,234,212,0.5)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(p.wind*10,0);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(p.wind*10,0);ctx.lineTo(p.wind*10-5,-3);ctx.lineTo(p.wind*10-5,3);ctx.closePath();
+  ctx.fillStyle='rgba(94,234,212,0.5)';ctx.fill();
+  ctx.restore();
+  ctx.fillStyle='rgba(94,234,212,0.4)';ctx.font='10px sans-serif';ctx.fillText('wind',W-58,50);
+}
+
+function loop(){step();draw();animId=requestAnimationFrame(loop);}
+window.resetDemo1=function(){cancelAnimationFrame(animId);initDrones();loop();};
+['droneCount','gpsNoise','windStr'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',e=>{
+    document.getElementById(id+'Val').textContent=e.target.value;
+    if(id==='droneCount'){cancelAnimationFrame(animId);initDrones();loop();}
+  });
+});
+initDrones();loop();
+})();
+
+// ===== DEMO 2: Parameter Tuner =====
+(function(){
+const c=document.getElementById('canvas2'),ctx=c.getContext('2d');
+let W,H,drones=[],animId;
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+
+function init(){
+  drones=[];
+  for(let i=0;i<25;i++){
+    drones.push({
+      x:W/2+(Math.random()-0.5)*W*0.5,
+      y:H/2+(Math.random()-0.5)*H*0.5,
+      vx:(Math.random()-0.5)*3,
+      vy:(Math.random()-0.5)*3
+    });
+  }
+}
+
+function step(){
+  const rep=parseFloat(document.getElementById('repSlider').value);
+  const align=parseFloat(document.getElementById('alignSlider').value);
+  const coh=parseFloat(document.getElementById('cohSlider').value);
+  const spd=parseFloat(document.getElementById('spdSlider').value);
+  const r0=50;
+  let minDist=9999,maxR=0,tvx=0,tvy=0;
+
+  for(let i=0;i<drones.length;i++){
+    let d=drones[i],fx=0,fy=0;
+    for(let j=0;j<drones.length;j++){
+      if(i===j)continue;
+      let o=drones[j],dx=o.x-d.x,dy=o.y-d.y,dist=Math.sqrt(dx*dx+dy*dy)+0.1;
+      let nx=dx/dist,ny=dy/dist;
+      if(dist<r0){fx-=rep*(r0-dist)*nx/r0;fy-=rep*(r0-dist)*ny/r0;}
+      if(dist>r0){fx+=coh*(dist-r0)*nx*0.01;fy+=coh*(dist-r0)*ny*0.01;}
+      fx+=align*(o.vx-d.vx)*0.02;fy+=align*(o.vy-d.vy)*0.02;
+      if(dist<minDist)minDist=dist;
+    }
+    let v=Math.sqrt(d.vx*d.vx+d.vy*d.vy)+0.01;
+    fx+=spd*(spd-v)*(d.vx/v)*0.05;fy+=spd*(spd-v)*(d.vy/v)*0.05;
+    if(d.x<20)fx+=3;if(d.x>W-20)fx-=3;if(d.y<20)fy+=3;if(d.y>H-20)fy-=3;
+    d.vx+=fx*0.08;d.vy+=fy*0.08;
+    v=Math.sqrt(d.vx*d.vx+d.vy*d.vy);
+    if(v>8){d.vx*=8/v;d.vy*=8/v;}
+    d.x+=d.vx;d.y+=d.vy;
+    tvx+=d.vx;tvy+=d.vy;
+  }
+  tvx/=drones.length;tvy/=drones.length;
+  let magA=Math.sqrt(tvx*tvx+tvy*tvy)+0.01,corr=0,cx=0,cy=0;
+  drones.forEach(d=>{cx+=d.x;cy+=d.y;let m=Math.sqrt(d.vx*d.vx+d.vy*d.vy)+0.01;corr+=(d.vx*tvx+d.vy*tvy)/(m*magA);});
+  cx/=drones.length;cy/=drones.length;
+  drones.forEach(d=>{let dd=Math.sqrt((d.x-cx)**2+(d.y-cy)**2);if(dd>maxR)maxR=dd;});
+  document.getElementById('stat2Corr').textContent=(corr/drones.length).toFixed(2);
+  document.getElementById('stat2Min').textContent=minDist.toFixed(1);
+  document.getElementById('stat2Rad').textContent=Math.round(maxR);
+}
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  // Connections
+  for(let i=0;i<drones.length;i++){
+    for(let j=i+1;j<drones.length;j++){
+      let dx=drones[j].x-drones[i].x,dy=drones[j].y-drones[i].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<80){
+        ctx.beginPath();ctx.moveTo(drones[i].x,drones[i].y);ctx.lineTo(drones[j].x,drones[j].y);
+        ctx.strokeStyle=`rgba(94,234,212,${0.15*(1-d/80)})`;ctx.lineWidth=1;ctx.stroke();
+      }
+    }
+  }
+  drones.forEach(d=>{
+    let angle=Math.atan2(d.vy,d.vx),spd=Math.sqrt(d.vx*d.vx+d.vy*d.vy);
+    // Speed color: slow=teal, fast=purple
+    let t=Math.min(spd/6,1);
+    let r=Math.round(94+(167-94)*t),g=Math.round(234+(139-234)*t),b=Math.round(212+(250-212)*t);
+    ctx.save();ctx.translate(d.x,d.y);ctx.rotate(angle);
+    ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-6,-5);ctx.lineTo(-3,0);ctx.lineTo(-6,5);ctx.closePath();
+    ctx.fillStyle=`rgb(${r},${g},${b})`;ctx.fill();
+    ctx.restore();
+  });
+  // Legend
+  ctx.fillStyle='rgba(94,234,212,0.6)';ctx.font='10px sans-serif';
+  ctx.fillText('Slow',10,H-10);
+  ctx.fillStyle='rgba(167,139,250,0.6)';ctx.fillText('Fast',45,H-10);
+}
+
+function loop(){step();draw();animId=requestAnimationFrame(loop);}
+window.resetDemo2=function(){cancelAnimationFrame(animId);init();loop();};
+['repSlider','alignSlider','cohSlider','spdSlider'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',e=>{
+    const mapId={repSlider:'repVal',alignSlider:'alignVal',cohSlider:'cohVal',spdSlider:'spdVal'};
+    document.getElementById(mapId[id]).textContent=e.target.value;
+  });
+});
+init();loop();
+})();
+
+// ===== DEMO 3: Flock Quality Metrics Dashboard =====
+(function(){
+const c=document.getElementById('canvas3'),ctx=c.getContext('2d');
+let W,H,drones=[],animId,time=0;
+const histLen=200;
+let corrHist=[],spreadHist=[],nearHist=[];
+
+function resize(){W=c.width=c.offsetWidth;H=c.height=Math.min(500,c.offsetWidth*0.55)}
+resize();
+
+function init(){
+  drones=[];time=0;corrHist=[];spreadHist=[];nearHist=[];
+  const mode=document.getElementById('flockMode').value;
+  for(let i=0;i<20;i++){
+    let x,y,vx,vy;
+    if(mode==='circle'){
+      let a=Math.PI*2*i/20,r=80;
+      x=W*0.35+Math.cos(a)*r;y=H/2+Math.sin(a)*r;vx=-Math.sin(a)*2;vy=Math.cos(a)*2;
+    }else if(mode==='migrate'){
+      x=50+Math.random()*100;y=H/2+(Math.random()-0.5)*100;vx=3+Math.random();vy=(Math.random()-0.5)*0.5;
+    }else{
+      x=W*0.35+(Math.random()-0.5)*200;y=H/2+(Math.random()-0.5)*200;vx=(Math.random()-0.5)*3;vy=(Math.random()-0.5)*3;
+    }
+    drones.push({x,y,vx,vy});
+  }
+}
+
+function step(){
+  time++;
+  const mode=document.getElementById('flockMode').value;
+  const r0=45,rep=12,frict=0.9,att=0.03,drv=3;
+
+  for(let i=0;i<drones.length;i++){
+    let d=drones[i],fx=0,fy=0;
+    for(let j=0;j<drones.length;j++){
+      if(i===j)continue;
+      let o=drones[j],dx=o.x-d.x,dy=o.y-d.y,dist=Math.sqrt(dx*dx+dy*dy)+0.1,nx=dx/dist,ny=dy/dist;
+      if(dist<r0){fx-=rep*(r0-dist)*nx/r0;fy-=rep*(r0-dist)*ny/r0;}
+      if(dist>r0){fx+=att*(dist-r0)*nx;fy+=att*(dist-r0)*ny;}
+      fx+=frict*(o.vx-d.vx)*0.03;fy+=frict*(o.vy-d.vy)*0.03;
+    }
+    let v=Math.sqrt(d.vx*d.vx+d.vy*d.vy)+0.01;
+    if(mode==='circle'){
+      let cx=W*0.35,cy=H/2,dx=d.x-cx,dy=d.y-cy,dr=Math.sqrt(dx*dx+dy*dy);
+      let tx=-dy/dr*3,ty=dx/dr*3;
+      fx+=(tx-d.vx)*0.1;fy+=(ty-d.vy)*0.1;
+      fx+=(80-dr)*dx/dr*0.01;fy+=(80-dr)*dy/dr*0.01;
+    }else if(mode==='migrate'){
+      fx+=0.15;
+      if(d.x>W*0.6){d.x=30;d.y=H/2+(Math.random()-0.5)*80;}
+    }else{
+      fx+=drv*(drv-v)*(d.vx/v)*0.05;fy+=drv*(drv-v)*(d.vy/v)*0.05;
+    }
+    let bx=W*0.65;
+    if(d.x<20)fx+=2;if(d.x>bx-20)fx-=2;if(d.y<20)fy+=2;if(d.y>H-20)fy-=2;
+    d.vx+=fx*0.08;d.vy+=fy*0.08;
+    v=Math.sqrt(d.vx*d.vx+d.vy*d.vy);if(v>6){d.vx*=6/v;d.vy*=6/v;}
+    d.x+=d.vx;d.y+=d.vy;
+  }
+  // Compute metrics
+  let tvx=0,tvy=0,cx=0,cy=0,minN=9999;
+  drones.forEach(d=>{tvx+=d.vx;tvy+=d.vy;cx+=d.x;cy+=d.y;});
+  tvx/=drones.length;tvy/=drones.length;cx/=drones.length;cy/=drones.length;
+  let magA=Math.sqrt(tvx*tvx+tvy*tvy)+0.01,corr=0,spread=0;
+  for(let i=0;i<drones.length;i++){
+    let d=drones[i],m=Math.sqrt(d.vx*d.vx+d.vy*d.vy)+0.01;
+    corr+=(d.vx*tvx+d.vy*tvy)/(m*magA);
+    spread+=Math.sqrt((d.x-cx)**2+(d.y-cy)**2);
+    for(let j=i+1;j<drones.length;j++){
+      let dx=drones[j].x-d.x,dy=drones[j].y-d.y,dd=Math.sqrt(dx*dx+dy*dy);
+      if(dd<minN)minN=dd;
+    }
+  }
+  corr/=drones.length;spread/=drones.length;
+  corrHist.push(corr);spreadHist.push(spread);nearHist.push(minN);
+  if(corrHist.length>histLen){corrHist.shift();spreadHist.shift();nearHist.shift();}
+  document.getElementById('stat3Time').textContent=Math.floor(time/60);
+  document.getElementById('stat3Corr').textContent=corr.toFixed(2);
+  document.getElementById('stat3Spread').textContent=Math.round(spread);
+  document.getElementById('stat3Near').textContent=minN.toFixed(1);
+}
+
+function drawChart(data,x,y,w,h,color,label,minV,maxV){
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+  ctx.strokeRect(x,y,w,h);
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='11px sans-serif';
+  ctx.fillText(label,x+5,y-5);
+  if(data.length<2)return;
+  ctx.beginPath();
+  for(let i=0;i<data.length;i++){
+    let px=x+i*(w/histLen);
+    let py=y+h-(data[i]-minV)/(maxV-minV+0.01)*h;
+    py=Math.max(y,Math.min(y+h,py));
+    if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  }
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
+  // Current value
+  let last=data[data.length-1];
+  ctx.fillStyle=color;ctx.fillText(last.toFixed(1),x+w+5,y+h/2);
+}
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  let simW=W*0.6;
+  // Sim area
+  ctx.strokeStyle='rgba(167,139,250,0.15)';ctx.lineWidth=1;ctx.strokeRect(5,5,simW-10,H-10);
+  drones.forEach(d=>{
+    let a=Math.atan2(d.vy,d.vx);
+    ctx.save();ctx.translate(d.x,d.y);ctx.rotate(a);
+    ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-5,-4);ctx.lineTo(-3,0);ctx.lineTo(-5,4);ctx.closePath();
+    ctx.fillStyle='#a78bfa';ctx.fill();ctx.restore();
+    const g=ctx.createRadialGradient(d.x,d.y,0,d.x,d.y,12);
+    g.addColorStop(0,'rgba(167,139,250,0.12)');g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fillRect(d.x-12,d.y-12,24,24);
+  });
+  // Charts
+  let cx=simW+20,cw=W-simW-50,ch=(H-80)/3;
+  drawChart(corrHist,cx,30,cw,ch,'#a78bfa','Correlation',-1,1);
+  drawChart(spreadHist,cx,50+ch,cw,ch,'#5eead4','Spread (px)',0,200);
+  drawChart(nearHist,cx,70+ch*2,cw,ch,'#fbbf24','Nearest (px)',0,100);
+}
+
+function loop(){step();draw();animId=requestAnimationFrame(loop);}
+window.resetDemo3=function(){cancelAnimationFrame(animId);init();loop();};
+document.getElementById('flockMode').addEventListener('change',()=>{cancelAnimationFrame(animId);init();loop();});
+init();loop();
+})();
+</script>
+</body>
+</html>

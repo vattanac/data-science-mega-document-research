@@ -1282,6 +1282,29 @@
         "category": "Swarm Drone Research"
       },
       {
+        "name": "swarm-drone-16-vasarhelyi-outdoor-flocking",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-16-vasarhelyi-outdoor-flocking",
+            "type": "file",
+            "ext": "html",
+            "size": 40804,
+            "path": "swarm-drone-16-vasarhelyi-outdoor-flocking/index.html"
+          },
+          {
+            "name": "vasarhelyi_outdoor_flocking_guide.docx",
+            "displayName": "vasarhelyi_outdoor_flocking_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 16736,
+            "path": "swarm-drone-16-vasarhelyi-outdoor-flocking/vasarhelyi_outdoor_flocking_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
         "name": "swarm-drone-complete-guide",
         "type": "folder",
         "children": [
