@@ -1213,6 +1213,29 @@
         "category": "Swarm Drone Research"
       },
       {
+        "name": "swarm-drone-13-saska-multi-uav-formation",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-13-saska-multi-uav-formation",
+            "type": "file",
+            "ext": "html",
+            "size": 35452,
+            "path": "swarm-drone-13-saska-multi-uav-formation/index.html"
+          },
+          {
+            "name": "saska_multi_uav_formation_guide.docx",
+            "displayName": "saska_multi_uav_formation_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 16091,
+            "path": "swarm-drone-13-saska-multi-uav-formation/saska_multi_uav_formation_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
         "name": "swarm-drone-complete-guide",
         "type": "folder",
         "children": [

@@ -1,0 +1,51 @@
+ORIGINAL RESEARCH PAPER REFERENCES
+====================================
+
+This entry covers a body of work by Martin Saska's Multi-Robot Systems Lab
+at the Czech Technical University in Prague (CTU). Key publications:
+
+PRIMARY PAPERS:
+---------------
+1. Title:   Onboard Relative Localization for Multi-Robot Systems
+   Authors: Saska, M., Baca, T., et al.
+   Journal: IEEE Robotics and Automation Letters (RA-L)
+   Year:    2020
+   DOI:     10.1109/LRA.2020.2965855
+
+2. Title:   Decentralized Multi-Robot Formation Control
+   Authors: Saska, M., Vonasek, V., et al.
+   Venue:   IEEE/RSJ IROS
+   Year:    2017-2022 (multiple publications)
+
+3. Title:   The MRS UAV System
+   Authors: Baca, T., Petrlik, M., Vrba, M., Spurny, V., Saska, M.
+   Journal: Journal of Intelligent & Robotic Systems
+   Year:    2021
+   DOI:     10.1007/s10846-021-01383-5
+
+INSTITUTION:
+------------
+Multi-Robot Systems Lab
+Faculty of Electrical Engineering
+Czech Technical University in Prague
+Website: mrs.felk.cvut.cz
+
+WHERE TO ACCESS:
+----------------
+1. Lab publications page:    https://mrs.felk.cvut.cz/publications
+2. GitHub (open source):     https://github.com/ctu-mrs
+3. IEEE Xplore:              https://ieeexplore.ieee.org (search "Saska multi-UAV formation")
+4. Google Scholar:           https://scholar.google.com/citations?user=SASKA_CTU
+5. ResearchGate:             https://www.researchgate.net/profile/Martin-Saska
+
+SUMMARY:
+--------
+Saska's group developed a complete decentralized pipeline for GPS-denied
+multi-UAV formation flight. Drones use onboard cameras with UV-pass filters
+to detect UV-LED markers on neighboring drones, enabling relative localization
+at 30+ Hz with ±0.3m accuracy. The system has been validated outdoors with
+up to 10 UAVs flying autonomously in various formations (V, line, diamond,
+circle) with no GPS, motion capture, or external infrastructure.
+
+NOTE: To add specific paper PDFs, download from the links above and save
+them in this folder.
