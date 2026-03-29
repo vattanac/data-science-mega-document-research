@@ -612,6 +612,7 @@
         let showVisionCones = false;
         let isVisionPaused = false;
         let draggedDrone = null;
+        let animIdVision = null;
 
         function initVision() {
             drones = [];
@@ -706,11 +707,18 @@
                 drone.draw(showVisionCones);
             }
 
-            requestAnimationFrame(animateVision);
+            animIdVision = requestAnimationFrame(animateVision);
         }
 
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (animIdVision) { cancelAnimationFrame(animIdVision); animIdVision = null; }
+            } else {
+                if (!animIdVision) { animIdVision = requestAnimationFrame(animateVision); }
+            }
+        });
         initVision();
-        animateVision();
+        animIdVision = requestAnimationFrame(animateVision);
     </script>
 </body>
 </html>

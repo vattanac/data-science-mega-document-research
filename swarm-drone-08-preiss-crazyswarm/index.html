@@ -578,6 +578,7 @@
             currentTime = 0;
         }
 
+        let animId = null;
         function animate() {
             // Background
             ctx.fillStyle = '#1a1c2e';
@@ -630,11 +631,18 @@
             ctx.textAlign = 'left';
             ctx.fillText(`Pattern: ${patterns[currentPattern].toUpperCase()}`, 10, 30);
 
-            requestAnimationFrame(animate);
+            animId = requestAnimationFrame(animate);
         }
 
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (animId) { cancelAnimationFrame(animId); animId = null; }
+            } else {
+                if (!animId) { animId = requestAnimationFrame(animate); }
+            }
+        });
         initDrones();
-        animate();
+        animId = requestAnimationFrame(animate);
     </script>
 </body>
 </html>

@@ -552,6 +552,7 @@
         });
 
         // Animation loop
+        let animId = null;
         function animate() {
             // Clear canvas with fade effect
             ctx.fillStyle = 'rgba(10, 11, 20, 0.1)';
@@ -563,10 +564,17 @@
                 boid.display();
             }
 
-            requestAnimationFrame(animate);
+            animId = requestAnimationFrame(animate);
         }
 
-        animate();
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (animId) { cancelAnimationFrame(animId); animId = null; }
+            } else {
+                if (!animId) { animId = requestAnimationFrame(animate); }
+            }
+        });
+        animId = requestAnimationFrame(animate);
     </script>
 </body>
 </html>

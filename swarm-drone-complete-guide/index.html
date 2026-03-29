@@ -103,15 +103,6 @@
     }
 
     /* Canvas background */
-    #bgCanvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-      pointer-events: none;
-      opacity: .4;
-    }
-
     .content-wrapper { position: relative; z-index: 1; }
 
     /* Parts Grid */
@@ -310,7 +301,7 @@
 </head>
 <body>
 
-<canvas id="bgCanvas"></canvas>
+<!-- canvas removed for performance -->
 
 <div class="content-wrapper">
   <!-- Hero -->
@@ -498,106 +489,7 @@
 </div>
 
 <script>
-// Background swarm animation
-const canvas = document.getElementById('bgCanvas');
-const ctx = canvas.getContext('2d');
-
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
-
-const drones = [];
-for (let i = 0; i < 30; i++) {
-  drones.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    vx: (Math.random() - 0.5) * 1.2,
-    vy: (Math.random() - 0.5) * 1.2,
-    size: 2 + Math.random() * 2,
-  });
-}
-
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Update and draw
-  for (let i = 0; i < drones.length; i++) {
-    const d = drones[i];
-
-    // Separation + Cohesion + Alignment
-    let sx = 0, sy = 0, cx = 0, cy = 0, ax = 0, ay = 0, count = 0;
-    for (let j = 0; j < drones.length; j++) {
-      if (i === j) continue;
-      const dx = drones[j].x - d.x;
-      const dy = drones[j].y - d.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 120) {
-        count++;
-        // Separation
-        if (dist < 40 && dist > 0) {
-          sx -= dx / dist;
-          sy -= dy / dist;
-        }
-        // Cohesion
-        cx += drones[j].x;
-        cy += drones[j].y;
-        // Alignment
-        ax += drones[j].vx;
-        ay += drones[j].vy;
-      }
-    }
-
-    if (count > 0) {
-      cx = (cx / count - d.x) * 0.003;
-      cy = (cy / count - d.y) * 0.003;
-      ax = (ax / count - d.vx) * 0.05;
-      ay = (ay / count - d.vy) * 0.05;
-    }
-
-    d.vx += sx * 0.05 + cx + ax;
-    d.vy += sy * 0.05 + cy + ay;
-
-    // Limit speed
-    const speed = Math.sqrt(d.vx * d.vx + d.vy * d.vy);
-    if (speed > 1.5) { d.vx = (d.vx / speed) * 1.5; d.vy = (d.vy / speed) * 1.5; }
-
-    d.x += d.vx;
-    d.y += d.vy;
-
-    // Wrap around
-    if (d.x < 0) d.x = canvas.width;
-    if (d.x > canvas.width) d.x = 0;
-    if (d.y < 0) d.y = canvas.height;
-    if (d.y > canvas.height) d.y = 0;
-
-    // Draw connections
-    for (let j = i + 1; j < drones.length; j++) {
-      const dx = drones[j].x - d.x;
-      const dy = drones[j].y - d.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 100) {
-        ctx.beginPath();
-        ctx.moveTo(d.x, d.y);
-        ctx.lineTo(drones[j].x, drones[j].y);
-        ctx.strokeStyle = `rgba(167, 139, 250, ${0.15 * (1 - dist / 100)})`;
-        ctx.lineWidth = 0.5;
-        ctx.stroke();
-      }
-    }
-
-    // Draw drone dot
-    ctx.beginPath();
-    ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(94, 234, 212, ${0.4 + d.size * 0.1})`;
-    ctx.fill();
-  }
-
-  requestAnimationFrame(animate);
-}
-animate();
+// Animation removed for performance — static page loads instantly
 </script>
 
 </body>

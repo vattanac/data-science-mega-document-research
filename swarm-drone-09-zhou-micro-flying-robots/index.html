@@ -597,6 +597,7 @@
         let obstacles = [];
         let showSensorCones = false;
         let isForestPaused = false;
+        let animIdForest = null;
 
         function initForest() {
             drones = [];
@@ -686,11 +687,18 @@
             ctx.textBaseline = 'middle';
             ctx.fillText('🎯', canvas.width - 30, canvas.height / 2);
 
-            requestAnimationFrame(animateForest);
+            animIdForest = requestAnimationFrame(animateForest);
         }
 
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (animIdForest) { cancelAnimationFrame(animIdForest); animIdForest = null; }
+            } else {
+                if (!animIdForest) { animIdForest = requestAnimationFrame(animateForest); }
+            }
+        });
         initForest();
-        animateForest();
+        animIdForest = requestAnimationFrame(animateForest);
     </script>
 </body>
 </html>

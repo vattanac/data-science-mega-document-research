@@ -2319,6 +2319,17 @@
             }
         }
 
+        // ===== PAUSE ALL ANIMATIONS WHEN HIDDEN =====
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
+                if (consensusState && consensusState.animationId) {
+                    cancelAnimationFrame(consensusState.animationId);
+                    consensusState.animationId = null;
+                }
+            }
+        });
+
         // ===== INITIALIZE ON LOAD =====
         window.addEventListener('DOMContentLoaded', () => {
             initVectorCanvas();

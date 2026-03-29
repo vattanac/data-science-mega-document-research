@@ -1708,10 +1708,11 @@ Q(s,a) ← Q(s,a) + α[r + γ·max_a' Q(s',a') - Q(s,a)]
         }
 
         // ===== ANIMATION LOOP =====
+        let pidAnimId = null;
         function animate() {
             simulatePIDStep();
             drawPIDCanvas();
-            requestAnimationFrame(animate);
+            pidAnimId = requestAnimationFrame(animate);
         }
 
         // ===== FLOCKING BOIDS =====
@@ -2101,10 +2102,23 @@ Q(s,a) ← Q(s,a) + α[r + γ·max_a' Q(s',a') - Q(s,a)]
             // VO
             drawVOCanvas();
 
-            requestAnimationFrame(mainLoop);
+            mainLoopId = requestAnimationFrame(mainLoop);
         }
 
-        mainLoop();
+        let mainLoopId = null;
+
+        // Pause all animations when tab/iframe hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (pidAnimId) { cancelAnimationFrame(pidAnimId); pidAnimId = null; }
+                if (mainLoopId) { cancelAnimationFrame(mainLoopId); mainLoopId = null; }
+            } else {
+                if (!pidAnimId) { pidAnimId = requestAnimationFrame(animate); }
+                if (!mainLoopId) { mainLoopId = requestAnimationFrame(mainLoop); }
+            }
+        });
+
+        mainLoopId = requestAnimationFrame(mainLoop);
     </script>
 
 </body>

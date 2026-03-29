@@ -681,6 +681,7 @@
             ctx.fill();
         }
 
+        let animId = null;
         function animateFlocking() {
             if (!isFlockPaused) {
                 for (let drone of drones) {
@@ -690,11 +691,18 @@
             }
 
             drawFlocking();
-            requestAnimationFrame(animateFlocking);
+            animId = requestAnimationFrame(animateFlocking);
         }
 
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (animId) { cancelAnimationFrame(animId); animId = null; }
+            } else {
+                if (!animId) { animId = requestAnimationFrame(animateFlocking); }
+            }
+        });
         initFlocking();
-        animateFlocking();
+        animId = requestAnimationFrame(animateFlocking);
     </script>
 </body>
 </html>

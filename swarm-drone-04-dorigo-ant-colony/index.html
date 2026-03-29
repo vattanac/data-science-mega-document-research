@@ -579,7 +579,11 @@
             }
         }
 
-        function animate() {
+        let lastIterTime = 0;
+        const ITER_INTERVAL = 200; // Run ACO every 200ms instead of every 3 frames
+        let animId = null;
+
+        function animate(timestamp) {
             // Clear canvas
             ctx.fillStyle = '#0a0b14';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -588,8 +592,9 @@
             for (let i = 0; i < numCities; i++) {
                 for (let j = i + 1; j < numCities; j++) {
                     const intensity = Math.min(1, pheromone[i][j] / 10);
-                    const alpha = intensity * 0.8;
-                    ctx.strokeStyle = `rgba(94, 234, 212, ${alpha})`;
+                    const a = intensity * 0.8;
+                    if (a < 0.02) continue; // Skip nearly invisible trails
+                    ctx.strokeStyle = `rgba(94, 234, 212, ${a})`;
                     ctx.lineWidth = intensity * 4 + 1;
                     ctx.beginPath();
                     ctx.moveTo(cities[i].x, cities[i].y);
@@ -615,17 +620,27 @@
                 city.display();
             }
 
-            // ACO iteration
-            if (iteration % 3 === 0) {
+            // Throttled ACO iteration — only run every ITER_INTERVAL ms
+            if (timestamp - lastIterTime >= ITER_INTERVAL) {
+                lastIterTime = timestamp;
                 const ants = constructAntSolutions(10, params.alpha, params.beta);
                 updatePheromone(ants, params.evaporation);
+                iteration++;
             }
-            iteration++;
 
-            requestAnimationFrame(animate);
+            animId = requestAnimationFrame(animate);
         }
 
-        animate();
+        // Pause when tab/iframe is not visible to save CPU
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (animId) { cancelAnimationFrame(animId); animId = null; }
+            } else {
+                if (!animId) { animId = requestAnimationFrame(animate); }
+            }
+        });
+
+        animId = requestAnimationFrame(animate);
     </script>
 </body>
 </html>

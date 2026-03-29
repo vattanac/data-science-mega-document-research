@@ -657,6 +657,7 @@
             document.getElementById('cohesionValue').textContent = params.cohesion.toFixed(1);
         });
 
+        let animId = null;
         function animate() {
             ctx.fillStyle = 'rgba(10, 11, 20, 0.2)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -677,10 +678,17 @@
                 robot.display(currentBehavior);
             }
 
-            requestAnimationFrame(animate);
+            animId = requestAnimationFrame(animate);
         }
 
-        animate();
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (animId) { cancelAnimationFrame(animId); animId = null; }
+            } else {
+                if (!animId) { animId = requestAnimationFrame(animate); }
+            }
+        });
+        animId = requestAnimationFrame(animate);
     </script>
 </body>
 </html>
