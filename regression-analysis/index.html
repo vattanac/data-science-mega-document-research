@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regression Analysis — Interactive Guide</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131e;--bg-card:#191a2e;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warning:#fbbf24;--accent-pink:#f472b6;--border-color:#2a2b4a;--formula-bg:#1e1f3a;--shadow:0 4px 24px rgba(0,0,0,0.4)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.subtitle{color:var(--text-secondary);font-size:1.1rem;margin-bottom:2.5rem}
+h2{color:var(--accent-primary);font-size:1.6rem;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--border-color)}
+h3{color:var(--accent-secondary);font-size:1.2rem;margin:1.5rem 0 .8rem}
+p{color:var(--text-secondary);margin-bottom:1rem}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.formula-box{background:var(--formula-bg);border-left:4px solid var(--accent-primary);padding:1rem 1.5rem;margin:1rem 0;border-radius:0 8px 8px 0;font-family:'Courier New',monospace;font-size:1.05rem;color:var(--accent-primary);overflow-x:auto}
+.analogy-box{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(94,234,212,.08));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:1.2rem 1.5rem;margin:1.2rem 0}
+.analogy-box::before{content:'💡 ';font-size:1.2rem}
+.key-insight{background:linear-gradient(135deg,rgba(94,234,212,.1),rgba(167,139,250,.05));border:1px solid rgba(94,234,212,.3);border-radius:12px;padding:1.2rem 1.5rem;margin:1.2rem 0}
+.key-insight::before{content:'🔑 ';font-size:1.1rem}
+ul,ol{color:var(--text-secondary);margin:.8rem 0 1rem 1.5rem}
+li{margin:.4rem 0}
+strong{color:var(--text-primary)}
+code{background:var(--formula-bg);color:var(--accent-secondary);padding:.15rem .4rem;border-radius:4px;font-size:.9rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th{background:var(--formula-bg);color:var(--accent-primary);padding:.7rem;text-align:left;border:1px solid var(--border-color)}
+td{padding:.7rem;border:1px solid var(--border-color);color:var(--text-secondary)}
+tr:hover{background:rgba(167,139,250,.05)}
+.demo-section{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0}
+.demo-section h3{margin-top:0}
+canvas{border:1px solid var(--border-color);border-radius:8px;display:block;margin:.8rem auto;background:#0d0e1a;cursor:crosshair}
+.controls{display:flex;flex-wrap:wrap;gap:.8rem;margin:.8rem 0;align-items:center}
+.controls label{color:var(--text-secondary);font-size:.9rem}
+.controls select,.controls input[type=range]{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:6px;padding:.4rem .6rem;font-size:.85rem}
+.controls input[type=range]{width:120px}
+button{background:linear-gradient(135deg,var(--accent-primary),#8b5cf6);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:opacity .2s}
+button:hover{opacity:.85}
+button.secondary{background:var(--bg-secondary);border:1px solid var(--border-color)}
+.info-text{font-size:.85rem;color:var(--text-secondary);text-align:center;margin:.5rem 0}
+.toc{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.toc h3{color:var(--accent-primary);margin-top:0}
+.toc ol{list-style:decimal;margin-left:1.5rem}
+.toc a{color:var(--accent-secondary);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin:.8rem 0}
+.metric-card{background:var(--formula-bg);border-radius:8px;padding:.8rem;text-align:center}
+.metric-card .val{font-size:1.3rem;font-weight:700;color:var(--accent-primary)}
+.metric-card .lbl{font-size:.75rem;color:var(--text-secondary)}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Regression Analysis</h1>
+<p class="subtitle">Linear, polynomial, ridge, lasso & elastic net — mastering predictive modeling with continuous outputs</p>
+
+<div class="toc">
+<h3>Table of Contents</h3>
+<ol>
+<li><a href="#s1">What Is Regression?</a></li>
+<li><a href="#s2">Simple Linear Regression</a></li>
+<li><a href="#s3">Multiple Linear Regression</a></li>
+<li><a href="#s4">Polynomial Regression</a></li>
+<li><a href="#s5">The Bias-Variance Tradeoff</a></li>
+<li><a href="#s6">Ridge Regression (L2)</a></li>
+<li><a href="#s7">Lasso Regression (L1)</a></li>
+<li><a href="#s8">Elastic Net</a></li>
+<li><a href="#s9">Model Evaluation Metrics</a></li>
+<li><a href="#s10">Assumptions & Diagnostics</a></li>
+<li><a href="#s11">Interactive: Fit Your Own Regression</a></li>
+<li><a href="#s12">Interactive: Bias-Variance Explorer</a></li>
+<li><a href="#s13">Interactive: Regularization Comparison</a></li>
+<li><a href="#s14">Summary & Key Takeaways</a></li>
+</ol>
+</div>
+
+<!-- Section 1 -->
+<h2 id="s1">1. What Is Regression?</h2>
+<p><strong>Regression</strong> predicts a <strong>continuous output</strong> (number) from input features. Unlike classification (which predicts categories), regression answers "how much?" or "how many?"</p>
+<div class="analogy-box">
+Regression is like fitting a trend line through a cloud of points. You're looking for the underlying pattern — the signal — while ignoring the noise. The better your line captures the true relationship, the better your predictions.
+</div>
+<p>Examples: predicting house prices from square footage, estimating salary from years of experience, forecasting temperature from historical data.</p>
+
+<!-- Section 2 -->
+<h2 id="s2">2. Simple Linear Regression</h2>
+<p>The simplest model: one input feature, one output, and a straight line.</p>
+<div class="formula-box">ŷ = w₁x + b    (or equivalently: ŷ = β₀ + β₁x)</div>
+<p>The goal: find <strong>w</strong> (slope) and <strong>b</strong> (intercept) that minimize the sum of squared errors between predictions and actual values.</p>
+<div class="card">
+<h3>Ordinary Least Squares (OLS)</h3>
+<div class="formula-box">min Σᵢ (yᵢ − ŷᵢ)² = min Σᵢ (yᵢ − w₁xᵢ − b)²</div>
+<p>The closed-form solution:</p>
+<div class="formula-box">w₁ = Σ(xᵢ − x̄)(yᵢ − ȳ) / Σ(xᵢ − x̄)²    b = ȳ − w₁x̄</div>
+<p><strong>w₁</strong> is the covariance of x,y divided by the variance of x. <strong>b</strong> ensures the line passes through the centroid (x̄, ȳ).</p>
+</div>
+<h3>Interpretation</h3>
+<ul>
+<li><strong>Slope (w₁):</strong> for every 1-unit increase in x, ŷ changes by w₁ units.</li>
+<li><strong>Intercept (b):</strong> predicted value when x = 0 (may not be meaningful if 0 is outside the data range).</li>
+<li><strong>R² (coefficient of determination):</strong> fraction of variance in y explained by the model. R²=1 is perfect, R²=0 means no better than predicting the mean.</li>
+</ul>
+
+<!-- Section 3 -->
+<h2 id="s3">3. Multiple Linear Regression</h2>
+<p>Extend to multiple features: predict y from x₁, x₂, ..., xₚ.</p>
+<div class="formula-box">ŷ = w₁x₁ + w₂x₂ + ... + wₚxₚ + b = Xw + b</div>
+<p>In matrix form, the OLS solution is:</p>
+<div class="formula-box">w = (XᵀX)⁻¹ Xᵀy</div>
+<p>Each coefficient wⱼ tells you the effect of feature j on y, <em>holding all other features constant</em>. This is the key advantage of multiple regression — it isolates individual effects.</p>
+<div class="key-insight">
+<strong>Multicollinearity warning:</strong> If features are highly correlated, (XᵀX) becomes nearly singular, coefficients become unstable and hard to interpret. Check using VIF (Variance Inflation Factor) > 5–10 signals a problem.
+</div>
+
+<!-- Section 4 -->
+<h2 id="s4">4. Polynomial Regression</h2>
+<p>Capture nonlinear relationships by adding polynomial terms:</p>
+<div class="formula-box">ŷ = w₁x + w₂x² + w₃x³ + ... + wₙxⁿ + b</div>
+<p>This is still <em>linear regression</em> — it's linear in the <strong>parameters</strong> (w), just nonlinear in x. You're simply adding engineered features (x², x³, ...).</p>
+<ul>
+<li><strong>Degree 1:</strong> straight line (underfitting if data is curved).</li>
+<li><strong>Degree 2–3:</strong> captures curves, often good enough.</li>
+<li><strong>Degree 10+:</strong> wiggly, overfits, follows noise instead of signal.</li>
+</ul>
+<div class="analogy-box">
+Polynomial regression is like choosing how flexible your ruler is. A rigid ruler (degree 1) gives a straight line. A bendy ruler (degree 3) follows curves. A spaghetti noodle (degree 20) follows every little bump — including noise.
+</div>
+
+<!-- Section 5 -->
+<h2 id="s5">5. The Bias-Variance Tradeoff</h2>
+<p>This is perhaps the most important concept in all of machine learning:</p>
+<div class="card">
+<div class="formula-box">Total Error = Bias² + Variance + Irreducible Noise</div>
+<ul>
+<li><strong>Bias:</strong> error from overly simple models that miss the true pattern (underfitting).</li>
+<li><strong>Variance:</strong> error from overly complex models that are sensitive to training data (overfitting).</li>
+<li><strong>Irreducible noise:</strong> inherent randomness in the data you can't remove.</li>
+</ul>
+<p>Simple models (low degree) have <strong>high bias, low variance</strong>. Complex models (high degree) have <strong>low bias, high variance</strong>. The sweet spot minimizes total error.</p>
+</div>
+<p>Regularization (Ridge, Lasso) is the primary tool for managing this tradeoff — it adds controlled bias to reduce variance.</p>
+
+<!-- Section 6 -->
+<h2 id="s6">6. Ridge Regression (L2 Regularization)</h2>
+<p>Ridge adds a penalty on the <strong>sum of squared weights</strong> to the loss:</p>
+<div class="formula-box">Loss = Σ(yᵢ − ŷᵢ)² + λ · Σwⱼ²</div>
+<p>The regularization parameter <strong>λ</strong> controls the penalty strength. As λ increases, weights shrink toward zero (but never exactly to zero).</p>
+<div class="formula-box">w_ridge = (XᵀX + λI)⁻¹ Xᵀy</div>
+<ul>
+<li><strong>λ = 0:</strong> ordinary least squares (no regularization).</li>
+<li><strong>λ → ∞:</strong> all weights approach zero (underfitting).</li>
+<li>Ridge keeps all features — it shrinks coefficients but doesn't eliminate any.</li>
+<li>Great when you have many correlated features (stabilizes the solution).</li>
+</ul>
+
+<!-- Section 7 -->
+<h2 id="s7">7. Lasso Regression (L1 Regularization)</h2>
+<p>Lasso adds a penalty on the <strong>sum of absolute weights</strong>:</p>
+<div class="formula-box">Loss = Σ(yᵢ − ŷᵢ)² + λ · Σ|wⱼ|</div>
+<p>The key difference from Ridge: Lasso can push weights <strong>exactly to zero</strong>, performing automatic <strong>feature selection</strong>.</p>
+<ul>
+<li>With enough λ, irrelevant features get eliminated entirely.</li>
+<li>Produces sparse models — only the most important features remain.</li>
+<li>No closed-form solution — must use iterative optimization (coordinate descent).</li>
+<li>Can struggle when features are highly correlated (tends to pick one and drop others).</li>
+</ul>
+<div class="key-insight">
+<strong>Ridge vs Lasso:</strong> Use Ridge when you believe all features matter (just want to shrink). Use Lasso when you suspect many features are irrelevant (want to select). Use Elastic Net when unsure.
+</div>
+
+<!-- Section 8 -->
+<h2 id="s8">8. Elastic Net</h2>
+<p>Elastic Net combines both L1 and L2 penalties:</p>
+<div class="formula-box">Loss = Σ(yᵢ − ŷᵢ)² + λ₁·Σ|wⱼ| + λ₂·Σwⱼ²</div>
+<p>Or equivalently with a mixing parameter α ∈ [0,1]:</p>
+<div class="formula-box">Penalty = λ · [α·Σ|wⱼ| + (1−α)·Σwⱼ²]</div>
+<ul>
+<li><strong>α = 1:</strong> pure Lasso. <strong>α = 0:</strong> pure Ridge.</li>
+<li>Best of both worlds: feature selection (from L1) + stability with correlated features (from L2).</li>
+<li>Default choice when you don't know which regularization to use.</li>
+</ul>
+
+<!-- Section 9 -->
+<h2 id="s9">9. Model Evaluation Metrics</h2>
+<table>
+<tr><th>Metric</th><th>Formula</th><th>Interpretation</th></tr>
+<tr><td><strong>MSE</strong></td><td>(1/n)Σ(y−ŷ)²</td><td>Average squared error. Penalizes large errors more.</td></tr>
+<tr><td><strong>RMSE</strong></td><td>√MSE</td><td>Same units as y. Most intuitive error metric.</td></tr>
+<tr><td><strong>MAE</strong></td><td>(1/n)Σ|y−ŷ|</td><td>Average absolute error. Robust to outliers.</td></tr>
+<tr><td><strong>R²</strong></td><td>1 − SS_res/SS_tot</td><td>Proportion of variance explained. 1 = perfect.</td></tr>
+<tr><td><strong>Adj. R²</strong></td><td>1 − (1−R²)(n−1)/(n−p−1)</td><td>R² penalized for number of features. Better for comparison.</td></tr>
+</table>
+<div class="key-insight">
+Always evaluate on a <strong>held-out test set</strong>. Training R² always increases with more features — use adjusted R² or cross-validation to get honest estimates.
+</div>
+
+<!-- Section 10 -->
+<h2 id="s10">10. Assumptions & Diagnostics</h2>
+<p>Linear regression assumes:</p>
+<ol>
+<li><strong>Linearity:</strong> the relationship between X and y is linear. Check with residual plots.</li>
+<li><strong>Independence:</strong> observations are independent of each other.</li>
+<li><strong>Homoscedasticity:</strong> constant variance of residuals. Look for funnel shapes in residual plots.</li>
+<li><strong>Normality:</strong> residuals are approximately normally distributed (important for confidence intervals).</li>
+<li><strong>No multicollinearity:</strong> features are not too correlated with each other (check VIF).</li>
+</ol>
+<p>If assumptions are violated: try transforming variables (log, sqrt), adding interaction terms, using robust regression, or switching to nonlinear models.</p>
+
+<!-- Demo 1: Fit Your Own Regression -->
+<h2 id="s11">11. Interactive: Fit Your Own Regression</h2>
+<div class="demo-section">
+<h3>📊 Click to Add Points — Fit a Regression Line</h3>
+<p>Click on the canvas to add data points, then fit linear or polynomial regression.</p>
+<div class="controls">
+<label>Degree:</label>
+<select id="regDegree">
+<option value="1">Linear (1)</option>
+<option value="2">Quadratic (2)</option>
+<option value="3">Cubic (3)</option>
+<option value="5">Degree 5</option>
+<option value="10">Degree 10</option>
+</select>
+<button id="regFit">Fit Model</button>
+<button id="regClear" class="secondary">Clear Points</button>
+</div>
+<canvas id="regCanvas" width="700" height="400"></canvas>
+<div class="metrics-grid" id="regMetrics">
+<div class="metric-card"><div class="val" id="regR2">—</div><div class="lbl">R²</div></div>
+<div class="metric-card"><div class="val" id="regRMSE">—</div><div class="lbl">RMSE</div></div>
+<div class="metric-card"><div class="val" id="regMAE">—</div><div class="lbl">MAE</div></div>
+<div class="metric-card"><div class="val" id="regN">0</div><div class="lbl">Points</div></div>
+</div>
+<div class="info-text" id="regEq">Equation: —</div>
+</div>
+
+<!-- Demo 2: Bias-Variance Explorer -->
+<h2 id="s12">12. Interactive: Bias-Variance Explorer</h2>
+<div class="demo-section">
+<h3>⚖️ Bias-Variance Tradeoff — See Overfitting in Action</h3>
+<p>A noisy sine wave is the true function. Watch how polynomial degree affects fit quality on training vs test data.</p>
+<div class="controls">
+<label>Polynomial Degree:</label>
+<input type="range" id="bvDegree" min="1" max="15" value="3">
+<span id="bvDegVal">3</span>
+<label>Noise Level:</label>
+<input type="range" id="bvNoise" min="0.1" max="1.5" step="0.1" value="0.5">
+<span id="bvNoiseVal">0.5</span>
+<button id="bvRegen" class="secondary">New Data</button>
+</div>
+<canvas id="bvCanvas" width="700" height="400"></canvas>
+<div class="metrics-grid">
+<div class="metric-card"><div class="val" id="bvTrainR2">—</div><div class="lbl">Train R²</div></div>
+<div class="metric-card"><div class="val" id="bvTestR2">—</div><div class="lbl">Test R²</div></div>
+<div class="metric-card"><div class="val" id="bvTrainRMSE">—</div><div class="lbl">Train RMSE</div></div>
+<div class="metric-card"><div class="val" id="bvTestRMSE">—</div><div class="lbl">Test RMSE</div></div>
+</div>
+</div>
+
+<!-- Demo 3: Regularization Comparison -->
+<h2 id="s13">13. Interactive: Regularization Comparison</h2>
+<div class="demo-section">
+<h3>🛡️ Ridge vs Lasso vs Elastic Net</h3>
+<p>See how regularization shrinks coefficients. Watch Lasso drive weights to exactly zero (feature selection).</p>
+<div class="controls">
+<label>λ (Regularization):</label>
+<input type="range" id="regLambda" min="0" max="5" step="0.05" value="0">
+<span id="regLambdaVal">0.00</span>
+<label>Features:</label>
+<select id="regFeats"><option value="6">6</option><option value="10" selected>10</option><option value="15">15</option></select>
+<button id="regRegenData" class="secondary">New Data</button>
+</div>
+<canvas id="regCoefCanvas" width="700" height="400"></canvas>
+<div class="info-text" id="regCoefInfo">λ=0: OLS (no regularization). Increase λ to see shrinkage.</div>
+</div>
+
+<!-- Section 14: Summary -->
+<h2 id="s14">14. Summary & Key Takeaways</h2>
+<div class="card">
+<ol>
+<li><strong>Linear regression</strong> is the foundation — understand OLS, R², and the closed-form solution.</li>
+<li><strong>Polynomial regression</strong> handles nonlinear patterns but easily overfits. Keep degrees low.</li>
+<li><strong>The bias-variance tradeoff</strong> governs all model selection. Simple models underfit; complex ones overfit.</li>
+<li><strong>Ridge (L2)</strong> shrinks all coefficients — great for correlated features.</li>
+<li><strong>Lasso (L1)</strong> drives coefficients to zero — automatic feature selection.</li>
+<li><strong>Elastic Net</strong> combines both — the safe default when unsure.</li>
+<li>Always <strong>validate on held-out data</strong> and check regression assumptions.</li>
+<li>Scale your features before applying regularization.</li>
+</ol>
+</div>
+
+</div><!-- end container -->
+
+<script>
+// ============================================================
+// UTILITY: Polynomial Regression via Normal Equations
+// ============================================================
+function polyFit(xs,ys,deg){
+  const n=xs.length;if(n<=deg)return null;
+  // Build Vandermonde matrix
+  const X=[];
+  for(let i=0;i<n;i++){const row=[];for(let j=0;j<=deg;j++)row.push(Math.pow(xs[i],j));X.push(row);}
+  // XᵀX
+  const p=deg+1;
+  const XtX=Array.from({length:p},()=>Array(p).fill(0));
+  const Xty=Array(p).fill(0);
+  for(let i=0;i<p;i++){
+    for(let j=0;j<p;j++){let s=0;for(let k=0;k<n;k++)s+=X[k][i]*X[k][j];XtX[i][j]=s;}
+    let s=0;for(let k=0;k<n;k++)s+=X[k][i]*ys[k];Xty[i]=s;
+  }
+  // Add small ridge for numerical stability
+  for(let i=0;i<p;i++)XtX[i][i]+=1e-8;
+  // Solve via Gauss elimination
+  const A=XtX.map((r,i)=>[...r,Xty[i]]);
+  for(let i=0;i<p;i++){
+    let mx=i;for(let j=i+1;j<p;j++)if(Math.abs(A[j][i])>Math.abs(A[mx][i]))mx=j;
+    [A[i],A[mx]]=[A[mx],A[i]];
+    if(Math.abs(A[i][i])<1e-12)continue;
+    for(let j=i+1;j<p;j++){const f=A[j][i]/A[i][i];for(let k=i;k<=p;k++)A[j][k]-=f*A[i][k];}
+  }
+  const w=Array(p).fill(0);
+  for(let i=p-1;i>=0;i--){let s=A[i][p];for(let j=i+1;j<p;j++)s-=A[i][j]*w[j];w[i]=s/A[i][i];}
+  return w;
+}
+function polyEval(w,x){let s=0;for(let i=0;i<w.length;i++)s+=w[i]*Math.pow(x,i);return s;}
+function calcMetrics(ys,preds){
+  const n=ys.length;if(n===0)return{r2:0,rmse:0,mae:0};
+  let ss_res=0,ss_tot=0,mae=0;
+  const ym=ys.reduce((a,b)=>a+b,0)/n;
+  for(let i=0;i<n;i++){const e=ys[i]-preds[i];ss_res+=e*e;ss_tot+=(ys[i]-ym)**2;mae+=Math.abs(e);}
+  return{r2:ss_tot>0?1-ss_res/ss_tot:0, rmse:Math.sqrt(ss_res/n), mae:mae/n};
+}
+
+// ============================================================
+// DEMO 1: FIT YOUR OWN REGRESSION
+// ============================================================
+(function(){
+const cv=document.getElementById('regCanvas'),ctx=cv.getContext('2d');
+let points=[],coeffs=null;
+
+cv.addEventListener('click',e=>{
+  const r=cv.getBoundingClientRect();
+  const x=(e.clientX-r.left)/cv.width, y=1-(e.clientY-r.top)/cv.height;
+  points.push({x:x*10,y:y*10});
+  coeffs=null;
+  draw();
+});
+
+document.getElementById('regFit').onclick=()=>{
+  if(points.length<2)return;
+  const deg=parseInt(document.getElementById('regDegree').value);
+  const xs=points.map(p=>p.x),ys=points.map(p=>p.y);
+  coeffs=polyFit(xs,ys,Math.min(deg,points.length-1));
+  draw();
+};
+
+document.getElementById('regClear').onclick=()=>{points=[];coeffs=null;draw();};
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
+  for(let i=0;i<=10;i++){
+    const px=i/10*cv.width,py=(1-i/10)*cv.height;
+    ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,cv.height);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(cv.width,py);ctx.stroke();
+  }
+  // axis labels
+  ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='10px monospace';ctx.textAlign='center';
+  for(let i=0;i<=10;i+=2)ctx.fillText(i,i/10*cv.width,cv.height-4);
+
+  // fitted curve
+  if(coeffs){
+    ctx.beginPath();ctx.strokeStyle='#fbbf24';ctx.lineWidth=2.5;
+    for(let px=0;px<cv.width;px++){
+      const x=px/cv.width*10;
+      const y=polyEval(coeffs,x);
+      const py=(1-y/10)*cv.height;
+      px===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    // metrics
+    const xs=points.map(p=>p.x),ys=points.map(p=>p.y);
+    const preds=xs.map(x=>polyEval(coeffs,x));
+    const m=calcMetrics(ys,preds);
+    document.getElementById('regR2').textContent=m.r2.toFixed(4);
+    document.getElementById('regRMSE').textContent=m.rmse.toFixed(3);
+    document.getElementById('regMAE').textContent=m.mae.toFixed(3);
+    // equation
+    const deg=coeffs.length-1;
+    let eq='ŷ = ';
+    for(let i=deg;i>=0;i--){
+      const c=coeffs[i];
+      if(i===deg)eq+=c.toFixed(3)+(i>0?'x'+(i>1?'^'+i:''):'');
+      else eq+=(c>=0?' + ':' − ')+Math.abs(c).toFixed(3)+(i>0?'x'+(i>1?'^'+i:''):'');
+    }
+    document.getElementById('regEq').textContent='Equation: '+eq;
+  }
+  // points
+  for(const p of points){
+    const px=p.x/10*cv.width, py=(1-p.y/10)*cv.height;
+    ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);
+    ctx.fillStyle='#a78bfa';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+    // residual line
+    if(coeffs){
+      const predY=polyEval(coeffs,p.x);
+      const predPy=(1-predY/10)*cv.height;
+      ctx.beginPath();ctx.strokeStyle='rgba(244,114,182,0.5)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+      ctx.moveTo(px,py);ctx.lineTo(px,predPy);ctx.stroke();ctx.setLineDash([]);
+    }
+  }
+  document.getElementById('regN').textContent=points.length;
+}
+draw();
+})();
+
+// ============================================================
+// DEMO 2: BIAS-VARIANCE EXPLORER
+// ============================================================
+(function(){
+const cv=document.getElementById('bvCanvas'),ctx=cv.getContext('2d');
+const degSlider=document.getElementById('bvDegree'),degVal=document.getElementById('bvDegVal');
+const noiseSlider=document.getElementById('bvNoise'),noiseVal=document.getElementById('bvNoiseVal');
+let trainData=[],testData=[];
+
+degSlider.oninput=()=>{degVal.textContent=degSlider.value;draw();};
+noiseSlider.oninput=()=>{noiseVal.textContent=parseFloat(noiseSlider.value).toFixed(1);genData();draw();};
+
+function trueF(x){return Math.sin(x*2.5)*2+3;}
+function rn(){return (Math.random()+Math.random()+Math.random()-1.5)/1.5;} // approx normal
+
+function genData(){
+  const noise=parseFloat(noiseSlider.value);
+  trainData=[];testData=[];
+  for(let i=0;i<30;i++){
+    const x=Math.random()*6;
+    trainData.push({x,y:trueF(x)+rn()*noise*2});
+  }
+  for(let i=0;i<30;i++){
+    const x=Math.random()*6;
+    testData.push({x,y:trueF(x)+rn()*noise*2});
+  }
+}
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const deg=parseInt(degSlider.value);
+  const xMin=0,xMax=6,yMin=-1,yMax=7;
+  function toP(x,y){return[(x-xMin)/(xMax-xMin)*cv.width,(1-(y-yMin)/(yMax-yMin))*cv.height];}
+
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
+  for(let x=0;x<=6;x++){const[px]=toP(x,0);ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,cv.height);ctx.stroke();}
+  for(let y=0;y<=6;y++){const[,py]=toP(0,y);ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(cv.width,py);ctx.stroke();}
+
+  // true function
+  ctx.beginPath();ctx.strokeStyle='rgba(94,234,212,0.4)';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+  for(let px=0;px<cv.width;px++){
+    const x=px/cv.width*(xMax-xMin)+xMin;
+    const[,py]=toP(x,trueF(x));
+    px===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+  }
+  ctx.stroke();ctx.setLineDash([]);
+
+  // fit polynomial
+  const xs=trainData.map(p=>p.x),ys=trainData.map(p=>p.y);
+  const w=polyFit(xs,ys,Math.min(deg,xs.length-1));
+  if(w){
+    // fitted curve
+    ctx.beginPath();ctx.strokeStyle='#fbbf24';ctx.lineWidth=2.5;
+    for(let px=0;px<cv.width;px++){
+      const x=px/cv.width*(xMax-xMin)+xMin;
+      const y=polyEval(w,x);
+      const[ppx,ppy]=toP(x,y);
+      px===0?ctx.moveTo(ppx,ppy):ctx.lineTo(ppx,ppy);
+    }
+    ctx.stroke();
+
+    // metrics
+    const trainPreds=trainData.map(p=>polyEval(w,p.x));
+    const testPreds=testData.map(p=>polyEval(w,p.x));
+    const tm=calcMetrics(trainData.map(p=>p.y),trainPreds);
+    const em=calcMetrics(testData.map(p=>p.y),testPreds);
+    document.getElementById('bvTrainR2').textContent=Math.max(-9.99,tm.r2).toFixed(3);
+    document.getElementById('bvTestR2').textContent=Math.max(-9.99,em.r2).toFixed(3);
+    document.getElementById('bvTrainRMSE').textContent=Math.min(99,tm.rmse).toFixed(3);
+    document.getElementById('bvTestRMSE').textContent=Math.min(99,em.rmse).toFixed(3);
+  }
+
+  // training points
+  for(const p of trainData){
+    const[px,py]=toP(p.x,p.y);
+    ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);
+    ctx.fillStyle='#a78bfa';ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=1;ctx.stroke();
+  }
+  // test points
+  for(const p of testData){
+    const[px,py]=toP(p.x,p.y);
+    ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);
+    ctx.fillStyle='#f472b6';ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;ctx.stroke();
+  }
+
+  // legend
+  ctx.font='12px sans-serif';
+  ctx.fillStyle='#a78bfa';ctx.fillRect(cv.width-160,10,12,12);ctx.fillText('Train',cv.width-144,20);
+  ctx.fillStyle='#f472b6';ctx.fillRect(cv.width-160,28,12,12);ctx.fillText('Test',cv.width-144,38);
+  ctx.fillStyle='rgba(94,234,212,0.6)';ctx.fillText('--- True function',cv.width-160,56);
+  ctx.fillStyle='#fbbf24';ctx.fillText('— Fitted (deg '+deg+')',cv.width-160,72);
+}
+
+document.getElementById('bvRegen').onclick=()=>{genData();draw();};
+genData();draw();
+})();
+
+// ============================================================
+// DEMO 3: REGULARIZATION COMPARISON
+// ============================================================
+(function(){
+const cv=document.getElementById('regCoefCanvas'),ctx=cv.getContext('2d');
+const lambdaSlider=document.getElementById('regLambda'),lambdaVal=document.getElementById('regLambdaVal');
+const featsSelect=document.getElementById('regFeats');
+const info=document.getElementById('regCoefInfo');
+let olsCoefs=[],trueCoefs=[];
+
+lambdaSlider.oninput=()=>{lambdaVal.textContent=parseFloat(lambdaSlider.value).toFixed(2);draw();};
+
+function genProblem(){
+  const p=parseInt(featsSelect.value);
+  // Generate true coefficients (some are zero = irrelevant)
+  trueCoefs=[];
+  for(let i=0;i<p;i++){
+    if(Math.random()<0.4)trueCoefs.push(0); // irrelevant feature
+    else trueCoefs.push((Math.random()-0.5)*6);
+  }
+  // Generate data
+  const n=50;
+  const X=[],y=[];
+  for(let i=0;i<n;i++){
+    const row=[];
+    for(let j=0;j<p;j++)row.push((Math.random()-0.5)*2);
+    X.push(row);
+    let yi=0;for(let j=0;j<p;j++)yi+=row[j]*trueCoefs[j];
+    yi+=(Math.random()-0.5)*0.5; // noise
+    y.push(yi);
+  }
+  // OLS: w = (XtX)^-1 Xty
+  olsCoefs=solveOLS(X,y,p);
+  draw();
+}
+
+function solveOLS(X,y,p,lambda=0,type='ols'){
+  const n=X.length;
+  const XtX=Array.from({length:p},()=>Array(p).fill(0));
+  const Xty=Array(p).fill(0);
+  for(let i=0;i<p;i++){
+    for(let j=0;j<p;j++){let s=0;for(let k=0;k<n;k++)s+=X[k][i]*X[k][j];XtX[i][j]=s;}
+    let s=0;for(let k=0;k<n;k++)s+=X[k][i]*y[k];Xty[i]=s;
+  }
+  // Ridge: add lambda to diagonal
+  for(let i=0;i<p;i++)XtX[i][i]+=lambda*n;
+  // Solve
+  const A=XtX.map((r,i)=>[...r,Xty[i]]);
+  for(let i=0;i<p;i++){
+    let mx=i;for(let j=i+1;j<p;j++)if(Math.abs(A[j][i])>Math.abs(A[mx][i]))mx=j;
+    [A[i],A[mx]]=[A[mx],A[i]];
+    if(Math.abs(A[i][i])<1e-12)continue;
+    for(let j=i+1;j<p;j++){const f=A[j][i]/A[i][i];for(let k=i;k<=p;k++)A[j][k]-=f*A[i][k];}
+  }
+  const w=Array(p).fill(0);
+  for(let i=p-1;i>=0;i--){let s=A[i][p];for(let j=i+1;j<p;j++)s-=A[i][j]*w[j];w[i]=s/(A[i][i]||1e-12);}
+  return w;
+}
+
+function lassoCoord(X,y,p,lambda,maxIter=100){
+  const n=X.length;
+  const w=olsCoefs.slice(); // warm start
+  for(let iter=0;iter<maxIter;iter++){
+    for(let j=0;j<p;j++){
+      // compute residual without feature j
+      let rho=0;
+      for(let i=0;i<n;i++){
+        let pred=0;for(let k=0;k<p;k++)if(k!==j)pred+=X[i][k]*w[k];
+        rho+=X[i][j]*(y[i]-pred);
+      }
+      let xj2=0;for(let i=0;i<n;i++)xj2+=X[i][j]*X[i][j];
+      // soft threshold
+      const lam=lambda*n;
+      if(rho<-lam)w[j]=(rho+lam)/xj2;
+      else if(rho>lam)w[j]=(rho-lam)/xj2;
+      else w[j]=0;
+    }
+  }
+  return w;
+}
+
+// Store generated data globally for this IIFE
+let gX=[],gy=[];
+
+function genProblemFull(){
+  const p=parseInt(featsSelect.value);
+  trueCoefs=[];
+  for(let i=0;i<p;i++){
+    if(Math.random()<0.4)trueCoefs.push(0);
+    else trueCoefs.push((Math.random()-0.5)*6);
+  }
+  const n=50;gX=[];gy=[];
+  for(let i=0;i<n;i++){
+    const row=[];for(let j=0;j<p;j++)row.push((Math.random()-0.5)*2);
+    gX.push(row);
+    let yi=0;for(let j=0;j<p;j++)yi+=row[j]*trueCoefs[j];
+    yi+=(Math.random()-0.5)*0.5;
+    gy.push(yi);
+  }
+  olsCoefs=solveOLS(gX,gy,p,0);
+  draw();
+}
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const p=parseInt(featsSelect.value);
+  const lam=parseFloat(lambdaSlider.value);
+
+  // Compute Ridge and Lasso coefficients
+  const ridgeC=solveOLS(gX,gy,p,lam);
+  const lassoC=lassoCoord(gX,gy,p,lam);
+  // Elastic Net (alpha=0.5)
+  const elasticLam=lam*0.5;
+  const elasticC=lassoCoord(gX,gy,p,elasticLam);
+  // add ridge component to elastic net (approximate)
+  for(let i=0;i<p;i++){
+    if(elasticC[i]!==0){
+      const shrink=1/(1+elasticLam*gX.length/(gX.reduce((s,r)=>s+r[i]*r[i],0)||1));
+      elasticC[i]*=shrink;
+    }
+  }
+
+  const barW=(cv.width-100)/p;
+  const groupW=barW/5;
+  const cx=50, cy=cv.height/2;
+  const maxC=Math.max(3,...olsCoefs.map(Math.abs),...trueCoefs.map(Math.abs),...ridgeC.map(Math.abs),...lassoC.map(Math.abs))+0.5;
+  const scale=(cv.height/2-40)/maxC;
+
+  // zero line
+  ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cv.width-10,cy);ctx.stroke();
+
+  // axis
+  ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='10px monospace';ctx.textAlign='right';
+  for(let v=-Math.floor(maxC);v<=Math.floor(maxC);v++){
+    const py=cy-v*scale;
+    if(py>10&&py<cv.height-10){
+      ctx.fillText(v.toFixed(0),cx-5,py+3);
+      ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.beginPath();ctx.moveTo(cx,py);ctx.lineTo(cv.width-10,py);ctx.stroke();
+    }
+  }
+
+  const colors=['rgba(94,234,212,0.6)','#a78bfa','#fbbf24','#f472b6','rgba(255,255,255,0.3)'];
+  const labels=['True','OLS','Ridge','Lasso','E-Net'];
+  const allC=[trueCoefs,olsCoefs,ridgeC,lassoC,elasticC];
+
+  // bars
+  for(let j=0;j<p;j++){
+    const bx=cx+j*barW+4;
+    ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText('w'+j,bx+barW/2-2,cv.height-4);
+
+    for(let t=0;t<5;t++){
+      const val=allC[t][j]||0;
+      const h=val*scale;
+      ctx.fillStyle=colors[t];
+      ctx.fillRect(bx+t*groupW,cy-Math.max(0,h),groupW-1,Math.abs(h));
+    }
+  }
+
+  // legend
+  for(let t=0;t<5;t++){
+    ctx.fillStyle=colors[t];
+    ctx.fillRect(10,10+t*18,12,12);
+    ctx.font='11px sans-serif';ctx.textAlign='left';
+    ctx.fillText(labels[t],26,20+t*18);
+  }
+
+  // count zeros
+  const lassoZeros=lassoC.filter(c=>c===0).length;
+  const elasticZeros=elasticC.filter(c=>Math.abs(c)<1e-6).length;
+  info.textContent=`λ=${lam.toFixed(2)} | Lasso zeros: ${lassoZeros}/${p} | Elastic Net zeros: ${elasticZeros}/${p}`;
+}
+
+document.getElementById('regRegenData').onclick=()=>genProblemFull();
+featsSelect.onchange=()=>genProblemFull();
+genProblemFull();
+})();
+
+document.addEventListener('visibilitychange',()=>{});
+</script>
+</body>
+</html>

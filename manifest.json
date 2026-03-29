@@ -612,6 +612,29 @@
         "category": "Statistics & Probability"
       },
       {
+        "name": "regression-analysis",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "regression-analysis",
+            "type": "file",
+            "ext": "html",
+            "size": 33082,
+            "path": "regression-analysis/index.html"
+          },
+          {
+            "name": "regression_analysis_guide.docx",
+            "displayName": "regression_analysis_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14412,
+            "path": "regression-analysis/regression_analysis_guide.docx"
+          }
+        ],
+        "category": "Machine Learning"
+      },
+      {
         "name": "Regression-Models-Explained",
         "type": "folder",
         "children": [
