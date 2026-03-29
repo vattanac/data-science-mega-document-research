@@ -67,6 +67,7 @@ FOLDER_CATEGORIES = {
     "kdd_process":                      "Statistics & Probability",
     "probability-distributions":         "Statistics & Probability",
     "bayesian-inference":                "Statistics & Probability",
+    "time-series-analysis":              "Statistics & Probability",
     # Linear Algebra
     "matrix-transformations":                       "Linear Algebra",
     "dot-product-and-cosine-similarity":            "Linear Algebra",

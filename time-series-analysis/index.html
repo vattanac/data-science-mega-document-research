@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Series Analysis — Workspace Playbook</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131f;--bg-card:#181926;--bg-card-hover:#1e1f33;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-tertiary:#f472b6;--border-color:#262840;--success:#34d399;--warning:#fbbf24;--error:#f87171}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:960px;margin:0 auto;padding:2rem 1.5rem}
+a{color:var(--accent-primary);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── Hero ── */
+.hero{text-align:center;padding:4rem 0 3rem}
+.hero h1{font-size:2.8rem;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.hero .subtitle{color:var(--text-secondary);font-size:1.15rem}
+.hero .tags{margin-top:1rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.tag{background:var(--bg-card);border:1px solid var(--border-color);padding:.25rem .75rem;border-radius:999px;font-size:.8rem;color:var(--accent-secondary)}
+
+/* ── Sections ── */
+section{margin-bottom:3rem}
+section h2{font-size:1.6rem;color:var(--accent-primary);margin-bottom:1rem;padding-bottom:.4rem;border-bottom:2px solid var(--border-color)}
+section h3{font-size:1.15rem;color:var(--accent-secondary);margin:1.2rem 0 .5rem}
+p,li{color:var(--text-secondary);margin-bottom:.6rem}
+ul,ol{padding-left:1.5rem;margin-bottom:1rem}
+code{background:var(--bg-card);padding:.15rem .4rem;border-radius:4px;font-size:.9em;color:var(--accent-tertiary)}
+
+/* ── Cards ── */
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;transition:border-color .3s}
+.card:hover{border-color:var(--accent-primary)}
+
+/* ── Formula ── */
+.formula{background:var(--bg-secondary);border-left:3px solid var(--accent-primary);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1rem 0;font-family:'Courier New',monospace;font-size:.95rem;color:var(--accent-secondary);overflow-x:auto}
+
+/* ── Canvas containers ── */
+.demo-container{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.demo-container h3{margin-top:0}
+canvas{display:block;margin:1rem auto;border-radius:8px;background:#0f1021;cursor:crosshair}
+.controls{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin:.75rem 0}
+.controls label{color:var(--text-secondary);font-size:.85rem}
+.controls select,.controls input[type=range]{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:6px;padding:.35rem .5rem;font-size:.85rem}
+.controls input[type=range]{width:140px}
+button{background:linear-gradient(135deg,var(--accent-primary),#8b5cf6);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.85rem;transition:opacity .2s}
+button:hover{opacity:.85}
+.btn-secondary{background:linear-gradient(135deg,var(--accent-secondary),#2dd4bf)}
+.btn-tertiary{background:linear-gradient(135deg,var(--accent-tertiary),#ec4899)}
+.info-text{font-size:.82rem;color:var(--text-muted);margin-top:.5rem}
+
+/* ── Table ── */
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:.6rem .8rem;border:1px solid var(--border-color);text-align:left;font-size:.9rem}
+th{background:var(--bg-secondary);color:var(--accent-primary)}
+td{color:var(--text-secondary)}
+
+/* ── Back ── */
+.back-link{display:inline-block;margin-bottom:1.5rem;color:var(--accent-secondary);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="container">
+<a href="../index.html" class="back-link">← Back to Playbook</a>
+
+<!-- ═══ HERO ═══ -->
+<header class="hero">
+  <h1>Time Series Analysis</h1>
+  <p class="subtitle">Understanding temporal data — stationarity, decomposition, forecasting & beyond</p>
+  <div class="tags">
+    <span class="tag">Statistics & Probability</span>
+    <span class="tag">ARIMA</span>
+    <span class="tag">Forecasting</span>
+    <span class="tag">Autocorrelation</span>
+    <span class="tag">Seasonality</span>
+  </div>
+</header>
+
+<!-- ═══ 1 ═══ -->
+<section id="what-is-ts">
+  <h2>1. What Is a Time Series?</h2>
+  <p>A <strong>time series</strong> is a sequence of data points indexed (or listed or graphed) in time order. Unlike cross-sectional data, the ordering matters — each observation depends on past values.</p>
+  <h3>Examples everywhere</h3>
+  <ul>
+    <li>Stock prices recorded every minute</li>
+    <li>Monthly rainfall in a city over decades</li>
+    <li>Server CPU usage sampled every 5 seconds</li>
+    <li>Weekly retail sales figures</li>
+  </ul>
+  <p>The fundamental question in time series analysis: <em>how can we use the past to understand — and predict — the future?</em></p>
+</section>
+
+<!-- ═══ 2 ═══ -->
+<section id="components">
+  <h2>2. Components of a Time Series</h2>
+  <p>Most time series can be decomposed into four components:</p>
+  <div class="card">
+    <h3>Trend (T)</h3>
+    <p>The long-term increase or decrease. A stock index growing over years, or global temperatures rising over decades.</p>
+  </div>
+  <div class="card">
+    <h3>Seasonality (S)</h3>
+    <p>Regular, repeating patterns at fixed periods — e.g., ice-cream sales peaking every summer, or web traffic dipping on weekends.</p>
+  </div>
+  <div class="card">
+    <h3>Cyclical (C)</h3>
+    <p>Fluctuations at non-fixed periods, often driven by economic cycles. Unlike seasonality, the period length varies.</p>
+  </div>
+  <div class="card">
+    <h3>Residual / Noise (ε)</h3>
+    <p>The random, unpredictable component left after removing trend, seasonality, and cycles.</p>
+  </div>
+  <p>Two decomposition models:</p>
+  <div class="formula">Additive:  Y(t) = T(t) + S(t) + C(t) + ε(t)</div>
+  <div class="formula">Multiplicative:  Y(t) = T(t) × S(t) × C(t) × ε(t)</div>
+</section>
+
+<!-- ═══ 3 — DEMO 1 ═══ -->
+<section id="demo-decomposition">
+  <h2>3. Interactive Demo — Time Series Decomposition</h2>
+  <div class="demo-container">
+    <h3>🔬 Decompose a Signal</h3>
+    <p>Adjust the sliders to build a synthetic time series, then see it decomposed into trend, seasonal, and residual components.</p>
+    <div class="controls">
+      <label>Trend slope: <input type="range" id="trendSlope" min="-3" max="3" step="0.1" value="0.8"></label>
+      <label>Season amplitude: <input type="range" id="seasonAmp" min="0" max="5" step="0.1" value="3"></label>
+      <label>Season period: <input type="range" id="seasonPeriod" min="5" max="40" step="1" value="12"></label>
+      <label>Noise level: <input type="range" id="noiseLevel" min="0" max="4" step="0.1" value="1"></label>
+      <button onclick="generateDecomposition()">Generate</button>
+    </div>
+    <canvas id="canvasDecomp" width="900" height="520"></canvas>
+    <p class="info-text">The decomposition uses a simple moving-average approach to extract trend, then subtracts trend to isolate the seasonal pattern.</p>
+  </div>
+</section>
+
+<!-- ═══ 4 ═══ -->
+<section id="stationarity">
+  <h2>4. Stationarity</h2>
+  <p>A time series is <strong>stationary</strong> if its statistical properties — mean, variance, autocorrelation — do not change over time. Most forecasting models (ARIMA, etc.) assume stationarity.</p>
+  <h3>Strict vs Weak Stationarity</h3>
+  <ul>
+    <li><strong>Strict stationarity:</strong> The full joint distribution of any collection of time points is invariant to time shifts. Very strong condition.</li>
+    <li><strong>Weak (wide-sense) stationarity:</strong> Mean is constant, variance is finite and constant, and the autocovariance between two points depends only on the lag, not on time. This is what we usually mean in practice.</li>
+  </ul>
+  <h3>Augmented Dickey-Fuller (ADF) Test</h3>
+  <p>The ADF test checks for a <em>unit root</em> — if one exists, the series is non-stationary. A low p-value (typically &lt; 0.05) means we reject the null hypothesis of a unit root, concluding the series is stationary.</p>
+  <div class="formula">ΔY(t) = α + βt + γY(t-1) + Σ δᵢΔY(t-i) + ε(t)
+H₀: γ = 0  (unit root, non-stationary)
+H₁: γ &lt; 0  (stationary)</div>
+</section>
+
+<!-- ═══ 5 ═══ -->
+<section id="differencing">
+  <h2>5. Differencing & Transformations</h2>
+  <p>When a series isn't stationary, we can transform it:</p>
+  <ul>
+    <li><strong>First differencing:</strong> Y'(t) = Y(t) − Y(t−1). Removes a linear trend.</li>
+    <li><strong>Second differencing:</strong> Y''(t) = Y'(t) − Y'(t−1). Removes quadratic trends.</li>
+    <li><strong>Seasonal differencing:</strong> Y*(t) = Y(t) − Y(t−m), where m is the seasonal period.</li>
+    <li><strong>Log transform:</strong> Stabilises variance when it grows with the level.</li>
+    <li><strong>Box-Cox transform:</strong> A generalised power transform parametrised by λ.</li>
+  </ul>
+  <div class="formula">Box-Cox:  Y(λ) = (Y^λ − 1) / λ   when λ ≠ 0
+                   = ln(Y)            when λ = 0</div>
+</section>
+
+<!-- ═══ 6 ═══ -->
+<section id="autocorrelation">
+  <h2>6. Autocorrelation & Partial Autocorrelation</h2>
+  <p>Autocorrelation measures how a series correlates with lagged copies of itself.</p>
+  <h3>ACF — Autocorrelation Function</h3>
+  <div class="formula">ρ(k) = Cov(Y(t), Y(t−k)) / Var(Y(t))</div>
+  <p>Plots of ACF reveal repeating patterns and help identify the <em>order</em> of MA models.</p>
+  <h3>PACF — Partial Autocorrelation Function</h3>
+  <p>The PACF at lag k is the correlation between Y(t) and Y(t−k) <em>after removing the effect of lags 1 through k−1</em>. It helps identify the order of AR models.</p>
+  <table>
+    <tr><th>Model</th><th>ACF Pattern</th><th>PACF Pattern</th></tr>
+    <tr><td>AR(p)</td><td>Tails off gradually</td><td>Cuts off after lag p</td></tr>
+    <tr><td>MA(q)</td><td>Cuts off after lag q</td><td>Tails off gradually</td></tr>
+    <tr><td>ARMA(p,q)</td><td>Tails off</td><td>Tails off</td></tr>
+  </table>
+</section>
+
+<!-- ═══ 7 — DEMO 2 ═══ -->
+<section id="demo-acf">
+  <h2>7. Interactive Demo — ACF & PACF Explorer</h2>
+  <div class="demo-container">
+    <h3>📊 ACF / PACF Visualiser</h3>
+    <p>Choose a process type and parameters. The top chart shows the generated series; the bottom two show ACF and PACF with 95% confidence bands.</p>
+    <div class="controls">
+      <label>Process:
+        <select id="processType">
+          <option value="ar1">AR(1)</option>
+          <option value="ar2">AR(2)</option>
+          <option value="ma1">MA(1)</option>
+          <option value="ma2">MA(2)</option>
+          <option value="arma">ARMA(1,1)</option>
+          <option value="rw">Random Walk</option>
+        </select>
+      </label>
+      <label>φ₁: <input type="range" id="phi1" min="-0.95" max="0.95" step="0.05" value="0.7"></label>
+      <label>θ₁: <input type="range" id="theta1" min="-0.95" max="0.95" step="0.05" value="0.5"></label>
+      <button onclick="generateACF()">Generate</button>
+    </div>
+    <canvas id="canvasACF" width="900" height="560"></canvas>
+    <p class="info-text">Dashed lines show the 95% significance band at ±1.96/√n. Bars outside this band indicate significant autocorrelation at that lag.</p>
+  </div>
+</section>
+
+<!-- ═══ 8 ═══ -->
+<section id="ar-models">
+  <h2>8. Autoregressive (AR) Models</h2>
+  <p>An AR(p) model predicts the current value as a linear combination of the past p values:</p>
+  <div class="formula">Y(t) = c + φ₁Y(t−1) + φ₂Y(t−2) + … + φₚY(t−p) + ε(t)</div>
+  <p>The series is stationary when all roots of the characteristic polynomial lie outside the unit circle (equivalently |φ₁| &lt; 1 for AR(1)).</p>
+  <h3>Intuition</h3>
+  <p>Think of AR as a system with <em>memory</em>. An AR(1) with φ = 0.9 "remembers" heavily — shocks decay slowly. With φ = 0.2, memory is short and the series looks nearly random.</p>
+</section>
+
+<!-- ═══ 9 ═══ -->
+<section id="ma-models">
+  <h2>9. Moving Average (MA) Models</h2>
+  <p>An MA(q) model expresses the current value as a linear combination of past <em>error terms</em>:</p>
+  <div class="formula">Y(t) = μ + ε(t) + θ₁ε(t−1) + θ₂ε(t−2) + … + θ_qε(t−q)</div>
+  <p>MA models are always stationary (since they're finite sums of white noise). The ACF cuts off after lag q — this is the key diagnostic signature.</p>
+</section>
+
+<!-- ═══ 10 ═══ -->
+<section id="arima">
+  <h2>10. ARIMA — Putting It Together</h2>
+  <p><strong>ARIMA(p, d, q)</strong> combines autoregression, differencing, and moving average:</p>
+  <ul>
+    <li><strong>p</strong> — order of the AR part (use PACF to choose)</li>
+    <li><strong>d</strong> — number of differences needed for stationarity</li>
+    <li><strong>q</strong> — order of the MA part (use ACF to choose)</li>
+  </ul>
+  <div class="formula">ARIMA(p,d,q):  (1 − Σφᵢ Bⁱ)(1 − B)ᵈ Y(t) = c + (1 + Σθⱼ Bʲ) ε(t)
+where B is the backshift operator: B Y(t) = Y(t−1)</div>
+  <h3>Seasonal ARIMA — SARIMA</h3>
+  <p>SARIMA(p,d,q)(P,D,Q)ₘ adds seasonal AR, differencing, and MA at seasonal lag m:</p>
+  <div class="formula">SARIMA:  (1−ΣΦᵢBᵐⁱ)(1−Σφⱼ Bʲ)(1−Bᵐ)ᴰ(1−B)ᵈ Y(t) = (1+ΣΘᵢBᵐⁱ)(1+Σθⱼ Bʲ) ε(t)</div>
+</section>
+
+<!-- ═══ 11 ═══ -->
+<section id="model-selection">
+  <h2>11. Model Selection — AIC, BIC & Cross-Validation</h2>
+  <p>Choosing the right (p, d, q) is critical. Common criteria:</p>
+  <table>
+    <tr><th>Criterion</th><th>Formula</th><th>Trade-off</th></tr>
+    <tr><td>AIC</td><td>−2 ln(L) + 2k</td><td>Balances fit vs complexity; can overfit slightly</td></tr>
+    <tr><td>BIC</td><td>−2 ln(L) + k ln(n)</td><td>Penalises complexity more; favours simpler models</td></tr>
+    <tr><td>AICc</td><td>AIC + 2k(k+1)/(n−k−1)</td><td>Corrected AIC for small samples</td></tr>
+  </table>
+  <p>Lower is better for all three. In practice, try a grid of (p,d,q) values and pick the model with the lowest AIC/BIC.</p>
+  <h3>Time-Series Cross-Validation</h3>
+  <p>Standard k-fold CV shuffles data — bad for time series! Instead, use <strong>expanding window</strong> (train on 1…t, test on t+1) or <strong>sliding window</strong> (train on t−w…t, test on t+1).</p>
+</section>
+
+<!-- ═══ 12 — DEMO 3 ═══ -->
+<section id="demo-forecast">
+  <h2>12. Interactive Demo — Build & Forecast</h2>
+  <div class="demo-container">
+    <h3>🔮 ARIMA Forecaster</h3>
+    <p>Generate a synthetic ARIMA series and see a simple forecast with confidence intervals.</p>
+    <div class="controls">
+      <label>AR coeff (φ): <input type="range" id="forecastPhi" min="-0.95" max="0.95" step="0.05" value="0.6"></label>
+      <label>MA coeff (θ): <input type="range" id="forecastTheta" min="-0.95" max="0.95" step="0.05" value="0.3"></label>
+      <label>Differencing d:
+        <select id="forecastD">
+          <option value="0">0</option>
+          <option value="1" selected>1</option>
+        </select>
+      </label>
+      <label>Noise σ: <input type="range" id="forecastSigma" min="0.2" max="3" step="0.1" value="1"></label>
+      <button onclick="generateForecast()">Generate & Forecast</button>
+    </div>
+    <canvas id="canvasForecast" width="900" height="400"></canvas>
+    <p class="info-text">Blue = observed series, purple dashed = forecast, shaded band = 95% prediction interval. The forecast is generated from the underlying ARIMA parameters.</p>
+  </div>
+</section>
+
+<!-- ═══ 13 ═══ -->
+<section id="beyond-arima">
+  <h2>13. Beyond ARIMA</h2>
+  <div class="card">
+    <h3>Exponential Smoothing (ETS)</h3>
+    <p>Assigns exponentially decreasing weights to past observations. Variants: Simple (SES), Holt's linear trend, Holt-Winters (trend + seasonality).</p>
+  </div>
+  <div class="card">
+    <h3>Prophet</h3>
+    <p>Facebook's additive regression model: y(t) = g(t) + s(t) + h(t) + ε(t), where g is trend (linear or logistic growth), s is Fourier-based seasonality, and h captures holidays/events.</p>
+  </div>
+  <div class="card">
+    <h3>LSTM & Deep Learning</h3>
+    <p>Recurrent neural networks — especially LSTMs and GRUs — can capture complex nonlinear temporal dependencies. Transformer-based models (Temporal Fusion Transformer, PatchTST) are the current frontier.</p>
+  </div>
+  <div class="card">
+    <h3>VAR — Vector Autoregression</h3>
+    <p>Extends AR to multivariate time series — each variable is modelled as a linear function of its own lags and the lags of all other variables.</p>
+  </div>
+</section>
+
+<!-- ═══ 14 ═══ -->
+<section id="summary">
+  <h2>14. Quick Reference & Summary</h2>
+  <table>
+    <tr><th>Concept</th><th>Key Idea</th></tr>
+    <tr><td>Stationarity</td><td>Mean & variance don't change over time; required by most models</td></tr>
+    <tr><td>Differencing</td><td>Subtract lagged values to remove trends</td></tr>
+    <tr><td>ACF / PACF</td><td>Diagnose AR(p) and MA(q) orders from correlation patterns</td></tr>
+    <tr><td>ARIMA(p,d,q)</td><td>Combines AR, differencing, and MA in one model</td></tr>
+    <tr><td>SARIMA</td><td>Adds seasonal components at period m</td></tr>
+    <tr><td>AIC / BIC</td><td>Model selection balancing fit and complexity</td></tr>
+    <tr><td>ETS / Prophet / LSTM</td><td>Alternatives beyond classical ARIMA</td></tr>
+  </table>
+  <p style="margin-top:1.5rem;color:var(--text-muted);font-size:.85rem;text-align:center;">Time Series Analysis — Workspace Playbook</p>
+</section>
+
+</div><!-- /container -->
+
+<script>
+/* ═══════════════════════════════════════════════
+   DEMO 1 — TIME SERIES DECOMPOSITION
+   ═══════════════════════════════════════════════ */
+function generateDecomposition(){
+  const slope=parseFloat(document.getElementById('trendSlope').value);
+  const amp=parseFloat(document.getElementById('seasonAmp').value);
+  const period=parseInt(document.getElementById('seasonPeriod').value);
+  const noise=parseFloat(document.getElementById('noiseLevel').value);
+  const n=120;
+  const trend=[],seasonal=[],residual=[],observed=[];
+  for(let i=0;i<n;i++){
+    const t=slope*i*0.1;
+    const s=amp*Math.sin(2*Math.PI*i/period);
+    const e=(Math.random()*2-1)*noise;
+    trend.push(t);seasonal.push(s);residual.push(e);observed.push(t+s+e);
+  }
+  // Moving-average extracted trend
+  const w=Math.max(3,period);
+  const extractedTrend=[];
+  for(let i=0;i<n;i++){
+    let sum=0,cnt=0;
+    for(let j=Math.max(0,i-Math.floor(w/2));j<=Math.min(n-1,i+Math.floor(w/2));j++){sum+=observed[j];cnt++;}
+    extractedTrend.push(sum/cnt);
+  }
+  const detrended=observed.map((v,i)=>v-extractedTrend[i]);
+  // Average seasonal pattern
+  const seasonAvg=new Array(period).fill(0);
+  const seasonCnt=new Array(period).fill(0);
+  for(let i=0;i<n;i++){seasonAvg[i%period]+=detrended[i];seasonCnt[i%period]++;}
+  for(let i=0;i<period;i++) seasonAvg[i]/=seasonCnt[i];
+  const extractedSeason=[];for(let i=0;i<n;i++) extractedSeason.push(seasonAvg[i%period]);
+  const extractedResid=observed.map((v,i)=>v-extractedTrend[i]-extractedSeason[i]);
+
+  // Draw
+  const c=document.getElementById('canvasDecomp');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+  const panels=[{label:'Observed',data:observed,color:'#a78bfa'},{label:'Trend',data:extractedTrend,color:'#5eead4'},{label:'Seasonal',data:extractedSeason,color:'#f472b6'},{label:'Residual',data:extractedResid,color:'#fbbf24'}];
+  const ph=H/4;
+  panels.forEach((p,pi)=>{
+    const y0=pi*ph,y1=(pi+1)*ph;
+    ctx.save();ctx.beginPath();ctx.rect(0,y0,W,ph);ctx.clip();
+    // label
+    ctx.fillStyle='#64748b';ctx.font='12px sans-serif';ctx.fillText(p.label,8,y0+16);
+    // axis
+    ctx.strokeStyle='#262840';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(50,y0+ph/2);ctx.lineTo(W-10,y0+ph/2);ctx.stroke();
+    // data
+    const min=Math.min(...p.data),max=Math.max(...p.data);
+    const range=max-min||1;
+    const pad=ph*0.12;
+    ctx.strokeStyle=p.color;ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=0;i<n;i++){
+      const x=50+i*(W-60)/n;
+      const y=y0+pad+(1-(p.data[i]-min)/range)*(ph-2*pad);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();ctx.restore();
+    // divider
+    if(pi<3){ctx.strokeStyle='#262840';ctx.beginPath();ctx.moveTo(0,y1);ctx.lineTo(W,y1);ctx.stroke();}
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   DEMO 2 — ACF / PACF EXPLORER
+   ═══════════════════════════════════════════════ */
+function generateACF(){
+  const type=document.getElementById('processType').value;
+  const phi1=parseFloat(document.getElementById('phi1').value);
+  const theta1=parseFloat(document.getElementById('theta1').value);
+  const n=300,maxLag=25;
+  // Generate series
+  const y=[],eps=[];
+  for(let i=0;i<n;i++) eps.push(randn());
+  for(let i=0;i<n;i++){
+    let val=eps[i];
+    if(type==='ar1') val=(i>0?phi1*y[i-1]:0)+eps[i];
+    else if(type==='ar2') val=(i>0?phi1*y[i-1]:0)+(i>1?0.3*y[i-2]:0)+eps[i];
+    else if(type==='ma1') val=eps[i]+(i>0?theta1*eps[i-1]:0);
+    else if(type==='ma2') val=eps[i]+(i>0?theta1*eps[i-1]:0)+(i>1?0.3*eps[i-2]:0);
+    else if(type==='arma') val=(i>0?phi1*y[i-1]:0)+eps[i]+(i>0?theta1*eps[i-1]:0);
+    else if(type==='rw') val=(i>0?y[i-1]:0)+eps[i];
+    y.push(val);
+  }
+  // Compute ACF
+  const mean=y.reduce((a,b)=>a+b,0)/n;
+  const c0=y.reduce((a,v)=>a+(v-mean)**2,0)/n;
+  const acf=[1];
+  for(let k=1;k<=maxLag;k++){
+    let s=0;for(let t=k;t<n;t++) s+=(y[t]-mean)*(y[t-k]-mean);
+    acf.push(s/(n*c0));
+  }
+  // Compute PACF via Durbin-Levinson
+  const pacf=[1];
+  let prev=[];
+  for(let k=1;k<=maxLag;k++){
+    if(k===1){pacf.push(acf[1]);prev=[0,acf[1]];continue;}
+    let num=acf[k];
+    for(let j=1;j<k;j++) num-=prev[j]*acf[k-j];
+    let den=1;
+    for(let j=1;j<k;j++) den-=prev[j]*acf[j];
+    const phikk=den!==0?num/den:0;
+    const curr=[0];
+    for(let j=1;j<k;j++) curr.push(prev[j]-phikk*prev[k-j]);
+    curr.push(phikk);
+    pacf.push(phikk);
+    prev=curr;
+  }
+
+  // Draw
+  const c=document.getElementById('canvasACF');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+  const seriesH=180,barH=170;
+  // Series plot
+  ctx.fillStyle='#64748b';ctx.font='12px sans-serif';ctx.fillText('Time Series',8,16);
+  const ymin=Math.min(...y),ymax=Math.max(...y),yr=ymax-ymin||1;
+  ctx.strokeStyle='#a78bfa';ctx.lineWidth=1;ctx.beginPath();
+  for(let i=0;i<n;i++){const x=50+i*(W-60)/n;const yy=20+(1-(y[i]-ymin)/yr)*(seriesH-30);i===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy);}
+  ctx.stroke();
+  // Divider
+  ctx.strokeStyle='#262840';ctx.beginPath();ctx.moveTo(0,seriesH+10);ctx.lineTo(W,seriesH+10);ctx.stroke();
+
+  // ACF and PACF side by side
+  const plots=[{label:'ACF',data:acf},{label:'PACF',data:pacf}];
+  const pw=(W-20)/2;
+  plots.forEach((pl,pi)=>{
+    const ox=10+pi*(pw+10);const oy=seriesH+20;
+    ctx.fillStyle='#64748b';ctx.font='12px sans-serif';ctx.fillText(pl.label,ox+4,oy+12);
+    const band=1.96/Math.sqrt(n);
+    // Zero line
+    const midY=oy+barH/2+15;
+    ctx.strokeStyle='#262840';ctx.beginPath();ctx.moveTo(ox+30,midY);ctx.lineTo(ox+pw-5,midY);ctx.stroke();
+    // Confidence band
+    const scale=(barH/2-15);
+    ctx.strokeStyle='#fbbf2466';ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(ox+30,midY-band*scale);ctx.lineTo(ox+pw-5,midY-band*scale);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(ox+30,midY+band*scale);ctx.lineTo(ox+pw-5,midY+band*scale);ctx.stroke();
+    ctx.setLineDash([]);
+    // Bars
+    const bw=(pw-40)/(maxLag+1);
+    for(let k=0;k<=maxLag;k++){
+      const x=ox+35+k*bw;
+      const h=pl.data[k]*scale;
+      ctx.fillStyle=Math.abs(pl.data[k])>band?'#a78bfa':'#64748b';
+      ctx.fillRect(x,midY,bw*0.7,-h);
+    }
+    // Lag labels
+    ctx.fillStyle='#64748b';ctx.font='9px sans-serif';
+    for(let k=0;k<=maxLag;k+=5){
+      ctx.fillText(k,ox+35+k*bw,midY+scale+14);
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   DEMO 3 — ARIMA FORECASTER
+   ═══════════════════════════════════════════════ */
+function generateForecast(){
+  const phi=parseFloat(document.getElementById('forecastPhi').value);
+  const theta=parseFloat(document.getElementById('forecastTheta').value);
+  const d=parseInt(document.getElementById('forecastD').value);
+  const sigma=parseFloat(document.getElementById('forecastSigma').value);
+  const n=100,h=20;
+  // Generate ARMA(1,1) on stationary series
+  const eps=[];for(let i=0;i<n;i++) eps.push(randn()*sigma);
+  const z=[0];
+  for(let i=1;i<n;i++) z.push(phi*z[i-1]+eps[i]+theta*(i>0?eps[i-1]:0));
+  // Integrate d times
+  let y=[...z];
+  for(let dd=0;dd<d;dd++){const tmp=[10];for(let i=0;i<y.length;i++) tmp.push(tmp[tmp.length-1]+y[i]);y=tmp;}
+  // Forecast: simple approach
+  const forecast=[];const upper=[];const lower=[];
+  let lastY=y[y.length-1];let lastZ=z[z.length-1];let lastE=eps[eps.length-1];
+  for(let i=1;i<=h;i++){
+    const zf=phi*lastZ+theta*lastE;
+    lastZ=zf;lastE=0;
+    if(d===0){forecast.push(zf);}
+    else{lastY=lastY+zf;forecast.push(lastY);}
+    const se=sigma*Math.sqrt(i);
+    upper.push(forecast[forecast.length-1]+1.96*se);
+    lower.push(forecast[forecast.length-1]-1.96*se);
+  }
+
+  // Draw
+  const c=document.getElementById('canvasForecast');const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+  const all=[...y,...forecast,...upper,...lower];
+  const ymin=Math.min(...all),ymax=Math.max(...all),yr=ymax-ymin||1;
+  const total=y.length+h;
+  const px=i=>(50+i*(W-60)/total);
+  const py=v=>(30+(1-(v-ymin)/yr)*(H-60));
+
+  // Confidence band
+  ctx.fillStyle='rgba(167,139,250,0.15)';
+  ctx.beginPath();
+  for(let i=0;i<h;i++) ctx.lineTo(px(n+i),py(upper[i]));
+  for(let i=h-1;i>=0;i--) ctx.lineTo(px(n+i),py(lower[i]));
+  ctx.closePath();ctx.fill();
+
+  // Observed
+  ctx.strokeStyle='#5eead4';ctx.lineWidth=1.5;ctx.beginPath();
+  for(let i=0;i<n;i++){const x=px(i);const yy=py(y[i]);i===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy);}
+  ctx.stroke();
+
+  // Forecast line
+  ctx.strokeStyle='#a78bfa';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.beginPath();
+  ctx.moveTo(px(n-1),py(y[n-1]));
+  for(let i=0;i<h;i++) ctx.lineTo(px(n+i),py(forecast[i]));
+  ctx.stroke();ctx.setLineDash([]);
+
+  // Divider line at forecast start
+  ctx.strokeStyle='#f472b666';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(px(n-1),30);ctx.lineTo(px(n-1),H-20);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle='#5eead4';ctx.font='12px sans-serif';ctx.fillText('Observed',60,22);
+  ctx.fillStyle='#a78bfa';ctx.fillText('Forecast',150,22);
+  ctx.fillStyle='#f472b6';ctx.fillText('95% CI',240,22);
+}
+
+/* ── Utility ── */
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+// Init on load
+window.addEventListener('DOMContentLoaded',()=>{generateDecomposition();generateACF();generateForecast();});
+</script>
+</body>
+</html>

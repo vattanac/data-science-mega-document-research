@@ -1130,6 +1130,29 @@
         "category": "Swarm Drone Research"
       },
       {
+        "name": "time-series-analysis",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "time-series-analysis",
+            "type": "file",
+            "ext": "html",
+            "size": 27980,
+            "path": "time-series-analysis/index.html"
+          },
+          {
+            "name": "time_series_analysis_guide.docx",
+            "displayName": "time_series_analysis_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14831,
+            "path": "time-series-analysis/time_series_analysis_guide.docx"
+          }
+        ],
+        "category": "Statistics & Probability"
+      },
+      {
         "name": "variance-and-standard-deviation",
         "type": "folder",
         "children": [
