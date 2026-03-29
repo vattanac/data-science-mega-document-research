@@ -60,6 +60,29 @@
         "category": "Statistics & Probability"
       },
       {
+        "name": "bayesian-inference",
+        "type": "folder",
+        "children": [
+          {
+            "name": "bayesian_inference_guide.docx",
+            "displayName": "bayesian_inference_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14475,
+            "path": "bayesian-inference/bayesian_inference_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "bayesian-inference",
+            "type": "file",
+            "ext": "html",
+            "size": 30930,
+            "path": "bayesian-inference/index.html"
+          }
+        ],
+        "category": "Statistics & Probability"
+      },
+      {
         "name": "bias-variance-tradeoff",
         "type": "folder",
         "children": [

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bayesian Inference — Interactive Guide</title>
+<style>
+:root{--bg-primary:#0a0b14;--bg-secondary:#12131e;--bg-card:#191a2e;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--accent-primary:#a78bfa;--accent-secondary:#5eead4;--accent-warning:#fbbf24;--accent-pink:#f472b6;--border-color:#2a2b4a;--formula-bg:#1e1f3a;--shadow:0 4px 24px rgba(0,0,0,0.4)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.7;overflow-x:hidden}
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.subtitle{color:var(--text-secondary);font-size:1.1rem;margin-bottom:2.5rem}
+h2{color:var(--accent-primary);font-size:1.6rem;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--border-color)}
+h3{color:var(--accent-secondary);font-size:1.2rem;margin:1.5rem 0 .8rem}
+p{color:var(--text-secondary);margin-bottom:1rem}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0;box-shadow:var(--shadow)}
+.formula-box{background:var(--formula-bg);border-left:4px solid var(--accent-primary);padding:1rem 1.5rem;margin:1rem 0;border-radius:0 8px 8px 0;font-family:'Courier New',monospace;font-size:1.05rem;color:var(--accent-primary);overflow-x:auto}
+.analogy-box{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(94,234,212,.08));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:1.2rem 1.5rem;margin:1.2rem 0}
+.analogy-box::before{content:'💡 ';font-size:1.2rem}
+.key-insight{background:linear-gradient(135deg,rgba(94,234,212,.1),rgba(167,139,250,.05));border:1px solid rgba(94,234,212,.3);border-radius:12px;padding:1.2rem 1.5rem;margin:1.2rem 0}
+.key-insight::before{content:'🔑 ';font-size:1.1rem}
+ul,ol{color:var(--text-secondary);margin:.8rem 0 1rem 1.5rem}
+li{margin:.4rem 0}
+strong{color:var(--text-primary)}
+code{background:var(--formula-bg);color:var(--accent-secondary);padding:.15rem .4rem;border-radius:4px;font-size:.9rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th{background:var(--formula-bg);color:var(--accent-primary);padding:.7rem;text-align:left;border:1px solid var(--border-color)}
+td{padding:.7rem;border:1px solid var(--border-color);color:var(--text-secondary)}
+tr:hover{background:rgba(167,139,250,.05)}
+.demo-section{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:2rem 0}
+.demo-section h3{margin-top:0}
+canvas{border:1px solid var(--border-color);border-radius:8px;display:block;margin:.8rem auto;background:#0d0e1a}
+.controls{display:flex;flex-wrap:wrap;gap:.8rem;margin:.8rem 0;align-items:center}
+.controls label{color:var(--text-secondary);font-size:.9rem}
+.controls select,.controls input[type=range]{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:6px;padding:.4rem .6rem;font-size:.85rem}
+.controls input[type=range]{width:120px}
+button{background:linear-gradient(135deg,var(--accent-primary),#8b5cf6);color:#fff;border:none;padding:.5rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:opacity .2s}
+button:hover{opacity:.85}
+button.secondary{background:var(--bg-secondary);border:1px solid var(--border-color)}
+.info-text{font-size:.85rem;color:var(--text-secondary);text-align:center;margin:.5rem 0}
+.toc{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.toc h3{color:var(--accent-primary);margin-top:0}
+.toc ol{list-style:decimal;margin-left:1.5rem}
+.toc a{color:var(--accent-secondary);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Bayesian Inference</h1>
+<p class="subtitle">Priors, posteriors, conjugates & MCMC — probabilistic reasoning that quantifies uncertainty</p>
+
+<div class="toc">
+<h3>Table of Contents</h3>
+<ol>
+<li><a href="#s1">Bayesian vs Frequentist Thinking</a></li>
+<li><a href="#s2">Bayes' Theorem</a></li>
+<li><a href="#s3">Prior, Likelihood & Posterior</a></li>
+<li><a href="#s4">Conjugate Priors</a></li>
+<li><a href="#s5">Beta-Binomial Model</a></li>
+<li><a href="#s6">Normal-Normal Model</a></li>
+<li><a href="#s7">MAP vs Full Bayesian</a></li>
+<li><a href="#s8">MCMC Sampling</a></li>
+<li><a href="#s9">Bayesian Model Comparison</a></li>
+<li><a href="#s10">Applications in Data Science</a></li>
+<li><a href="#s11">Interactive: Coin Bias Estimator</a></li>
+<li><a href="#s12">Interactive: Prior Sensitivity Explorer</a></li>
+<li><a href="#s13">Interactive: MCMC Random Walk Visualizer</a></li>
+<li><a href="#s14">Summary & Key Takeaways</a></li>
+</ol>
+</div>
+
+<!-- Section 1 -->
+<h2 id="s1">1. Bayesian vs Frequentist Thinking</h2>
+<p>The two major schools of statistical inference differ fundamentally in how they interpret probability:</p>
+<table>
+<tr><th></th><th>Frequentist</th><th>Bayesian</th></tr>
+<tr><td><strong>Probability means</strong></td><td>Long-run frequency of events</td><td>Degree of belief / uncertainty</td></tr>
+<tr><td><strong>Parameters are</strong></td><td>Fixed but unknown constants</td><td>Random variables with distributions</td></tr>
+<tr><td><strong>Prior knowledge</strong></td><td>Not formally incorporated</td><td>Encoded in prior distribution</td></tr>
+<tr><td><strong>Result</strong></td><td>Point estimate + confidence interval</td><td>Full posterior distribution</td></tr>
+<tr><td><strong>Small samples</strong></td><td>Unreliable (relies on asymptotics)</td><td>Works well (prior helps regularize)</td></tr>
+</table>
+<div class="analogy-box">
+Frequentist: "If I repeated this experiment infinitely, the parameter would be in this interval 95% of the time." Bayesian: "Given what I've seen, there's a 95% probability the parameter is in this interval." The Bayesian interpretation is what most people actually want.
+</div>
+
+<!-- Section 2 -->
+<h2 id="s2">2. Bayes' Theorem</h2>
+<p>The foundation of all Bayesian inference — a simple rule for updating beliefs with evidence:</p>
+<div class="formula-box">P(θ | data) = P(data | θ) · P(θ) / P(data)</div>
+<div class="card">
+<h3>The Four Components</h3>
+<ul>
+<li><strong>P(θ | data) — Posterior:</strong> what we believe about θ <em>after</em> seeing the data. This is what we want.</li>
+<li><strong>P(data | θ) — Likelihood:</strong> how probable the observed data is under parameter θ. From our statistical model.</li>
+<li><strong>P(θ) — Prior:</strong> what we believed about θ <em>before</em> seeing data. Encodes domain knowledge.</li>
+<li><strong>P(data) — Evidence (marginal likelihood):</strong> normalizing constant. Often ignored (just ensures posterior sums to 1).</li>
+</ul>
+</div>
+<div class="formula-box">Posterior ∝ Likelihood × Prior</div>
+<p>This is the key formula. The posterior is proportional to the likelihood times the prior. More data → likelihood dominates → prior matters less.</p>
+
+<!-- Section 3 -->
+<h2 id="s3">3. Prior, Likelihood & Posterior</h2>
+<h3>Choosing a Prior</h3>
+<ul>
+<li><strong>Informative prior:</strong> encodes specific domain knowledge. e.g., "I know this coin is roughly fair: Beta(50,50)."</li>
+<li><strong>Weakly informative:</strong> gentle regularization. e.g., "The parameter is probably between 0 and 1: Beta(2,2)."</li>
+<li><strong>Non-informative (flat):</strong> "I have no idea": Beta(1,1) = Uniform(0,1). Lets data speak entirely.</li>
+<li><strong>Jeffreys prior:</strong> invariant to reparameterization. For Bernoulli: Beta(0.5, 0.5).</li>
+</ul>
+<h3>How the Posterior Evolves</h3>
+<p>With little data, the posterior looks like the prior. With lots of data, the posterior concentrates around the MLE (maximum likelihood estimate). The prior acts as <strong>regularization</strong> — preventing overfitting to small samples.</p>
+<div class="key-insight">
+As n → ∞, the Bayesian posterior converges to the frequentist MLE regardless of the prior (as long as the prior puts non-zero density on the true value). The prior only matters for small samples.
+</div>
+
+<!-- Section 4 -->
+<h2 id="s4">4. Conjugate Priors</h2>
+<p>A prior is <strong>conjugate</strong> to a likelihood if the posterior has the same distributional family as the prior. This gives closed-form posterior updates — no numerical integration needed.</p>
+<table>
+<tr><th>Likelihood</th><th>Conjugate Prior</th><th>Posterior</th><th>Use Case</th></tr>
+<tr><td>Bernoulli / Binomial</td><td>Beta(α, β)</td><td>Beta(α+k, β+n−k)</td><td>Coin flips, click rates</td></tr>
+<tr><td>Poisson</td><td>Gamma(α, β)</td><td>Gamma(α+Σx, β+n)</td><td>Count data, events/time</td></tr>
+<tr><td>Normal (known σ²)</td><td>Normal(μ₀, σ₀²)</td><td>Normal(μ_n, σ_n²)</td><td>Measurement, estimation</td></tr>
+<tr><td>Normal (known μ)</td><td>Inv-Gamma(α, β)</td><td>Inv-Gamma(α', β')</td><td>Variance estimation</td></tr>
+<tr><td>Multinomial</td><td>Dirichlet(α₁,...,αₖ)</td><td>Dirichlet(α+counts)</td><td>Category proportions</td></tr>
+</table>
+
+<!-- Section 5 -->
+<h2 id="s5">5. Beta-Binomial Model</h2>
+<p>The most intuitive Bayesian model. You observe k successes in n trials and want to estimate the success probability θ.</p>
+<div class="formula-box">Prior: θ ~ Beta(α, β)    Likelihood: k ~ Binomial(n, θ)</div>
+<div class="formula-box">Posterior: θ | data ~ Beta(α + k, β + n − k)</div>
+<p>The posterior is simply: add successes to α, add failures to β. The prior acts like "pseudo-observations."</p>
+<ul>
+<li><strong>Prior mean:</strong> α / (α + β)</li>
+<li><strong>Posterior mean:</strong> (α + k) / (α + β + n) — a weighted average of prior mean and sample proportion k/n</li>
+<li><strong>Posterior mode (MAP):</strong> (α + k − 1) / (α + β + n − 2)</li>
+<li><strong>Credible interval:</strong> find [a,b] such that P(a ≤ θ ≤ b | data) = 0.95</li>
+</ul>
+<div class="analogy-box">
+Think of α and β as "imaginary" previous observations. Beta(10,10) means "I've already seen 10 heads and 10 tails in my mind." Real data gets added on top. With enough real data, the imaginary observations become negligible.
+</div>
+
+<!-- Section 6 -->
+<h2 id="s6">6. Normal-Normal Model</h2>
+<p>Estimating a mean μ when observations are normally distributed with known variance σ²:</p>
+<div class="formula-box">Prior: μ ~ N(μ₀, σ₀²)    Likelihood: x̄ ~ N(μ, σ²/n)</div>
+<div class="formula-box">Posterior: μ | data ~ N(μ_n, σ_n²)</div>
+<div class="formula-box">μ_n = (μ₀/σ₀² + nx̄/σ²) / (1/σ₀² + n/σ²)    σ_n² = 1 / (1/σ₀² + n/σ²)</div>
+<p>The posterior mean is a <strong>precision-weighted average</strong> of prior mean and sample mean. Precision = 1/variance. More precise source gets more weight.</p>
+
+<!-- Section 7 -->
+<h2 id="s7">7. MAP vs Full Bayesian</h2>
+<ul>
+<li><strong>MAP (Maximum A Posteriori):</strong> find the single most probable parameter value — the mode of the posterior. Fast, gives a point estimate, but loses uncertainty information. MAP with Gaussian prior = L2 regularization (Ridge). MAP with Laplace prior = L1 regularization (Lasso).</li>
+<li><strong>Full Bayesian:</strong> use the entire posterior distribution. Gives predictions that account for parameter uncertainty. More principled but computationally harder.</li>
+</ul>
+<div class="key-insight">
+Regularization in machine learning (Ridge, Lasso) is secretly Bayesian! The regularization parameter corresponds to a prior, and the regularized solution is the MAP estimate.
+</div>
+
+<!-- Section 8 -->
+<h2 id="s8">8. MCMC Sampling</h2>
+<p>For complex models, the posterior can't be computed in closed form. <strong>Markov Chain Monte Carlo (MCMC)</strong> draws samples from the posterior distribution numerically.</p>
+<div class="card">
+<h3>Metropolis-Hastings Algorithm</h3>
+<ol>
+<li>Start at a random parameter value θ₀.</li>
+<li><strong>Propose:</strong> generate candidate θ* from a proposal distribution (e.g., Gaussian centered on current θ).</li>
+<li><strong>Accept/Reject:</strong> compute acceptance ratio r = P(θ*|data) / P(θ|data). If r ≥ 1, accept. If r < 1, accept with probability r.</li>
+<li>Repeat. After enough iterations (burn-in), the chain of samples approximates the posterior.</li>
+</ol>
+</div>
+<h3>Practical MCMC Tips</h3>
+<ul>
+<li><strong>Burn-in:</strong> discard the first 1000+ samples (chain hasn't converged yet).</li>
+<li><strong>Thinning:</strong> keep every k-th sample to reduce autocorrelation.</li>
+<li><strong>Multiple chains:</strong> run 3–4 chains from different starting points to check convergence.</li>
+<li><strong>Diagnostics:</strong> use R-hat (Gelman-Rubin) < 1.01 and effective sample size > 400.</li>
+<li><strong>Modern tools:</strong> Stan, PyMC, NumPyro use advanced samplers (NUTS/HMC) that are much more efficient than basic Metropolis.</li>
+</ul>
+
+<!-- Section 9 -->
+<h2 id="s9">9. Bayesian Model Comparison</h2>
+<p>Compare models using the <strong>marginal likelihood</strong> (evidence) — P(data | model).</p>
+<div class="formula-box">Bayes Factor = P(data | M₁) / P(data | M₂)</div>
+<ul>
+<li>BF > 10: strong evidence for M₁.</li>
+<li>BF 3–10: moderate evidence.</li>
+<li>BF 1–3: weak evidence.</li>
+<li>BF < 1: evidence favors M₂.</li>
+</ul>
+<p>The marginal likelihood naturally penalizes model complexity (Occam's razor) — simpler models that fit the data are preferred.</p>
+
+<!-- Section 10 -->
+<h2 id="s10">10. Applications in Data Science</h2>
+<ul>
+<li><strong>A/B Testing:</strong> compute P(variant B is better than A | data) directly. No p-value confusion.</li>
+<li><strong>Recommendation Systems:</strong> Bayesian approaches handle cold-start (new users/items with little data) gracefully via priors.</li>
+<li><strong>NLP:</strong> Naive Bayes classifier, latent Dirichlet allocation (LDA) for topic modeling.</li>
+<li><strong>Time Series:</strong> Bayesian structural time series, Kalman filters.</li>
+<li><strong>Neural Networks:</strong> Bayesian neural networks quantify prediction uncertainty.</li>
+<li><strong>Hyperparameter Tuning:</strong> Bayesian optimization (Gaussian processes) is more efficient than grid search.</li>
+</ul>
+
+<!-- Demo 1: Coin Bias Estimator -->
+<h2 id="s11">11. Interactive: Coin Bias Estimator</h2>
+<div class="demo-section">
+<h3>🪙 Bayesian Coin — Update Your Beliefs Flip by Flip</h3>
+<p>Set a prior belief about the coin's bias, then flip the coin. Watch the posterior update with each flip.</p>
+<div class="controls">
+<label>Prior α:</label>
+<input type="range" id="coinA" min="0.5" max="20" step="0.5" value="2">
+<span id="coinAVal">2</span>
+<label>Prior β:</label>
+<input type="range" id="coinB" min="0.5" max="20" step="0.5" value="2">
+<span id="coinBVal">2</span>
+<label>True bias:</label>
+<input type="range" id="coinTrue" min="0.05" max="0.95" step="0.05" value="0.7">
+<span id="coinTrueVal">0.70</span>
+</div>
+<div class="controls">
+<button id="coinFlip1">Flip 1</button>
+<button id="coinFlip10">Flip 10</button>
+<button id="coinFlip100">Flip 100</button>
+<button id="coinReset" class="secondary">Reset</button>
+</div>
+<canvas id="coinCanvas" width="700" height="350"></canvas>
+<div class="info-text" id="coinInfo">Flips: 0 | Heads: 0 | Posterior Mean: — | 95% CI: —</div>
+</div>
+
+<!-- Demo 2: Prior Sensitivity Explorer -->
+<h2 id="s12">12. Interactive: Prior Sensitivity Explorer</h2>
+<div class="demo-section">
+<h3>🔬 How Much Does the Prior Matter?</h3>
+<p>Compare three different priors given the same data. See how they converge as data increases.</p>
+<div class="controls">
+<label>Observed heads:</label>
+<input type="range" id="psHeads" min="0" max="100" value="7">
+<span id="psHeadsVal">7</span>
+<label>Total flips:</label>
+<input type="range" id="psTotal" min="1" max="100" value="10">
+<span id="psTotalVal">10</span>
+</div>
+<canvas id="psCanvas" width="700" height="350"></canvas>
+<div class="info-text">Purple = Uniform Beta(1,1) | Teal = Informative Beta(10,10) | Yellow = Strong Beta(50,50)</div>
+</div>
+
+<!-- Demo 3: MCMC Random Walk Visualizer -->
+<h2 id="s13">13. Interactive: MCMC Random Walk Visualizer</h2>
+<div class="demo-section">
+<h3>🎲 Metropolis-Hastings — Watch the Chain Explore</h3>
+<p>See how MCMC samples from a target distribution by proposing random moves and accepting/rejecting them.</p>
+<div class="controls">
+<label>Target:</label>
+<select id="mcmcTarget"><option value="normal">Normal(0.5, 0.15)</option><option value="bimodal">Bimodal</option><option value="skewed">Skewed (Beta)</option></select>
+<label>Proposal σ:</label>
+<input type="range" id="mcmcSigma" min="0.01" max="0.3" step="0.01" value="0.08">
+<span id="mcmcSigmaVal">0.08</span>
+<button id="mcmcStep10">+10 Steps</button>
+<button id="mcmcStep100">+100 Steps</button>
+<button id="mcmcStep1000">+1000 Steps</button>
+<button id="mcmcReset" class="secondary">Reset</button>
+</div>
+<canvas id="mcmcCanvas" width="700" height="400"></canvas>
+<div class="info-text" id="mcmcInfo">Samples: 0 | Accept Rate: — | Chain Mean: —</div>
+</div>
+
+<!-- Section 14: Summary -->
+<h2 id="s14">14. Summary & Key Takeaways</h2>
+<div class="card">
+<ol>
+<li><strong>Bayes' theorem</strong>: Posterior ∝ Likelihood × Prior. Update beliefs with evidence.</li>
+<li>The <strong>prior</strong> encodes domain knowledge and regularizes small-sample estimates.</li>
+<li><strong>Conjugate priors</strong> (Beta-Binomial, Normal-Normal) give closed-form posteriors.</li>
+<li>With enough data, the posterior converges to the MLE — the prior washes out.</li>
+<li><strong>MAP estimation</strong> is equivalent to regularized ML (Ridge = Gaussian prior, Lasso = Laplace prior).</li>
+<li><strong>MCMC</strong> (Metropolis-Hastings, HMC/NUTS) samples from complex posteriors numerically.</li>
+<li>Bayesian inference gives you <strong>uncertainty quantification</strong> for free — credible intervals, prediction distributions.</li>
+<li>Use tools like <strong>Stan, PyMC, NumPyro</strong> for practical Bayesian modeling.</li>
+</ol>
+</div>
+
+</div><!-- end container -->
+
+<script>
+// ============================================================
+// MATH HELPERS
+// ============================================================
+function lnGamma(z){
+  if(z<0.5)return Math.log(Math.PI/Math.sin(Math.PI*z))-lnGamma(1-z);
+  z-=1;const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  let x=0.99999999999980993;for(let i=0;i<6;i++)x+=c[i]/(z+i+1);
+  return Math.log(2.5066282746310005*x/(z+1))+(z+0.5)*Math.log(z+1+5.5)-(z+1+5.5);
+}
+function betaFn(a,b){return Math.exp(lnGamma(a)+lnGamma(b)-lnGamma(a+b));}
+function betaPDF(x,a,b){if(x<=0||x>=1)return 0;return Math.pow(x,a-1)*Math.pow(1-x,b-1)/betaFn(a,b);}
+function normalPDF(x,mu,sigma){return Math.exp(-0.5*((x-mu)/sigma)**2)/(sigma*Math.sqrt(2*Math.PI));}
+
+// Beta CDF approximation via regularized incomplete beta
+function betaCDF(x,a,b){
+  if(x<=0)return 0;if(x>=1)return 1;
+  // simple numerical integration
+  const steps=200;let sum=0;const dx=x/steps;
+  for(let i=0;i<steps;i++){const xi=dx*(i+0.5);sum+=betaPDF(xi,a,b)*dx;}
+  return sum;
+}
+function betaQuantile(p,a,b){
+  let lo=0,hi=1;
+  for(let i=0;i<50;i++){const mid=(lo+hi)/2;betaCDF(mid,a,b)<p?lo=mid:hi=mid;}
+  return(lo+hi)/2;
+}
+
+// ============================================================
+// DEMO 1: COIN BIAS ESTIMATOR
+// ============================================================
+(function(){
+const cv=document.getElementById('coinCanvas'),ctx=cv.getContext('2d');
+const aSlider=document.getElementById('coinA'),aVal=document.getElementById('coinAVal');
+const bSlider=document.getElementById('coinB'),bVal=document.getElementById('coinBVal');
+const trueSlider=document.getElementById('coinTrue'),trueVal=document.getElementById('coinTrueVal');
+const info=document.getElementById('coinInfo');
+let priorA=2,priorB=2,heads=0,tails=0;
+
+aSlider.oninput=()=>{aVal.textContent=aSlider.value;priorA=parseFloat(aSlider.value);heads=tails=0;draw();};
+bSlider.oninput=()=>{bVal.textContent=bSlider.value;priorB=parseFloat(bSlider.value);heads=tails=0;draw();};
+trueSlider.oninput=()=>{trueVal.textContent=parseFloat(trueSlider.value).toFixed(2);};
+
+function flip(n){
+  const p=parseFloat(trueSlider.value);
+  for(let i=0;i<n;i++){Math.random()<p?heads++:tails++;}
+  draw();
+}
+
+document.getElementById('coinFlip1').onclick=()=>flip(1);
+document.getElementById('coinFlip10').onclick=()=>flip(10);
+document.getElementById('coinFlip100').onclick=()=>flip(100);
+document.getElementById('coinReset').onclick=()=>{heads=tails=0;draw();};
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const postA=priorA+heads, postB=priorB+tails;
+  const mx=40,my=30,w=cv.width-2*mx,h=cv.height-2*my;
+
+  // find max y for scaling
+  let maxY=0;
+  for(let px=0;px<w;px++){const x=px/w;
+    maxY=Math.max(maxY,betaPDF(x,priorA,priorB),betaPDF(x,postA,postB));
+  }
+  maxY*=1.15;
+
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
+  for(let v=0;v<=1;v+=0.2){const px=mx+v*w;ctx.beginPath();ctx.moveTo(px,my);ctx.lineTo(px,my+h);ctx.stroke();}
+
+  // axis labels
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='10px monospace';ctx.textAlign='center';
+  for(let v=0;v<=1;v+=0.1)ctx.fillText(v.toFixed(1),mx+v*w,my+h+14);
+  ctx.textAlign='right';ctx.fillText('θ',mx+w+20,my+h+14);
+
+  // true value line
+  const trueBias=parseFloat(trueSlider.value);
+  ctx.strokeStyle='rgba(251,191,36,0.4)';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);
+  const tx=mx+trueBias*w;
+  ctx.beginPath();ctx.moveTo(tx,my);ctx.lineTo(tx,my+h);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#fbbf24';ctx.font='10px sans-serif';ctx.textAlign='center';
+  ctx.fillText('true',tx,my-4);
+
+  // prior
+  ctx.beginPath();ctx.strokeStyle='rgba(167,139,250,0.5)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+  for(let px=1;px<w-1;px++){const x=px/w;const y=betaPDF(x,priorA,priorB);
+    const py=my+h-y/maxY*h;px===1?ctx.moveTo(mx+px,py):ctx.lineTo(mx+px,py);}
+  ctx.stroke();ctx.setLineDash([]);
+
+  // posterior
+  ctx.beginPath();ctx.strokeStyle='#5eead4';ctx.lineWidth=2.5;
+  for(let px=1;px<w-1;px++){const x=px/w;const y=betaPDF(x,postA,postB);
+    const py=my+h-y/maxY*h;px===1?ctx.moveTo(mx+px,py):ctx.lineTo(mx+px,py);}
+  ctx.stroke();
+
+  // fill posterior
+  ctx.beginPath();
+  ctx.moveTo(mx+1,my+h);
+  for(let px=1;px<w-1;px++){const x=px/w;const y=betaPDF(x,postA,postB);
+    ctx.lineTo(mx+px,my+h-y/maxY*h);}
+  ctx.lineTo(mx+w-1,my+h);ctx.closePath();
+  ctx.fillStyle='rgba(94,234,212,0.12)';ctx.fill();
+
+  // 95% CI
+  const lo=betaQuantile(0.025,postA,postB),hi=betaQuantile(0.975,postA,postB);
+  ctx.fillStyle='rgba(94,234,212,0.15)';
+  ctx.fillRect(mx+lo*w,my,Math.max(1,(hi-lo)*w),h);
+
+  // legend
+  ctx.font='11px sans-serif';
+  ctx.fillStyle='rgba(167,139,250,0.7)';ctx.textAlign='left';ctx.fillText(`--- Prior: Beta(${priorA},${priorB})`,mx+10,my+16);
+  ctx.fillStyle='#5eead4';ctx.fillText(`— Posterior: Beta(${postA.toFixed(1)},${postB.toFixed(1)})`,mx+10,my+32);
+
+  const postMean=postA/(postA+postB);
+  info.textContent=`Flips: ${heads+tails} | Heads: ${heads} | Posterior Mean: ${postMean.toFixed(4)} | 95% CI: [${lo.toFixed(3)}, ${hi.toFixed(3)}]`;
+}
+draw();
+})();
+
+// ============================================================
+// DEMO 2: PRIOR SENSITIVITY EXPLORER
+// ============================================================
+(function(){
+const cv=document.getElementById('psCanvas'),ctx=cv.getContext('2d');
+const hSlider=document.getElementById('psHeads'),hVal=document.getElementById('psHeadsVal');
+const tSlider=document.getElementById('psTotal'),tVal=document.getElementById('psTotalVal');
+
+hSlider.oninput=()=>{
+  if(parseInt(hSlider.value)>parseInt(tSlider.value))tSlider.value=hSlider.value;
+  hVal.textContent=hSlider.value;tVal.textContent=tSlider.value;draw();
+};
+tSlider.oninput=()=>{
+  if(parseInt(hSlider.value)>parseInt(tSlider.value))hSlider.value=tSlider.value;
+  tVal.textContent=tSlider.value;hVal.textContent=hSlider.value;draw();
+};
+
+const priors=[{a:1,b:1,color:'#a78bfa',name:'Uniform(1,1)'},{a:10,b:10,color:'#5eead4',name:'Informative(10,10)'},{a:50,b:50,color:'#fbbf24',name:'Strong(50,50)'}];
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const k=parseInt(hSlider.value),n=parseInt(tSlider.value);
+  const mx=40,my=30,w=cv.width-2*mx,h=cv.height-2*my;
+
+  let maxY=0;
+  for(const p of priors){const pa=p.a+k,pb=p.b+n-k;
+    for(let px=1;px<w;px++){maxY=Math.max(maxY,betaPDF(px/w,pa,pb));}}
+  maxY*=1.15;
+
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
+  for(let v=0;v<=1;v+=0.2){const px=mx+v*w;ctx.beginPath();ctx.moveTo(px,my);ctx.lineTo(px,my+h);ctx.stroke();}
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='10px monospace';ctx.textAlign='center';
+  for(let v=0;v<=1;v+=0.1)ctx.fillText(v.toFixed(1),mx+v*w,my+h+14);
+
+  // MLE line
+  if(n>0){
+    const mle=k/n;
+    ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(mx+mle*w,my);ctx.lineTo(mx+mle*w,my+h);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='10px sans-serif';
+    ctx.fillText(`MLE=${mle.toFixed(2)}`,mx+mle*w,my-4);
+  }
+
+  // posteriors
+  for(let pi=0;pi<priors.length;pi++){
+    const p=priors[pi];
+    const pa=p.a+k,pb=p.b+n-k;
+    ctx.beginPath();ctx.strokeStyle=p.color;ctx.lineWidth=2.5;
+    for(let px=1;px<w-1;px++){const x=px/w;const y=betaPDF(x,pa,pb);
+      const py=my+h-y/maxY*h;px===1?ctx.moveTo(mx+px,py):ctx.lineTo(mx+px,py);}
+    ctx.stroke();
+
+    // posterior mean marker
+    const mean=pa/(pa+pb);
+    const py=my+h-betaPDF(mean,pa,pb)/maxY*h;
+    ctx.beginPath();ctx.arc(mx+mean*w,py,4,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();
+
+    // legend
+    ctx.font='11px sans-serif';ctx.textAlign='left';
+    ctx.fillText(`${p.name} → mean=${mean.toFixed(3)}`,mx+10,my+16+pi*18);
+  }
+}
+draw();
+})();
+
+// ============================================================
+// DEMO 3: MCMC RANDOM WALK VISUALIZER
+// ============================================================
+(function(){
+const cv=document.getElementById('mcmcCanvas'),ctx=cv.getContext('2d');
+const sigmaSlider=document.getElementById('mcmcSigma'),sigmaVal=document.getElementById('mcmcSigmaVal');
+const info=document.getElementById('mcmcInfo');
+let chain=[0.5],accepted=0,total=0;
+
+sigmaSlider.oninput=()=>{sigmaVal.textContent=parseFloat(sigmaSlider.value).toFixed(2);};
+
+function targetPDF(x){
+  const type=document.getElementById('mcmcTarget').value;
+  if(type==='normal')return normalPDF(x,0.5,0.15);
+  if(type==='bimodal')return 0.5*normalPDF(x,0.3,0.08)+0.5*normalPDF(x,0.7,0.08);
+  return betaPDF(x,2,5); // skewed
+}
+
+function step(n){
+  const sigma=parseFloat(sigmaSlider.value);
+  let cur=chain[chain.length-1];
+  for(let i=0;i<n;i++){
+    const proposal=cur+(Math.random()-0.5)*2*sigma*2.5;
+    total++;
+    if(proposal<0||proposal>1){chain.push(cur);continue;} // reject out of bounds
+    const ratio=targetPDF(proposal)/targetPDF(cur);
+    if(Math.random()<ratio){cur=proposal;accepted++;}
+    chain.push(cur);
+  }
+  draw();
+}
+
+document.getElementById('mcmcStep10').onclick=()=>step(10);
+document.getElementById('mcmcStep100').onclick=()=>step(100);
+document.getElementById('mcmcStep1000').onclick=()=>step(1000);
+document.getElementById('mcmcReset').onclick=()=>{chain=[0.5];accepted=total=0;draw();};
+document.getElementById('mcmcTarget').onchange=()=>{chain=[0.5];accepted=total=0;draw();};
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const mx=40,w=cv.width-2*mx;
+  const traceH=180,histH=160;
+  const traceY=10,histY=traceH+40;
+
+  // --- TRACE PLOT (top) ---
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='11px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Trace Plot (chain values over time)',mx,traceY+12);
+
+  // y axis 0-1
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+  for(let v=0;v<=1;v+=0.25){
+    const py=traceY+20+(1-v)*(traceH-30);
+    ctx.beginPath();ctx.moveTo(mx,py);ctx.lineTo(mx+w,py);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='9px monospace';ctx.textAlign='right';
+    ctx.fillText(v.toFixed(1),mx-4,py+3);
+  }
+
+  // chain line
+  if(chain.length>1){
+    const step=Math.max(1,Math.floor(chain.length/w));
+    ctx.beginPath();ctx.strokeStyle='rgba(167,139,250,0.7)';ctx.lineWidth=1;
+    for(let i=0;i<Math.min(chain.length,w);i++){
+      const val=chain[Math.min(i*step,chain.length-1)];
+      const px=mx+i,py=traceY+20+(1-val)*(traceH-30);
+      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+  }
+
+  // --- HISTOGRAM (bottom) ---
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='11px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Histogram vs Target Distribution',mx,histY+12);
+
+  const bins=50;const counts=new Array(bins).fill(0);
+  const burnin=Math.min(200,Math.floor(chain.length*0.2));
+  for(let i=burnin;i<chain.length;i++){
+    const b=Math.floor(chain[i]*bins);
+    if(b>=0&&b<bins)counts[b]++;
+  }
+  const maxCount=Math.max(...counts,1);
+
+  // target PDF
+  let maxPDF=0;
+  for(let i=0;i<bins;i++)maxPDF=Math.max(maxPDF,targetPDF((i+0.5)/bins));
+
+  const barW=w/bins;
+  for(let i=0;i<bins;i++){
+    const bh=counts[i]/maxCount*(histH-30);
+    ctx.fillStyle='rgba(167,139,250,0.35)';
+    ctx.fillRect(mx+i*barW,histY+histH-bh,barW-1,bh);
+  }
+
+  // target overlay
+  ctx.beginPath();ctx.strokeStyle='#5eead4';ctx.lineWidth=2;
+  for(let px=0;px<w;px++){
+    const x=px/w;
+    const y=targetPDF(x)/maxPDF*(histH-30);
+    const py=histY+histH-y;
+    px===0?ctx.moveTo(mx+px,py):ctx.lineTo(mx+px,py);
+  }
+  ctx.stroke();
+
+  // legend
+  ctx.fillStyle='rgba(167,139,250,0.6)';ctx.fillRect(mx+w-150,histY+18,12,12);
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='10px sans-serif';ctx.textAlign='left';
+  ctx.fillText('MCMC samples',mx+w-134,histY+28);
+  ctx.fillStyle='#5eead4';ctx.fillRect(mx+w-150,histY+34,12,3);
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.fillText('Target density',mx+w-134,histY+42);
+
+  // x axis labels
+  ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='9px monospace';ctx.textAlign='center';
+  for(let v=0;v<=1;v+=0.2)ctx.fillText(v.toFixed(1),mx+v*w,histY+histH+12);
+
+  const chainMean=chain.slice(burnin).reduce((a,b)=>a+b,0)/(chain.length-burnin||1);
+  info.textContent=`Samples: ${chain.length} (burn-in: ${burnin}) | Accept Rate: ${total>0?(accepted/total*100).toFixed(1)+'%':'—'} | Chain Mean: ${chainMean.toFixed(4)}`;
+}
+draw();
+})();
+
+document.addEventListener('visibilitychange',()=>{});
+</script>
+</body>
+</html>

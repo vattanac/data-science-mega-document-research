@@ -66,6 +66,7 @@ FOLDER_CATEGORIES = {
     "why_start_with_iris":              "Statistics & Probability",
     "kdd_process":                      "Statistics & Probability",
     "probability-distributions":         "Statistics & Probability",
+    "bayesian-inference":                "Statistics & Probability",
     # Linear Algebra
     "matrix-transformations":                       "Linear Algebra",
     "dot-product-and-cosine-similarity":            "Linear Algebra",
