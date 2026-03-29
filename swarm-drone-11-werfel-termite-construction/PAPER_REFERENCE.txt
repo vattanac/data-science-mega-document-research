@@ -1,0 +1,34 @@
+ORIGINAL RESEARCH PAPER REFERENCE
+===================================
+
+Title:   Designing Collective Behavior in a Termite-Inspired Robot Construction Team
+Authors: Justin Werfel, Kirstin Petersen, Radhika Nagpal
+Journal: Science, Vol. 343, Issue 6172, pp. 754–758
+Date:    February 14, 2014
+DOI:     10.1126/science.1245842
+PMID:    24531967
+
+Institution: Wyss Institute for Biologically Inspired Engineering &
+             School of Engineering and Applied Sciences, Harvard University
+
+WHERE TO ACCESS THE FULL PDF:
+-----------------------------
+1. Science Magazine (official):  https://www.science.org/doi/10.1126/science.1245842
+2. PubMed:                       https://pubmed.ncbi.nlm.nih.gov/24531967/
+3. Semantic Scholar:             https://www.semanticscholar.org/paper/d38c189737eae9d38c3e4631079add689c64f134
+4. ResearchGate (request):       https://www.researchgate.net/publication/260212101
+5. Academia.edu:                 https://www.academia.edu/8756246/
+6. Harvard News (summary):       https://seas.harvard.edu/news/2014/02/robotic-construction-crew-needs-no-foreman
+
+ABSTRACT (paraphrased):
+-----------------------
+The paper presents the TERMES system — a multi-agent construction system
+inspired by mound-building termites. The system automatically generates
+low-level behavioral rules for independent climbing robots that guarantee
+the production of a user-specified structure. Robots use only local sensing
+and coordinate their activity via the shared environment (stigmergy),
+requiring no direct communication between agents. The approach was
+demonstrated with three autonomous climbing robots in physical experiments.
+
+NOTE: To add the original PDF to this folder, download from one of the
+links above and save it here as "werfel_2014_termite_construction.pdf"

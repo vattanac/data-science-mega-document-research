@@ -1167,6 +1167,29 @@
         "category": "Swarm Drone Research"
       },
       {
+        "name": "swarm-drone-11-werfel-termite-construction",
+        "type": "folder",
+        "children": [
+          {
+            "name": "index.html",
+            "displayName": "swarm-drone-11-werfel-termite-construction",
+            "type": "file",
+            "ext": "html",
+            "size": 34988,
+            "path": "swarm-drone-11-werfel-termite-construction/index.html"
+          },
+          {
+            "name": "werfel_termite_construction_guide.docx",
+            "displayName": "werfel_termite_construction_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 16013,
+            "path": "swarm-drone-11-werfel-termite-construction/werfel_termite_construction_guide.docx"
+          }
+        ],
+        "category": "Swarm Drone Research"
+      },
+      {
         "name": "swarm-drone-complete-guide",
         "type": "folder",
         "children": [
