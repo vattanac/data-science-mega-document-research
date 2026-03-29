@@ -221,6 +221,29 @@
         "category": "Machine Learning"
       },
       {
+        "name": "decision-trees-and-random-forests",
+        "type": "folder",
+        "children": [
+          {
+            "name": "decision_trees_and_random_forests_guide.docx",
+            "displayName": "decision_trees_and_random_forests_guide.docx",
+            "type": "file",
+            "ext": "docx",
+            "size": 14967,
+            "path": "decision-trees-and-random-forests/decision_trees_and_random_forests_guide.docx"
+          },
+          {
+            "name": "index.html",
+            "displayName": "decision-trees-and-random-forests",
+            "type": "file",
+            "ext": "html",
+            "size": 31015,
+            "path": "decision-trees-and-random-forests/index.html"
+          }
+        ],
+        "category": "Machine Learning"
+      },
+      {
         "name": "dimensionality-reduction",
         "type": "folder",
         "children": [

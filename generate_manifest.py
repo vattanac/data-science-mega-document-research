@@ -86,6 +86,7 @@ FOLDER_CATEGORIES = {
     "dimensionality-reduction":          "Machine Learning",
     "regression-analysis":               "Machine Learning",
     "clustering-algorithms":             "Machine Learning",
+    "decision-trees-and-random-forests": "Machine Learning",
     # Deep Learning
     "neural-networks-fundamentals":      "Deep Learning",
     "convolutional-neural-networks":     "Deep Learning",
